@@ -49,6 +49,13 @@ print_libs(pkg_t *pkg, void *unused)
 		printf("%s ", pkg->libs);
 }
 
+static void
+print_modversion(pkg_t *pkg, void *unused)
+{
+	if (pkg->version != NULL)
+		printf("%s\n", pkg->version);
+}
+
 typedef struct pkg_queue_ {
 	struct pkg_queue_ *prev, *next;
 	const char *package;
@@ -72,40 +79,34 @@ pkg_queue_walk(pkg_queue_t *head)
 {
 	int wanted_something = 0;
 	pkg_queue_t *pkgq;
+	pkg_t world = (pkg_t){
+		.realname = "virtual"
+	};
 
 	foreach_list_entry(head, pkgq)
 	{
-		pkg_t *pkg;
+		world.requires = parse_deplist(&world, pkgq->package);
+	}
 
-		pkg = pkg_find(pkgq->package);
-		if (pkg)
-		{
-			if (want_modversion)
-			{
-				wanted_something = 0;
-				want_cflags = 0;
-				want_libs = 0;
+	if (want_modversion)
+	{
+		wanted_something = 0;
+		want_cflags = 0;
+		want_libs = 0;
 
-				printf("%s\n", pkg->version);
-			}
+		pkg_traverse(&world, print_modversion, NULL);
+	}
 
-			if (want_cflags)
-			{
-				wanted_something++;
-				pkg_traverse(pkg, print_cflags, NULL);
-			}
+	if (want_cflags)
+	{
+		wanted_something++;
+		pkg_traverse(&world, print_cflags, NULL);
+	}
 
-			if (want_libs)
-			{
-				wanted_something++;
-				pkg_traverse(pkg, print_libs, NULL);
-			}
-		}
-		else
-		{
-			fprintf(stderr, "dependency '%s' could not be satisfied, see PKG_CONFIG_PATH.\n", pkgq->package);
-			return EXIT_FAILURE;
-		}
+	if (want_libs)
+	{
+		wanted_something++;
+		pkg_traverse(&world, print_libs, NULL);
 	}
 
 	if (wanted_something)
