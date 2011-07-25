@@ -27,6 +27,7 @@
 
 static int want_cflags = 0;
 static int want_libs = 0;
+static int want_modversion = 0;
 
 static void
 print_cflags(pkg_t *pkg, void *unused)
@@ -73,6 +74,15 @@ pkg_queue_walk(pkg_queue_t *head)
 		pkg = pkg_find(pkgq->package);
 		if (pkg)
 		{
+			if (want_modversion)
+			{
+				wanted_something = 0;
+				want_cflags = 0;
+				want_libs = 0;
+
+				printf("%s\n", pkg->version);
+			}
+
 			if (want_cflags)
 			{
 				wanted_something++;
@@ -109,6 +119,7 @@ main(int argc, const char *argv[])
 	struct poptOption options[] = {
 		{ "libs", 0, POPT_ARG_NONE, &want_libs, 0, "output all linker flags" },
 		{ "cflags", 0, POPT_ARG_NONE, &want_cflags, 0, "output all compiler flags" },
+		{ "modversion", 0, POPT_ARG_NONE, &want_modversion, 0, "output package version" },
 		POPT_AUTOHELP
 		{ NULL, 0, 0, NULL, 0 }
 	};
