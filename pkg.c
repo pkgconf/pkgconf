@@ -52,9 +52,12 @@ pkg_traverse(pkg_t *root,
 			continue;
 
 		pkgdep = pkg_find(node->package);
-		if (pkgdep == NULL)
+		if (pkgdep == NULL)	
 		{
-			fprintf(stderr, "dependency '%s' is not satisfiable, see PKG_CONFIG_PATH\n", node->package);
+			fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);
+			fprintf(stderr, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
+			fprintf(stderr, "to the PKG_CONFIG_PATH environment variable\n");
+			fprintf(stderr, "No package '%s' found\n", node->package);
 			exit(EXIT_FAILURE);
 		}
 
