@@ -141,6 +141,7 @@ pkg_dependency_add(pkg_dependency_t *head, const char *package, const char *vers
 	return dep;
 }
 
+#define DEBUG_PARSE 0
 #define MODULE_SEPARATOR(c) ((c) == ',' || isspace ((c)))
 #define OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
 
@@ -186,6 +187,11 @@ parse_deplist(pkg_t *pkg, const char *depends)
 			}
 			else if (MODULE_SEPARATOR(*ptr))
 				state = OUTSIDE_MODULE;
+			else if (*(ptr + 1) == '\0')
+			{
+				ptr++;
+				state = OUTSIDE_MODULE;
+			}
 
 			if (state != INSIDE_MODULE_NAME && start != ptr)
 			{
@@ -195,7 +201,9 @@ parse_deplist(pkg_t *pkg, const char *depends)
 					iter++;
 
 				package = strndup(iter, ptr - iter);
-//				fprintf(stderr, "Found package: %s\n", package);
+#if DEBUG_PARSE
+				fprintf(stderr, "Found package: %s\n", package);
+#endif
 				start = ptr;
 			}
 
@@ -216,11 +224,13 @@ parse_deplist(pkg_t *pkg, const char *depends)
 		case BEFORE_OPERATOR:
 			if (OPERATOR_CHAR(*ptr))
 				state = INSIDE_OPERATOR;
+
 			break;
 
 		case INSIDE_OPERATOR:
 			if (!OPERATOR_CHAR(*ptr))
 				state = AFTER_OPERATOR;
+
 			break;
 
 		case AFTER_OPERATOR:
@@ -232,12 +242,14 @@ parse_deplist(pkg_t *pkg, const char *depends)
 			break;
 
 		case INSIDE_VERSION:
-			if (MODULE_SEPARATOR(*ptr))
+			if (MODULE_SEPARATOR(*ptr) || *(ptr + 1) == '\0')
 			{
 				version = strndup(vstart, ptr - vstart);
 				state = OUTSIDE_MODULE;
 
-//				fprintf(stderr, "Found version: %s\n", version);
+#if DEBUG_PARSE
+				fprintf(stderr, "Found version: %s\n", version);
+#endif
 				deplist = pkg_dependency_add(deplist, package, version, PKG_ANY);
 
 				if (deplist_head == NULL)
