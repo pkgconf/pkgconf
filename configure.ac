@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([pkgconf], [0.1], [http://jira.atheme.org/])
+AC_INIT([pkgconf], [0.1.1], [http://jira.atheme.org/])
 AC_CONFIG_SRCDIR([pkg.c])
 AC_CONFIG_HEADERS([config.h])
 

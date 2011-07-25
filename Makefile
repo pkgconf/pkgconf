@@ -6,6 +6,6 @@ include buildsys.mk
 LIBS		= -lpopt
 
 install-extra:
-	${LN} ${bindir}/pkgconf ${DESTDIR}/${bindir}/pkg-config
+	${LN_S} -f ${bindir}/pkgconf ${DESTDIR}/${bindir}/pkg-config
 
 include .deps
