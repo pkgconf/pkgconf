@@ -104,7 +104,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		pkg_traverse(&world, print_modversion, NULL, 1);
+		pkg_traverse(&world, print_modversion, NULL, 2);
 	}
 
 	if (want_cflags)
