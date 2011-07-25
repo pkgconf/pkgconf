@@ -55,7 +55,7 @@ pkg_traverse(pkg_t *root,
 		if (pkgdep == NULL)
 		{
 			fprintf(stderr, "dependency '%s' is not satisfiable, see PKG_CONFIG_PATH\n", node->package);
-			continue;
+			exit(EXIT_FAILURE);
 		}
 
 		pkg_traverse(pkgdep, pkg_traverse_func, data, maxdepth - 1);
