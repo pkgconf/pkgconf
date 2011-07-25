@@ -23,6 +23,9 @@
 
 #include "pkg.h"
 
+static int want_cflags = 1;
+static int want_libs = 1;
+
 static void
 print_cflags(pkg_t *pkg, void *unused)
 {
@@ -38,22 +41,31 @@ print_libs(pkg_t *pkg, void *unused)
 }
 
 int
-main(int argc, const char *argv[])
+handle_package(const char *package)
 {
 	pkg_t *pkg;
 
-	pkg = pkg_find(argv[1]);
+	pkg = pkg_find(package);
 	if (pkg)
 	{
-		pkg_traverse(pkg, print_cflags, NULL);
-		pkg_traverse(pkg, print_libs, NULL);
+		if (want_cflags)
+			pkg_traverse(pkg, print_cflags, NULL);
+
+		if (want_libs)
+			pkg_traverse(pkg, print_libs, NULL);
+
 		printf("\n");
 	}
 	else
 	{
-		printf("%s not found\n", argv[1]);
+		fprintf(stderr, "dependency '%s' could not be satisfied, see PKG_CONFIG_PATH.\n", package);
 		return -1;
 	}
+}
 
+int
+main(int argc, const char *argv[])
+{
+	handle_package(argv[1]);
 	return 0;
 }
