@@ -33,6 +33,18 @@ pkg_find(const char *name)
 	return parse_file(locbuf);
 }
 
+/*
+ * pkg_verify_graph(root, depth)
+ *
+ * verify the graph dependency nodes are satisfiable by walking the tree using
+ * pkg_traverse().
+ */
+void
+pkg_verify_graph(pkg_t *root, int depth)
+{
+	pkg_traverse(root, NULL, NULL, depth);
+}
+
 void
 pkg_traverse(pkg_t *root,
 	void (*pkg_traverse_func)(pkg_t *package, void *data),
@@ -64,5 +76,6 @@ pkg_traverse(pkg_t *root,
 		pkg_traverse(pkgdep, pkg_traverse_func, data, maxdepth - 1);
 	}
 
-	pkg_traverse_func(root, data);
+	if (pkg_traverse_func != NULL)
+		pkg_traverse_func(root, data);
 }

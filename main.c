@@ -101,6 +101,9 @@ pkg_queue_walk(pkg_queue_t *head)
 		world.requires = pkg_dependency_append(world.requires, pkgdep);
 	}
 
+	/* we should verify that the graph is complete before attempting to compute cflags etc. */
+	pkg_verify_graph(&world, maximum_traverse_depth);
+
 	if (want_modversion)
 	{
 		wanted_something = 0;
