@@ -1,0 +1,51 @@
+pkgconf - compiler and linker configuration for development frameworks
+----------------------------------------------------------------------
+
+1. General summary.
+
+pkgconf is a program which helps to configure compiler and linker flags for
+development frameworks.  It is similar to pkg-config, but was written from
+scratch in Summer of 2011 to replace pkg-config, which now needs itself to
+build itself (or you can set a bunch of environment variables, both are
+pretty ugly.)
+
+Implementations of pkg-config, such as pkgconf are typically used with the
+PKG_CHECK_MODULES autoconf macro.  As far as I (nenolod) know, pkgconf is
+compatible with all known variations of this macro.  However, I have not
+extensively tested yet for compatibility.  pkgconf detects at runtime
+whether or not it was started as 'pkg-config', and if so, attempts to set
+program options in a way where it's behaviour should be similar.
+
+In terms of the autoconf macro, it is possible to specify the PKG_CONFIG
+environment variable, so that you can test pkgconf without overwriting your
+pkg-config binary.  (hint: export PKG_CONFIG=/usr/bin/pkgconf)  However,
+if you do this, it will be running in native mode, so you may have some very
+strange results as the dependency graph is compiled differently in native
+mode.
+
+2. Technical design.
+
+pkgconf builds an acyclic directed dependency graph.  This allows for the user
+to more conservatively link their binaries -- which may be helpful in some 
+environments, such as when prelink(1) is being used.  As a result of building
+a directed dependency graph designed for the specific problem domain provided
+by the user, more accurate dependencies can be determined.  pkg-config, on the
+other hand builds a database of all known pkg-config files on the system before
+attempting to resolve dependencies, which is a considerably slower and less
+efficient design.
+
+pkgconf also does not provide support for pointlessly stupid features implemented
+in pkg-config.  If you think a feature is not dumb, then you should file an
+'Improvement' task on Atheme's JIRA instance at <http://jira.atheme.org>.
+
+3. Compiling.
+
+pkgconf is basically compiled the same way any other Atheme project is compiled:
+
+   $ ./configure
+   $ make
+   $ sudo make install
+
+4. Reporting bugs.
+
+Please report bugs to <http://jira.atheme.org>.
