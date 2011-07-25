@@ -36,9 +36,13 @@ pkg_find(const char *name)
 void
 pkg_traverse(pkg_t *root,
 	void (*pkg_traverse_func)(pkg_t *package, void *data),
-	void *data)
+	void *data,
+	int maxdepth)
 {
 	pkg_dependency_t *node;
+
+	if (maxdepth == 0)
+		return;
 
 	foreach_list_entry(root->requires, node)
 	{
@@ -54,7 +58,7 @@ pkg_traverse(pkg_t *root,
 			continue;
 		}
 
-		pkg_traverse(pkgdep, pkg_traverse_func, data);
+		pkg_traverse(pkgdep, pkg_traverse_func, data, maxdepth - 1);
 	}
 
 	pkg_traverse_func(root, data);

@@ -32,6 +32,7 @@ static int want_version = 0;
 static int want_cflags = 0;
 static int want_libs = 0;
 static int want_modversion = 0;
+static int maximum_traverse_depth = -1;
 
 static char *required_pkgconfig_version = NULL;
 
@@ -83,6 +84,14 @@ pkg_queue_walk(pkg_queue_t *head)
 		.realname = "virtual"
 	};
 
+	/* if maximum_traverse_depth is one, then we will not traverse deeper
+	 * than our virtual package.
+	 */
+	if (!maximum_traverse_depth)
+		maximum_traverse_depth = -1;
+	else if (maximum_traverse_depth)
+		maximum_traverse_depth++;
+
 	foreach_list_entry(head, pkgq)
 	{
 		world.requires = parse_deplist(&world, pkgq->package);
@@ -94,19 +103,19 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		pkg_traverse(&world, print_modversion, NULL);
+		pkg_traverse(&world, print_modversion, NULL, 1);
 	}
 
 	if (want_cflags)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_cflags, NULL);
+		pkg_traverse(&world, print_cflags, NULL, maximum_traverse_depth);
 	}
 
 	if (want_libs)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_libs, NULL);
+		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth);
 	}
 
 	if (wanted_something)
@@ -138,6 +147,7 @@ main(int argc, const char *argv[])
 		{ "exists", 0, POPT_ARG_NONE, NULL, 0, "return 0 if all packages present" },
 		{ "print-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
 		{ "short-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
+		{ "maximum-traverse-depth", 0, POPT_ARG_INT, &maximum_traverse_depth, 0, "limits maximum traversal depth of the computed dependency graph" },
 		POPT_AUTOHELP
 		{ NULL, 0, 0, NULL, 0 }
 	};
@@ -151,7 +161,7 @@ main(int argc, const char *argv[])
 			poptStrerror(ret));
 		return EXIT_FAILURE;
 	}
-
+ 
 	if (want_version)
 	{
 		version();

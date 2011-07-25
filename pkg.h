@@ -85,7 +85,7 @@ struct pkg_ {
 };
 
 pkg_t *pkg_find(const char *name);
-void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data);
+void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data, int maxdepth);
 
 /* parse.c */
 pkg_t *parse_file(const char *path);
