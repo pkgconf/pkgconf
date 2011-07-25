@@ -60,13 +60,15 @@ pkg_traverse(pkg_t *root,
 void
 print_cflags(pkg_t *pkg, void *unused)
 {
-	printf("%s ", pkg->cflags);
+	if (pkg->cflags != NULL)
+		printf("%s ", pkg->cflags);
 }
 
 void
 print_libs(pkg_t *pkg, void *unused)
 {
-	printf("%s ", pkg->libs);
+	if (pkg->libs != NULL)
+		printf("%s ", pkg->libs);
 }
 
 int main(int argc, const char *argv[])
