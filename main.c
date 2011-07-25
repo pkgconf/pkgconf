@@ -21,6 +21,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <libgen.h>
 #include <popt.h>
 
 #include "pkg.h"
@@ -89,7 +90,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	 */
 	if (!maximum_traverse_depth)
 		maximum_traverse_depth = -1;
-	else if (maximum_traverse_depth)
+	else if (maximum_traverse_depth > 0)
 		maximum_traverse_depth++;
 
 	foreach_list_entry(head, pkgq)
@@ -130,6 +131,22 @@ version(void)
 	printf("%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 }
 
+static bool
+check_pkgconfig(const char *progname)
+{
+	char *prognm = strdup(progname);
+	char *name = basename(prognm);
+
+	if (!strcasecmp(name, "pkg-config"))
+	{
+		free(prognm);
+		return true;
+	}
+
+	free(prognm);
+	return false;
+}
+
 int
 main(int argc, const char *argv[])
 {
@@ -161,6 +178,9 @@ main(int argc, const char *argv[])
 			poptStrerror(ret));
 		return EXIT_FAILURE;
 	}
+
+	if (check_pkgconfig(argv[0]))
+		maximum_traverse_depth = 2;
  
 	if (want_version)
 	{
