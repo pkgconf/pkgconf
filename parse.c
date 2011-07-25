@@ -144,7 +144,7 @@ pkg_dependency_add(pkg_dependency_t *head, const char *package, const char *vers
 #define MODULE_SEPARATOR(c) ((c) == ',' || isspace ((c)))
 #define OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
 
-static pkg_dependency_t *
+pkg_dependency_t *
 parse_deplist(pkg_t *pkg, const char *depends)
 {
 	parse_state_t state = OUTSIDE_MODULE;
