@@ -25,6 +25,7 @@
 
 #include "pkg.h"
 
+static int want_version = 0;
 static int want_cflags = 0;
 static int want_libs = 0;
 static int want_modversion = 0;
@@ -108,6 +109,12 @@ pkg_queue_walk(pkg_queue_t *head)
 	return EXIT_SUCCESS;
 }
 
+static void
+version(void)
+{
+	printf("%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
+}
+
 int
 main(int argc, const char *argv[])
 {
@@ -117,9 +124,11 @@ main(int argc, const char *argv[])
 	pkg_queue_t *pkgq_head = NULL;
 
 	struct poptOption options[] = {
+		{ "version", 0, POPT_ARG_NONE, &want_version, 0, "output pkgconf version" },
 		{ "libs", 0, POPT_ARG_NONE, &want_libs, 0, "output all linker flags" },
 		{ "cflags", 0, POPT_ARG_NONE, &want_cflags, 0, "output all compiler flags" },
 		{ "modversion", 0, POPT_ARG_NONE, &want_modversion, 0, "output package version" },
+		{ "exists", 0, POPT_ARG_NONE, NULL, 0, "return 0 if all packages present" },
 		POPT_AUTOHELP
 		{ NULL, 0, 0, NULL, 0 }
 	};
@@ -134,6 +143,12 @@ main(int argc, const char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	if (want_version)
+	{
+		version();
+		return EXIT_SUCCESS;
+	}
+
 	while (1)
 	{
 		const char *package = poptGetArg(opt_context);
@@ -146,6 +161,12 @@ main(int argc, const char *argv[])
 	}
 
 	poptFreeContext(opt_context);
+
+	if (pkgq_head == NULL)
+	{
+		fprintf(stderr, "Please specify at least one package name on the command line.\n");
+		return EXIT_FAILURE;
+	}
 
 	return pkg_queue_walk(pkgq_head);
 }
