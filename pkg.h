@@ -56,7 +56,7 @@ typedef struct tuple_ pkg_tuple_t;
 struct dependency_ {
 	struct dependency_ *prev, *next;
 
-	char *name;
+	char *package;
 	pkg_comparator_t compare;
 	char *version;
 	pkg_t *parent;

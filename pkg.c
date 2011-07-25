@@ -39,7 +39,25 @@ int main(int argc, const char *argv[])
 
 	pkg = pkg_find(argv[1]);
 	if (pkg)
-		printf("%s %s\n", pkg->cflags, pkg->libs);
+	{
+		pkg_dependency_t *node;
+
+		foreach_list_entry(pkg->requires, node)
+		{
+			pkg_t *pkgdep;
+
+			pkgdep = pkg_find(node->package);
+			if (pkgdep == NULL)
+			{
+				printf("dependency '%s' not satisfied\n", node->package);
+				return -1;
+			}
+
+			printf("%s: {%s} {%s}\n", pkgdep->realname, pkgdep->cflags, pkgdep->libs);
+		}
+
+		printf("%s: {%s} {%s}\n", pkg->realname, pkg->cflags, pkg->libs);
+	}
 	else
 	{
 		printf("%s not found\n", argv[1]);
