@@ -1,6 +1,6 @@
 /*
- * pkg.c
- * higher-level dependency graph compilation, management and manipulation
+ * main.c
+ * main() routine, printer functions
  *
  * Copyright (c) 2011 William Pitcock <nenolod@dereferenced.org>.
  *
@@ -23,36 +23,37 @@
 
 #include "pkg.h"
 
-pkg_t *
-pkg_find(const char *name)
+static void
+print_cflags(pkg_t *pkg, void *unused)
 {
-	char locbuf[BUFSIZ];
-
-	snprintf(locbuf, sizeof locbuf, "/usr/lib/pkgconfig/%s.pc", name);
-
-	return parse_file(locbuf);
+	if (pkg->cflags != NULL)
+		printf("%s ", pkg->cflags);
 }
 
-void
-pkg_traverse(pkg_t *root,
-	void (*pkg_traverse_func)(pkg_t *package, void *data),
-	void *data)
+static void
+print_libs(pkg_t *pkg, void *unused)
 {
-	pkg_dependency_t *node;
+	if (pkg->libs != NULL)
+		printf("%s ", pkg->libs);
+}
 
-	foreach_list_entry(root->requires, node)
+int
+main(int argc, const char *argv[])
+{
+	pkg_t *pkg;
+
+	pkg = pkg_find(argv[1]);
+	if (pkg)
 	{
-		pkg_t *pkgdep;
-
-		pkgdep = pkg_find(node->package);
-		if (pkgdep == NULL)
-		{
-			fprintf(stderr, "dependency '%s' is not satisfiable, see PKG_CONFIG_PATH\n", node->package);
-			continue;
-		}
-
-		pkg_traverse(pkgdep, pkg_traverse_func, data);
+		pkg_traverse(pkg, print_cflags, NULL);
+		pkg_traverse(pkg, print_libs, NULL);
+		printf("\n");
+	}
+	else
+	{
+		printf("%s not found\n", argv[1]);
+		return -1;
 	}
 
-	pkg_traverse_func(root, data);
+	return 0;
 }
