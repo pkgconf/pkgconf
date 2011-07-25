@@ -44,6 +44,9 @@ pkg_traverse(pkg_t *root,
 	{
 		pkg_t *pkgdep;
 
+		if (*node->package == '\0')
+			continue;
+
 		pkgdep = pkg_find(node->package);
 		if (pkgdep == NULL)
 		{
