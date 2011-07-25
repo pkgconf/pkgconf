@@ -36,6 +36,7 @@ static int want_modversion = 0;
 static int maximum_traverse_depth = -1;
 
 static char *required_pkgconfig_version = NULL;
+static char *want_variable = NULL;
 
 static void
 print_cflags(pkg_t *pkg, void *unused)
@@ -56,6 +57,16 @@ print_modversion(pkg_t *pkg, void *unused)
 {
 	if (pkg->version != NULL)
 		printf("%s\n", pkg->version);
+}
+
+static void
+print_variable(pkg_t *pkg, void *unused)
+{
+	char *variable;
+
+	variable = tuple_find(pkg->vars, want_variable);
+	if (variable != NULL)
+		printf("%s ", variable);
 }
 
 typedef struct pkg_queue_ {
@@ -125,6 +136,12 @@ pkg_queue_walk(pkg_queue_t *head)
 		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth);
 	}
 
+	if (want_variable)
+	{
+		wanted_something++;
+		pkg_traverse(&world, print_variable, NULL, 2);
+	}
+
 	if (wanted_something)
 		printf("\n");
 
@@ -167,6 +184,7 @@ main(int argc, const char *argv[])
 		{ "libs", 0, POPT_ARG_NONE, &want_libs, 0, "output all linker flags" },
 		{ "cflags", 0, POPT_ARG_NONE, &want_cflags, 0, "output all compiler flags" },
 		{ "modversion", 0, POPT_ARG_NONE, &want_modversion, 0, "output package version" },
+		{ "variable", 0, POPT_ARG_STRING, &want_variable, 0, "get the value of the specified variable" },
 		{ "exists", 0, POPT_ARG_NONE, NULL, 0, "return 0 if all packages present" },
 		{ "print-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
 		{ "short-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
