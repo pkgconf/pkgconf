@@ -33,6 +33,42 @@ pkg_find(const char *name)
 	return parse_file(locbuf);
 }
 
+void
+pkg_traverse(pkg_t *root,
+	void (*pkg_traverse_func)(pkg_t *package, void *data),
+	void *data)
+{
+	pkg_dependency_t *node;
+
+	foreach_list_entry(root->requires, node)
+	{
+		pkg_t *pkgdep;
+
+		pkgdep = pkg_find(node->package);
+		if (pkgdep == NULL)
+		{
+			fprintf(stderr, "dependency '%s' is not satisfiable, see PKG_CONFIG_PATH\n", node->package);
+			continue;
+		}
+
+		pkg_traverse(pkgdep, pkg_traverse_func, data);
+	}
+
+	pkg_traverse_func(root, data);
+}
+
+void
+print_cflags(pkg_t *pkg, void *unused)
+{
+	printf("%s ", pkg->cflags);
+}
+
+void
+print_libs(pkg_t *pkg, void *unused)
+{
+	printf("%s ", pkg->libs);
+}
+
 int main(int argc, const char *argv[])
 {
 	pkg_t *pkg;
@@ -40,23 +76,9 @@ int main(int argc, const char *argv[])
 	pkg = pkg_find(argv[1]);
 	if (pkg)
 	{
-		pkg_dependency_t *node;
-
-		foreach_list_entry(pkg->requires, node)
-		{
-			pkg_t *pkgdep;
-
-			pkgdep = pkg_find(node->package);
-			if (pkgdep == NULL)
-			{
-				printf("dependency '%s' not satisfied\n", node->package);
-				return -1;
-			}
-
-			printf("%s: {%s} {%s}\n", pkgdep->realname, pkgdep->cflags, pkgdep->libs);
-		}
-
-		printf("%s: {%s} {%s}\n", pkg->realname, pkg->cflags, pkg->libs);
+		pkg_traverse(pkg, print_cflags, NULL);
+		pkg_traverse(pkg, print_libs, NULL);
+		printf("\n");
 	}
 	else
 	{

@@ -85,7 +85,7 @@ struct pkg_ {
 };
 
 pkg_t *pkg_find(const char *name);
-pkg_t *pkg_find_matching_dep(pkg_dependency_t *dep);
+void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data);
 
 /* parse.c */
 pkg_t *parse_file(const char *path);
