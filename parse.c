@@ -38,7 +38,7 @@ tuple_add(pkg_tuple_t *parent, const char *key, const char *value)
 	return tuple;
 }
 
-static char *
+char *
 tuple_find(pkg_tuple_t *head, const char *key)
 {
 	pkg_tuple_t *node;

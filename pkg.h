@@ -89,5 +89,6 @@ pkg_t *pkg_find_matching_dep(pkg_dependency_t *dep);
 
 /* parse.c */
 pkg_t *parse_file(const char *path);
+char *tuple_find(pkg_tuple_t *head, const char *key);
 
 #endif
