@@ -21,10 +21,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <popt.h>
+
 #include "pkg.h"
 
-static int want_cflags = 1;
-static int want_libs = 1;
+static int want_cflags = 0;
+static int want_libs = 0;
 
 static void
 print_cflags(pkg_t *pkg, void *unused)
@@ -48,13 +50,22 @@ handle_package(const char *package)
 	pkg = pkg_find(package);
 	if (pkg)
 	{
+		int wanted_something = 0;
+
 		if (want_cflags)
+		{
+			wanted_something++;
 			pkg_traverse(pkg, print_cflags, NULL);
+		}
 
 		if (want_libs)
+		{
+			wanted_something++;
 			pkg_traverse(pkg, print_libs, NULL);
+		}
 
-		printf("\n");
+		if (wanted_something)
+			printf("\n");
 	}
 	else
 	{
@@ -66,6 +77,36 @@ handle_package(const char *package)
 int
 main(int argc, const char *argv[])
 {
-	handle_package(argv[1]);
-	return 0;
+	int ret;
+	poptContext opt_context;
+
+	struct poptOption options[] = {
+		{ "libs", 0, POPT_ARG_NONE, &want_libs, 0, "output all linker flags" },
+		{ "cflags", 0, POPT_ARG_NONE, &want_cflags, 0, "output all compiler flags" },
+		POPT_AUTOHELP
+		{ NULL, 0, 0, NULL, 0 }
+	};
+
+	opt_context = poptGetContext(NULL, argc, argv, options, 0);
+	ret = poptGetNextOpt(opt_context);
+	if (ret != -1)
+	{
+		fprintf(stderr, "%s: %s\n",
+			poptBadOption(opt_context, POPT_BADOPTION_NOALIAS),
+			poptStrerror(ret));
+		return EXIT_FAILURE;
+	}
+
+	while (1)
+	{
+		const char *package = poptGetArg(opt_context);
+		if (package == NULL)
+			break;
+
+		handle_package(package);
+	}
+
+	poptFreeContext(opt_context);
+
+	return EXIT_SUCCESS;
 }
