@@ -25,10 +25,15 @@
 
 #include "pkg.h"
 
+/* we are compatible with 0.26 of pkg-config */
+#define PKGCONFIG_VERSION_EQUIV		"0.26"
+
 static int want_version = 0;
 static int want_cflags = 0;
 static int want_libs = 0;
 static int want_modversion = 0;
+
+static char *required_pkgconfig_version = NULL;
 
 static void
 print_cflags(pkg_t *pkg, void *unused)
@@ -125,10 +130,13 @@ main(int argc, const char *argv[])
 
 	struct poptOption options[] = {
 		{ "version", 0, POPT_ARG_NONE, &want_version, 0, "output pkgconf version" },
+		{ "atleast-pkgconfig-version", 0, POPT_ARG_STRING, &required_pkgconfig_version, 0, "require compatibility level with specified version of pkg-config" },
 		{ "libs", 0, POPT_ARG_NONE, &want_libs, 0, "output all linker flags" },
 		{ "cflags", 0, POPT_ARG_NONE, &want_cflags, 0, "output all compiler flags" },
 		{ "modversion", 0, POPT_ARG_NONE, &want_modversion, 0, "output package version" },
 		{ "exists", 0, POPT_ARG_NONE, NULL, 0, "return 0 if all packages present" },
+		{ "print-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
+		{ "short-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
 		POPT_AUTOHELP
 		{ NULL, 0, 0, NULL, 0 }
 	};
@@ -147,6 +155,11 @@ main(int argc, const char *argv[])
 	{
 		version();
 		return EXIT_SUCCESS;
+	}
+
+	if (required_pkgconfig_version != NULL)
+	{
+		return 0;
 	}
 
 	while (1)
