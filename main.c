@@ -42,36 +42,60 @@ print_libs(pkg_t *pkg, void *unused)
 		printf("%s ", pkg->libs);
 }
 
-int
-handle_package(const char *package)
+typedef struct pkg_queue_ {
+	struct pkg_queue_ *prev, *next;
+	const char *package;
+} pkg_queue_t;
+
+static pkg_queue_t *
+pkg_queue_push(pkg_queue_t *parent, const char *package)
 {
-	pkg_t *pkg;
+	pkg_queue_t *pkgq = calloc(sizeof(pkg_queue_t), 1);
 
-	pkg = pkg_find(package);
-	if (pkg)
+	pkgq->package = package;
+	pkgq->prev = parent;
+	if (pkgq->prev != NULL)
+		pkgq->prev->next = pkgq;
+
+	return pkgq;
+}
+
+int
+pkg_queue_walk(pkg_queue_t *head)
+{
+	int wanted_something = 0;
+	pkg_queue_t *pkgq;
+
+	foreach_list_entry(head, pkgq)
 	{
-		int wanted_something = 0;
+		pkg_t *pkg;
 
-		if (want_cflags)
+		pkg = pkg_find(pkgq->package);
+		if (pkg)
 		{
-			wanted_something++;
-			pkg_traverse(pkg, print_cflags, NULL);
-		}
+			if (want_cflags)
+			{
+				wanted_something++;
+				pkg_traverse(pkg, print_cflags, NULL);
+			}
 
-		if (want_libs)
+			if (want_libs)
+			{
+				wanted_something++;
+				pkg_traverse(pkg, print_libs, NULL);
+			}
+		}
+		else
 		{
-			wanted_something++;
-			pkg_traverse(pkg, print_libs, NULL);
+			fprintf(stderr, "dependency '%s' could not be satisfied, see PKG_CONFIG_PATH.\n", pkgq->package);
+			return EXIT_FAILURE;
 		}
+	}
 
-		if (wanted_something)
-			printf("\n");
-	}
-	else
-	{
-		fprintf(stderr, "dependency '%s' could not be satisfied, see PKG_CONFIG_PATH.\n", package);
-		return -1;
-	}
+	if (wanted_something)
+		printf("\n");
+
+	return EXIT_SUCCESS;
 }
 
 int
@@ -79,6 +103,8 @@ main(int argc, const char *argv[])
 {
 	int ret;
 	poptContext opt_context;
+	pkg_queue_t *pkgq = NULL;
+	pkg_queue_t *pkgq_head = NULL;
 
 	struct poptOption options[] = {
 		{ "libs", 0, POPT_ARG_NONE, &want_libs, 0, "output all linker flags" },
@@ -103,10 +129,12 @@ main(int argc, const char *argv[])
 		if (package == NULL)
 			break;
 
-		handle_package(package);
+		pkgq = pkg_queue_push(pkgq, package);
+		if (pkgq_head == NULL)
+			pkgq_head = pkgq;
 	}
 
 	poptFreeContext(opt_context);
 
-	return EXIT_SUCCESS;
+	return pkg_queue_walk(pkgq_head);
 }
