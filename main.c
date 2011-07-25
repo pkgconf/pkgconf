@@ -95,7 +95,10 @@ pkg_queue_walk(pkg_queue_t *head)
 
 	foreach_list_entry(head, pkgq)
 	{
-		world.requires = parse_deplist(&world, pkgq->package);
+		pkg_dependency_t *pkgdep;
+
+		pkgdep = parse_deplist(&world, pkgq->package);
+		world.requires = pkg_dependency_append(world.requires, pkgdep);
 	}
 
 	if (want_modversion)

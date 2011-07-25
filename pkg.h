@@ -92,5 +92,6 @@ void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *d
 pkg_t *parse_file(const char *path);
 char *tuple_find(pkg_tuple_t *head, const char *key);
 pkg_dependency_t *parse_deplist(pkg_t *pkg, const char *depends);
+pkg_dependency_t *pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail);
 
 #endif
