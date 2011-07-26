@@ -34,6 +34,115 @@ pkg_find(const char *name)
 }
 
 /*
+ * pkg_compare_version(a, b)
+ *
+ * compare versions using RPM version comparison rules as described in the LSB.
+ */
+int
+pkg_compare_version(const char *a, const char *b)
+{
+	char oldch1, oldch2;
+	char *str1, *str2;
+	char *one, *two;
+	int ret;
+	bool isnum;
+
+	/* optimization: if version matches then it's the same version. */
+	if (!strcasecmp(a, b))
+		return 0;
+
+	str1 = LOCAL_COPY(a);
+	str2 = LOCAL_COPY(b);
+
+	one = str1;
+	two = str2;
+
+	while (*one && *two)
+	{
+		while (*one && !isalnum(*one))
+			one++;
+		while (*two && !isalnum(*two))
+			one++;
+
+		if (!(*one && *two))
+			break;
+
+		str1 = one;
+		str2 = two;
+
+		if (isdigit(*str1))
+		{
+			while (*str1 && isdigit(*str1))
+				str1++;
+
+			while (*str2 && isdigit(*str2))
+				str2++;
+
+			isnum = true;
+		}
+		else
+		{
+			while (*str1 && isalpha(*str1))
+				str1++;
+
+			while (*str2 && isalpha(*str2))
+				str2++;
+
+			isnum = false;
+		}
+
+		oldch1 = *str1;
+		oldch2 = *str2;
+
+		*str1 = '\0';
+		*str2 = '\0';
+
+		if (one == str1)
+			return -1;
+
+		if (two == str2)
+			return (isnum ? 1 : -1);
+
+		if (isnum)
+		{
+			int onelen, twolen;
+
+			while (*one == '0')
+				one++;
+
+			while (*two == '0')
+				two++;
+
+			onelen = strlen(one);
+			twolen = strlen(two);
+
+			if (one > two)
+				return 1;
+			else if (two > one)
+				return -1;
+		}
+
+		ret = strcmp(one, two);
+		if (ret)
+			return ret;
+
+		*str1 = oldch1;
+		*str2 = oldch2;
+
+		one = str1;
+		two = str2;
+	}
+
+	if ((!*one) && (!*two))
+		return 0;
+
+	if (!*one)
+		return -1;
+
+	return 1;
+}
+
+/*
  * pkg_verify_graph(root, depth)
  *
  * verify the graph dependency nodes are satisfiable by walking the tree using

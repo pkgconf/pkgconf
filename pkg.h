@@ -54,6 +54,9 @@ typedef struct tuple_ pkg_tuple_t;
 #define foreach_list_entry(head, value) \
 	for ((value) = (head); (value) != NULL; (value) = (value)->next)
 
+#define LOCAL_COPY(a) \
+	strcpy(alloca(strlen(a) + 1), a)
+
 struct dependency_ {
 	struct dependency_ *prev, *next;
 
@@ -88,6 +91,7 @@ struct pkg_ {
 pkg_t *pkg_find(const char *name);
 void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data, int maxdepth);
 void pkg_verify_graph(pkg_t *root, int depth);
+int pkg_compare_version(const char *a, const char *b);
 
 /* parse.c */
 pkg_t *parse_file(const char *path);
