@@ -62,7 +62,7 @@ pkg_compare_version(const char *a, const char *b)
 		while (*one && !isalnum(*one))
 			one++;
 		while (*two && !isalnum(*two))
-			one++;
+			two++;
 
 		if (!(*one && *two))
 			break;
@@ -116,9 +116,9 @@ pkg_compare_version(const char *a, const char *b)
 			onelen = strlen(one);
 			twolen = strlen(two);
 
-			if (one > two)
+			if (onelen > twolen)
 				return 1;
-			else if (two > one)
+			else if (twolen > onelen)
 				return -1;
 		}
 
