@@ -33,7 +33,8 @@ static int want_version = 0;
 static int want_cflags = 0;
 static int want_libs = 0;
 static int want_modversion = 0;
-static int maximum_traverse_depth = -1;
+static int want_static = 0;
+static int maximum_traverse_depth = 2;
 
 static char *required_pkgconfig_version = NULL;
 static char *want_variable = NULL;
@@ -154,22 +155,6 @@ version(void)
 	printf("%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 }
 
-static bool
-check_pkgconfig(const char *progname)
-{
-	char *prognm = strdup(progname);
-	char *name = basename(prognm);
-
-	if (!strcasecmp(name, "pkg-config"))
-	{
-		free(prognm);
-		return true;
-	}
-
-	free(prognm);
-	return false;
-}
-
 int
 main(int argc, const char *argv[])
 {
@@ -189,6 +174,7 @@ main(int argc, const char *argv[])
 		{ "print-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
 		{ "short-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
 		{ "maximum-traverse-depth", 0, POPT_ARG_INT, &maximum_traverse_depth, 0, "limits maximum traversal depth of the computed dependency graph" },
+		{ "static", 0, POPT_ARG_NONE, &want_static, 0, "be more aggressive when walking the dependency graph (for intermediary static linking deps)" },
 		POPT_AUTOHELP
 		{ NULL, 0, 0, NULL, 0 }
 	};
@@ -203,14 +189,14 @@ main(int argc, const char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (check_pkgconfig(argv[0]))
-		maximum_traverse_depth = 2;
- 
 	if (want_version)
 	{
 		version();
 		return EXIT_SUCCESS;
 	}
+
+	if (want_static)
+		maximum_traverse_depth++;
 
 	if (required_pkgconfig_version != NULL)
 	{
