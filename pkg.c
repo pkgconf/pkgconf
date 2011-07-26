@@ -143,6 +143,55 @@ pkg_compare_version(const char *a, const char *b)
 }
 
 /*
+ * pkg_verify_dependency(pkgdep)
+ *
+ * verify a pkg_dependency_t node in the depgraph.  if the dependency is solvable,
+ * return the appropriate pkg_t object, else NULL.
+ */
+pkg_t *
+pkg_verify_dependency(pkg_dependency_t *pkgdep)
+{
+	pkg_t *pkg;
+
+	pkg = pkg_find(pkgdep->package);
+	if (pkg == NULL)
+		return NULL;
+
+	switch(pkgdep->compare)
+	{
+	case PKG_LESS_THAN:
+		if (pkg_compare_version(pkgdep->version, pkg->version) < 0)
+			return pkg;
+		break;
+	case PKG_GREATER_THAN:
+		if (pkg_compare_version(pkgdep->version, pkg->version) > 0)
+			return pkg;
+		break;
+	case PKG_LESS_THAN_EQUAL:
+		if (pkg_compare_version(pkgdep->version, pkg->version) <= 0)
+			return pkg;
+		break;
+	case PKG_GREATER_THAN_EQUAL:
+		if (pkg_compare_version(pkgdep->version, pkg->version) >= 0)
+			return pkg;
+		break;
+	case PKG_EQUAL:
+		if (pkg_compare_version(pkgdep->version, pkg->version) == 0)
+			return pkg;
+		break;
+	case PKG_NOT_EQUAL:
+		if (pkg_compare_version(pkgdep->version, pkg->version) != 0)
+			return pkg;
+		break;
+	case PKG_ANY:
+	default:
+		return pkg;
+	}
+
+	return NULL;
+}
+
+/*
  * pkg_verify_graph(root, depth)
  *
  * verify the graph dependency nodes are satisfiable by walking the tree using
@@ -172,7 +221,7 @@ pkg_traverse(pkg_t *root,
 		if (*node->package == '\0')
 			continue;
 
-		pkgdep = pkg_find(node->package);
+		pkgdep = pkg_verify_dependency(node);
 		if (pkgdep == NULL)	
 		{
 			fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);
