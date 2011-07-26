@@ -37,6 +37,7 @@ static int want_static = 0;
 static int maximum_traverse_depth = 2;
 
 static char *required_pkgconfig_version = NULL;
+static char *required_module_version = NULL;
 static char *want_variable = NULL;
 
 static void
@@ -165,6 +166,7 @@ main(int argc, const char *argv[])
 
 	struct poptOption options[] = {
 		{ "version", 0, POPT_ARG_NONE, &want_version, 0, "output pkgconf version" },
+		{ "atleast-version", 0, POPT_ARG_STRING, &required_module_version, 0, "require specified version of a module" },
 		{ "atleast-pkgconfig-version", 0, POPT_ARG_STRING, &required_pkgconfig_version, 0, "require compatibility level with specified version of pkg-config" },
 		{ "libs", 0, POPT_ARG_NONE, &want_libs, 0, "output all linker flags" },
 		{ "cflags", 0, POPT_ARG_NONE, &want_cflags, 0, "output all compiler flags" },
@@ -201,6 +203,25 @@ main(int argc, const char *argv[])
 	if (required_pkgconfig_version != NULL)
 	{
 		if (pkg_compare_version(PKGCONFIG_VERSION_EQUIV, required_pkgconfig_version) >= 0)
+			return EXIT_SUCCESS;
+
+		return EXIT_FAILURE;
+	}
+
+	if (required_module_version != NULL)
+	{
+		pkg_t *pkg;
+		const char *package;
+
+		package = poptGetArg(opt_context);
+		if (package == NULL)
+			return EXIT_SUCCESS;
+
+		pkg = pkg_find(package);
+		if (pkg == NULL)
+			return EXIT_FAILURE;
+
+		if (pkg_compare_version(pkg->version, required_module_version) >= 0)
 			return EXIT_SUCCESS;
 
 		return EXIT_FAILURE;
