@@ -166,7 +166,7 @@ main(int argc, const char *argv[])
 
 	struct poptOption options[] = {
 		{ "version", 0, POPT_ARG_NONE, &want_version, 0, "output pkgconf version" },
-		{ "atleast-version", 0, POPT_ARG_STRING, &required_module_version, 0, "require specified version of a module" },
+		{ "atleast-version", 0, POPT_ARG_STRING, &required_module_version, 0, "require specified version of a package" },
 		{ "atleast-pkgconfig-version", 0, POPT_ARG_STRING, &required_pkgconfig_version, 0, "require compatibility level with specified version of pkg-config" },
 		{ "libs", 0, POPT_ARG_NONE, &want_libs, 0, "output all linker flags" },
 		{ "cflags", 0, POPT_ARG_NONE, &want_cflags, 0, "output all compiler flags" },
