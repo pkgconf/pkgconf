@@ -214,7 +214,10 @@ main(int argc, const char *argv[])
 
 	if (required_pkgconfig_version != NULL)
 	{
-		return 0;
+		if (pkg_compare_version(PKGCONFIG_VERSION_EQUIV, required_pkgconfig_version) >= 0)
+			return EXIT_SUCCESS;
+
+		return EXIT_FAILURE;
 	}
 
 	while (1)
