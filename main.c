@@ -35,6 +35,7 @@ static int want_libs = 0;
 static int want_modversion = 0;
 static int want_static = 0;
 static int want_requires = 0;
+static int want_variables = 0;
 static int maximum_traverse_depth = 2;
 
 static char *required_pkgconfig_version = NULL;
@@ -70,6 +71,15 @@ print_variable(pkg_t *pkg, void *unused)
 	variable = tuple_find(pkg->vars, want_variable);
 	if (variable != NULL)
 		printf("%s ", variable);
+}
+
+static void
+print_variables(pkg_t *pkg, void *unused)
+{
+	pkg_tuple_t *node;
+
+	foreach_list_entry(pkg->vars, node)
+		printf("%s\n", node->key);
 }
 
 static void
@@ -143,6 +153,15 @@ pkg_queue_walk(pkg_queue_t *head)
 		pkg_traverse(&world, print_modversion, NULL, 2);
 	}
 
+	if (want_variables)
+	{
+		wanted_something = 0;
+		want_cflags = 0;
+		want_libs = 0;
+
+		pkg_traverse(&world, print_variables, NULL, 2);
+	}
+
 	if (want_requires)
 	{
 		pkg_dependency_t *iter;
@@ -212,6 +231,7 @@ main(int argc, const char *argv[])
 		{ "maximum-traverse-depth", 0, POPT_ARG_INT, &maximum_traverse_depth, 0, "limits maximum traversal depth of the computed dependency graph" },
 		{ "static", 0, POPT_ARG_NONE, &want_static, 0, "be more aggressive when walking the dependency graph (for intermediary static linking deps)" },
 		{ "print-requires", 0, POPT_ARG_NONE, &want_requires, 0, "print required dependencies of the computed dependency graph" },
+		{ "print-variables", 0, POPT_ARG_NONE, &want_variables, 0, "print variables provided by a package" },
 		POPT_AUTOHELP
 		{ NULL, 0, 0, NULL, 0 }
 	};
