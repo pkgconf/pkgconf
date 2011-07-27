@@ -191,6 +191,8 @@ parse_deplist(pkg_t *pkg, const char *depends)
 		case OUTSIDE_MODULE:
 			if (!MODULE_SEPARATOR(*ptr))
 				state = INSIDE_MODULE_NAME;
+
+			compare = PKG_ANY;
 			break;
 
 		case INSIDE_MODULE_NAME:
@@ -256,13 +258,47 @@ parse_deplist(pkg_t *pkg, const char *depends)
 
 		case BEFORE_OPERATOR:
 			if (OPERATOR_CHAR(*ptr))
+			{
+				switch(*ptr)
+				{
+				case '=':
+					compare = PKG_EQUAL;
+					break;
+				case '>':
+					compare = PKG_GREATER_THAN;
+					break;
+				case '<':
+					compare = PKG_LESS_THAN;
+					break;
+				case '!':
+					compare = PKG_NOT_EQUAL;
+					break;
+				default:
+					break;
+				}
+
 				state = INSIDE_OPERATOR;
+			}
 
 			break;
 
 		case INSIDE_OPERATOR:
 			if (!OPERATOR_CHAR(*ptr))
 				state = AFTER_OPERATOR;
+			else if (*ptr == '=')
+			{
+				switch(compare)
+				{
+				case PKG_LESS_THAN:
+					compare = PKG_LESS_THAN_EQUAL;
+					break;
+				case PKG_GREATER_THAN:
+					compare = PKG_GREATER_THAN_EQUAL;
+					break;
+				default:
+					break;
+				}
+			}
 
 			break;
 
