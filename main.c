@@ -36,6 +36,7 @@ static int want_modversion = 0;
 static int want_static = 0;
 static int want_requires = 0;
 static int want_variables = 0;
+static int want_digraph = 0;
 static int maximum_traverse_depth = 2;
 
 static char *required_pkgconfig_version = NULL;
@@ -98,6 +99,19 @@ print_requires(pkg_t *pkg, void *unused)
 	}
 }
 
+static void
+print_digraph_node(pkg_t *pkg, void *unused)
+{
+	pkg_dependency_t *node;
+
+	printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
+
+	foreach_list_entry(pkg->requires, node)
+	{
+		printf("\"%s\" -- \"%s\" [fontname=Sans fontsize=8]\n", node->package, pkg->id);
+	}
+}
+
 typedef struct pkg_queue_ {
 	struct pkg_queue_ *prev, *next;
 	const char *package;
@@ -122,6 +136,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	int wanted_something = 0;
 	pkg_queue_t *pkgq;
 	pkg_t world = (pkg_t){
+		.id = "world",
 		.realname = "virtual"
 	};
 
@@ -143,6 +158,19 @@ pkg_queue_walk(pkg_queue_t *head)
 
 	/* we should verify that the graph is complete before attempting to compute cflags etc. */
 	pkg_verify_graph(&world, maximum_traverse_depth);
+
+	if (want_digraph)
+	{
+		printf("graph deptree {\n");
+		printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
+		printf("node [fontname=Sans fontsize=8]\n");
+
+		pkg_traverse(&world, print_digraph_node, NULL, maximum_traverse_depth);
+
+		printf("}\n");
+
+		return EXIT_SUCCESS;
+	}
 
 	if (want_modversion)
 	{
@@ -232,6 +260,7 @@ main(int argc, const char *argv[])
 		{ "static", 0, POPT_ARG_NONE, &want_static, 0, "be more aggressive when walking the dependency graph (for intermediary static linking deps)" },
 		{ "print-requires", 0, POPT_ARG_NONE, &want_requires, 0, "print required dependencies of the computed dependency graph" },
 		{ "print-variables", 0, POPT_ARG_NONE, &want_variables, 0, "print variables provided by a package" },
+		{ "digraph", 0, POPT_ARG_NONE, &want_digraph, 0, "build a graphviz digraph (dot) graph of the computed dependency graph" },
 		POPT_AUTOHELP
 		{ NULL, 0, 0, NULL, 0 }
 	};
