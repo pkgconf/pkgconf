@@ -160,27 +160,27 @@ pkg_verify_dependency(pkg_dependency_t *pkgdep)
 	switch(pkgdep->compare)
 	{
 	case PKG_LESS_THAN:
-		if (pkg_compare_version(pkgdep->version, pkg->version) < 0)
+		if (pkg_compare_version(pkg->version, pkgdep->version) < 0)
 			return pkg;
 		break;
 	case PKG_GREATER_THAN:
-		if (pkg_compare_version(pkgdep->version, pkg->version) > 0)
+		if (pkg_compare_version(pkg->version, pkgdep->version) > 0)
 			return pkg;
 		break;
 	case PKG_LESS_THAN_EQUAL:
-		if (pkg_compare_version(pkgdep->version, pkg->version) <= 0)
+		if (pkg_compare_version(pkg->version, pkgdep->version) <= 0)
 			return pkg;
 		break;
 	case PKG_GREATER_THAN_EQUAL:
-		if (pkg_compare_version(pkgdep->version, pkg->version) >= 0)
+		if (pkg_compare_version(pkg->version, pkgdep->version) >= 0)
 			return pkg;
 		break;
 	case PKG_EQUAL:
-		if (pkg_compare_version(pkgdep->version, pkg->version) == 0)
+		if (pkg_compare_version(pkg->version, pkgdep->version) == 0)
 			return pkg;
 		break;
 	case PKG_NOT_EQUAL:
-		if (pkg_compare_version(pkgdep->version, pkg->version) != 0)
+		if (pkg_compare_version(pkg->version, pkgdep->version) != 0)
 			return pkg;
 		break;
 	case PKG_ANY:
