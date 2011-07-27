@@ -174,11 +174,15 @@ parse_deplist(pkg_t *pkg, const char *depends)
 	pkg_dependency_t *deplist = NULL;
 	pkg_dependency_t *deplist_head = NULL;
 	pkg_comparator_t compare = PKG_ANY;
+	char buf[BUFSIZ];
 	char *kvdepends = strdup_parse(pkg, depends);
-	char *start = kvdepends;
-	char *ptr = kvdepends;
+	char *start = buf;
+	char *ptr = buf;
 	char *vstart = NULL;
 	char *package, *version;
+
+	strncpy(buf, kvdepends, BUFSIZ);
+	free(kvdepends);
 
 	while (*ptr)
 	{
@@ -235,9 +239,17 @@ parse_deplist(pkg_t *pkg, const char *depends)
 				if (deplist_head == NULL)
 					deplist_head = deplist;
 
-				free(package);
-				package = NULL;
-				version = NULL;
+				if (package != NULL)
+				{
+					free(package);
+					package = NULL;
+				}
+
+				if (version != NULL)
+				{
+					free(version);
+					version = NULL;
+				}
 			}
 
 			break;
@@ -276,11 +288,17 @@ parse_deplist(pkg_t *pkg, const char *depends)
 				if (deplist_head == NULL)
 					deplist_head = deplist;
 
-				free(package);
-				package = NULL;
+				if (package != NULL)
+				{
+					free(package);
+					package = NULL;
+				}
 
-				free(version);
-				version = NULL;
+				if (version != NULL)
+				{
+					free(version);
+					version = NULL;
+				}
 			}
 
 			if (state == OUTSIDE_MODULE)
@@ -291,7 +309,6 @@ parse_deplist(pkg_t *pkg, const char *depends)
 		ptr++;
 	}
 
-	free(kvdepends);
 	return deplist_head;
 }
 
