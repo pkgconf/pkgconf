@@ -121,6 +121,8 @@ typedef enum {
 	INSIDE_VERSION = 5
 } parse_state_t;
 
+#define DEBUG_PARSE 0
+
 static pkg_dependency_t *
 pkg_dependency_add(pkg_dependency_t *head, const char *package, const char *version, pkg_comparator_t compare)
 {
@@ -129,7 +131,7 @@ pkg_dependency_add(pkg_dependency_t *head, const char *package, const char *vers
 	dep = calloc(sizeof(pkg_dependency_t), 1);
 	dep->package = strdup(package);
 
-	if (dep->version != NULL)
+	if (version != NULL)
 		dep->version = strdup(version);
 
 	dep->compare = compare;
@@ -138,10 +140,13 @@ pkg_dependency_add(pkg_dependency_t *head, const char *package, const char *vers
 	if (dep->prev != NULL)
 		dep->prev->next = dep;
 
+#if DEBUG_PARSE
+	fprintf(stderr, "--> %s %d %s\n", dep->package, dep->compare, dep->version);
+#endif
+
 	return dep;
 }
 
-#define DEBUG_PARSE 0
 #define MODULE_SEPARATOR(c) ((c) == ',' || isspace ((c)))
 #define OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
 
@@ -182,6 +187,7 @@ parse_deplist(pkg_t *pkg, const char *depends)
 	char *package, *version;
 
 	strncpy(buf, kvdepends, BUFSIZ);
+	strncat(buf, " ", BUFSIZ);
 	free(kvdepends);
 
 	while (*ptr)
@@ -192,7 +198,6 @@ parse_deplist(pkg_t *pkg, const char *depends)
 			if (!MODULE_SEPARATOR(*ptr))
 				state = INSIDE_MODULE_NAME;
 
-			compare = PKG_ANY;
 			break;
 
 		case INSIDE_MODULE_NAME:
@@ -236,7 +241,7 @@ parse_deplist(pkg_t *pkg, const char *depends)
 
 			if (state == OUTSIDE_MODULE)
 			{
-				deplist = pkg_dependency_add(deplist, package, NULL, PKG_ANY);
+				deplist = pkg_dependency_add(deplist, package, NULL, compare);
 
 				if (deplist_head == NULL)
 					deplist_head = deplist;
@@ -252,6 +257,8 @@ parse_deplist(pkg_t *pkg, const char *depends)
 					free(version);
 					version = NULL;
 				}
+
+				compare = PKG_ANY;
 			}
 
 			break;
@@ -303,6 +310,10 @@ parse_deplist(pkg_t *pkg, const char *depends)
 			break;
 
 		case AFTER_OPERATOR:
+#if DEBUG_PARSE
+			fprintf(stderr, "Found op: %d\n", compare);
+#endif
+
 			if (!isspace(*ptr))
 			{
 				vstart = ptr;
@@ -313,13 +324,13 @@ parse_deplist(pkg_t *pkg, const char *depends)
 		case INSIDE_VERSION:
 			if (MODULE_SEPARATOR(*ptr) || *(ptr + 1) == '\0')
 			{
-				version = strndup(vstart, ptr - vstart);
+				version = strndup(vstart, (ptr - vstart));
 				state = OUTSIDE_MODULE;
 
 #if DEBUG_PARSE
 				fprintf(stderr, "Found version: %s\n", version);
 #endif
-				deplist = pkg_dependency_add(deplist, package, version, PKG_ANY);
+				deplist = pkg_dependency_add(deplist, package, version, compare);
 
 				if (deplist_head == NULL)
 					deplist_head = deplist;
@@ -335,6 +346,8 @@ parse_deplist(pkg_t *pkg, const char *depends)
 					free(version);
 					version = NULL;
 				}
+
+				compare = PKG_ANY;
 			}
 
 			if (state == OUTSIDE_MODULE)
