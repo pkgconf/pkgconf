@@ -34,6 +34,7 @@ static int want_cflags = 0;
 static int want_libs = 0;
 static int want_modversion = 0;
 static int want_static = 0;
+static int want_requires = 0;
 static int maximum_traverse_depth = 2;
 
 static char *required_pkgconfig_version = NULL;
@@ -69,6 +70,22 @@ print_variable(pkg_t *pkg, void *unused)
 	variable = tuple_find(pkg->vars, want_variable);
 	if (variable != NULL)
 		printf("%s ", variable);
+}
+
+static void
+print_requires(pkg_t *pkg, void *unused)
+{
+	pkg_dependency_t *node;
+
+	foreach_list_entry(pkg->requires, node)
+	{
+		printf("%s", node->package);
+
+		if (node->version != NULL)
+			printf(" %s %s", pkg_get_comparator(node), node->version);
+
+		printf("\n");
+	}
 }
 
 typedef struct pkg_queue_ {
@@ -126,6 +143,23 @@ pkg_queue_walk(pkg_queue_t *head)
 		pkg_traverse(&world, print_modversion, NULL, 2);
 	}
 
+	if (want_requires)
+	{
+		pkg_dependency_t *iter;
+
+		wanted_something = 0;
+		want_cflags = 0;
+		want_libs = 0;
+
+		foreach_list_entry(world.requires, iter)
+		{
+			pkg_t *pkg;
+
+			pkg = pkg_verify_dependency(iter);
+			print_requires(pkg, NULL);
+		}
+	}
+
 	if (want_cflags)
 	{
 		wanted_something++;
@@ -177,6 +211,7 @@ main(int argc, const char *argv[])
 		{ "short-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
 		{ "maximum-traverse-depth", 0, POPT_ARG_INT, &maximum_traverse_depth, 0, "limits maximum traversal depth of the computed dependency graph" },
 		{ "static", 0, POPT_ARG_NONE, &want_static, 0, "be more aggressive when walking the dependency graph (for intermediary static linking deps)" },
+		{ "print-requires", 0, POPT_ARG_NONE, &want_requires, 0, "print required dependencies of the computed dependency graph" },
 		POPT_AUTOHELP
 		{ NULL, 0, 0, NULL, 0 }
 	};
