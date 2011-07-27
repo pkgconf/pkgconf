@@ -143,6 +143,35 @@ pkg_compare_version(const char *a, const char *b)
 }
 
 /*
+ * pkg_get_comparator(pkgdep)
+ *
+ * returns the comparator used in a depgraph dependency node as a string.
+ */
+const char *
+pkg_get_comparator(pkg_dependency_t *pkgdep)
+{
+	switch(pkgdep->compare)
+	{
+	case PKG_LESS_THAN:
+		return "<";
+	case PKG_GREATER_THAN:
+		return ">";
+	case PKG_LESS_THAN_EQUAL:
+		return "<=";
+	case PKG_GREATER_THAN_EQUAL:
+		return ">=";
+	case PKG_EQUAL:
+		return "=";
+	case PKG_NOT_EQUAL:
+		return "!=";
+	case PKG_ANY:
+		return "(any)";
+	}
+
+	return "???";
+}
+
+/*
  * pkg_verify_dependency(pkgdep)
  *
  * verify a pkg_dependency_t node in the depgraph.  if the dependency is solvable,

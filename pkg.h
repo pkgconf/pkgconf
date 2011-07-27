@@ -93,6 +93,7 @@ void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *d
 void pkg_verify_graph(pkg_t *root, int depth);
 int pkg_compare_version(const char *a, const char *b);
 pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep);
+const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
 
 /* parse.c */
 pkg_t *parse_file(const char *path);
