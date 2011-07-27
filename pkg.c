@@ -186,6 +186,8 @@ pkg_verify_dependency(pkg_dependency_t *pkgdep)
 	if (pkg == NULL)
 		return NULL;
 
+	pkg->id = strdup(pkgdep->package);
+
 	switch(pkgdep->compare)
 	{
 	case PKG_LESS_THAN:

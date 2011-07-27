@@ -74,6 +74,7 @@ struct tuple_ {
 };
 
 struct pkg_ {
+	char *id;
 	char *filename;
 	char *realname;
 	char *version;
