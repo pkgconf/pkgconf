@@ -232,6 +232,11 @@ pkg_verify_graph(pkg_t *root, int depth)
 	pkg_traverse(root, NULL, NULL, depth);
 }
 
+/*
+ * pkg_traverse(root, pkg_traverse_func, data, maxdepth)
+ *
+ * walk the dependency graph up to maxdepth levels.  -1 means infinite recursion.
+ */
 void
 pkg_traverse(pkg_t *root,
 	void (*pkg_traverse_func)(pkg_t *package, void *data),
