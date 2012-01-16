@@ -97,7 +97,7 @@ pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep);
 const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
 
 /* parse.c */
-pkg_t *parse_file(const char *path);
+pkg_t *parse_file(const char *path, FILE *f);
 char *tuple_find(pkg_tuple_t *head, const char *key);
 pkg_dependency_t *parse_deplist(pkg_t *pkg, const char *depends);
 pkg_dependency_t *pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail);

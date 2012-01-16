@@ -367,13 +367,11 @@ parse_deplist(pkg_t *pkg, const char *depends)
  * Parse a .pc file into a pkg_t object structure.
  */
 pkg_t *
-parse_file(const char *filename)
+parse_file(const char *filename, FILE *f)
 {
-	FILE *f;
 	pkg_t *pkg;
 	char readbuf[BUFSIZ];
 
-	f = fopen(filename, "r");
 	if (f == NULL)
 		return NULL;
 

@@ -27,10 +27,46 @@ pkg_t *
 pkg_find(const char *name)
 {
 	char locbuf[BUFSIZ];
+	char path[BUFSIZ];
+	char *env_path;
+	int count = 0, pcount = 0;
+	FILE *f;
 
 	snprintf(locbuf, sizeof locbuf, "/usr/lib/pkgconfig/%s.pc", name);
+	if (!(f = fopen(locbuf, "r")))
+	{
+		env_path = getenv("PKG_CONFIG_PATH");
+		if (env_path == NULL)
+			return NULL;
 
-	return parse_file(locbuf);
+		while (env_path[count] != '\0')
+		{
+			if (env_path[count] != ':')
+			{
+				path[pcount] = env_path[count];
+				pcount++;
+			}
+
+			if (env_path[count] == ':')
+			{
+				snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
+				if (f = fopen(locbuf, "r"))
+					return parse_file(locbuf, f);
+				path[0] = '\0';
+				pcount = 0;
+			}
+			
+			count++;
+		}
+
+		if (path[0] != '\0')
+		{
+			snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
+			f = fopen(locbuf, "r");
+		}
+	}
+
+	return parse_file(locbuf, f);
 }
 
 /*
