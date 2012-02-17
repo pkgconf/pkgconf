@@ -2,7 +2,7 @@
  * pkg.c
  * higher-level dependency graph compilation, management and manipulation
  *
- * Copyright (c) 2011 William Pitcock <nenolod@dereferenced.org>.
+ * Copyright (c) 2011, 2012 William Pitcock <nenolod@dereferenced.org>.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -23,47 +23,64 @@
 
 #include "pkg.h"
 
+#define PKG_CONFIG_EXT		".pc"
+#define PKG_CONFIG_PATH_SZ	(65535)
+
+static inline const char *
+pkg_get_pkgconfig_path(void)
+{
+	static bool computed = false;
+	static char path[PKG_CONFIG_PATH_SZ];
+	char *env_path;
+
+	if (computed)
+		return path;
+
+	strncpy(path, PKG_DEFAULT_PATH, sizeof path);
+
+	env_path = getenv("PKG_CONFIG_PATH");
+	if (env_path != NULL)
+	{
+		strncat(path, ":", sizeof path);
+		strncat(path, env_path, sizeof path);
+	}
+
+	return path;
+}
+
 pkg_t *
 pkg_find(const char *name)
 {
 	char locbuf[BUFSIZ];
 	char path[BUFSIZ];
-	char *env_path;
+	const char *env_path;
 	int count = 0, pcount = 0;
 	FILE *f;
 
-	snprintf(locbuf, sizeof locbuf, "/usr/lib/pkgconfig/%s.pc", name);
-	if (!(f = fopen(locbuf, "r")))
+	env_path = pkg_get_pkgconfig_path();
+	while (env_path[count] != '\0')
 	{
-		env_path = getenv("PKG_CONFIG_PATH");
-		if (env_path == NULL)
-			return NULL;
-
-		while (env_path[count] != '\0')
+		if (env_path[count] != ':')
 		{
-			if (env_path[count] != ':')
-			{
-				path[pcount] = env_path[count];
-				pcount++;
-			}
-
-			if (env_path[count] == ':')
-			{
-				snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
-				if (f = fopen(locbuf, "r"))
-					return parse_file(locbuf, f);
-				path[0] = '\0';
-				pcount = 0;
-			}
-			
-			count++;
+			path[pcount] = env_path[count];
+			pcount++;
 		}
-
-		if (path[0] != '\0')
+		else
 		{
 			snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
-			f = fopen(locbuf, "r");
+			if (f = fopen(locbuf, "r"))
+				return parse_file(locbuf, f);
+			path[0] = '\0';
+			pcount = 0;
 		}
+
+		count++;
+	}
+
+	if (path[0] != '\0')
+	{
+		snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
+		f = fopen(locbuf, "r");
 	}
 
 	return parse_file(locbuf, f);
