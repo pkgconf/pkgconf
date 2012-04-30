@@ -2,7 +2,7 @@
  * parse.c
  * Parser for .pc file.
  *
- * Copyright (c) 2011 William Pitcock <nenolod@dereferenced.org>.
+ * Copyright (c) 2011, 2012 William Pitcock <nenolod@dereferenced.org>.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,6 +22,7 @@
  */
 
 #include "pkg.h"
+#include "bsdstubs.h"
 
 static pkg_tuple_t *
 tuple_add(pkg_tuple_t *parent, const char *key, const char *value)
@@ -186,8 +187,8 @@ parse_deplist(pkg_t *pkg, const char *depends)
 	char *vstart = NULL;
 	char *package, *version;
 
-	strncpy(buf, kvdepends, BUFSIZ);
-	strncat(buf, " ", BUFSIZ);
+	strlcpy(buf, kvdepends, sizeof buf);
+	strlcat(buf, " ", sizeof buf);
 	free(kvdepends);
 
 	while (*ptr)

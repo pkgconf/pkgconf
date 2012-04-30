@@ -22,6 +22,7 @@
  */
 
 #include "pkg.h"
+#include "bsdstubs.h"
 
 #define PKG_CONFIG_EXT		".pc"
 #define PKG_CONFIG_PATH_SZ	(65535)
@@ -32,19 +33,17 @@ pkg_get_pkgconfig_path(void)
 	static bool computed = false;
 	static char path[PKG_CONFIG_PATH_SZ];
 	char *env_path;
-	size_t len;
 
 	if (computed)
 		return path;
 
-	strncpy(path, PKG_DEFAULT_PATH, sizeof path);
-	len = strlen(PKG_DEFAULT_PATH);
+	strlcpy(path, PKG_DEFAULT_PATH, sizeof path);
 
 	env_path = getenv("PKG_CONFIG_PATH");
 	if (env_path != NULL)
 	{
-		strncat(path, ":", sizeof path - len - 1);
-		strncat(path, env_path, sizeof path - len - 2);
+		strlcat(path, ":", sizeof path);
+		strlcat(path, env_path, sizeof path);
 	}
 
 	return path;
