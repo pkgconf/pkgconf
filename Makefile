@@ -1,5 +1,5 @@
 PROG		= pkgconf${PROG_SUFFIX}
-SRCS		= main.c parse.c pkg.c
+SRCS		= main.c parse.c pkg.c bsdstubs.c
 
 include buildsys.mk
 
