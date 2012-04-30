@@ -23,6 +23,9 @@
 
 #include "config.h"
 
+#ifndef __BSDSTUBS_H__
+#define __BSDSTUBS_H__
+
 #ifndef HAVE_STRLCPY
 extern size_t strlcpy(char *dst, const char *src, size_t siz);
 #endif
@@ -35,3 +38,4 @@ extern size_t strlcat(char *dst, const char *src, size_t siz);
 extern char *strndup(const char *src, size_t len);
 #endif
 
+#endif
