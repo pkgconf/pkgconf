@@ -22,6 +22,7 @@
  */
 
 #include "config.h"
+#include "getopt_long.h"
 
 #ifndef __BSDSTUBS_H__
 #define __BSDSTUBS_H__
