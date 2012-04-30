@@ -58,6 +58,14 @@ typedef struct tuple_ pkg_tuple_t;
 #define LOCAL_COPY(a) \
 	strcpy(alloca(strlen(a) + 1), a)
 
+#ifndef MIN
+# define MIN(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
+#ifndef MAX
+# define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
 struct dependency_ {
 	struct dependency_ *prev, *next;
 
