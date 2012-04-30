@@ -21,10 +21,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include <libgen.h>
-#include <popt.h>
 
 #include "pkg.h"
+
+#ifdef HAVE_GETOPT_LONG
+# include <getopt.h>
+#else
+# include "bsdstubs.h"
+#endif
 
 /* we are compatible with 0.26 of pkg-config */
 #define PKGCONFIG_VERSION_EQUIV		"0.26"
@@ -238,41 +245,50 @@ version(void)
 }
 
 int
-main(int argc, const char *argv[])
+main(int argc, char *argv[])
 {
 	int ret;
-	poptContext opt_context;
 	pkg_queue_t *pkgq = NULL;
 	pkg_queue_t *pkgq_head = NULL;
 
-	struct poptOption options[] = {
-		{ "version", 0, POPT_ARG_NONE, &want_version, 0, "output pkgconf version" },
-		{ "atleast-version", 0, POPT_ARG_STRING, &required_module_version, 0, "require specified version of a package" },
-		{ "atleast-pkgconfig-version", 0, POPT_ARG_STRING, &required_pkgconfig_version, 0, "require compatibility level with specified version of pkg-config" },
-		{ "libs", 0, POPT_ARG_NONE, &want_libs, 0, "output all linker flags" },
-		{ "cflags", 0, POPT_ARG_NONE, &want_cflags, 0, "output all compiler flags" },
-		{ "modversion", 0, POPT_ARG_NONE, &want_modversion, 0, "output package version" },
-		{ "variable", 0, POPT_ARG_STRING, &want_variable, 0, "get the value of the specified variable" },
-		{ "exists", 0, POPT_ARG_NONE, NULL, 0, "return 0 if all packages present" },
-		{ "print-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
-		{ "short-errors", 0, POPT_ARG_NONE, NULL, 0, "dummy option for pkg-config compatibility" },
-		{ "maximum-traverse-depth", 0, POPT_ARG_INT, &maximum_traverse_depth, 0, "limits maximum traversal depth of the computed dependency graph" },
-		{ "static", 0, POPT_ARG_NONE, &want_static, 0, "be more aggressive when walking the dependency graph (for intermediary static linking deps)" },
-		{ "print-requires", 0, POPT_ARG_NONE, &want_requires, 0, "print required dependencies of the computed dependency graph" },
-		{ "print-variables", 0, POPT_ARG_NONE, &want_variables, 0, "print variables provided by a package" },
-		{ "digraph", 0, POPT_ARG_NONE, &want_digraph, 0, "build a graphviz digraph (dot) graph of the computed dependency graph" },
-		POPT_AUTOHELP
-		{ NULL, 0, 0, NULL, 0 }
+	struct option options[] = {
+		{ "version", no_argument, &want_version, 1, },
+		{ "atleast-version", required_argument, NULL, 2, },
+		{ "atleast-pkgconfig-version", required_argument, NULL, 3, },
+		{ "libs", no_argument, &want_libs, 4, },
+		{ "cflags", no_argument, &want_cflags, 5, },
+		{ "modversion", no_argument, &want_modversion, 6, },
+		{ "variable", required_argument, NULL, 7, },
+		{ "exists", no_argument, NULL, 8, },
+		{ "print-errors", no_argument, NULL, 9, },
+		{ "short-errors", no_argument, NULL, 10, },
+		{ "maximum-traverse-depth", required_argument, NULL, 11, },
+		{ "static", no_argument, &want_static, 12, },
+		{ "print-requires", no_argument, &want_requires, 13, },
+		{ "print-variables", no_argument, &want_variables, 14, },
+		{ "digraph", no_argument, &want_digraph, 15, },
+		{ NULL, 0, NULL, 0 }
 	};
 
-	opt_context = poptGetContext(NULL, argc, argv, options, 0);
-	ret = poptGetNextOpt(opt_context);
-	if (ret != -1)
+	while ((ret = getopt_long(argc, argv, "", options, NULL)) != -1)
 	{
-		fprintf(stderr, "%s: %s\n",
-			poptBadOption(opt_context, POPT_BADOPTION_NOALIAS),
-			poptStrerror(ret));
-		return EXIT_FAILURE;
+		switch (ret)
+		{
+		case 2:
+			required_module_version = optarg;
+			break;
+		case 3:
+			required_pkgconfig_version = optarg;
+			break;
+		case 7:
+			want_variable = optarg;
+			break;
+		case 11:
+			maximum_traverse_depth = atoi(optarg);
+			break;
+		default:
+			break;
+		}
 	}
 
 	if (want_version)
@@ -297,7 +313,7 @@ main(int argc, const char *argv[])
 		pkg_t *pkg;
 		const char *package;
 
-		package = poptGetArg(opt_context);
+		package = argv[optind];
 		if (package == NULL)
 			return EXIT_SUCCESS;
 
@@ -313,7 +329,7 @@ main(int argc, const char *argv[])
 
 	while (1)
 	{
-		const char *package = poptGetArg(opt_context);
+		const char *package = argv[optind++];
 		if (package == NULL)
 			break;
 
@@ -321,8 +337,6 @@ main(int argc, const char *argv[])
 		if (pkgq_head == NULL)
 			pkgq_head = pkgq;
 	}
-
-	poptFreeContext(opt_context);
 
 	if (pkgq_head == NULL)
 	{
