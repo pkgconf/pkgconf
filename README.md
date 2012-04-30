@@ -1,7 +1,8 @@
-pkgconf - compiler and linker configuration for development frameworks
-----------------------------------------------------------------------
+# pkgconf
 
-1. General summary.
+pkgconf provides compiler and linker configuration for development frameworks.
+
+## general summary
 
 pkgconf is a program which helps to configure compiler and linker flags for
 development frameworks.  It is similar to pkg-config, but was written from
@@ -23,7 +24,7 @@ if you do this, it will be running in native mode, so you may have some very
 strange results as the dependency graph is compiled differently in native
 mode.
 
-2. Technical design.
+## technical design
 
 pkgconf builds an acyclic directed dependency graph.  This allows for the user
 to more conservatively link their binaries -- which may be helpful in some 
@@ -35,17 +36,17 @@ attempting to resolve dependencies, which is a considerably slower and less
 efficient design.
 
 pkgconf also does not provide support for pointlessly stupid features implemented
-in pkg-config.  If you think a feature is not dumb, then you should file an
-'Improvement' task on Atheme's JIRA instance at <http://jira.atheme.org>.
+in pkg-config.
 
-3. Compiling.
+## compiling
 
-pkgconf is basically compiled the same way any other Atheme project is compiled:
+pkgconf is basically compiled the same way any other autotools-based project is
+compiled:
 
-   $ ./configure
-   $ make
-   $ sudo make install
+    $ ./configure
+    $ make
+    $ sudo make install
 
-4. Reporting bugs.
+## reporting bugs
 
-Please report bugs to <http://jira.atheme.org>.
+see <https://github.com/nenolod/pkgconf/issues>.
