@@ -30,3 +30,8 @@ extern size_t strlcpy(char *dst, const char *src, size_t siz);
 #ifndef HAVE_STRLCAT
 extern size_t strlcat(char *dst, const char *src, size_t siz);
 #endif
+
+#ifndef HAVE_STRNDUP
+extern char *strndup(const char *src, size_t len);
+#endif
+
