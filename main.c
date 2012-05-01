@@ -36,6 +36,7 @@
 /* we are compatible with 0.26 of pkg-config */
 #define PKGCONFIG_VERSION_EQUIV		"0.26"
 
+static int want_help = 0;
 static int want_version = 0;
 static int want_cflags = 0;
 static int want_libs = 0;
@@ -244,6 +245,38 @@ version(void)
 	printf("%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 }
 
+static void
+usage(void)
+{
+	printf("usage: %s [OPTIONS] [LIBRARIES]\n", PACKAGE_NAME);
+
+	printf("\nbasic options:\n\n");
+
+	printf("  --help                            this message\n");
+	printf("  --version                         print pkgconf version to stdout\n");
+	printf("  --atleast-pkgconfig-version       check whether or not pkgconf is compatible\n");
+	printf("                                    with a specified pkg-config version\n");
+
+	printf("\nchecking specific pkg-config database entries:\n\n");
+
+	printf("  --atleast-version                 require a specific version of a module\n");
+	printf("  --exists                          check whether or not a module exists\n");
+	printf("  --maximum-traverse-depth          maximum allowed depth for dependency graph\n");
+	printf("  --static                          be more aggressive when computing dependency graph\n");
+	printf("                                    (for static linking)\n");
+
+	printf("\nquerying specific pkg-config database fields:\n\n");
+
+	printf("  --variable=varname                print specified variable entry to stdout\n");
+	printf("  --cflags                          print required CFLAGS to stdout\n");
+	printf("  --libs                            print required linker flags to stdout\n");
+	printf("  --print-requires                  print required dependency frameworks to stdout\n");
+	printf("  --print-variables                 print all known variables in module to stdout\n");
+	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
+
+	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -267,6 +300,7 @@ main(int argc, char *argv[])
 		{ "print-requires", no_argument, &want_requires, 13, },
 		{ "print-variables", no_argument, &want_variables, 14, },
 		{ "digraph", no_argument, &want_digraph, 15, },
+		{ "help", no_argument, &want_help, 16, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -294,6 +328,12 @@ main(int argc, char *argv[])
 	if (want_version)
 	{
 		version();
+		return EXIT_SUCCESS;
+	}
+
+	if (want_help)
+	{
+		usage();
 		return EXIT_SUCCESS;
 	}
 
