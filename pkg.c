@@ -58,20 +58,24 @@ pkg_find(const char *name)
 	int count = 0, pcount = 0;
 	FILE *f;
 
+	bzero(path, BUFSIZ);
+
 	env_path = pkg_get_pkgconfig_path();
 	while (env_path[count] != '\0')
 	{
-		if (env_path[count] != ':')
+		if (env_path[count] && env_path[count] != ':')
 		{
 			path[pcount] = env_path[count];
 			pcount++;
 		}
 		else
 		{
+			path[pcount] = '\0';
 			snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
 			if (f = fopen(locbuf, "r"))
 				return parse_file(locbuf, f);
-			path[0] = '\0';
+
+			bzero(path, BUFSIZ);
 			pcount = 0;
 		}
 
