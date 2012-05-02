@@ -230,7 +230,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	if (want_libs)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth, global_traverse_flags | (want_static ? PKGF_SEARCH_PRIVATE : PKGF_NONE));
+		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth, global_traverse_flags);
 	}
 
 	if (want_variable)
@@ -346,7 +346,10 @@ main(int argc, char *argv[])
 	}
 
 	if (want_static)
+	{
 		maximum_traverse_depth++;
+		global_traverse_flags |= PKGF_SEARCH_PRIVATE;
+	}
 
 	if (want_env_only)
 		global_traverse_flags |= PKGF_ENV_ONLY;
