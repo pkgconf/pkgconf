@@ -78,10 +78,13 @@ pkg_find(const char *name)
 		else
 		{
 			path[pcount] = '\0';
-			snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
-			if (f = fopen(locbuf, "r"))
-				return parse_file(locbuf, f);
-			else if (env_path[count] == '\0')
+			if (path[0] != '\0')
+			{
+				snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
+				if (f = fopen(locbuf, "r"))
+					return parse_file(locbuf, f);
+			}
+			if (env_path[count] == '\0')
 				break;
 
 			pcount = 0;
