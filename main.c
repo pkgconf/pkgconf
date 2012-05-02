@@ -171,7 +171,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	}
 
 	/* we should verify that the graph is complete before attempting to compute cflags etc. */
-	pkg_verify_graph(&world, maximum_traverse_depth);
+	pkg_verify_graph(&world, maximum_traverse_depth, global_traverse_flags);
 
 	if (want_digraph)
 	{

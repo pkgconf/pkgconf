@@ -293,9 +293,9 @@ pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags)
  * pkg_traverse().
  */
 void
-pkg_verify_graph(pkg_t *root, int depth)
+pkg_verify_graph(pkg_t *root, int depth, unsigned int flags)
 {
-	pkg_traverse(root, NULL, NULL, depth, PKGF_NONE);
+	pkg_traverse(root, NULL, NULL, depth, flags);
 }
 
 static inline void
