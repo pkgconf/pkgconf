@@ -102,6 +102,7 @@ struct pkg_ {
 
 #define PKGF_NONE			0x0
 #define PKGF_SEARCH_PRIVATE		0x1
+#define PKGF_ENV_ONLY			0x2
 
 pkg_t *pkg_find(const char *name, unsigned int flags);
 void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data, int maxdepth, unsigned int flags);
