@@ -218,7 +218,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	if (want_cflags)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_cflags, NULL, maximum_traverse_depth, PKGF_NONE);
+		pkg_traverse(&world, print_cflags, NULL, maximum_traverse_depth, PKGF_SEARCH_PRIVATE);
 	}
 
 	if (want_libs)
