@@ -94,6 +94,7 @@ struct pkg_ {
 	char *cflags;
 
 	pkg_dependency_t *requires;
+	pkg_dependency_t *requires_private;
 	pkg_dependency_t *conflicts;
 	pkg_tuple_t *vars;
 };
