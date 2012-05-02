@@ -227,7 +227,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	if (want_libs)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth, PKGF_NONE);
+		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth, want_static ? PKGF_SEARCH_PRIVATE : PKGF_NONE);
 	}
 
 	if (want_variable)
