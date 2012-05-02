@@ -27,27 +27,14 @@
 #define PKG_CONFIG_EXT		".pc"
 #define PKG_CONFIG_PATH_SZ	(65535)
 
-static inline const char *
-pkg_get_pkgconfig_path(void)
-{
-	static bool computed = false;
-	static char path[PKG_CONFIG_PATH_SZ];
-	char *env_path;
-
-	if (computed)
-		return path;
-
-	strlcpy(path, PKG_DEFAULT_PATH, sizeof path);
-
-	env_path = getenv("PKG_CONFIG_PATH");
-	if (env_path != NULL)
-	{
-		strlcat(path, ":", sizeof path);
-		strlcat(path, env_path, sizeof path);
-	}
-
-	return path;
-}
+#ifdef _WIN32
+/* pkg-config uses ';' on win32 as ':' is part of path */
+#define PKG_CONFIG_PATH_SEP_S	";"
+#define PKG_CONFIG_PATH_SEP	';'
+#else
+#define PKG_CONFIG_PATH_SEP_S	":"
+#define PKG_CONFIG_PATH_SEP	':'
+#endif
 
 pkg_t *
 pkg_find(const char *name)
@@ -58,37 +45,40 @@ pkg_find(const char *name)
 	int count = 0, pcount = 0;
 	FILE *f;
 
-	bzero(path, BUFSIZ);
-
-	env_path = pkg_get_pkgconfig_path();
-	while (env_path[count] != '\0')
+	/* PKG_CONFIG_PATH has to take precedence */
+	env_path = getenv("PKG_CONFIG_PATH");
+	if (env_path)
 	{
-		if (env_path[count] && env_path[count] != ':')
+		while (1)
 		{
-			path[pcount] = env_path[count];
-			pcount++;
-		}
-		else
-		{
-			path[pcount] = '\0';
-			snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
-			if (f = fopen(locbuf, "r"))
-				return parse_file(locbuf, f);
+			if (env_path[count] && env_path[count] != PKG_CONFIG_PATH_SEP)
+			{
+				path[pcount] = env_path[count];
+				pcount++;
+			}
+			else
+			{
+				path[pcount] = '\0';
+				if (path[0] != '\0')
+				{
+					snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
+					if (f = fopen(locbuf, "r"))
+						return parse_file(locbuf, f);
+				}
+				if (env_path[count] == '\0')
+					break;
 
-			bzero(path, BUFSIZ);
-			pcount = 0;
-		}
+				pcount = 0;
+			}
 
-		count++;
+			count++;
+		}
 	}
 
-	if (path[0] != '\0')
-	{
-		snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
-		f = fopen(locbuf, "r");
-	}
-
-	return parse_file(locbuf, f);
+	snprintf(locbuf, sizeof locbuf, "%s/%s.pc", PKG_DEFAULT_PATH, name);
+	if (f = fopen(locbuf, "r"))
+		return parse_file(locbuf, f);
+	return NULL;
 }
 
 /*

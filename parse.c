@@ -185,7 +185,7 @@ parse_deplist(pkg_t *pkg, const char *depends)
 	char *start = buf;
 	char *ptr = buf;
 	char *vstart = NULL;
-	char *package, *version;
+	char *package = NULL, *version = NULL;
 
 	strlcpy(buf, kvdepends, sizeof buf);
 	strlcat(buf, " ", sizeof buf);
@@ -372,9 +372,6 @@ parse_file(const char *filename, FILE *f)
 {
 	pkg_t *pkg;
 	char readbuf[BUFSIZ];
-
-	if (f == NULL)
-		return NULL;
 
 	pkg = calloc(sizeof(pkg_t), 1);
 	pkg->filename = strdup(filename);
