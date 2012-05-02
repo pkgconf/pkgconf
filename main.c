@@ -63,6 +63,9 @@ print_libs(pkg_t *pkg, void *unused)
 {
 	if (pkg->libs != NULL)
 		printf("%s ", pkg->libs);
+
+	if (want_static && pkg->libs_private != NULL)
+		printf("%s ", pkg->libs_private);
 }
 
 static void
