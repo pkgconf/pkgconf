@@ -99,8 +99,11 @@ struct pkg_ {
 	pkg_tuple_t *vars;
 };
 
+#define PKGF_NONE			0x0
+#define PKGF_SEARCH_PRIVATE		0x1
+
 pkg_t *pkg_find(const char *name);
-void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data, int maxdepth);
+void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data, int maxdepth, unsigned int flags);
 void pkg_verify_graph(pkg_t *root, int depth);
 int pkg_compare_version(const char *a, const char *b);
 pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep);

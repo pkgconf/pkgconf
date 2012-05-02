@@ -292,7 +292,38 @@ pkg_verify_dependency(pkg_dependency_t *pkgdep)
 void
 pkg_verify_graph(pkg_t *root, int depth)
 {
-	pkg_traverse(root, NULL, NULL, depth);
+	pkg_traverse(root, NULL, NULL, depth, PKGF_NONE);
+}
+
+static inline void
+pkg_walk_list(pkg_t *parent,
+	pkg_dependency_t *deplist,
+	void (*pkg_traverse_func)(pkg_t *package, void *data),
+	void *data,
+	int maxdepth,
+	unsigned int flags)
+{
+	pkg_dependency_t *node;
+
+	foreach_list_entry(deplist, node)
+	{
+		pkg_t *pkgdep;
+
+		if (*node->package == '\0')
+			continue;
+
+		pkgdep = pkg_verify_dependency(node);
+		if (pkgdep == NULL)
+		{
+			fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);
+			fprintf(stderr, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
+			fprintf(stderr, "to the PKG_CONFIG_PATH environment variable\n");
+			fprintf(stderr, "No package '%s' found\n", node->package);
+			exit(EXIT_FAILURE);
+		}
+
+		pkg_traverse(pkgdep, pkg_traverse_func, data, maxdepth - 1, flags);
+	}
 }
 
 /*
@@ -304,32 +335,15 @@ void
 pkg_traverse(pkg_t *root,
 	void (*pkg_traverse_func)(pkg_t *package, void *data),
 	void *data,
-	int maxdepth)
+	int maxdepth,
+	unsigned int flags)
 {
 	pkg_dependency_t *node;
 
 	if (maxdepth == 0)
 		return;
 
-	foreach_list_entry(root->requires, node)
-	{
-		pkg_t *pkgdep;
-
-		if (*node->package == '\0')
-			continue;
-
-		pkgdep = pkg_verify_dependency(node);
-		if (pkgdep == NULL)	
-		{
-			fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);
-			fprintf(stderr, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
-			fprintf(stderr, "to the PKG_CONFIG_PATH environment variable\n");
-			fprintf(stderr, "No package '%s' found\n", node->package);
-			exit(EXIT_FAILURE);
-		}
-
-		pkg_traverse(pkgdep, pkg_traverse_func, data, maxdepth - 1);
-	}
+	pkg_walk_list(root, root->requires, pkg_traverse_func, data, maxdepth - 1, flags);
 
 	if (pkg_traverse_func != NULL)
 		pkg_traverse_func(root, data);

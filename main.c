@@ -173,7 +173,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
 		printf("node [fontname=Sans fontsize=8]\n");
 
-		pkg_traverse(&world, print_digraph_node, NULL, maximum_traverse_depth);
+		pkg_traverse(&world, print_digraph_node, NULL, maximum_traverse_depth, PKGF_NONE);
 
 		printf("}\n");
 
@@ -186,7 +186,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		pkg_traverse(&world, print_modversion, NULL, 2);
+		pkg_traverse(&world, print_modversion, NULL, 2, PKGF_NONE);
 	}
 
 	if (want_variables)
@@ -195,7 +195,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		pkg_traverse(&world, print_variables, NULL, 2);
+		pkg_traverse(&world, print_variables, NULL, 2, PKGF_NONE);
 	}
 
 	if (want_requires)
@@ -218,19 +218,19 @@ pkg_queue_walk(pkg_queue_t *head)
 	if (want_cflags)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_cflags, NULL, maximum_traverse_depth);
+		pkg_traverse(&world, print_cflags, NULL, maximum_traverse_depth, PKGF_NONE);
 	}
 
 	if (want_libs)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth);
+		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth, PKGF_NONE);
 	}
 
 	if (want_variable)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_variable, NULL, 2);
+		pkg_traverse(&world, print_variable, NULL, 2, PKGF_NONE);
 	}
 
 	if (wanted_something)
