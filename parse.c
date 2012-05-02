@@ -373,9 +373,6 @@ parse_file(const char *filename, FILE *f)
 	pkg_t *pkg;
 	char readbuf[BUFSIZ];
 
-	if (f == NULL)
-		return NULL;
-
 	pkg = calloc(sizeof(pkg_t), 1);
 	pkg->filename = strdup(filename);
 
