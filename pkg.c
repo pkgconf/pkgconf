@@ -27,13 +27,11 @@
 #define PKG_CONFIG_EXT		".pc"
 #define PKG_CONFIG_PATH_SZ	(65535)
 
-#ifdef _WIN32
 /* pkg-config uses ';' on win32 as ':' is part of path */
+#ifdef _WIN32
 #define PKG_CONFIG_PATH_SEP_S	";"
-#define PKG_CONFIG_PATH_SEP	':'
 #else
 #define PKG_CONFIG_PATH_SEP_S	":"
-#define PKG_CONFIG_PATH_SEP	':'
 #endif
 
 static inline size_t
@@ -48,7 +46,7 @@ path_split(const char *text, char ***parv)
 	*parv = malloc(sizeof (void *));
 
 	iter = workbuf = strdup(text);
-	while ((p = strtok(iter, " ")) != NULL)
+	while ((p = strtok(iter, PKG_CONFIG_PATH_SEP_S)) != NULL)
 	{
 		*parv[count] = strdup(p);
 		count++, iter = NULL;
