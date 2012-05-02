@@ -413,6 +413,8 @@ parse_file(const char *filename, FILE *f)
 				pkg->cflags = strdup_parse(pkg, value);
 			else if (!strcasecmp(key, "LIBS"))
 				pkg->libs = strdup_parse(pkg, value);
+			else if (!strcasecmp(key, "LIBS.private"))
+				pkg->libs_private = strdup_parse(pkg, value);
 			else if (!strcasecmp(key, "Requires"))
 				pkg->requires = parse_deplist(pkg, value);
 			else if (!strcasecmp(key, "Requires.private"))
