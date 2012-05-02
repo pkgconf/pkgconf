@@ -36,70 +36,57 @@
 #define PKG_CONFIG_PATH_SEP	':'
 #endif
 
-static inline int
-path_split(char *text, char ***parv)
+static inline size_t
+path_split(const char *text, char ***parv)
 {
-	int count = 0;
-	char *p;
+	size_t count = 0;
+	char *workbuf, *p, *iter;
 
 	if (text == NULL)
 		return 0;
 
 	*parv = malloc(sizeof (void *));
 
-	p = text;
-	while ((*parv[count] = strtok(p, " ")) != NULL)
+	iter = workbuf = strdup(text);
+	while ((p = strtok(iter, " ")) != NULL)
 	{
-		count++, p = NULL;
+		*parv[count] = strdup(p);
+		count++, iter = NULL;
+
 		*parv = realloc(*parv, sizeof (void *) * count);
 	}
+	free(workbuf);
 
-        return count;
+	return count + 1;
 }
 
 pkg_t *
 pkg_find(const char *name)
 {
 	char locbuf[PKG_CONFIG_PATH_SZ];
-	char *path;
+	char **path;
+	size_t count, iter;
 	const char *env_path;
-	int count = 0, pcount = 0;
 	FILE *f;
 
 	/* PKG_CONFIG_PATH has to take precedence */
 	env_path = getenv("PKG_CONFIG_PATH");
 	if (env_path)
 	{
-		while (1)
+		count = path_split(env_path, &path);
+
+		while (iter < count)
 		{
-
-			if (env_path[count] && env_path[count] != PKG_CONFIG_PATH_SEP)
-			{
-				path[pcount] = env_path[count];
-				pcount++;
-			}
-			else
-			{
-				path[pcount] = '\0';
-				if (path[0] != '\0')
-				{
-					snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
-					if (f = fopen(locbuf, "r"))
-						return parse_file(locbuf, f);
-				}
-				if (env_path[count] == '\0')
-					break;
-
-				pcount = 0;
-			}
-
-			count++;
+			snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path[iter], name);
+			if (f = fopen(locbuf, "r"))
+				return parse_file(locbuf, f);
 		}
 	}
 
 	snprintf(locbuf, sizeof locbuf, "%s/%s.pc", PKG_DEFAULT_PATH, name);
 	if (f = fopen(locbuf, "r"))
 		return parse_file(locbuf, f);
+
 	return NULL;
 }
 
