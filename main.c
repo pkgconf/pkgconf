@@ -47,6 +47,7 @@ static int want_static = 0;
 static int want_requires = 0;
 static int want_variables = 0;
 static int want_digraph = 0;
+static int want_env_only = 0;
 static int maximum_traverse_depth = 2;
 
 static char *required_pkgconfig_version = NULL;
@@ -269,6 +270,7 @@ usage(void)
 	printf("  --maximum-traverse-depth          maximum allowed depth for dependency graph\n");
 	printf("  --static                          be more aggressive when computing dependency graph\n");
 	printf("                                    (for static linking)\n");
+	printf("  --env-only                        look only for package entries in PKG_CONFIG_PATH\n");
 
 	printf("\nquerying specific pkg-config database fields:\n\n");
 
@@ -306,6 +308,7 @@ main(int argc, char *argv[])
 		{ "print-variables", no_argument, &want_variables, 14, },
 		{ "digraph", no_argument, &want_digraph, 15, },
 		{ "help", no_argument, &want_help, 16, },
+		{ "env-only", no_argument, &want_env_only, 17, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -344,6 +347,9 @@ main(int argc, char *argv[])
 
 	if (want_static)
 		maximum_traverse_depth++;
+
+	if (want_env_only)
+		global_traverse_flags |= PKGF_ENV_ONLY;
 
 	if (required_pkgconfig_version != NULL)
 	{
