@@ -30,17 +30,38 @@
 #ifdef _WIN32
 /* pkg-config uses ';' on win32 as ':' is part of path */
 #define PKG_CONFIG_PATH_SEP_S	";"
-#define PKG_CONFIG_PATH_SEP	';'
+#define PKG_CONFIG_PATH_SEP	':'
 #else
 #define PKG_CONFIG_PATH_SEP_S	":"
 #define PKG_CONFIG_PATH_SEP	':'
 #endif
 
+static inline int
+path_split(char *text, char ***parv)
+{
+	int count = 0;
+	char *p;
+
+	if (text == NULL)
+		return 0;
+
+	*parv = malloc(sizeof (void *));
+
+	p = text;
+	while ((*parv[count] = strtok(p, " ")) != NULL)
+	{
+		count++, p = NULL;
+		*parv = realloc(*parv, sizeof (void *) * count);
+	}
+
+        return count;
+}
+
 pkg_t *
 pkg_find(const char *name)
 {
-	char locbuf[BUFSIZ];
-	char path[BUFSIZ];
+	char locbuf[PKG_CONFIG_PATH_SZ];
+	char *path;
 	const char *env_path;
 	int count = 0, pcount = 0;
 	FILE *f;
@@ -51,6 +72,7 @@ pkg_find(const char *name)
 	{
 		while (1)
 		{
+
 			if (env_path[count] && env_path[count] != PKG_CONFIG_PATH_SEP)
 			{
 				path[pcount] = env_path[count];
