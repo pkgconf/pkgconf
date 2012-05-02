@@ -48,7 +48,7 @@ path_split(const char *text, char ***parv)
 	iter = workbuf = strdup(text);
 	while ((p = strtok(iter, PKG_CONFIG_PATH_SEP_S)) != NULL)
 	{
-		*parv[count] = strdup(p);
+		(*parv)[count] = strdup(p);
 		count++, iter = NULL;
 
 		*parv = realloc(*parv, sizeof (void *) * count);
