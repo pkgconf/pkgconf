@@ -27,6 +27,15 @@
 #define PKG_CONFIG_EXT		".pc"
 #define PKG_CONFIG_PATH_SZ	(65535)
 
+#ifdef _WIN32
+/* pkg-config uses ';' on win32 as ':' is part of path */
+#define PKG_CONFIG_PATH_SEP_S	";"
+#define PKG_CONFIG_PATH_SEP	';'
+#else
+#define PKG_CONFIG_PATH_SEP_S	":"
+#define PKG_CONFIG_PATH_SEP	':'
+#endif
+
 static inline const char *
 pkg_get_pkgconfig_path(void)
 {
@@ -42,7 +51,7 @@ pkg_get_pkgconfig_path(void)
 	env_path = getenv("PKG_CONFIG_PATH");
 	if (env_path != NULL)
 	{
-		strlcat(path, ":", sizeof path);
+		strlcat(path, PKG_CONFIG_PATH_SEP_S, sizeof path);
 		strlcat(path, env_path, sizeof path);
 	}
 
@@ -63,7 +72,7 @@ pkg_find(const char *name)
 	env_path = pkg_get_pkgconfig_path();
 	while (env_path[count] != '\0')
 	{
-		if (env_path[count] && env_path[count] != ':')
+		if (env_path[count] && env_path[count] != PKG_CONFIG_PATH_SEP)
 		{
 			path[pcount] = env_path[count];
 			pcount++;
