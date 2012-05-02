@@ -36,6 +36,8 @@
 /* we are compatible with 0.26 of pkg-config */
 #define PKGCONFIG_VERSION_EQUIV		"0.26"
 
+static unsigned int global_traverse_flags = PKGF_NONE;
+
 static int want_help = 0;
 static int want_version = 0;
 static int want_cflags = 0;
@@ -176,7 +178,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
 		printf("node [fontname=Sans fontsize=8]\n");
 
-		pkg_traverse(&world, print_digraph_node, NULL, maximum_traverse_depth, PKGF_NONE);
+		pkg_traverse(&world, print_digraph_node, NULL, maximum_traverse_depth, global_traverse_flags);
 
 		printf("}\n");
 
@@ -189,7 +191,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		pkg_traverse(&world, print_modversion, NULL, 2, PKGF_NONE);
+		pkg_traverse(&world, print_modversion, NULL, 2, global_traverse_flags);
 	}
 
 	if (want_variables)
@@ -198,7 +200,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		pkg_traverse(&world, print_variables, NULL, 2, PKGF_NONE);
+		pkg_traverse(&world, print_variables, NULL, 2, global_traverse_flags);
 	}
 
 	if (want_requires)
@@ -221,19 +223,19 @@ pkg_queue_walk(pkg_queue_t *head)
 	if (want_cflags)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_cflags, NULL, maximum_traverse_depth, PKGF_SEARCH_PRIVATE);
+		pkg_traverse(&world, print_cflags, NULL, maximum_traverse_depth, global_traverse_flags | PKGF_SEARCH_PRIVATE);
 	}
 
 	if (want_libs)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth, want_static ? PKGF_SEARCH_PRIVATE : PKGF_NONE);
+		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth, global_traverse_flags | (want_static ? PKGF_SEARCH_PRIVATE : PKGF_NONE));
 	}
 
 	if (want_variable)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_variable, NULL, 2, PKGF_NONE);
+		pkg_traverse(&world, print_variable, NULL, 2, global_traverse_flags);
 	}
 
 	if (wanted_something)
