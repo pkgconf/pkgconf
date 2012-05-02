@@ -75,13 +75,13 @@ pkg_find(const char *name)
 
 		while (iter < count)
 		{
-			snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path[iter], name);
+			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
 			if (f = fopen(locbuf, "r"))
 				return parse_file(locbuf, f);
 		}
 	}
 
-	snprintf(locbuf, sizeof locbuf, "%s/%s.pc", PKG_DEFAULT_PATH, name);
+	snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, PKG_DEFAULT_PATH, name);
 	if (f = fopen(locbuf, "r"))
 		return parse_file(locbuf, f);
 
