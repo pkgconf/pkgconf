@@ -70,7 +70,7 @@ pkg_find(const char *name)
 	bzero(path, BUFSIZ);
 
 	env_path = pkg_get_pkgconfig_path();
-	while (env_path[count] != '\0')
+	while (1)
 	{
 		if (env_path[count] && env_path[count] != PKG_CONFIG_PATH_SEP)
 		{
@@ -83,6 +83,8 @@ pkg_find(const char *name)
 			snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
 			if (f = fopen(locbuf, "r"))
 				return parse_file(locbuf, f);
+			else if (env_path[count] == '\0')
+				break;
 
 			bzero(path, BUFSIZ);
 			pcount = 0;
@@ -91,13 +93,7 @@ pkg_find(const char *name)
 		count++;
 	}
 
-	if (path[0] != '\0')
-	{
-		snprintf(locbuf, sizeof locbuf, "%s/%s.pc", path, name);
-		f = fopen(locbuf, "r");
-	}
-
-	return parse_file(locbuf, f);
+	return NULL;
 }
 
 /*
