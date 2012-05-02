@@ -59,7 +59,7 @@ path_split(const char *text, char ***parv)
 }
 
 pkg_t *
-pkg_find(const char *name)
+pkg_find(const char *name, unsigned int flags)
 {
 	char locbuf[PKG_CONFIG_PATH_SZ];
 	char **path;
@@ -233,17 +233,17 @@ pkg_get_comparator(pkg_dependency_t *pkgdep)
 }
 
 /*
- * pkg_verify_dependency(pkgdep)
+ * pkg_verify_dependency(pkgdep, flags)
  *
  * verify a pkg_dependency_t node in the depgraph.  if the dependency is solvable,
  * return the appropriate pkg_t object, else NULL.
  */
 pkg_t *
-pkg_verify_dependency(pkg_dependency_t *pkgdep)
+pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags)
 {
 	pkg_t *pkg;
 
-	pkg = pkg_find(pkgdep->package);
+	pkg = pkg_find(pkgdep->package, flags);
 	if (pkg == NULL)
 		return NULL;
 
@@ -312,7 +312,7 @@ pkg_walk_list(pkg_t *parent,
 		if (*node->package == '\0')
 			continue;
 
-		pkgdep = pkg_verify_dependency(node);
+		pkgdep = pkg_verify_dependency(node, flags);
 		if (pkgdep == NULL)
 		{
 			fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);

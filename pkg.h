@@ -103,11 +103,11 @@ struct pkg_ {
 #define PKGF_NONE			0x0
 #define PKGF_SEARCH_PRIVATE		0x1
 
-pkg_t *pkg_find(const char *name);
+pkg_t *pkg_find(const char *name, unsigned int flags);
 void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data, int maxdepth, unsigned int flags);
 void pkg_verify_graph(pkg_t *root, int depth);
 int pkg_compare_version(const char *a, const char *b);
-pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep);
+pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags);
 const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
 
 /* parse.c */

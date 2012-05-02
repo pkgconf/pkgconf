@@ -215,7 +215,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		{
 			pkg_t *pkg;
 
-			pkg = pkg_verify_dependency(iter);
+			pkg = pkg_verify_dependency(iter, global_traverse_flags);
 			print_requires(pkg, NULL);
 		}
 	}
@@ -362,7 +362,7 @@ main(int argc, char *argv[])
 		if (package == NULL)
 			return EXIT_SUCCESS;
 
-		pkg = pkg_find(package);
+		pkg = pkg_find(package, global_traverse_flags);
 		if (pkg == NULL)
 			return EXIT_FAILURE;
 
