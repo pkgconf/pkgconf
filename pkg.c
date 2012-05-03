@@ -296,7 +296,7 @@ pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int
 	if (eflags != NULL)
 		*eflags |= PKG_ERRF_PACKAGE_VER_MISMATCH;
 
-	return NULL;
+	return pkg;
 }
 
 /*
@@ -309,6 +309,29 @@ void
 pkg_verify_graph(pkg_t *root, int depth, unsigned int flags)
 {
 	pkg_traverse(root, NULL, NULL, depth, flags);
+}
+
+void
+pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
+{
+	if (eflags & PKG_ERRF_PACKAGE_NOT_FOUND)
+	{
+		fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);
+		fprintf(stderr, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
+		fprintf(stderr, "to the PKG_CONFIG_PATH environment variable\n");
+		fprintf(stderr, "No package '%s' found\n", node->package);
+	}
+	else if (eflags & PKG_ERRF_PACKAGE_VER_MISMATCH)
+	{
+		fprintf(stderr, "Package dependency requirement '%s %s %s' could not be satisfied.\n",
+			node->package, pkg_get_comparator(node), node->version);
+
+		if (pkg != NULL)
+			fprintf(stderr, "Package '%s' has version '%s', required version is '%s %s'\n",
+				node->package, pkg->version, pkg_get_comparator(node), node->version);
+	}
+
+	exit(EXIT_FAILURE);
 }
 
 static inline void
@@ -329,17 +352,8 @@ pkg_walk_list(pkg_dependency_t *deplist,
 			continue;
 
 		pkgdep = pkg_verify_dependency(node, flags, &eflags);
-		if (pkgdep == NULL)
-		{
-			if (eflags & PKG_ERRF_PACKAGE_NOT_FOUND)
-			{
-				fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);
-				fprintf(stderr, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
-				fprintf(stderr, "to the PKG_CONFIG_PATH environment variable\n");
-				fprintf(stderr, "No package '%s' found\n", node->package);
-			}
-			exit(EXIT_FAILURE);
-		}
+		if (eflags != PKG_ERRF_OK)
+			return pkg_report_graph_error(pkgdep, node, eflags);
 
 		pkg_traverse(pkgdep, pkg_traverse_func, data, maxdepth - 1, flags);
 	}
