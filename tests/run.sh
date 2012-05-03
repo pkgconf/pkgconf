@@ -54,6 +54,14 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1:${selfdir}/lib2 ${1} --libs foo" \
 run_test "PKG_CONFIG_PATH=${selfdir}/lib2:${selfdir}/lib1 ${1} --libs foo" \
 	'-lbar'
 
+# 3) tests for 'Requires' and 'Requires.private'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs bar" \
+	'-lfoo' '-lbar'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs --cflags baz" \
+	'-lbaz' '-fPIC' '-I/usr/include/foo'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --static --libs baz" \
+	'-lfoo -lbaz -lzee'
+
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
 	exit 1
