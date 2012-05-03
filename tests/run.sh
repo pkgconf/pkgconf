@@ -48,6 +48,12 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'foo > 1.2'; echo \$?" \
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'foo > 1.2.3'; echo \$?" \
 	'1'
 
+# 2) tests for PKG_CONFIG_PATH order
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1:${selfdir}/lib2 ${1} --libs foo" \
+	'-lfoo'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib2:${selfdir}/lib1 ${1} --libs foo" \
+	'-lbar'
+
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
 	exit 1
