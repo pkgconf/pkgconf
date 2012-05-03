@@ -60,7 +60,7 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs bar" \
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs --cflags baz" \
 	'-lbaz' '-fPIC' '-I/usr/include/foo'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --static --libs baz" \
-	'-lfoo -lbaz -lzee'
+	'-L/usr/lib -lfoo -L/usr/lib -lbaz -L/usr/lib -lzee'
 
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
