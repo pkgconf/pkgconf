@@ -39,6 +39,10 @@
 #define WANT_CFLAGS_ONLY_I		(19)
 #define WANT_CFLAGS_ONLY_OTHER		(20)
 
+#define WANT_LIBS_ONLY_LDPATH		(21)
+#define WANT_LIBS_ONLY_LIBNAME		(22)
+#define WANT_LIBS_ONLY_OTHER		(23)
+
 static unsigned int global_traverse_flags = PKGF_NONE;
 
 static int want_help = 0;
@@ -119,7 +123,16 @@ print_libs(pkg_t *pkg, void *unused)
 		pkg_fragment_t *frag;
 
 		foreach_list_entry(pkg->libs, frag)
+		{
+			if (want_libs == WANT_LIBS_ONLY_LDPATH && frag->type != 'L')
+				continue;
+			else if (want_libs == WANT_LIBS_ONLY_LIBNAME && frag->type != 'l')
+				continue;
+			else if (want_libs == WANT_LIBS_ONLY_OTHER && (frag->type == 'l' || frag->type == 'L'))
+				continue;
+
 			print_fragment(frag);
+		}
 	}
 
 	if (want_static && pkg->libs_private != NULL)
@@ -127,7 +140,16 @@ print_libs(pkg_t *pkg, void *unused)
 		pkg_fragment_t *frag;
 
 		foreach_list_entry(pkg->libs_private, frag)
+		{
+			if (want_libs == WANT_LIBS_ONLY_LDPATH && frag->type != 'L')
+				continue;
+			else if (want_libs == WANT_LIBS_ONLY_LIBNAME && frag->type != 'l')
+				continue;
+			else if (want_libs == WANT_LIBS_ONLY_OTHER && (frag->type == 'l' || frag->type == 'L'))
+				continue;
+
 			print_fragment(frag);
+		}
 	}
 }
 
@@ -379,6 +401,9 @@ usage(void)
 	printf("  --cflags-only-I                   print required include-dir CFLAGS to stdout\n");
 	printf("  --cflags-only-other               print required non-include-dir CFLAGS to stdout\n");
 	printf("  --libs                            print required linker flags to stdout\n");
+	printf("  --libs-only-L                     print required LDPATH linker flags to stdout\n");
+	printf("  --libs-only-l                     print required LIBNAME linker flags to stdout\n");
+	printf("  --libs-only-other                 print required other linker flags to stdout\n");
 	printf("  --print-requires                  print required dependency frameworks to stdout\n");
 	printf("  --print-requires-private          print required dependency frameworks for static\n");
 	printf("                                    linking to stdout\n");
@@ -416,6 +441,9 @@ main(int argc, char *argv[])
 		{ "print-requires-private", no_argument, &want_requires_private, 18, },
 		{ "cflags-only-I", no_argument, &want_cflags, WANT_CFLAGS_ONLY_I, },
 		{ "cflags-only-other", no_argument, &want_cflags, WANT_CFLAGS_ONLY_OTHER, },
+		{ "libs-only-L", no_argument, &want_libs, WANT_LIBS_ONLY_LDPATH, },
+		{ "libs-only-l", no_argument, &want_libs, WANT_LIBS_ONLY_LIBNAME, },
+		{ "libs-only-other", no_argument, &want_libs, WANT_LIBS_ONLY_OTHER, },
 		{ NULL, 0, NULL, 0 }
 	};
 
