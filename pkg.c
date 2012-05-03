@@ -63,7 +63,7 @@ pkg_find(const char *name, unsigned int flags)
 {
 	char locbuf[PKG_CONFIG_PATH_SZ];
 	char **path;
-	size_t count, iter;
+	size_t count, iter = 0;
 	const char *env_path;
 	FILE *f;
 
