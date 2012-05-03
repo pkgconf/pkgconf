@@ -51,6 +51,7 @@ typedef enum {
 typedef struct pkg_ pkg_t;
 typedef struct dependency_ pkg_dependency_t;
 typedef struct tuple_ pkg_tuple_t;
+typedef struct fragment_ pkg_fragment_t;
 
 #define foreach_list_entry(head, value) \
 	for ((value) = (head); (value) != NULL; (value) = (value)->next)
@@ -65,6 +66,13 @@ typedef struct tuple_ pkg_tuple_t;
 #ifndef MAX
 # define MAX(a,b) (((a) > (b)) ? (a) : (b))
 #endif
+
+struct fragment_ {
+	struct fragment_ *prev, *next;
+
+	char type;
+	char *data;
+};
 
 struct dependency_ {
 	struct dependency_ *prev, *next;

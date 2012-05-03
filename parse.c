@@ -104,6 +104,66 @@ strdup_parse(pkg_t *pkg, const char *value)
 	return strdup(buf);
 }
 
+static pkg_fragment_t *
+pkg_fragment_append(pkg_fragment_t *head, pkg_fragment_t *tail)
+{
+	pkg_fragment_t *node;
+
+	if (head == NULL)
+		return tail;
+
+	/* skip to end of list */
+	foreach_list_entry(head, node)
+	{
+		if (node->next == NULL)
+			break;
+	}
+
+	node->next = tail;
+	tail->prev = node;
+
+	return head;
+}
+
+static pkg_fragment_t *
+pkg_fragment_add(pkg_fragment_t *head, const char *string)
+{
+	pkg_fragment_t *frag;
+
+	frag = calloc(sizeof(pkg_fragment_t), 1);
+
+	if (*string == '-' && !strncmp(string, "-lib:", 5))
+	{
+		frag->type = *(string + 1);
+		frag->data = strdup(string + 2);
+	}
+	else
+	{
+		frag->type = 0;
+		frag->data = strdup(string);
+	}
+
+	return pkg_fragment_append(head, frag);
+}
+
+static pkg_fragment_t *
+parse_fragment_list(pkg_t *pkg, pkg_fragment_t *list, const char *string)
+{
+	int i, argc;
+	char **argv;
+	char *repstr = strdup_parse(pkg, string);
+	pkg_fragment_t *head = list;
+
+	argv_split(repstr, &argc, &argv);
+
+	for (i = 0; i < argc; argc++)
+		head = pkg_fragment_add(head, argv[i]);
+
+	free(repstr);
+
+	return head;
+}
+
 /*
  * parse_deplist(pkg, depends)
  *
