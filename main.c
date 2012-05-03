@@ -93,63 +93,62 @@ print_fragment(pkg_fragment_t *frag)
 }
 
 static void
-print_cflags(pkg_t *pkg, void *unused)
+collect_cflags(pkg_t *pkg, void *data)
 {
-	(void) unused;
+	pkg_fragment_t **list = data;
+	pkg_fragment_t *frag;
 
-	if (pkg->cflags != NULL)
+	foreach_list_entry(pkg->cflags, frag)
+		*list = pkg_fragment_copy(*list, frag);
+}
+
+static void
+print_cflags(pkg_fragment_t *list)
+{
+	pkg_fragment_t *frag;
+
+	foreach_list_entry(list, frag)
 	{
-		pkg_fragment_t *frag;
+		if (want_cflags == WANT_CFLAGS_ONLY_I && frag->type != 'I')
+			continue;
+		else if (want_cflags == WANT_CFLAGS_ONLY_OTHER && frag->type == 'I')
+			continue;
 
-		foreach_list_entry(pkg->cflags, frag)
-		{
-			if (want_cflags == WANT_CFLAGS_ONLY_I && frag->type != 'I')
-				continue;
-			else if (want_cflags == WANT_CFLAGS_ONLY_OTHER && frag->type == 'I')
-				continue;
-
-			print_fragment(frag);
-		}
+		print_fragment(frag);
 	}
 }
 
 static void
-print_libs(pkg_t *pkg, void *unused)
+collect_libs(pkg_t *pkg, void *data)
 {
-	(void) unused;
+	pkg_fragment_t **list = data;
+	pkg_fragment_t *frag;
 
-	if (pkg->libs != NULL)
+	foreach_list_entry(pkg->libs, frag)
+		*list = pkg_fragment_copy(*list, frag);
+
+	if (want_static)
 	{
-		pkg_fragment_t *frag;
-
-		foreach_list_entry(pkg->libs, frag)
-		{
-			if (want_libs == WANT_LIBS_ONLY_LDPATH && frag->type != 'L')
-				continue;
-			else if (want_libs == WANT_LIBS_ONLY_LIBNAME && frag->type != 'l')
-				continue;
-			else if (want_libs == WANT_LIBS_ONLY_OTHER && (frag->type == 'l' || frag->type == 'L'))
-				continue;
-
-			print_fragment(frag);
-		}
-	}
-
-	if (want_static && pkg->libs_private != NULL)
-	{
-		pkg_fragment_t *frag;
-
 		foreach_list_entry(pkg->libs_private, frag)
-		{
-			if (want_libs == WANT_LIBS_ONLY_LDPATH && frag->type != 'L')
-				continue;
-			else if (want_libs == WANT_LIBS_ONLY_LIBNAME && frag->type != 'l')
-				continue;
-			else if (want_libs == WANT_LIBS_ONLY_OTHER && (frag->type == 'l' || frag->type == 'L'))
-				continue;
+			*list = pkg_fragment_copy(*list, frag);
+	}
+}
 
-			print_fragment(frag);
-		}
+static void
+print_libs(pkg_fragment_t *list)
+{
+	pkg_fragment_t *frag;
+
+	foreach_list_entry(list, frag)
+	{
+		if (want_libs == WANT_LIBS_ONLY_LDPATH && frag->type != 'L')
+			continue;
+		else if (want_libs == WANT_LIBS_ONLY_LIBNAME && frag->type != 'l')
+			continue;
+		else if (want_libs == WANT_LIBS_ONLY_OTHER && (frag->type == 'l' || frag->type == 'L'))
+			continue;
+
+		print_fragment(frag);
 	}
 }
 
@@ -345,14 +344,20 @@ pkg_queue_walk(pkg_queue_t *head)
 
 	if (want_cflags)
 	{
+		pkg_fragment_t *list = NULL;
+
 		wanted_something++;
-		pkg_traverse(&world, print_cflags, NULL, maximum_traverse_depth, global_traverse_flags | PKGF_SEARCH_PRIVATE);
+		pkg_traverse(&world, collect_cflags, &list, maximum_traverse_depth, global_traverse_flags | PKGF_SEARCH_PRIVATE);
+		print_cflags(list);
 	}
 
 	if (want_libs)
 	{
+		pkg_fragment_t *list = NULL;
+
 		wanted_something++;
-		pkg_traverse(&world, print_libs, NULL, maximum_traverse_depth, global_traverse_flags);
+		pkg_traverse(&world, collect_libs, &list, maximum_traverse_depth, global_traverse_flags);
+		print_libs(list);
 	}
 
 	if (want_variable)
