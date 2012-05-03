@@ -36,6 +36,9 @@
 /* we are compatible with 0.26 of pkg-config */
 #define PKGCONFIG_VERSION_EQUIV		"0.26"
 
+#define WANT_CFLAGS_ONLY_I		(19)
+#define WANT_CFLAGS_ONLY_OTHER		(20)
+
 static unsigned int global_traverse_flags = PKGF_NONE;
 
 static int want_help = 0;
@@ -95,7 +98,14 @@ print_cflags(pkg_t *pkg, void *unused)
 		pkg_fragment_t *frag;
 
 		foreach_list_entry(pkg->cflags, frag)
+		{
+			if (want_cflags == WANT_CFLAGS_ONLY_I && frag->type != 'I')
+				continue;
+			else if (want_cflags == WANT_CFLAGS_ONLY_OTHER && frag->type == 'I')
+				continue;
+
 			print_fragment(frag);
+		}
 	}
 }
 
@@ -366,6 +376,8 @@ usage(void)
 
 	printf("  --variable=varname                print specified variable entry to stdout\n");
 	printf("  --cflags                          print required CFLAGS to stdout\n");
+	printf("  --cflags-only-I                   print required include-dir CFLAGS to stdout\n");
+	printf("  --cflags-only-other               print required non-include-dir CFLAGS to stdout\n");
 	printf("  --libs                            print required linker flags to stdout\n");
 	printf("  --print-requires                  print required dependency frameworks to stdout\n");
 	printf("  --print-requires-private          print required dependency frameworks for static\n");
@@ -402,6 +414,8 @@ main(int argc, char *argv[])
 		{ "help", no_argument, &want_help, 16, },
 		{ "env-only", no_argument, &want_env_only, 17, },
 		{ "print-requires-private", no_argument, &want_requires_private, 18, },
+		{ "cflags-only-I", no_argument, &want_cflags, WANT_CFLAGS_ONLY_I, },
+		{ "cflags-only-other", no_argument, &want_cflags, WANT_CFLAGS_ONLY_OTHER, },
 		{ NULL, 0, NULL, 0 }
 	};
 
