@@ -132,7 +132,7 @@ pkg_fragment_add(pkg_fragment_t *head, const char *string)
 
 	frag = calloc(sizeof(pkg_fragment_t), 1);
 
-	if (*string == '-' && !strncmp(string, "-lib:", 5))
+	if (*string == '-' && strncmp(string, "-lib:", 5))
 	{
 		frag->type = *(string + 1);
 		frag->data = strdup(string + 2);
