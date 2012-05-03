@@ -66,6 +66,19 @@ pkg_fragment_add(pkg_fragment_t *head, const char *string)
 	return pkg_fragment_append(head, frag);
 }
 
+pkg_fragment_t *
+pkg_fragment_copy(pkg_fragment_t *head, pkg_fragment_t *base)
+{
+	pkg_fragment_t *frag;
+
+	frag = calloc(sizeof(pkg_fragment_t), 1);
+
+	frag->type = base->type;
+	frag->data = strdup(base->data);
+
+	return pkg_fragment_append(head, frag);
+}
+
 void
 pkg_fragment_delete(pkg_fragment_t *node)
 {
