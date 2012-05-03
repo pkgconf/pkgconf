@@ -9,4 +9,7 @@ install-extra:
 	mkdir -p $(DESTDIR)/$(datarootdir)/aclocal
 	install -c -m644 pkg.m4 $(DESTDIR)/$(datarootdir)/aclocal/pkg.m4
 
+check: $(PROG)
+	$(SHELL) tests/run.sh ./$(PROG)
+
 include .deps
