@@ -45,6 +45,7 @@ static int want_libs = 0;
 static int want_modversion = 0;
 static int want_static = 0;
 static int want_requires = 0;
+static int want_requires_private = 0;
 static int want_variables = 0;
 static int want_digraph = 0;
 static int want_env_only = 0;
@@ -103,6 +104,22 @@ print_requires(pkg_t *pkg, void *unused)
 	pkg_dependency_t *node;
 
 	foreach_list_entry(pkg->requires, node)
+	{
+		printf("%s", node->package);
+
+		if (node->version != NULL)
+			printf(" %s %s", pkg_get_comparator(node), node->version);
+
+		printf("\n");
+	}
+}
+
+static void
+print_requires_private(pkg_t *pkg, void *unused)
+{
+	pkg_dependency_t *node;
+
+	foreach_list_entry(pkg->requires_private, node)
 	{
 		printf("%s", node->package);
 
@@ -221,6 +238,23 @@ pkg_queue_walk(pkg_queue_t *head)
 		}
 	}
 
+	if (want_requires_private)
+	{
+		pkg_dependency_t *iter;
+
+		wanted_something = 0;
+		want_cflags = 0;
+		want_libs = 0;
+
+		foreach_list_entry(world.requires, iter)
+		{
+			pkg_t *pkg;
+
+			pkg = pkg_verify_dependency(iter, global_traverse_flags | PKGF_SEARCH_PRIVATE);
+			print_requires_private(pkg, NULL);
+		}
+	}
+
 	if (want_cflags)
 	{
 		wanted_something++;
@@ -278,6 +312,8 @@ usage(void)
 	printf("  --cflags                          print required CFLAGS to stdout\n");
 	printf("  --libs                            print required linker flags to stdout\n");
 	printf("  --print-requires                  print required dependency frameworks to stdout\n");
+	printf("  --print-requires-private          print required dependency frameworks for static\n");
+	printf("                                    linking to stdout\n");
 	printf("  --print-variables                 print all known variables in module to stdout\n");
 	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
 
@@ -309,6 +345,7 @@ main(int argc, char *argv[])
 		{ "digraph", no_argument, &want_digraph, 15, },
 		{ "help", no_argument, &want_help, 16, },
 		{ "env-only", no_argument, &want_env_only, 17, },
+		{ "print-requires-private", no_argument, &want_requires_private, 18, },
 		{ NULL, 0, NULL, 0 }
 	};
 
