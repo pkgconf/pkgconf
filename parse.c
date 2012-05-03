@@ -147,16 +147,16 @@ pkg_fragment_add(pkg_fragment_t *head, const char *string)
 }
 
 static pkg_fragment_t *
-parse_fragment_list(pkg_t *pkg, pkg_fragment_t *list, const char *string)
+parse_fragment_list(pkg_t *pkg, const char *string)
 {
 	int i, argc;
 	char **argv;
 	char *repstr = strdup_parse(pkg, string);
-	pkg_fragment_t *head = list;
+	pkg_fragment_t *head = NULL;
 
 	argv_split(repstr, &argc, &argv);
 
-	for (i = 0; i < argc; argc++)
+	for (i = 0; i < argc; i++)
 		head = pkg_fragment_add(head, argv[i]);
 
 	free(repstr);
@@ -469,11 +469,11 @@ parse_file(const char *filename, FILE *f)
 			else if (!strcasecmp(key, "Version"))
 				pkg->version = strdup_parse(pkg, value);
 			else if (!strcasecmp(key, "CFLAGS"))
-				pkg->cflags = parse_fragment_list(pkg, pkg->cflags, value);
+				pkg->cflags = parse_fragment_list(pkg, value);
 			else if (!strcasecmp(key, "LIBS"))
-				pkg->libs = parse_fragment_list(pkg, pkg->libs, value);
+				pkg->libs = parse_fragment_list(pkg, value);
 			else if (!strcasecmp(key, "LIBS.private"))
-				pkg->libs_private = parse_fragment_list(pkg, pkg->libs_private, value);
+				pkg->libs_private = parse_fragment_list(pkg, value);
 			else if (!strcasecmp(key, "Requires"))
 				pkg->requires = parse_deplist(pkg, value);
 			else if (!strcasecmp(key, "Requires.private"))
