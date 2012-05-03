@@ -56,12 +56,26 @@ static char *required_module_version = NULL;
 static char *want_variable = NULL;
 
 static void
+print_fragment(pkg_fragment_t *frag)
+{
+	if (frag->type)
+		printf("-%c%s ", frag->type, frag->data);
+	else
+		printf("%s ", frag->data);
+}
+
+static void
 print_cflags(pkg_t *pkg, void *unused)
 {
 	(void) unused;
 
 	if (pkg->cflags != NULL)
-		printf("%s ", pkg->cflags);
+	{
+		pkg_fragment_t *frag;
+
+		foreach_list_entry(pkg->cflags, frag)
+			print_fragment(frag);
+	}
 }
 
 static void
@@ -70,10 +84,20 @@ print_libs(pkg_t *pkg, void *unused)
 	(void) unused;
 
 	if (pkg->libs != NULL)
-		printf("%s ", pkg->libs);
+	{
+		pkg_fragment_t *frag;
+
+		foreach_list_entry(pkg->libs, frag)
+			print_fragment(frag);
+	}
 
 	if (want_static && pkg->libs_private != NULL)
-		printf("%s ", pkg->libs_private);
+	{
+		pkg_fragment_t *frag;
+
+		foreach_list_entry(pkg->libs_private, frag)
+			print_fragment(frag);
+	}
 }
 
 static void
