@@ -394,10 +394,7 @@ main(int argc, char *argv[])
 	}
 
 	if (want_static)
-	{
-		maximum_traverse_depth++;
 		global_traverse_flags |= PKGF_SEARCH_PRIVATE;
-	}
 
 	if (want_env_only)
 		global_traverse_flags |= PKGF_ENV_ONLY;
