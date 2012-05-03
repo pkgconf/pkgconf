@@ -469,11 +469,11 @@ parse_file(const char *filename, FILE *f)
 			else if (!strcasecmp(key, "Version"))
 				pkg->version = strdup_parse(pkg, value);
 			else if (!strcasecmp(key, "CFLAGS"))
-				pkg->cflags = strdup_parse(pkg, value);
+				pkg->cflags = parse_fragment_list(pkg, pkg->cflags, value);
 			else if (!strcasecmp(key, "LIBS"))
-				pkg->libs = strdup_parse(pkg, value);
+				pkg->libs = parse_fragment_list(pkg, pkg->libs, value);
 			else if (!strcasecmp(key, "LIBS.private"))
-				pkg->libs_private = strdup_parse(pkg, value);
+				pkg->libs_private = parse_fragment_list(pkg, pkg->libs_private, value);
 			else if (!strcasecmp(key, "Requires"))
 				pkg->requires = parse_deplist(pkg, value);
 			else if (!strcasecmp(key, "Requires.private"))

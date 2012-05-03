@@ -98,9 +98,10 @@ struct pkg_ {
 	char *description;
 	char *url;
 	char *pc_filedir;
-	char *libs;
-	char *libs_private;
-	char *cflags;
+
+	pkg_fragment_t *libs;
+	pkg_fragment_t *libs_private;
+	pkg_fragment_t *cflags;
 
 	pkg_dependency_t *requires;
 	pkg_dependency_t *requires_private;
