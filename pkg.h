@@ -121,4 +121,7 @@ char *tuple_find(pkg_tuple_t *head, const char *key);
 pkg_dependency_t *parse_deplist(pkg_t *pkg, const char *depends);
 pkg_dependency_t *pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail);
 
+/* argvsplit.c */
+int argv_split(const char *src, int *argc, char ***argv);
+
 #endif
