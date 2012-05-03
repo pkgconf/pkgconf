@@ -104,11 +104,15 @@ struct pkg_ {
 #define PKGF_SEARCH_PRIVATE		0x1
 #define PKGF_ENV_ONLY			0x2
 
+#define PKG_ERRF_OK			0x0
+#define PKG_ERRF_PACKAGE_NOT_FOUND	0x1
+#define PKG_ERRF_PACKAGE_VER_MISMATCH	0x2
+
 pkg_t *pkg_find(const char *name, unsigned int flags);
 void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data, int maxdepth, unsigned int flags);
 void pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
 int pkg_compare_version(const char *a, const char *b);
-pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags);
+pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
 const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
 
 /* parse.c */

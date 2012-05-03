@@ -244,7 +244,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		{
 			pkg_t *pkg;
 
-			pkg = pkg_verify_dependency(iter, global_traverse_flags);
+			pkg = pkg_verify_dependency(iter, global_traverse_flags, NULL);
 			print_requires(pkg, NULL);
 		}
 	}
@@ -261,7 +261,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		{
 			pkg_t *pkg;
 
-			pkg = pkg_verify_dependency(iter, global_traverse_flags | PKGF_SEARCH_PRIVATE);
+			pkg = pkg_verify_dependency(iter, global_traverse_flags | PKGF_SEARCH_PRIVATE, NULL);
 			print_requires_private(pkg, NULL);
 		}
 	}

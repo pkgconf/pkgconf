@@ -244,13 +244,21 @@ pkg_get_comparator(pkg_dependency_t *pkgdep)
  * return the appropriate pkg_t object, else NULL.
  */
 pkg_t *
-pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags)
+pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
 {
 	pkg_t *pkg;
 
+	if (eflags != NULL)
+		*eflags = PKG_ERRF_OK;
+
 	pkg = pkg_find(pkgdep->package, flags);
 	if (pkg == NULL)
+	{
+		if (eflags != NULL)
+			*eflags |= PKG_ERRF_PACKAGE_NOT_FOUND;
+
 		return NULL;
+	}
 
 	pkg->id = strdup(pkgdep->package);
 
@@ -285,6 +293,9 @@ pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags)
 		return pkg;
 	}
 
+	if (eflags != NULL)
+		*eflags |= PKG_ERRF_PACKAGE_VER_MISMATCH;
+
 	return NULL;
 }
 
@@ -307,6 +318,7 @@ pkg_walk_list(pkg_dependency_t *deplist,
 	int maxdepth,
 	unsigned int flags)
 {
+	unsigned int eflags;
 	pkg_dependency_t *node;
 
 	foreach_list_entry(deplist, node)
@@ -316,13 +328,16 @@ pkg_walk_list(pkg_dependency_t *deplist,
 		if (*node->package == '\0')
 			continue;
 
-		pkgdep = pkg_verify_dependency(node, flags);
+		pkgdep = pkg_verify_dependency(node, flags, &eflags);
 		if (pkgdep == NULL)
 		{
-			fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);
-			fprintf(stderr, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
-			fprintf(stderr, "to the PKG_CONFIG_PATH environment variable\n");
-			fprintf(stderr, "No package '%s' found\n", node->package);
+			if (eflags & PKG_ERRF_PACKAGE_NOT_FOUND)
+			{
+				fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);
+				fprintf(stderr, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
+				fprintf(stderr, "to the PKG_CONFIG_PATH environment variable\n");
+				fprintf(stderr, "No package '%s' found\n", node->package);
+			}
 			exit(EXIT_FAILURE);
 		}
 
