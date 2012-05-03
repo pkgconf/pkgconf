@@ -65,3 +65,16 @@ pkg_fragment_add(pkg_fragment_t *head, const char *string)
 
 	return pkg_fragment_append(head, frag);
 }
+
+void
+pkg_fragment_delete(pkg_fragment_t *node)
+{
+	if (node->prev != NULL)
+		node->prev->next = node->next;
+
+	if (node->next != NULL)
+		node->next->prev = node->prev;
+
+	free(node->data);
+	free(node);
+}
