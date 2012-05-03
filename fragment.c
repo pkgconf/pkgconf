@@ -66,10 +66,30 @@ pkg_fragment_add(pkg_fragment_t *head, const char *string)
 	return pkg_fragment_append(head, frag);
 }
 
+bool
+pkg_fragment_exists(pkg_fragment_t *head, pkg_fragment_t *base)
+{
+	pkg_fragment_t *node;
+
+	foreach_list_entry(head, node)
+	{
+		if (base->type != node->type)
+			continue;
+
+		if (!strcmp(base->data, node->data))
+			return true;
+	}
+
+	return false;
+}
+
 pkg_fragment_t *
 pkg_fragment_copy(pkg_fragment_t *head, pkg_fragment_t *base)
 {
 	pkg_fragment_t *frag;
+
+	if (pkg_fragment_exists(head, base))
+		return head;
 
 	frag = calloc(sizeof(pkg_fragment_t), 1);
 

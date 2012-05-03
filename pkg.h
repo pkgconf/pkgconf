@@ -138,5 +138,6 @@ pkg_fragment_t *pkg_fragment_append(pkg_fragment_t *head, pkg_fragment_t *tail);
 pkg_fragment_t *pkg_fragment_add(pkg_fragment_t *head, const char *string);
 pkg_fragment_t *pkg_fragment_copy(pkg_fragment_t *head, pkg_fragment_t *base);
 void pkg_fragment_delete(pkg_fragment_t *node);
+bool pkg_fragment_exists(pkg_fragment_t *head, pkg_fragment_t *base);
 
 #endif
