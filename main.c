@@ -55,9 +55,30 @@ static char *required_pkgconfig_version = NULL;
 static char *required_module_version = NULL;
 static char *want_variable = NULL;
 
+static bool
+fragment_has_system_dir(pkg_fragment_t *frag)
+{
+	switch (frag->type)
+	{
+	case 'L':
+		if (!strcasecmp(LIBDIR, frag->data))
+			return true;
+	case 'I':
+		if (!strcasecmp(INCLUDEDIR, frag->data))
+			return true;
+	default:
+		break;
+	}
+
+	return false;
+}
+
 static void
 print_fragment(pkg_fragment_t *frag)
 {
+	if (fragment_has_system_dir(frag))
+		return;
+
 	if (frag->type)
 		printf("-%c%s ", frag->type, frag->data);
 	else
