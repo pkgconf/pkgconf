@@ -3,7 +3,7 @@ SRCS		= main.c parse.c pkg.c bsdstubs.c getopt_long.c
 
 include buildsys.mk
 
-CFLAGS		+= -DPKG_DEFAULT_PATH=\"${libdir}/pkgconfig\"
+CFLAGS		+= -DPKG_DEFAULT_PATH=\"${libdir}/pkgconfig\" -Wall
 
 install-extra:
 	mkdir -p $(DESTDIR)/$(datarootdir)/aclocal

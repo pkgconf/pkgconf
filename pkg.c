@@ -63,7 +63,7 @@ pkg_find(const char *name, unsigned int flags)
 {
 	char locbuf[PKG_CONFIG_PATH_SZ];
 	char **path;
-	size_t count, iter;
+	size_t count, iter = 0;
 	const char *env_path;
 	FILE *f;
 
@@ -78,7 +78,7 @@ pkg_find(const char *name, unsigned int flags)
 			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
 			free(path[iter]);
 
-			if (f = fopen(locbuf, "r"))
+			if ((f = fopen(locbuf, "r")) != NULL)
 				return parse_file(locbuf, f);
 
 			iter++;
@@ -90,7 +90,7 @@ pkg_find(const char *name, unsigned int flags)
 	if (!(flags & PKGF_ENV_ONLY))
 	{
 		snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, PKG_DEFAULT_PATH, name);
-		if (f = fopen(locbuf, "r"))
+		if ((f = fopen(locbuf, "r")) != NULL)
 			return parse_file(locbuf, f);
 	}
 
@@ -230,6 +230,8 @@ pkg_get_comparator(pkg_dependency_t *pkgdep)
 		return "!=";
 	case PKG_ANY:
 		return "(any)";
+	default:
+		return "???";
 	}
 
 	return "???";
@@ -341,8 +343,6 @@ pkg_traverse(pkg_t *root,
 	int maxdepth,
 	unsigned int flags)
 {
-	pkg_dependency_t *node;
-
 	if (maxdepth == 0)
 		return;
 

@@ -176,7 +176,6 @@ pkg_dependency_t *
 parse_deplist(pkg_t *pkg, const char *depends)
 {
 	parse_state_t state = OUTSIDE_MODULE;
-	parse_state_t last_state = OUTSIDE_MODULE;
 	pkg_dependency_t *deplist = NULL;
 	pkg_dependency_t *deplist_head = NULL;
 	pkg_comparator_t compare = PKG_ANY;
