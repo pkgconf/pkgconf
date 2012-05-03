@@ -58,6 +58,8 @@ static char *want_variable = NULL;
 static void
 print_cflags(pkg_t *pkg, void *unused)
 {
+	(void) unused;
+
 	if (pkg->cflags != NULL)
 		printf("%s ", pkg->cflags);
 }
@@ -65,6 +67,8 @@ print_cflags(pkg_t *pkg, void *unused)
 static void
 print_libs(pkg_t *pkg, void *unused)
 {
+	(void) unused;
+
 	if (pkg->libs != NULL)
 		printf("%s ", pkg->libs);
 
@@ -75,6 +79,8 @@ print_libs(pkg_t *pkg, void *unused)
 static void
 print_modversion(pkg_t *pkg, void *unused)
 {
+	(void) unused;
+
 	if (pkg->version != NULL)
 		printf("%s\n", pkg->version);
 }
@@ -83,6 +89,7 @@ static void
 print_variable(pkg_t *pkg, void *unused)
 {
 	char *variable;
+	(void) unused;
 
 	variable = tuple_find(pkg->vars, want_variable);
 	if (variable != NULL)
@@ -93,6 +100,7 @@ static void
 print_variables(pkg_t *pkg, void *unused)
 {
 	pkg_tuple_t *node;
+	(void) unused;
 
 	foreach_list_entry(pkg->vars, node)
 		printf("%s\n", node->key);
@@ -102,6 +110,7 @@ static void
 print_requires(pkg_t *pkg, void *unused)
 {
 	pkg_dependency_t *node;
+	(void) unused;
 
 	foreach_list_entry(pkg->requires, node)
 	{
@@ -118,6 +127,7 @@ static void
 print_requires_private(pkg_t *pkg, void *unused)
 {
 	pkg_dependency_t *node;
+	(void) unused;
 
 	foreach_list_entry(pkg->requires_private, node)
 	{
@@ -134,6 +144,7 @@ static void
 print_digraph_node(pkg_t *pkg, void *unused)
 {
 	pkg_dependency_t *node;
+	(void) unused;
 
 	printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
 
