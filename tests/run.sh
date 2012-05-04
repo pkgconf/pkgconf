@@ -62,6 +62,10 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs --cflags baz" \
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --static --libs baz" \
 	'-lfoo' '-lbaz' '-lzee'
 
+# 4) tests for DOS line-endings
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs dos-lineendings" \
+	'-L/usr/lib/dos-lineendings -ldos-lineendings'
+
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
 	exit 1
