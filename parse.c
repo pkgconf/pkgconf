@@ -393,7 +393,7 @@ parse_file(const char *filename, FILE *f)
 	pkg = calloc(sizeof(pkg_t), 1);
 	pkg->filename = strdup(filename);
 
-	while (fgets(readbuf, BUFSIZ, f) != NULL)
+	while (pkg_fgetline(readbuf, BUFSIZ, f) != NULL)
 	{
 		char op, *p, *key = NULL, *value = NULL;
 
