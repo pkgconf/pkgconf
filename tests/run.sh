@@ -68,6 +68,10 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs dos-lineendings" \
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs argv-parse" \
 	'-llib-2 -lpthread'
 
+# 5) tests for other regressions
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --variable=includedir foo" \
+	'/usr/include'
+
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
 	exit 1
