@@ -175,6 +175,8 @@ print_variable(pkg_t *pkg, void *unused)
 		printf("%s", var);
 
 		free(var);
+
+		exit(EXIT_SUCCESS);
 	}
 }
 
