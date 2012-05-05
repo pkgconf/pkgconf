@@ -172,7 +172,7 @@ print_variable(pkg_t *pkg, void *unused)
 	{
 		char *var = strdup_parse(pkg, variable_tmpl);
 
-		printf("%s ", var);
+		printf("%s", var);
 
 		free(var);
 	}
