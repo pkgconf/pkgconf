@@ -164,12 +164,18 @@ print_modversion(pkg_t *pkg, void *unused)
 static void
 print_variable(pkg_t *pkg, void *unused)
 {
-	char *variable;
+	const char *variable_tmpl;
 	(void) unused;
 
-	variable = tuple_find(pkg->vars, want_variable);
-	if (variable != NULL)
-		printf("%s ", variable);
+	variable_tmpl = tuple_find(pkg->vars, want_variable);
+	if (variable_tmpl != NULL)
+	{
+		char *var = strdup_parse(pkg, variable_tmpl);
+
+		printf("%s ", var);
+
+		free(var);
+	}
 }
 
 static void
