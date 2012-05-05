@@ -53,7 +53,7 @@ tuple_find(pkg_tuple_t *head, const char *key)
 	return NULL;
 }
 
-static char *
+char *
 strdup_parse(pkg_t *pkg, const char *value)
 {
 	char buf[BUFSIZ];
