@@ -53,6 +53,7 @@ static int want_requires_private = 0;
 static int want_variables = 0;
 static int want_digraph = 0;
 static int want_env_only = 0;
+static int want_uninstalled = 0;
 static int maximum_traverse_depth = -1;
 
 static char *required_pkgconfig_version = NULL;
@@ -235,6 +236,15 @@ print_digraph_node(pkg_t *pkg, void *unused)
 	}
 }
 
+static void
+exit_if_uninstalled(pkg_t *pkg, void *unused)
+{
+	(void) unused;
+
+	if (pkg->uninstalled)
+		exit (0);
+}
+
 typedef struct pkg_queue_ {
 	struct pkg_queue_ *prev, *next;
 	const char *package;
@@ -281,6 +291,13 @@ pkg_queue_walk(pkg_queue_t *head)
 
 	/* we should verify that the graph is complete before attempting to compute cflags etc. */
 	pkg_verify_graph(&world, maximum_traverse_depth, global_traverse_flags);
+
+	if (want_uninstalled)
+	{
+		wanted_something = 0;
+		pkg_traverse(&world, exit_if_uninstalled, NULL, maximum_traverse_depth, global_traverse_flags);
+		return 1;
+	}
 
 	if (want_digraph)
 	{
@@ -399,6 +416,7 @@ usage(void)
 
 	printf("  --atleast-version                 require a specific version of a module\n");
 	printf("  --exists                          check whether or not a module exists\n");
+	printf("  --uninstalled                     check whether or not an uninstalled module will be used\n");
 	printf("  --maximum-traverse-depth          maximum allowed depth for dependency graph\n");
 	printf("  --static                          be more aggressive when computing dependency graph\n");
 	printf("                                    (for static linking)\n");
@@ -454,6 +472,7 @@ main(int argc, char *argv[])
 		{ "libs-only-L", no_argument, &want_libs, WANT_LIBS_ONLY_LDPATH, },
 		{ "libs-only-l", no_argument, &want_libs, WANT_LIBS_ONLY_LIBNAME, },
 		{ "libs-only-other", no_argument, &want_libs, WANT_LIBS_ONLY_OTHER, },
+		{ "uninstalled", no_argument, &want_uninstalled, 24, },
 		{ NULL, 0, NULL, 0 }
 	};
 
