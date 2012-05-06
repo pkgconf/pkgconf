@@ -74,6 +74,10 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs argv-parse" \
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --variable=includedir foo" \
 	'/usr/include'
 
+# 6) tests for builtins
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --modversion pkg-config" \
+	'0.26'
+
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
 	exit 1
