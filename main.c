@@ -248,7 +248,7 @@ pkg_queue_push(pkg_queue_t *parent, const char *package)
 {
 	pkg_queue_t *pkgq = calloc(sizeof(pkg_queue_t), 1);
 
-	pkgq->package = package;
+	pkgq->package = strdup(package);
 	pkgq->prev = parent;
 	if (pkgq->prev != NULL)
 		pkgq->prev->next = pkgq;
@@ -528,13 +528,32 @@ main(int argc, char *argv[])
 
 	while (1)
 	{
-		const char *package = argv[optind++];
+		const char *package = argv[optind];
+
 		if (package == NULL)
 			break;
 
-		pkgq = pkg_queue_push(pkgq, package);
-		if (pkgq_head == NULL)
-			pkgq_head = pkgq;
+		if (argv[optind + 1] == NULL || !PKG_OPERATOR_CHAR(*(argv[optind + 1])))
+		{
+			pkgq = pkg_queue_push(pkgq, package);
+
+			if (pkgq_head == NULL)
+				pkgq_head = pkgq;
+
+			optind++;
+		}
+		else
+		{
+			char packagebuf[BUFSIZ];
+
+			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[optind + 1], argv[optind + 2]);
+			optind += 3;
+
+			pkgq = pkg_queue_push(pkgq, packagebuf);
+
+			if (pkgq_head == NULL)
+				pkgq_head = pkgq;
+		}
 	}
 
 	if (pkgq_head == NULL)
