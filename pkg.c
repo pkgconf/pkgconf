@@ -58,6 +58,18 @@ path_split(const char *text, char ***parv)
 	return count;
 }
 
+static inline bool
+str_has_suffix(const char *str, const char *suffix)
+{
+	size_t str_len = strlen(str);
+	size_t suf_len = strlen(suffix);
+
+	if (str_len < suf_len)
+		return false;
+
+	return !strncasecmp(str + str_len - suf_len, suffix, suf_len);
+}
+
 pkg_t *
 pkg_find(const char *name, unsigned int flags)
 {
@@ -67,6 +79,13 @@ pkg_find(const char *name, unsigned int flags)
 	size_t count, iter = 0;
 	const char *env_path;
 	FILE *f;
+
+	/* name might actually be a filename. */
+	if (str_has_suffix(name, PKG_CONFIG_EXT))
+	{
+		if ((f = fopen(name, "r")) != NULL)
+			return parse_file(name, f);
+	}
 
 	/* PKG_CONFIG_PATH has to take precedence */
 	env_path = getenv("PKG_CONFIG_PATH");
