@@ -304,7 +304,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		pkg_traverse(&world, print_modversion, NULL, 2, global_traverse_flags);
+		pkg_traverse(&world, print_modversion, NULL, 3, global_traverse_flags);
 	}
 
 	if (want_variables)
