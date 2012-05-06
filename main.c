@@ -33,9 +33,6 @@
 # include "bsdstubs.h"
 #endif
 
-/* we are compatible with 0.26 of pkg-config */
-#define PKGCONFIG_VERSION_EQUIV		"0.26"
-
 #define WANT_CFLAGS_ONLY_I		(19)
 #define WANT_CFLAGS_ONLY_OTHER		(20)
 
@@ -501,7 +498,7 @@ main(int argc, char *argv[])
 
 	if (required_pkgconfig_version != NULL)
 	{
-		if (pkg_compare_version(PKGCONFIG_VERSION_EQUIV, required_pkgconfig_version) >= 0)
+		if (pkg_compare_version(PKG_PKGCONFIG_VERSION_EQUIV, required_pkgconfig_version) >= 0)
 			return EXIT_SUCCESS;
 
 		return EXIT_FAILURE;

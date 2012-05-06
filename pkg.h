@@ -37,6 +37,9 @@
 #define BUFSIZ	65535
 #endif
 
+/* we are compatible with 0.26 of pkg-config */
+#define PKG_PKGCONFIG_VERSION_EQUIV	"0.26"
+
 typedef enum {
 	PKG_ANY = 0,
 	PKG_LESS_THAN,
