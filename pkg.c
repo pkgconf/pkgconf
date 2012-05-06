@@ -248,6 +248,12 @@ pkg_get_comparator(pkg_dependency_t *pkgdep)
 	return "???";
 }
 
+static pkg_t pkg_config_virtual = {
+	.id = "pkg-config",
+	.realname = "pkg-config",
+	.version = PKG_PKGCONFIG_VERSION_EQUIV,
+};
+
 /*
  * pkg_verify_dependency(pkgdep, flags)
  *
@@ -257,18 +263,22 @@ pkg_get_comparator(pkg_dependency_t *pkgdep)
 pkg_t *
 pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
 {
-	pkg_t *pkg;
+	pkg_t *pkg = &pkg_config_virtual;
 
 	if (eflags != NULL)
 		*eflags = PKG_ERRF_OK;
 
-	pkg = pkg_find(pkgdep->package, flags);
-	if (pkg == NULL)
+	/* pkg-config package name is special cased. */
+	if (strcasecmp(pkgdep->package, "pkg-config"))
 	{
-		if (eflags != NULL)
-			*eflags |= PKG_ERRF_PACKAGE_NOT_FOUND;
+		pkg = pkg_find(pkgdep->package, flags);
+		if (pkg == NULL)
+		{
+			if (eflags != NULL)
+				*eflags |= PKG_ERRF_PACKAGE_NOT_FOUND;
 
-		return NULL;
+			return NULL;
+		}
 	}
 
 	pkg->id = strdup(pkgdep->package);
