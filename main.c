@@ -304,7 +304,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		pkg_traverse(&world, print_modversion, NULL, 3, global_traverse_flags);
+		pkg_traverse(&world, print_modversion, NULL, 2, global_traverse_flags);
 	}
 
 	if (want_variables)
@@ -313,7 +313,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		pkg_traverse(&world, print_variables, NULL, 3, global_traverse_flags);
+		pkg_traverse(&world, print_variables, NULL, 2, global_traverse_flags);
 	}
 
 	if (want_requires)
@@ -371,7 +371,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	if (want_variable)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_variable, NULL, 3, global_traverse_flags);
+		pkg_traverse(&world, print_variable, NULL, 2, global_traverse_flags);
 	}
 
 	if (wanted_something)

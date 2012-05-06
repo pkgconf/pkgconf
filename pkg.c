@@ -349,7 +349,7 @@ static inline void
 pkg_walk_list(pkg_dependency_t *deplist,
 	void (*pkg_traverse_func)(pkg_t *package, void *data),
 	void *data,
-	int maxdepth,
+	int depth,
 	unsigned int flags)
 {
 	unsigned int eflags;
@@ -366,7 +366,7 @@ pkg_walk_list(pkg_dependency_t *deplist,
 		if (eflags != PKG_ERRF_OK)
 			return pkg_report_graph_error(pkgdep, node, eflags);
 
-		pkg_traverse(pkgdep, pkg_traverse_func, data, maxdepth - 1, flags);
+		pkg_traverse(pkgdep, pkg_traverse_func, data, depth - 1, flags);
 	}
 }
 
@@ -385,10 +385,10 @@ pkg_traverse(pkg_t *root,
 	if (maxdepth == 0)
 		return;
 
-	pkg_walk_list(root->requires, pkg_traverse_func, data, maxdepth - 1, flags);
+	pkg_walk_list(root->requires, pkg_traverse_func, data, maxdepth, flags);
 
 	if (flags & PKGF_SEARCH_PRIVATE)
-		pkg_walk_list(root->requires_private, pkg_traverse_func, data, maxdepth - 1, flags);
+		pkg_walk_list(root->requires_private, pkg_traverse_func, data, maxdepth, flags);
 
 	if (pkg_traverse_func != NULL)
 		pkg_traverse_func(root, data);
