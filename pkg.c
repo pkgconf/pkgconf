@@ -89,9 +89,20 @@ pkg_find(const char *name, unsigned int flags)
 
 	if (!(flags & PKGF_ENV_ONLY))
 	{
-		snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, PKG_DEFAULT_PATH, name);
-		if ((f = fopen(locbuf, "r")) != NULL)
-			return parse_file(locbuf, f);
+		count = path_split(PKG_DEFAULT_PATH, &path);
+
+		while (iter < count)
+		{
+			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
+			free(path[iter]);
+
+			if ((f = fopen(locbuf, "r")) != NULL)
+				return parse_file(locbuf, f);
+
+			iter++;
+		}
+
+		free(path);
 	}
 
 	return NULL;
