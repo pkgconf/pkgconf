@@ -55,7 +55,7 @@ path_split(const char *text, char ***parv)
 	}
 	free(workbuf);
 
-	return count + 1;
+	return count;
 }
 
 pkg_t *
