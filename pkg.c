@@ -120,6 +120,7 @@ pkg_find(const char *name, unsigned int flags)
 	{
 		count = path_split(PKG_DEFAULT_PATH, &path);
 
+		iter = 0;
 		while (iter < count)
 		{
 			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
