@@ -56,7 +56,7 @@ static int want_requires_private = 0;
 static int want_variables = 0;
 static int want_digraph = 0;
 static int want_env_only = 0;
-static int maximum_traverse_depth = 2;
+static int maximum_traverse_depth = -1;
 
 static char *required_pkgconfig_version = NULL;
 static char *required_module_version = NULL;
