@@ -47,6 +47,8 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'foo > 1.2'; echo \$?" \
 	'0'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'foo > 1.2.3'; echo \$?" \
 	'1'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'foo' '>' '1.2'; echo \$?" \
+	'0'
 
 # 2) tests for PKG_CONFIG_PATH order
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1:${selfdir}/lib2 ${1} --libs foo" \
