@@ -166,9 +166,6 @@ pkg_dependency_add(pkg_dependency_t *head, const char *package, const char *vers
 	return dep;
 }
 
-#define MODULE_SEPARATOR(c) ((c) == ',' || isspace ((c)))
-#define OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
-
 pkg_dependency_t *
 pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail)
 {
@@ -213,7 +210,7 @@ parse_deplist(pkg_t *pkg, const char *depends)
 		switch (state)
 		{
 		case OUTSIDE_MODULE:
-			if (!MODULE_SEPARATOR(*ptr))
+			if (!PKG_MODULE_SEPARATOR(*ptr))
 				state = INSIDE_MODULE_NAME;
 
 			break;
@@ -228,14 +225,14 @@ parse_deplist(pkg_t *pkg, const char *depends)
 
 				if (*sptr == '\0')
 					state = OUTSIDE_MODULE;
-				else if (MODULE_SEPARATOR(*sptr))
+				else if (PKG_MODULE_SEPARATOR(*sptr))
 					state = OUTSIDE_MODULE;
-				else if (OPERATOR_CHAR(*sptr))
+				else if (PKG_OPERATOR_CHAR(*sptr))
 					state = BEFORE_OPERATOR;
 				else
 					state = OUTSIDE_MODULE;
 			}
-			else if (MODULE_SEPARATOR(*ptr))
+			else if (PKG_MODULE_SEPARATOR(*ptr))
 				state = OUTSIDE_MODULE;
 			else if (*(ptr + 1) == '\0')
 			{
@@ -247,7 +244,7 @@ parse_deplist(pkg_t *pkg, const char *depends)
 			{
 				char *iter = start;
 
-				while (MODULE_SEPARATOR(*iter))
+				while (PKG_MODULE_SEPARATOR(*iter))
 					iter++;
 
 				package = strndup(iter, ptr - iter);
@@ -282,7 +279,7 @@ parse_deplist(pkg_t *pkg, const char *depends)
 			break;
 
 		case BEFORE_OPERATOR:
-			if (OPERATOR_CHAR(*ptr))
+			if (PKG_OPERATOR_CHAR(*ptr))
 			{
 				switch(*ptr)
 				{
@@ -308,7 +305,7 @@ parse_deplist(pkg_t *pkg, const char *depends)
 			break;
 
 		case INSIDE_OPERATOR:
-			if (!OPERATOR_CHAR(*ptr))
+			if (!PKG_OPERATOR_CHAR(*ptr))
 				state = AFTER_OPERATOR;
 			else if (*ptr == '=')
 			{
@@ -340,7 +337,7 @@ parse_deplist(pkg_t *pkg, const char *depends)
 			break;
 
 		case INSIDE_VERSION:
-			if (MODULE_SEPARATOR(*ptr) || *(ptr + 1) == '\0')
+			if (PKG_MODULE_SEPARATOR(*ptr) || *(ptr + 1) == '\0')
 			{
 				version = strndup(vstart, (ptr - vstart));
 				state = OUTSIDE_MODULE;

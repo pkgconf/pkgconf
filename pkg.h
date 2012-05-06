@@ -109,6 +109,9 @@ struct pkg_ {
 	pkg_tuple_t *vars;
 };
 
+#define PKG_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((c)))
+#define PKG_OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
+
 #define PKGF_NONE			0x0
 #define PKGF_SEARCH_PRIVATE		0x1
 #define PKGF_ENV_ONLY			0x2
