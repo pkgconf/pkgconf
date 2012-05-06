@@ -110,6 +110,8 @@ struct pkg_ {
 	pkg_dependency_t *requires_private;
 	pkg_dependency_t *conflicts;
 	pkg_tuple_t *vars;
+
+	bool uninstalled;
 };
 
 #define PKG_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((c)))

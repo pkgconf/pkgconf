@@ -62,6 +62,7 @@ pkg_t *
 pkg_find(const char *name, unsigned int flags)
 {
 	char locbuf[PKG_CONFIG_PATH_SZ];
+	char uninst_locbuf[PKG_CONFIG_PATH_SZ];
 	char **path;
 	size_t count, iter = 0;
 	const char *env_path;
@@ -76,7 +77,16 @@ pkg_find(const char *name, unsigned int flags)
 		while (iter < count)
 		{
 			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
+			snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path[iter], name);
 			free(path[iter]);
+
+			if ((f = fopen(uninst_locbuf, "r")) != NULL)
+			{
+				pkg_t *pkg = parse_file(locbuf, f);
+				pkg->uninstalled = true;
+
+				return pkg;
+			}
 
 			if ((f = fopen(locbuf, "r")) != NULL)
 				return parse_file(locbuf, f);
@@ -94,7 +104,16 @@ pkg_find(const char *name, unsigned int flags)
 		while (iter < count)
 		{
 			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
+			snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path[iter], name);
 			free(path[iter]);
+
+			if ((f = fopen(uninst_locbuf, "r")) != NULL)
+			{
+				pkg_t *pkg = parse_file(locbuf, f);
+				pkg->uninstalled = true;
+
+				return pkg;
+			}
 
 			if ((f = fopen(locbuf, "r")) != NULL)
 				return parse_file(locbuf, f);
