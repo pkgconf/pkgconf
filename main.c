@@ -259,9 +259,8 @@ pkg_queue_walk(pkg_queue_t *head)
 	int wanted_something = 0;
 	pkg_queue_t *pkgq;
 	pkg_t world = (pkg_t){
-		.id = "pkg-config",
-		.realname = "world",
-		.version = PKG_PKGCONFIG_VERSION_EQUIV,
+		.id = "world",
+		.realname = "virtual",
 	};
 
 	/* if maximum_traverse_depth is one, then we will not traverse deeper
