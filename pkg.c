@@ -24,6 +24,11 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
+#ifdef _WIN32
+#	include <windows.h>
+#	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
+#endif
+
 #define PKG_CONFIG_EXT		".pc"
 #define PKG_CONFIG_PATH_SZ	(65535)
 
@@ -206,6 +211,65 @@ pkg_free(pkg_t *pkg)
 	free(pkg);
 }
 
+#ifdef _WIN32
+pkg_t *
+pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags)
+{
+	pkg_t *pkg = NULL;
+	char locbuf[PKG_CONFIG_PATH_SZ];
+	char uninst_locbuf[PKG_CONFIG_PATH_SZ];
+
+	HKEY key;
+	int i = 0;
+
+	char buf[16384]; /* per registry limits */
+	DWORD bufsize = sizeof buf;
+	if (RegOpenKeyEx(hkey, PKG_CONFIG_REG_KEY,
+				0, KEY_READ, &key) != ERROR_SUCCESS)
+		return NULL;
+
+	while (RegEnumValue(key, i++, buf, &bufsize, NULL, NULL, NULL, NULL)
+			== ERROR_SUCCESS)
+	{
+		BYTE pathbuf[PKG_CONFIG_PATH_SZ];
+		DWORD type;
+		DWORD pathbuflen = sizeof pathbuf;
+
+		if (RegQueryValueEx(key, buf, NULL, &type, pathbuf, &pathbuflen)
+				== ERROR_SUCCESS && type == REG_SZ)
+		{
+			FILE *f;
+			/* XXX: support REG_EXPAND_SZ? */
+
+			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT,
+					pathbuf, name);
+			snprintf(uninst_locbuf, sizeof uninst_locbuf,
+					"%s/%s-uninstalled" PKG_CONFIG_EXT, pathbuf, name);
+
+			if (!(flags & PKGF_NO_UNINSTALLED)
+					&& (f = fopen(uninst_locbuf, "r")) != NULL)
+			{
+				pkg = pkg_new_from_file(locbuf, f);
+				pkg->uninstalled = true;
+
+				break;
+			}
+
+			if ((f = fopen(locbuf, "r")) != NULL)
+			{
+				pkg = pkg_new_from_file(locbuf, f);
+				break;
+			}
+		}
+
+		bufsize = sizeof buf;
+	}
+
+	RegCloseKey(key);
+	return pkg;
+}
+#endif
+
 pkg_t *
 pkg_find(const char *name, unsigned int flags)
 {
@@ -279,6 +343,14 @@ pkg_find(const char *name, unsigned int flags)
 			}
 		}
 	}
+
+#ifdef _WIN32
+	/* support getting PKG_CONFIG_PATH from registry */
+
+	pkg = pkg_find_in_registry_key(HKEY_CURRENT_USER, name, flags);
+	if (!pkg)
+		pkg = pkg_find_in_registry_key(HKEY_LOCAL_MACHINE, name, flags);
+#endif
 
 out:
 	path_free(path, count);
