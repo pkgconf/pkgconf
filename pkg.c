@@ -151,7 +151,7 @@ pkg_find(const char *name, unsigned int flags)
 	{
 		count = path_split(env_path, &path);
 
-		while (iter < count)
+		for (iter = 0; iter < count; iter++)
 		{
 			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
 			snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path[iter], name);
@@ -169,8 +169,6 @@ pkg_find(const char *name, unsigned int flags)
 				pkg = pkg_new_from_file(locbuf, f);
 				goto out;
 			}
-
-			iter++;
 		}
 	}
 
@@ -182,8 +180,7 @@ pkg_find(const char *name, unsigned int flags)
 	{
 		count = path_split(env_path, &path);
 
-		iter = 0;
-		while (iter < count)
+		for (iter = 0; iter < count; iter++)
 		{
 			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
 			snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path[iter], name);
@@ -201,8 +198,6 @@ pkg_find(const char *name, unsigned int flags)
 				pkg = pkg_new_from_file(locbuf, f);
 				goto out;
 			}
-
-			iter++;
 		}
 	}
 
