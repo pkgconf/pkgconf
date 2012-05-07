@@ -37,6 +37,7 @@ parse_fragment_list(pkg_t *pkg, const char *string)
 	for (i = 0; i < argc; i++)
 		head = pkg_fragment_add(head, argv[i]);
 
+	argv_free(argv);
 	free(repstr);
 
 	return head;
