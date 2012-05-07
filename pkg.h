@@ -158,5 +158,6 @@ char *pkg_fgetline(char *line, size_t size, FILE *stream);
 pkg_tuple_t *pkg_tuple_add(pkg_tuple_t *parent, const char *key, const char *value);
 char *pkg_tuple_find(pkg_tuple_t *head, const char *key);
 char *pkg_tuple_parse(pkg_tuple_t *vars, const char *value);
+void pkg_tuple_free(pkg_tuple_t *head);
 
 #endif
