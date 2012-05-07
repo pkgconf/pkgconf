@@ -482,6 +482,7 @@ main(int argc, char *argv[])
 	int ret;
 	pkg_queue_t *pkgq = NULL;
 	pkg_queue_t *pkgq_head = NULL;
+	char *builddir;
 
 	struct option options[] = {
 		{ "version", no_argument, &want_version, 1, },
@@ -573,6 +574,11 @@ main(int argc, char *argv[])
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_LIBS") != NULL)
 		want_keep_system_libs = 1;
+
+	if ((builddir = getenv("PKG_CONFIG_TOP_BUILD_DIR")) != NULL)
+		pkg_tuple_add_global("pc_top_builddir", builddir);
+	else
+		pkg_tuple_add_global("pc_top_builddir", "$(top_builddir)");	
 
 	if (required_pkgconfig_version != NULL)
 	{
