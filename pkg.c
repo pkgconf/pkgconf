@@ -58,6 +58,20 @@ path_split(const char *text, char ***parv)
 	return count;
 }
 
+static inline void
+path_free(char **parv, size_t count)
+{
+	size_t iter;
+
+	if (parv == NULL)
+		return;
+
+	for (iter = 0; iter < count; iter++)
+		free(parv[iter]);
+
+	free(parv);
+}
+
 static inline bool
 str_has_suffix(const char *str, const char *suffix)
 {
@@ -73,7 +87,20 @@ str_has_suffix(const char *str, const char *suffix)
 void
 pkg_free(pkg_t *pkg)
 {
-	if (pkg == NULL || pkg->flags & PKG_PROPF_VIRTUAL)
+	if (pkg == NULL)
+		return;
+
+	pkg_dependency_free(pkg->requires);
+	pkg_dependency_free(pkg->requires_private);
+	pkg_dependency_free(pkg->conflicts);
+
+	pkg_fragment_free(pkg->cflags);
+	pkg_fragment_free(pkg->libs);
+	pkg_fragment_free(pkg->libs_private);
+
+	pkg_tuple_free(pkg->vars);
+
+	if (pkg->flags & PKG_PROPF_VIRTUAL)
 		return;
 
 	if (pkg->id != NULL)
@@ -97,16 +124,6 @@ pkg_free(pkg_t *pkg)
 	if (pkg->pc_filedir != NULL)
 		free(pkg->pc_filedir);
 
-	pkg_dependency_free(pkg->requires);
-	pkg_dependency_free(pkg->requires_private);
-	pkg_dependency_free(pkg->conflicts);
-
-	pkg_fragment_free(pkg->cflags);
-	pkg_fragment_free(pkg->libs);
-	pkg_fragment_free(pkg->libs_private);
-
-	pkg_tuple_free(pkg->vars);
-
 	free(pkg);
 }
 
@@ -115,9 +132,10 @@ pkg_find(const char *name, unsigned int flags)
 {
 	char locbuf[PKG_CONFIG_PATH_SZ];
 	char uninst_locbuf[PKG_CONFIG_PATH_SZ];
-	char **path;
-	size_t count, iter = 0;
+	char **path = NULL;
+	size_t count = 0, iter = 0;
 	const char *env_path;
+	pkg_t *pkg = NULL;
 	FILE *f;
 
 	/* name might actually be a filename. */
@@ -137,23 +155,23 @@ pkg_find(const char *name, unsigned int flags)
 		{
 			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
 			snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path[iter], name);
-			free(path[iter]);
 
 			if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 			{
-				pkg_t *pkg = parse_file(locbuf, f);
+				pkg = parse_file(locbuf, f);
 				pkg->uninstalled = true;
 
-				return pkg;
+				goto out;
 			}
 
 			if ((f = fopen(locbuf, "r")) != NULL)
-				return parse_file(locbuf, f);
+			{
+				pkg = parse_file(locbuf, f);
+				goto out;
+			}
 
 			iter++;
 		}
-
-		free(path);
 	}
 
 	env_path = getenv("PKG_CONFIG_LIBDIR");
@@ -169,26 +187,28 @@ pkg_find(const char *name, unsigned int flags)
 		{
 			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
 			snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path[iter], name);
-			free(path[iter]);
 
 			if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 			{
 				pkg_t *pkg = parse_file(locbuf, f);
 				pkg->uninstalled = true;
 
-				return pkg;
+				goto out;
 			}
 
 			if ((f = fopen(locbuf, "r")) != NULL)
-				return parse_file(locbuf, f);
+			{
+				pkg = parse_file(locbuf, f);
+				goto out;
+			}
 
 			iter++;
 		}
-
-		free(path);
 	}
 
-	return NULL;
+out:
+	path_free(path, count);
+	return pkg;
 }
 
 /*
