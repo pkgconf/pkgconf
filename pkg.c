@@ -431,13 +431,13 @@ pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int
  * verify the graph dependency nodes are satisfiable by walking the tree using
  * pkg_traverse().
  */
-void
+unsigned int
 pkg_verify_graph(pkg_t *root, int depth, unsigned int flags)
 {
-	pkg_traverse(root, NULL, NULL, depth, flags);
+	return pkg_traverse(root, NULL, NULL, depth, flags);
 }
 
-void
+unsigned int
 pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 {
 	if (eflags & PKG_ERRF_PACKAGE_NOT_FOUND)
@@ -460,17 +460,17 @@ pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 	if (pkg != NULL)
 		pkg_free(pkg);
 
-	exit(EXIT_FAILURE);
+	return eflags;
 }
 
-static inline void
+static inline unsigned int
 pkg_walk_list(pkg_dependency_t *deplist,
 	void (*pkg_traverse_func)(pkg_t *package, void *data),
 	void *data,
 	int depth,
 	unsigned int flags)
 {
-	unsigned int eflags;
+	unsigned int eflags = PKG_ERRF_OK;
 	pkg_dependency_t *node;
 
 	foreach_list_entry(deplist, node)
@@ -488,6 +488,8 @@ pkg_walk_list(pkg_dependency_t *deplist,
 
 		pkg_free(pkgdep);
 	}
+
+	return eflags;
 }
 
 /*
@@ -495,21 +497,31 @@ pkg_walk_list(pkg_dependency_t *deplist,
  *
  * walk the dependency graph up to maxdepth levels.  -1 means infinite recursion.
  */
-void
+unsigned int
 pkg_traverse(pkg_t *root,
 	void (*pkg_traverse_func)(pkg_t *package, void *data),
 	void *data,
 	int maxdepth,
 	unsigned int flags)
 {
-	if (maxdepth == 0)
-		return;
+	unsigned int eflags = PKG_ERRF_OK;
 
-	pkg_walk_list(root->requires, pkg_traverse_func, data, maxdepth, flags);
+	if (maxdepth == 0)
+		return eflags;
+
+	eflags = pkg_walk_list(root->requires, pkg_traverse_func, data, maxdepth, flags);
+	if (eflags != PKG_ERRF_OK)
+		return eflags;
 
 	if (flags & PKGF_SEARCH_PRIVATE)
-		pkg_walk_list(root->requires_private, pkg_traverse_func, data, maxdepth, flags);
+	{
+		eflags = pkg_walk_list(root->requires_private, pkg_traverse_func, data, maxdepth, flags);
+		if (eflags != PKG_ERRF_OK)
+			return eflags;
+	}
 
 	if (pkg_traverse_func != NULL)
 		pkg_traverse_func(root, data);
+
+	return eflags;
 }
