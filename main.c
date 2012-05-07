@@ -299,6 +299,8 @@ pkg_queue_walk(pkg_queue_t *head)
 
 		wanted_something = 0;
 		pkg_traverse(&world, check_uninstalled, &retval, maximum_traverse_depth, global_traverse_flags);
+
+		goto out;
 	}
 
 	if (want_digraph)
@@ -311,7 +313,7 @@ pkg_queue_walk(pkg_queue_t *head)
 
 		printf("}\n");
 
-		return EXIT_SUCCESS;
+		goto out;
 	}
 
 	if (want_modversion)
@@ -321,6 +323,8 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_libs = 0;
 
 		pkg_traverse(&world, print_modversion, NULL, 2, global_traverse_flags);
+
+		goto out;
 	}
 
 	if (want_variables)
@@ -330,6 +334,8 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_libs = 0;
 
 		pkg_traverse(&world, print_variables, NULL, 2, global_traverse_flags);
+
+		goto out;
 	}
 
 	if (want_requires)
@@ -346,7 +352,11 @@ pkg_queue_walk(pkg_queue_t *head)
 
 			pkg = pkg_verify_dependency(iter, global_traverse_flags, NULL);
 			print_requires(pkg, NULL);
+
+			pkg_free(pkg);
 		}
+
+		goto out;
 	}
 
 	if (want_requires_private)
@@ -363,7 +373,11 @@ pkg_queue_walk(pkg_queue_t *head)
 
 			pkg = pkg_verify_dependency(iter, global_traverse_flags | PKGF_SEARCH_PRIVATE, NULL);
 			print_requires_private(pkg, NULL);
+
+			pkg_free(pkg);
 		}
+
+		goto out;
 	}
 
 	if (want_cflags)
@@ -397,6 +411,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	if (wanted_something)
 		printf("\n");
 
+out:
 	pkg_free(&world);
 
 	return retval;
