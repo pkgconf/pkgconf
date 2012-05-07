@@ -457,6 +457,9 @@ pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 				node->package, pkg->version, pkg_get_comparator(node), node->version);
 	}
 
+	if (pkg != NULL)
+		pkg_free(pkg);
+
 	exit(EXIT_FAILURE);
 }
 
