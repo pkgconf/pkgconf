@@ -83,6 +83,10 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --variable=includedir foo" \
 # 6) tests for builtins
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --modversion pkg-config" \
 	'0.26'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --variable=prefix foo" \
+	'/usr'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --define-variable=prefix=/test --variable=prefix foo" \
+	'/test'
 
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
