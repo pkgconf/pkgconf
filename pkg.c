@@ -224,8 +224,8 @@ pkg_compare_version(const char *a, const char *b)
 	if (!strcasecmp(a, b))
 		return 0;
 
-	str1 = LOCAL_COPY(a);
-	str2 = LOCAL_COPY(b);
+	str1 = PKG_LOCAL_COPY(a);
+	str2 = PKG_LOCAL_COPY(b);
 
 	one = str1;
 	two = str2;

@@ -62,16 +62,11 @@ typedef struct pkg_fragment_ pkg_fragment_t;
 #define foreach_list_entry_safe(head, nextiter, value) \
 	for ((value) = (head), (nextiter) = (head) != NULL ? (head)->next : NULL; (value) != NULL; (value) = (nextiter), (nextiter) = (nextiter) != NULL ? (nextiter)->next : NULL)
 
-#define LOCAL_COPY(a) \
+#define PKG_LOCAL_COPY(a) \
 	strcpy(alloca(strlen(a) + 1), a)
 
-#ifndef MIN
-# define MIN(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-
-#ifndef MAX
-# define MAX(a,b) (((a) > (b)) ? (a) : (b))
-#endif
+#define PKG_MIN(a,b) (((a) < (b)) ? (a) : (b))
+#define PKG_MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 struct pkg_fragment_ {
 	struct pkg_fragment_ *prev, *next;
