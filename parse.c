@@ -320,7 +320,7 @@ pkg_dependency_parse(pkg_t *pkg, const char *depends)
  * Parse a .pc file into a pkg_t object structure.
  */
 pkg_t *
-parse_file(const char *filename, FILE *f)
+pkg_new_from_file(const char *filename, FILE *f)
 {
 	pkg_t *pkg;
 	char readbuf[BUFSIZ];

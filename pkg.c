@@ -142,7 +142,7 @@ pkg_find(const char *name, unsigned int flags)
 	if (str_has_suffix(name, PKG_CONFIG_EXT))
 	{
 		if ((f = fopen(name, "r")) != NULL)
-			return parse_file(name, f);
+			return pkg_new_from_file(name, f);
 	}
 
 	/* PKG_CONFIG_PATH has to take precedence */
@@ -158,7 +158,7 @@ pkg_find(const char *name, unsigned int flags)
 
 			if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 			{
-				pkg = parse_file(locbuf, f);
+				pkg = pkg_new_from_file(locbuf, f);
 				pkg->uninstalled = true;
 
 				goto out;
@@ -166,7 +166,7 @@ pkg_find(const char *name, unsigned int flags)
 
 			if ((f = fopen(locbuf, "r")) != NULL)
 			{
-				pkg = parse_file(locbuf, f);
+				pkg = pkg_new_from_file(locbuf, f);
 				goto out;
 			}
 
@@ -190,7 +190,7 @@ pkg_find(const char *name, unsigned int flags)
 
 			if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 			{
-				pkg_t *pkg = parse_file(locbuf, f);
+				pkg_t *pkg = pkg_new_from_file(locbuf, f);
 				pkg->uninstalled = true;
 
 				goto out;
@@ -198,7 +198,7 @@ pkg_find(const char *name, unsigned int flags)
 
 			if ((f = fopen(locbuf, "r")) != NULL)
 			{
-				pkg = parse_file(locbuf, f);
+				pkg = pkg_new_from_file(locbuf, f);
 				goto out;
 			}
 
