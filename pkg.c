@@ -73,6 +73,9 @@ str_has_suffix(const char *str, const char *suffix)
 void
 pkg_free(pkg_t *pkg)
 {
+	if (pkg == NULL || pkg->flags & PKG_PROPF_VIRTUAL)
+		return;
+
 	if (pkg->id != NULL)
 		free(pkg->id);
 

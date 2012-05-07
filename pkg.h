@@ -96,6 +96,9 @@ struct tuple_ {
 	char *value;
 };
 
+#define PKG_PROPF_NONE			0x0
+#define PKG_PROPF_VIRTUAL		0x1
+
 struct pkg_ {
 	char *id;
 	char *filename;
@@ -115,6 +118,8 @@ struct pkg_ {
 	pkg_tuple_t *vars;
 
 	bool uninstalled;
+
+	unsigned int flags;
 };
 
 #define PKG_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((c)))
