@@ -169,7 +169,7 @@ print_variable(pkg_t *pkg, void *unused)
 	const char *variable_tmpl;
 	(void) unused;
 
-	variable_tmpl = tuple_find(pkg->vars, want_variable);
+	variable_tmpl = pkg_tuple_find(pkg->vars, want_variable);
 	if (variable_tmpl != NULL)
 	{
 		char *var = strdup_parse(pkg, variable_tmpl);

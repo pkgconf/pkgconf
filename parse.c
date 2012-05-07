@@ -24,35 +24,6 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
-static pkg_tuple_t *
-tuple_add(pkg_tuple_t *parent, const char *key, const char *value)
-{
-	pkg_tuple_t *tuple = calloc(sizeof(pkg_tuple_t), 1);
-
-	tuple->key = strdup(key);
-	tuple->value = strdup(value);
-
-	tuple->next = parent;
-	if (tuple->next != NULL)
-		tuple->next->prev = tuple;
-
-	return tuple;
-}
-
-char *
-tuple_find(pkg_tuple_t *head, const char *key)
-{
-	pkg_tuple_t *node;
-
-	foreach_list_entry(head, node)
-	{
-		if (!strcasecmp(node->key, key))
-			return node->value;
-	}
-
-	return NULL;
-}
-
 char *
 strdup_parse(pkg_t *pkg, const char *value)
 {
@@ -85,7 +56,7 @@ strdup_parse(pkg_t *pkg, const char *value)
 			}
 
 			ptr += (pptr - ptr);
-			kv = tuple_find(pkg->vars, varname);
+			kv = pkg_tuple_find(pkg->vars, varname);
 
 			if (kv != NULL)
 			{
@@ -437,7 +408,7 @@ parse_file(const char *filename, FILE *f)
 				pkg->conflicts = parse_deplist(pkg, value);
 			break;
 		case '=':
-			pkg->vars = tuple_add(pkg->vars, key, value);
+			pkg->vars = pkg_tuple_add(pkg->vars, key, value);
 			break;
 		default:
 			break;
