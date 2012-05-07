@@ -171,10 +171,7 @@ print_variable(pkg_t *pkg, void *unused)
 
 	var = pkg_tuple_find(pkg->vars, want_variable);
 	if (var != NULL)
-	{
 		printf("%s", var);
-		exit(EXIT_SUCCESS);
-	}
 }
 
 static void
