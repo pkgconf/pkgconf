@@ -60,7 +60,7 @@ typedef struct fragment_ pkg_fragment_t;
 	for ((value) = (head); (value) != NULL; (value) = (value)->next)
 
 #define foreach_list_entry_safe(head, nextiter, value) \
-	for ((value) = (head), (nextiter) = (head)->next; (value) != NULL; (value) = (nextiter), (nextiter) = (nextiter)->next)
+	for ((value) = (head), (nextiter) = (head) != NULL ? (head)->next : NULL; (value) != NULL; (value) = (nextiter), (nextiter) = (nextiter) != NULL ? (nextiter)->next : NULL)
 
 #define LOCAL_COPY(a) \
 	strcpy(alloca(strlen(a) + 1), a)
