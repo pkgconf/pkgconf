@@ -578,18 +578,19 @@ pkg_traverse(pkg_t *root,
 	int maxdepth,
 	unsigned int flags)
 {
+	unsigned int rflags = flags & ~PKGF_SKIP_ROOT_VIRTUAL;
 	unsigned int eflags = PKG_ERRF_OK;
 
 	if (maxdepth == 0)
 		return eflags;
 
-	eflags = pkg_walk_list(root->requires, pkg_traverse_func, data, maxdepth, flags);
+	eflags = pkg_walk_list(root->requires, pkg_traverse_func, data, maxdepth, rflags);
 	if (eflags != PKG_ERRF_OK)
 		return eflags;
 
 	if (flags & PKGF_SEARCH_PRIVATE)
 	{
-		eflags = pkg_walk_list(root->requires_private, pkg_traverse_func, data, maxdepth, flags);
+		eflags = pkg_walk_list(root->requires_private, pkg_traverse_func, data, maxdepth, rflags);
 		if (eflags != PKG_ERRF_OK)
 			return eflags;
 	}
