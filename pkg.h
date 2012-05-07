@@ -140,6 +140,7 @@ const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
 pkg_t *parse_file(const char *path, FILE *f);
 pkg_dependency_t *parse_deplist(pkg_t *pkg, const char *depends);
 pkg_dependency_t *pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail);
+void pkg_dependency_free(pkg_dependency_t *head);
 
 /* argvsplit.c */
 int argv_split(const char *src, int *argc, char ***argv);

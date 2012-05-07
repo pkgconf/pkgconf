@@ -107,6 +107,23 @@ pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail)
 	return head;
 }
 
+void
+pkg_dependency_free(pkg_dependency_t *head)
+{
+	pkg_dependency_t *node, *next;
+
+	foreach_list_entry_safe(head, next, node)
+	{
+		if (node->package != NULL)
+			free(node->package);
+
+		if (node->version != NULL)
+			free(node->version);
+
+		free(node);
+	}
+}
+
 pkg_dependency_t *
 parse_deplist(pkg_t *pkg, const char *depends)
 {
