@@ -70,6 +70,43 @@ str_has_suffix(const char *str, const char *suffix)
 	return !strncasecmp(str + str_len - suf_len, suffix, suf_len);
 }
 
+void
+pkg_free(pkg_t *pkg)
+{
+	if (pkg->id != NULL)
+		free(pkg->id);
+
+	if (pkg->filename != NULL)
+		free(pkg->filename);
+
+	if (pkg->realname != NULL)
+		free(pkg->realname);
+
+	if (pkg->version != NULL)
+		free(pkg->version);
+
+	if (pkg->description != NULL)
+		free(pkg->description);
+
+	if (pkg->url != NULL)
+		free(pkg->url);
+
+	if (pkg->pc_filedir != NULL)
+		free(pkg->pc_filedir);
+
+	pkg_dependency_free(pkg->requires);
+	pkg_dependency_free(pkg->requires_private);
+	pkg_dependency_free(pkg->conflicts);
+
+	pkg_fragment_free(pkg->cflags);
+	pkg_fragment_free(pkg->libs);
+	pkg_fragment_free(pkg->libs_private);
+
+	pkg_tuple_free(pkg->vars);
+
+	free(pkg);
+}
+
 pkg_t *
 pkg_find(const char *name, unsigned int flags)
 {

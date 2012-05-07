@@ -129,6 +129,8 @@ struct pkg_ {
 #define PKG_ERRF_PACKAGE_NOT_FOUND	0x1
 #define PKG_ERRF_PACKAGE_VER_MISMATCH	0x2
 
+/* pkg.c */
+void pkg_free(pkg_t *pkg);
 pkg_t *pkg_find(const char *name, unsigned int flags);
 void pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data, int maxdepth, unsigned int flags);
 void pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
