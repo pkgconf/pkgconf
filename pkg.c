@@ -335,6 +335,7 @@ static pkg_t pkg_config_virtual = {
 	.id = "pkg-config",
 	.realname = "pkg-config",
 	.version = PKG_PKGCONFIG_VERSION_EQUIV,
+	.flags = PKG_PROPF_VIRTUAL,
 };
 
 /*
