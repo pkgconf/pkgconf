@@ -84,6 +84,85 @@ str_has_suffix(const char *str, const char *suffix)
 	return !strncasecmp(str + str_len - suf_len, suffix, suf_len);
 }
 
+/*
+ * pkg_new_from_file(filename, file)
+ *
+ * Parse a .pc file into a pkg_t object structure.
+ */
+pkg_t *
+pkg_new_from_file(const char *filename, FILE *f)
+{
+	pkg_t *pkg;
+	char readbuf[BUFSIZ];
+
+	pkg = calloc(sizeof(pkg_t), 1);
+	pkg->filename = strdup(filename);
+
+	while (pkg_fgetline(readbuf, BUFSIZ, f) != NULL)
+	{
+		char op, *p, *key = NULL, *value = NULL;
+
+		readbuf[strlen(readbuf) - 1] = '\0';
+
+		p = readbuf;
+		while (*p && (isalpha(*p) || isdigit(*p) || *p == '_' || *p == '.'))
+			p++;
+
+		key = strndup(readbuf, p - readbuf);
+		if (!isalpha(*key) && !isdigit(*p))
+			goto cleanup;
+
+		while (*p && isspace(*p))
+			p++;
+
+		op = *p++;
+
+		while (*p && isspace(*p))
+			p++;
+
+		value = strdup(p);
+
+		switch (op)
+		{
+		case ':':
+			if (!strcasecmp(key, "Name"))
+				pkg->realname = pkg_tuple_parse(pkg->vars, value);
+			else if (!strcasecmp(key, "Description"))
+				pkg->description = pkg_tuple_parse(pkg->vars, value);
+			else if (!strcasecmp(key, "Version"))
+				pkg->version = pkg_tuple_parse(pkg->vars, value);
+			else if (!strcasecmp(key, "CFLAGS"))
+				pkg->cflags = pkg_fragment_parse(pkg->cflags, pkg->vars, value);
+			else if (!strcasecmp(key, "LIBS"))
+				pkg->libs = pkg_fragment_parse(pkg->libs, pkg->vars, value);
+			else if (!strcasecmp(key, "LIBS.private"))
+				pkg->libs_private = pkg_fragment_parse(pkg->libs_private, pkg->vars, value);
+			else if (!strcasecmp(key, "Requires"))
+				pkg->requires = pkg_dependency_parse(pkg, value);
+			else if (!strcasecmp(key, "Requires.private"))
+				pkg->requires_private = pkg_dependency_parse(pkg, value);
+			else if (!strcasecmp(key, "Conflicts"))
+				pkg->conflicts = pkg_dependency_parse(pkg, value);
+			break;
+		case '=':
+			pkg->vars = pkg_tuple_add(pkg->vars, key, value);
+			break;
+		default:
+			break;
+		}
+
+cleanup:
+		if (key)
+			free(key);
+
+		if (value)
+			free(value);
+	}
+
+	fclose(f);
+	return pkg;
+}
+
 void
 pkg_free(pkg_t *pkg)
 {
