@@ -246,7 +246,7 @@ exit_if_uninstalled(pkg_t *pkg, void *unused)
 
 typedef struct pkg_queue_ {
 	struct pkg_queue_ *prev, *next;
-	const char *package;
+	char *package;
 } pkg_queue_t;
 
 static pkg_queue_t *
@@ -266,7 +266,7 @@ int
 pkg_queue_walk(pkg_queue_t *head)
 {
 	int wanted_something = 0;
-	pkg_queue_t *pkgq;
+	pkg_queue_t *pkgq, *next_pkgq;
 	pkg_t world = (pkg_t){
 		.id = "world",
 		.realname = "virtual",
@@ -281,12 +281,15 @@ pkg_queue_walk(pkg_queue_t *head)
 	else if (maximum_traverse_depth > 0)
 		maximum_traverse_depth++;
 
-	foreach_list_entry(head, pkgq)
+	foreach_list_entry_safe(head, next_pkgq, pkgq)
 	{
 		pkg_dependency_t *pkgdep;
 
 		pkgdep = parse_deplist(&world, pkgq->package);
 		world.requires = pkg_dependency_append(world.requires, pkgdep);
+
+		free(pkgq->package);
+		free(pkgq);
 	}
 
 	/* we should verify that the graph is complete before attempting to compute cflags etc. */
