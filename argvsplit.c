@@ -44,7 +44,7 @@ pkg_argv_split(const char *src, int *argc, char ***argv)
 	src_iter = src;
 	dst_iter = buf;
 
-	bzero(buf, strlen(src) + 1);
+	memset(buf, 0, strlen(src) + 1);
 
 	*argv = calloc(sizeof (void *), argv_size);
 	(*argv)[argc_count] = dst_iter;
