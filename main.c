@@ -233,12 +233,12 @@ print_digraph_node(pkg_t *pkg, void *unused)
 }
 
 static void
-exit_if_uninstalled(pkg_t *pkg, void *unused)
+check_uninstalled(pkg_t *pkg, void *unused)
 {
-	(void) unused;
+	int *retval = unused;
 
 	if (pkg->uninstalled)
-		exit (0);
+		*retval = EXIT_SUCCESS;
 }
 
 typedef struct pkg_queue_ {
@@ -262,6 +262,7 @@ pkg_queue_push(pkg_queue_t *parent, const char *package)
 int
 pkg_queue_walk(pkg_queue_t *head)
 {
+	int retval = EXIT_SUCCESS;
 	int wanted_something = 0;
 	pkg_queue_t *pkgq, *next_pkgq;
 	pkg_t world = (pkg_t){
@@ -294,9 +295,10 @@ pkg_queue_walk(pkg_queue_t *head)
 
 	if (want_uninstalled)
 	{
+		retval = 1;
+
 		wanted_something = 0;
-		pkg_traverse(&world, exit_if_uninstalled, NULL, maximum_traverse_depth, global_traverse_flags);
-		return 1;
+		pkg_traverse(&world, check_uninstalled, &retval, maximum_traverse_depth, global_traverse_flags);
 	}
 
 	if (want_digraph)
@@ -397,7 +399,7 @@ pkg_queue_walk(pkg_queue_t *head)
 
 	pkg_free(&world);
 
-	return EXIT_SUCCESS;
+	return retval;
 }
 
 static void
