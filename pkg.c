@@ -51,7 +51,7 @@ path_split(const char *text, char ***parv)
 		(*parv)[count] = strdup(p);
 		count++, iter = NULL;
 
-		*parv = realloc(*parv, sizeof (void *) * count);
+		*parv = realloc(*parv, sizeof (void *) * (count + 1));
 	}
 	free(workbuf);
 
