@@ -172,7 +172,7 @@ print_variable(pkg_t *pkg, void *unused)
 	variable_tmpl = pkg_tuple_find(pkg->vars, want_variable);
 	if (variable_tmpl != NULL)
 	{
-		char *var = strdup_parse(pkg, variable_tmpl);
+		char *var = pkg_tuple_parse(pkg->vars, variable_tmpl);
 
 		printf("%s", var);
 

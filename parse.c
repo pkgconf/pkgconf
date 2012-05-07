@@ -24,63 +24,12 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
-char *
-strdup_parse(pkg_t *pkg, const char *value)
-{
-	char buf[BUFSIZ];
-	const char *ptr;
-	char *bptr = buf;
-
-	for (ptr = value; *ptr != '\0' && bptr - buf < BUFSIZ; ptr++)
-	{
-		if (*ptr != '$')
-			*bptr++ = *ptr;
-		else if (*(ptr + 1) == '{')
-		{
-			static char varname[BUFSIZ];
-			char *vptr = varname;
-			const char *pptr;
-			char *kv, *parsekv;
-
-			*vptr = '\0';
-
-			for (pptr = ptr + 2; *pptr != '\0'; pptr++)
-			{
-				if (*pptr != '}')
-					*vptr++ = *pptr;
-				else
-				{
-					*vptr = '\0';
-					break;
-				}
-			}
-
-			ptr += (pptr - ptr);
-			kv = pkg_tuple_find(pkg->vars, varname);
-
-			if (kv != NULL)
-			{
-				parsekv = strdup_parse(pkg, kv);
-
-				strncpy(bptr, parsekv, BUFSIZ - (bptr - buf));
-				bptr += strlen(parsekv);
-
-				free(parsekv);
-			}
-		}
-	}
-
-	*bptr = '\0';
-
-	return strdup(buf);
-}
-
 static pkg_fragment_t *
 parse_fragment_list(pkg_t *pkg, const char *string)
 {
 	int i, argc;
 	char **argv;
-	char *repstr = strdup_parse(pkg, string);
+	char *repstr = pkg_tuple_parse(pkg->vars, string);
 	pkg_fragment_t *head = NULL;
 
 	argv_split(repstr, &argc, &argv);
@@ -166,7 +115,7 @@ parse_deplist(pkg_t *pkg, const char *depends)
 	pkg_dependency_t *deplist_head = NULL;
 	pkg_comparator_t compare = PKG_ANY;
 	char buf[BUFSIZ];
-	char *kvdepends = strdup_parse(pkg, depends);
+	char *kvdepends = pkg_tuple_parse(pkg->vars, depends);
 	char *start = buf;
 	char *ptr = buf;
 	char *vstart = NULL;
@@ -389,11 +338,11 @@ parse_file(const char *filename, FILE *f)
 		{
 		case ':':
 			if (!strcasecmp(key, "Name"))
-				pkg->realname = strdup_parse(pkg, value);
+				pkg->realname = pkg_tuple_parse(pkg->vars, value);
 			else if (!strcasecmp(key, "Description"))
-				pkg->description = strdup_parse(pkg, value);
+				pkg->description = pkg_tuple_parse(pkg->vars, value);
 			else if (!strcasecmp(key, "Version"))
-				pkg->version = strdup_parse(pkg, value);
+				pkg->version = pkg_tuple_parse(pkg->vars, value);
 			else if (!strcasecmp(key, "CFLAGS"))
 				pkg->cflags = parse_fragment_list(pkg, value);
 			else if (!strcasecmp(key, "LIBS"))

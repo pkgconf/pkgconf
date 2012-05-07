@@ -137,7 +137,6 @@ const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
 pkg_t *parse_file(const char *path, FILE *f);
 pkg_dependency_t *parse_deplist(pkg_t *pkg, const char *depends);
 pkg_dependency_t *pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail);
-char *strdup_parse(pkg_t *pkg, const char *value);
 
 /* argvsplit.c */
 int argv_split(const char *src, int *argc, char ***argv);
@@ -155,5 +154,6 @@ char *pkg_fgetline(char *line, size_t size, FILE *stream);
 /* tuple.c */
 pkg_tuple_t *pkg_tuple_add(pkg_tuple_t *parent, const char *key, const char *value);
 char *pkg_tuple_find(pkg_tuple_t *head, const char *key);
+char *pkg_tuple_parse(pkg_tuple_t *vars, const char *value);
 
 #endif
