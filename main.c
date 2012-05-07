@@ -444,6 +444,8 @@ usage(void)
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
 	printf("  --atleast-version                 require a specific version of a module\n");
+	printf("  --exact-version                   require an exact version of a module\n");
+	printf("  --max-version                     require a maximum version of a module\n");
 	printf("  --exists                          check whether or not a module exists\n");
 	printf("  --uninstalled                     check whether or not an uninstalled module will be used\n");
 	printf("  --no-uninstalled                  never use uninstalled modules when satisfying dependencies\n");
