@@ -409,7 +409,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	if (want_variable)
 	{
 		wanted_something++;
-		pkg_traverse(&world, print_variable, NULL, 2, global_traverse_flags);
+		pkg_traverse(&world, print_variable, NULL, 2, global_traverse_flags | PKGF_SKIP_ROOT_VIRTUAL);
 	}
 
 	if (wanted_something)
