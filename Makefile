@@ -12,4 +12,7 @@ install-extra:
 check: $(PROG)
 	$(SHELL) tests/run.sh ./$(PROG)
 
+valgrind-check: $(PROG)
+	$(SHELL) tests/run.sh 'valgrind --leak-check=full --show-reachable=yes ./$(PROG)'
+
 include .deps
