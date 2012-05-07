@@ -24,6 +24,34 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
+static pkg_tuple_t *pkg_global_var;
+
+void
+pkg_tuple_add_global(const char *key, const char *value)
+{
+	pkg_global_var = pkg_tuple_add(pkg_global_var, key, value);
+}
+
+char *
+pkg_tuple_find_global(const char *key)
+{
+	pkg_tuple_t *node;
+
+	PKG_FOREACH_LIST_ENTRY(pkg_global_var, node)
+	{
+		if (!strcasecmp(node->key, key))
+			return node->value;
+	}
+
+	return NULL;
+}
+
+void
+pkg_tuple_free_global(void)
+{
+	pkg_tuple_free(pkg_global_var);
+}
+
 pkg_tuple_t *
 pkg_tuple_add(pkg_tuple_t *parent, const char *key, const char *value)
 {
@@ -50,7 +78,7 @@ pkg_tuple_find(pkg_tuple_t *head, const char *key)
 			return node->value;
 	}
 
-	return NULL;
+	return pkg_tuple_find_global(key);
 }
 
 char *

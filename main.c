@@ -620,5 +620,8 @@ main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	return pkg_queue_walk(pkgq_head);
+	ret = pkg_queue_walk(pkgq_head);
+
+	pkg_tuple_free_global();
+	return ret;
 }

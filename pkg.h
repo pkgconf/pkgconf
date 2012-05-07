@@ -165,5 +165,8 @@ pkg_tuple_t *pkg_tuple_add(pkg_tuple_t *parent, const char *key, const char *val
 char *pkg_tuple_find(pkg_tuple_t *head, const char *key);
 char *pkg_tuple_parse(pkg_tuple_t *vars, const char *value);
 void pkg_tuple_free(pkg_tuple_t *head);
+void pkg_tuple_add_global(const char *key, const char *value);
+char *pkg_tuple_find_global(const char *key);
+void pkg_tuple_free_global(void);
 
 #endif
