@@ -24,6 +24,12 @@
 #include "config.h"
 #include "pkg.h"
 
+void argv_free(char **argv)
+{
+	free(argv[0]);
+	free(argv);
+}
+
 int argv_split(const char *src, int *argc, char ***argv)
 {
 	char *buf = malloc(strlen(src) + 1);
