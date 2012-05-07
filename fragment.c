@@ -111,3 +111,12 @@ pkg_fragment_delete(pkg_fragment_t *node)
 	free(node->data);
 	free(node);
 }
+
+void
+pkg_fragment_free(pkg_fragment_t *head)
+{
+	pkg_fragment_t *node, *next;
+
+	foreach_list_entry_safe(head, next, node)
+		pkg_fragment_delete(node);
+}
