@@ -60,6 +60,8 @@ static int want_keep_system_libs = 0;
 static int maximum_traverse_depth = -1;
 
 static char *required_pkgconfig_version = NULL;
+static char *required_exact_module_version = NULL;
+static char *required_max_module_version = NULL;
 static char *required_module_version = NULL;
 static char *want_variable = NULL;
 
@@ -508,6 +510,8 @@ main(int argc, char *argv[])
 		{ "keep-system-cflags", no_argument, &want_keep_system_cflags, 26, },
 		{ "keep-system-libs", no_argument, &want_keep_system_libs, 26, },
 		{ "define-variable", required_argument, NULL, 27, },
+		{ "exact-version", required_argument, NULL, 28, },
+		{ "max-version", required_argument, NULL, 29, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -529,6 +533,12 @@ main(int argc, char *argv[])
 			break;
 		case 27:
 			pkg_tuple_define_global(optarg);
+			break;
+		case 28:
+			required_exact_module_version = optarg;
+			break;
+		case 29:
+			required_max_module_version = optarg;
 			break;
 		default:
 			break;
@@ -584,6 +594,44 @@ main(int argc, char *argv[])
 			return EXIT_FAILURE;
 
 		if (pkg_compare_version(pkg->version, required_module_version) >= 0)
+			return EXIT_SUCCESS;
+
+		return EXIT_FAILURE;
+	}
+
+	if (required_exact_module_version != NULL)
+	{
+		pkg_t *pkg;
+		const char *package;
+
+		package = argv[optind];
+		if (package == NULL)
+			return EXIT_SUCCESS;
+
+		pkg = pkg_find(package, global_traverse_flags);
+		if (pkg == NULL)
+			return EXIT_FAILURE;
+
+		if (pkg_compare_version(pkg->version, required_exact_module_version) == 0)
+			return EXIT_SUCCESS;
+
+		return EXIT_FAILURE;
+	}
+
+	if (required_max_module_version != NULL)
+	{
+		pkg_t *pkg;
+		const char *package;
+
+		package = argv[optind];
+		if (package == NULL)
+			return EXIT_SUCCESS;
+
+		pkg = pkg_find(package, global_traverse_flags);
+		if (pkg == NULL)
+			return EXIT_FAILURE;
+
+		if (pkg_compare_version(pkg->version, required_max_module_version) <= 0)
 			return EXIT_SUCCESS;
 
 		return EXIT_FAILURE;
