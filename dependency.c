@@ -1,0 +1,296 @@
+/*
+ * dependency.c
+ * dependency parsing and management
+ *
+ * Copyright (c) 2011, 2012 William Pitcock <nenolod@dereferenced.org>.
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include "pkg.h"
+#include "bsdstubs.h"
+
+/*
+ * pkg_dependency_parse(pkg, depends)
+ *
+ * Add requirements to a .pc file.
+ * Commas are counted as whitespace, as to allow:
+ *    @SUBSTVAR@, zlib
+ * getting substituted to:
+ *    , zlib.
+ */
+typedef enum {
+	OUTSIDE_MODULE = 0,
+	INSIDE_MODULE_NAME = 1,
+	BEFORE_OPERATOR = 2,
+	INSIDE_OPERATOR = 3,
+	AFTER_OPERATOR = 4,
+	INSIDE_VERSION = 5
+} parse_state_t;
+
+#define DEBUG_PARSE 0
+
+static inline pkg_dependency_t *
+pkg_dependency_add(pkg_dependency_t *head, const char *package, const char *version, pkg_comparator_t compare)
+{
+	pkg_dependency_t *dep;
+
+	dep = calloc(sizeof(pkg_dependency_t), 1);
+	dep->package = strdup(package);
+
+	if (version != NULL)
+		dep->version = strdup(version);
+
+	dep->compare = compare;
+
+	dep->prev = head;
+	if (dep->prev != NULL)
+		dep->prev->next = dep;
+
+#if DEBUG_PARSE
+	fprintf(stderr, "--> %s %d %s\n", dep->package, dep->compare, dep->version);
+#endif
+
+	return dep;
+}
+
+pkg_dependency_t *
+pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail)
+{
+	pkg_dependency_t *node;
+
+	if (head == NULL)
+		return tail;
+
+	/* skip to end of list */
+	foreach_list_entry(head, node)
+	{
+		if (node->next == NULL)
+			break;
+	}
+
+	node->next = tail;
+	tail->prev = node;
+
+	return head;
+}
+
+void
+pkg_dependency_free(pkg_dependency_t *head)
+{
+	pkg_dependency_t *node, *next;
+
+	foreach_list_entry_safe(head, next, node)
+	{
+		if (node->package != NULL)
+			free(node->package);
+
+		if (node->version != NULL)
+			free(node->version);
+
+		free(node);
+	}
+}
+
+pkg_dependency_t *
+pkg_dependency_parse(pkg_t *pkg, const char *depends)
+{
+	parse_state_t state = OUTSIDE_MODULE;
+	pkg_dependency_t *deplist = NULL;
+	pkg_dependency_t *deplist_head = NULL;
+	pkg_comparator_t compare = PKG_ANY;
+	char buf[BUFSIZ];
+	char *kvdepends = pkg_tuple_parse(pkg->vars, depends);
+	char *start = buf;
+	char *ptr = buf;
+	char *vstart = NULL;
+	char *package = NULL, *version = NULL;
+
+	strlcpy(buf, kvdepends, sizeof buf);
+	strlcat(buf, " ", sizeof buf);
+	free(kvdepends);
+
+	while (*ptr)
+	{
+		switch (state)
+		{
+		case OUTSIDE_MODULE:
+			if (!PKG_MODULE_SEPARATOR(*ptr))
+				state = INSIDE_MODULE_NAME;
+
+			break;
+
+		case INSIDE_MODULE_NAME:
+			if (isspace(*ptr))
+			{
+				const char *sptr = ptr;
+
+				while (*sptr && isspace(*sptr))
+					sptr++;
+
+				if (*sptr == '\0')
+					state = OUTSIDE_MODULE;
+				else if (PKG_MODULE_SEPARATOR(*sptr))
+					state = OUTSIDE_MODULE;
+				else if (PKG_OPERATOR_CHAR(*sptr))
+					state = BEFORE_OPERATOR;
+				else
+					state = OUTSIDE_MODULE;
+			}
+			else if (PKG_MODULE_SEPARATOR(*ptr))
+				state = OUTSIDE_MODULE;
+			else if (*(ptr + 1) == '\0')
+			{
+				ptr++;
+				state = OUTSIDE_MODULE;
+			}
+
+			if (state != INSIDE_MODULE_NAME && start != ptr)
+			{
+				char *iter = start;
+
+				while (PKG_MODULE_SEPARATOR(*iter))
+					iter++;
+
+				package = strndup(iter, ptr - iter);
+#if DEBUG_PARSE
+				fprintf(stderr, "Found package: %s\n", package);
+#endif
+				start = ptr;
+			}
+
+			if (state == OUTSIDE_MODULE)
+			{
+				deplist = pkg_dependency_add(deplist, package, NULL, compare);
+
+				if (deplist_head == NULL)
+					deplist_head = deplist;
+
+				if (package != NULL)
+				{
+					free(package);
+					package = NULL;
+				}
+
+				if (version != NULL)
+				{
+					free(version);
+					version = NULL;
+				}
+
+				compare = PKG_ANY;
+			}
+
+			break;
+
+		case BEFORE_OPERATOR:
+			if (PKG_OPERATOR_CHAR(*ptr))
+			{
+				switch(*ptr)
+				{
+				case '=':
+					compare = PKG_EQUAL;
+					break;
+				case '>':
+					compare = PKG_GREATER_THAN;
+					break;
+				case '<':
+					compare = PKG_LESS_THAN;
+					break;
+				case '!':
+					compare = PKG_NOT_EQUAL;
+					break;
+				default:
+					break;
+				}
+
+				state = INSIDE_OPERATOR;
+			}
+
+			break;
+
+		case INSIDE_OPERATOR:
+			if (!PKG_OPERATOR_CHAR(*ptr))
+				state = AFTER_OPERATOR;
+			else if (*ptr == '=')
+			{
+				switch(compare)
+				{
+				case PKG_LESS_THAN:
+					compare = PKG_LESS_THAN_EQUAL;
+					break;
+				case PKG_GREATER_THAN:
+					compare = PKG_GREATER_THAN_EQUAL;
+					break;
+				default:
+					break;
+				}
+			}
+
+			break;
+
+		case AFTER_OPERATOR:
+#if DEBUG_PARSE
+			fprintf(stderr, "Found op: %d\n", compare);
+#endif
+
+			if (!isspace(*ptr))
+			{
+				vstart = ptr;
+				state = INSIDE_VERSION;
+			}
+			break;
+
+		case INSIDE_VERSION:
+			if (PKG_MODULE_SEPARATOR(*ptr) || *(ptr + 1) == '\0')
+			{
+				version = strndup(vstart, (ptr - vstart));
+				state = OUTSIDE_MODULE;
+
+#if DEBUG_PARSE
+				fprintf(stderr, "Found version: %s\n", version);
+#endif
+				deplist = pkg_dependency_add(deplist, package, version, compare);
+
+				if (deplist_head == NULL)
+					deplist_head = deplist;
+
+				if (package != NULL)
+				{
+					free(package);
+					package = NULL;
+				}
+
+				if (version != NULL)
+				{
+					free(version);
+					version = NULL;
+				}
+
+				compare = PKG_ANY;
+			}
+
+			if (state == OUTSIDE_MODULE)
+				start = ptr;
+			break;
+		}
+
+		ptr++;
+	}
+
+	return deplist_head;
+}
