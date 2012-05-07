@@ -64,11 +64,11 @@ static char *required_exact_module_version = NULL;
 static char *required_max_module_version = NULL;
 static char *required_module_version = NULL;
 static char *want_variable = NULL;
+static char *sysroot_dir = NULL;
 
 static bool
 fragment_has_system_dir(pkg_fragment_t *frag)
 {
-
 	switch (frag->type)
 	{
 	case 'L':
@@ -84,6 +84,23 @@ fragment_has_system_dir(pkg_fragment_t *frag)
 	return false;
 }
 
+static inline const char *
+print_sysroot_dir(pkg_fragment_t *frag)
+{
+	if (sysroot_dir == NULL)
+		return "";
+	else switch (frag->type)
+	{
+	case 'L':
+	case 'I':
+		return sysroot_dir;
+	default:
+		break;
+	}
+
+	return "";
+}
+
 static void
 print_fragment(pkg_fragment_t *frag)
 {
@@ -91,7 +108,7 @@ print_fragment(pkg_fragment_t *frag)
 		return;
 
 	if (frag->type)
-		printf("-%c%s ", frag->type, frag->data);
+		printf("-%c%s%s ", frag->type, print_sysroot_dir(frag), frag->data);
 	else
 		printf("%s ", frag->data);
 }
@@ -579,6 +596,11 @@ main(int argc, char *argv[])
 		pkg_tuple_add_global("pc_top_builddir", builddir);
 	else
 		pkg_tuple_add_global("pc_top_builddir", "$(top_builddir)");	
+
+	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
+		pkg_tuple_add_global("pc_sysrootdir", sysroot_dir);
+	else
+		pkg_tuple_add_global("pc_sysrootdir", "/");	
 
 	if (required_pkgconfig_version != NULL)
 	{
