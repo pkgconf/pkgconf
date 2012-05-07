@@ -52,9 +52,9 @@ typedef enum {
 } pkg_comparator_t;
 
 typedef struct pkg_ pkg_t;
-typedef struct dependency_ pkg_dependency_t;
-typedef struct tuple_ pkg_tuple_t;
-typedef struct fragment_ pkg_fragment_t;
+typedef struct pkg_dependency_ pkg_dependency_t;
+typedef struct pkg_tuple_ pkg_tuple_t;
+typedef struct pkg_fragment_ pkg_fragment_t;
 
 #define foreach_list_entry(head, value) \
 	for ((value) = (head); (value) != NULL; (value) = (value)->next)
@@ -73,15 +73,15 @@ typedef struct fragment_ pkg_fragment_t;
 # define MAX(a,b) (((a) > (b)) ? (a) : (b))
 #endif
 
-struct fragment_ {
-	struct fragment_ *prev, *next;
+struct pkg_fragment_ {
+	struct pkg_fragment_ *prev, *next;
 
 	char type;
 	char *data;
 };
 
-struct dependency_ {
-	struct dependency_ *prev, *next;
+struct pkg_dependency_ {
+	struct pkg_dependency_ *prev, *next;
 
 	char *package;
 	pkg_comparator_t compare;
@@ -89,8 +89,8 @@ struct dependency_ {
 	pkg_t *parent;
 };
 
-struct tuple_ {
-	struct tuple_ *prev, *next;
+struct pkg_tuple_ {
+	struct pkg_tuple_ *prev, *next;
 
 	char *key;
 	char *value;
