@@ -385,7 +385,8 @@ pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int
 		}
 	}
 
-	pkg->id = strdup(pkgdep->package);
+	if (pkg->id == NULL)
+		pkg->id = strdup(pkgdep->package);
 
 	switch(pkgdep->compare)
 	{
