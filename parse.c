@@ -32,12 +32,12 @@ parse_fragment_list(pkg_t *pkg, const char *string)
 	char *repstr = pkg_tuple_parse(pkg->vars, string);
 	pkg_fragment_t *head = NULL;
 
-	argv_split(repstr, &argc, &argv);
+	pkg_argv_split(repstr, &argc, &argv);
 
 	for (i = 0; i < argc; i++)
 		head = pkg_fragment_add(head, argv[i]);
 
-	argv_free(argv);
+	pkg_argv_free(argv);
 	free(repstr);
 
 	return head;

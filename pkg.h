@@ -150,8 +150,8 @@ pkg_dependency_t *pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t
 void pkg_dependency_free(pkg_dependency_t *head);
 
 /* argvsplit.c */
-int argv_split(const char *src, int *argc, char ***argv);
-void argv_free(char **argv);
+int pkg_argv_split(const char *src, int *argc, char ***argv);
+void pkg_argv_free(char **argv);
 
 /* fragment.c */
 pkg_fragment_t *pkg_fragment_append(pkg_fragment_t *head, pkg_fragment_t *tail);
