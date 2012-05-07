@@ -44,7 +44,7 @@ parse_fragment_list(pkg_t *pkg, const char *string)
 }
 
 /*
- * parse_deplist(pkg, depends)
+ * pkg_dependency_parse(pkg, depends)
  *
  * Add requirements to a .pc file.
  * Commas are counted as whitespace, as to allow:
@@ -126,7 +126,7 @@ pkg_dependency_free(pkg_dependency_t *head)
 }
 
 pkg_dependency_t *
-parse_deplist(pkg_t *pkg, const char *depends)
+pkg_dependency_parse(pkg_t *pkg, const char *depends)
 {
 	parse_state_t state = OUTSIDE_MODULE;
 	pkg_dependency_t *deplist = NULL;
@@ -368,11 +368,11 @@ parse_file(const char *filename, FILE *f)
 			else if (!strcasecmp(key, "LIBS.private"))
 				pkg->libs_private = parse_fragment_list(pkg, value);
 			else if (!strcasecmp(key, "Requires"))
-				pkg->requires = parse_deplist(pkg, value);
+				pkg->requires = pkg_dependency_parse(pkg, value);
 			else if (!strcasecmp(key, "Requires.private"))
-				pkg->requires_private = parse_deplist(pkg, value);
+				pkg->requires_private = pkg_dependency_parse(pkg, value);
 			else if (!strcasecmp(key, "Conflicts"))
-				pkg->conflicts = parse_deplist(pkg, value);
+				pkg->conflicts = pkg_dependency_parse(pkg, value);
 			break;
 		case '=':
 			pkg->vars = pkg_tuple_add(pkg->vars, key, value);

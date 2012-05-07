@@ -283,7 +283,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	{
 		pkg_dependency_t *pkgdep;
 
-		pkgdep = parse_deplist(&world, pkgq->package);
+		pkgdep = pkg_dependency_parse(&world, pkgq->package);
 		world.requires = pkg_dependency_append(world.requires, pkgdep);
 
 		free(pkgq->package);
