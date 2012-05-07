@@ -55,6 +55,8 @@ static int want_digraph = 0;
 static int want_env_only = 0;
 static int want_uninstalled = 0;
 static int want_no_uninstalled = 0;
+static int want_keep_system_cflags = 0;
+static int want_keep_system_libs = 0;
 static int maximum_traverse_depth = -1;
 
 static char *required_pkgconfig_version = NULL;
@@ -64,13 +66,14 @@ static char *want_variable = NULL;
 static bool
 fragment_has_system_dir(pkg_fragment_t *frag)
 {
+
 	switch (frag->type)
 	{
 	case 'L':
-		if (!strcasecmp(LIBDIR, frag->data))
+		if (!want_keep_system_libs && !strcasecmp(LIBDIR, frag->data))
 			return true;
 	case 'I':
-		if (!strcasecmp(INCLUDEDIR, frag->data))
+		if (!want_keep_system_cflags && !strcasecmp(INCLUDEDIR, frag->data))
 			return true;
 	default:
 		break;
@@ -439,6 +442,8 @@ usage(void)
 	printf("                                    linking to stdout\n");
 	printf("  --print-variables                 print all known variables in module to stdout\n");
 	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
+	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", INCLUDEDIR);
+	printf("  --keep-system-libs                keep -L%s entries in cflags output\n", LIBDIR);
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
@@ -476,6 +481,8 @@ main(int argc, char *argv[])
 		{ "libs-only-other", no_argument, &want_libs, WANT_LIBS_ONLY_OTHER, },
 		{ "uninstalled", no_argument, &want_uninstalled, 24, },
 		{ "no-uninstalled", no_argument, &want_no_uninstalled, 25, },
+		{ "keep-system-cflags", no_argument, &want_keep_system_cflags, 26, },
+		{ "keep-system-libs", no_argument, &want_keep_system_libs, 26, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -520,6 +527,12 @@ main(int argc, char *argv[])
 
 	if (want_no_uninstalled || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
 		global_traverse_flags |= PKGF_NO_UNINSTALLED;
+
+	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
+		want_keep_system_cflags = 1;
+
+	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_LIBS") != NULL)
+		want_keep_system_libs = 1;
 
 	if (required_pkgconfig_version != NULL)
 	{
