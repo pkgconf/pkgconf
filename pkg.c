@@ -211,13 +211,33 @@ pkg_free(pkg_t *pkg)
 	free(pkg);
 }
 
+static inline pkg_t *
+pkg_try_specific_path(const char *path, const char *name, unsigned int flags)
+{
+	pkg_t *pkg = NULL;
+	FILE *f;
+	char locbuf[PKG_CONFIG_PATH_SZ];
+	char uninst_locbuf[PKG_CONFIG_PATH_SZ];
+
+	snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path, name);
+	snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path, name);
+
+	if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
+	{
+		pkg = pkg_new_from_file(uninst_locbuf, f);
+		pkg->uninstalled = true;
+	}
+	else if ((f = fopen(locbuf, "r")) != NULL)
+		pkg = pkg_new_from_file(locbuf, f);
+
+	return pkg;
+}
+
 #ifdef _WIN32
 pkg_t *
 pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags)
 {
 	pkg_t *pkg = NULL;
-	char locbuf[PKG_CONFIG_PATH_SZ];
-	char uninst_locbuf[PKG_CONFIG_PATH_SZ];
 
 	HKEY key;
 	int i = 0;
@@ -238,28 +258,9 @@ pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags)
 		if (RegQueryValueEx(key, buf, NULL, &type, pathbuf, &pathbuflen)
 				== ERROR_SUCCESS && type == REG_SZ)
 		{
-			FILE *f;
-			/* XXX: support REG_EXPAND_SZ? */
-
-			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT,
-					pathbuf, name);
-			snprintf(uninst_locbuf, sizeof uninst_locbuf,
-					"%s/%s-uninstalled" PKG_CONFIG_EXT, pathbuf, name);
-
-			if (!(flags & PKGF_NO_UNINSTALLED)
-					&& (f = fopen(uninst_locbuf, "r")) != NULL)
-			{
-				pkg = pkg_new_from_file(locbuf, f);
-				pkg->uninstalled = true;
-
+			pkg = pkg_try_specific_path(pathbuf, name, flags);
+			if (pkg != NULL)
 				break;
-			}
-
-			if ((f = fopen(locbuf, "r")) != NULL)
-			{
-				pkg = pkg_new_from_file(locbuf, f);
-				break;
-			}
 		}
 
 		bufsize = sizeof buf;
@@ -273,8 +274,6 @@ pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags)
 pkg_t *
 pkg_find(const char *name, unsigned int flags)
 {
-	char locbuf[PKG_CONFIG_PATH_SZ];
-	char uninst_locbuf[PKG_CONFIG_PATH_SZ];
 	char **path = NULL;
 	size_t count = 0, iter = 0;
 	const char *env_path;
@@ -296,22 +295,9 @@ pkg_find(const char *name, unsigned int flags)
 
 		for (iter = 0; iter < count; iter++)
 		{
-			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
-			snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path[iter], name);
-
-			if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
-			{
-				pkg = pkg_new_from_file(locbuf, f);
-				pkg->uninstalled = true;
-
+			pkg = pkg_try_specific_path(path[iter], name, flags);
+			if (pkg != NULL)
 				goto out;
-			}
-
-			if ((f = fopen(locbuf, "r")) != NULL)
-			{
-				pkg = pkg_new_from_file(locbuf, f);
-				goto out;
-			}
 		}
 	}
 
@@ -325,28 +311,14 @@ pkg_find(const char *name, unsigned int flags)
 
 		for (iter = 0; iter < count; iter++)
 		{
-			snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path[iter], name);
-			snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path[iter], name);
-
-			if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
-			{
-				pkg_t *pkg = pkg_new_from_file(locbuf, f);
-				pkg->uninstalled = true;
-
+			pkg = pkg_try_specific_path(path[iter], name, flags);
+			if (pkg != NULL)
 				goto out;
-			}
-
-			if ((f = fopen(locbuf, "r")) != NULL)
-			{
-				pkg = pkg_new_from_file(locbuf, f);
-				goto out;
-			}
 		}
 	}
 
 #ifdef _WIN32
 	/* support getting PKG_CONFIG_PATH from registry */
-
 	pkg = pkg_find_in_registry_key(HKEY_CURRENT_USER, name, flags);
 	if (!pkg)
 		pkg = pkg_find_in_registry_key(HKEY_LOCAL_MACHINE, name, flags);
