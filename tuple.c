@@ -44,7 +44,7 @@ pkg_tuple_find(pkg_tuple_t *head, const char *key)
 {
 	pkg_tuple_t *node;
 
-	foreach_list_entry(head, node)
+	PKG_FOREACH_LIST_ENTRY(head, node)
 	{
 		if (!strcasecmp(node->key, key))
 			return node->value;
@@ -109,7 +109,7 @@ pkg_tuple_free(pkg_tuple_t *head)
 {
 	pkg_tuple_t *node, *next;
 
-	foreach_list_entry_safe(head, next, node)
+	PKG_FOREACH_LIST_ENTRY_SAFE(head, next, node)
 	{
 		free(node->key);
 		free(node->value);

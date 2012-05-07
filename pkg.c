@@ -468,7 +468,7 @@ pkg_walk_list(pkg_dependency_t *deplist,
 	unsigned int eflags = PKG_ERRF_OK;
 	pkg_dependency_t *node;
 
-	foreach_list_entry(deplist, node)
+	PKG_FOREACH_LIST_ENTRY(deplist, node)
 	{
 		pkg_t *pkgdep;
 

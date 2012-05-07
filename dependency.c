@@ -77,7 +77,7 @@ pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail)
 		return tail;
 
 	/* skip to end of list */
-	foreach_list_entry(head, node)
+	PKG_FOREACH_LIST_ENTRY(head, node)
 	{
 		if (node->next == NULL)
 			break;
@@ -94,7 +94,7 @@ pkg_dependency_free(pkg_dependency_t *head)
 {
 	pkg_dependency_t *node, *next;
 
-	foreach_list_entry_safe(head, next, node)
+	PKG_FOREACH_LIST_ENTRY_SAFE(head, next, node)
 	{
 		if (node->package != NULL)
 			free(node->package);

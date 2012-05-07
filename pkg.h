@@ -56,10 +56,10 @@ typedef struct pkg_dependency_ pkg_dependency_t;
 typedef struct pkg_tuple_ pkg_tuple_t;
 typedef struct pkg_fragment_ pkg_fragment_t;
 
-#define foreach_list_entry(head, value) \
+#define PKG_FOREACH_LIST_ENTRY(head, value) \
 	for ((value) = (head); (value) != NULL; (value) = (value)->next)
 
-#define foreach_list_entry_safe(head, nextiter, value) \
+#define PKG_FOREACH_LIST_ENTRY_SAFE(head, nextiter, value) \
 	for ((value) = (head), (nextiter) = (head) != NULL ? (head)->next : NULL; (value) != NULL; (value) = (nextiter), (nextiter) = (nextiter) != NULL ? (nextiter)->next : NULL)
 
 #define PKG_LOCAL_COPY(a) \

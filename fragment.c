@@ -33,7 +33,7 @@ pkg_fragment_append(pkg_fragment_t *head, pkg_fragment_t *tail)
 		return tail;
 
 	/* skip to end of list */
-	foreach_list_entry(head, node)
+	PKG_FOREACH_LIST_ENTRY(head, node)
 	{
 		if (node->next == NULL)
 			break;
@@ -71,7 +71,7 @@ pkg_fragment_exists(pkg_fragment_t *head, pkg_fragment_t *base)
 {
 	pkg_fragment_t *node;
 
-	foreach_list_entry(head, node)
+	PKG_FOREACH_LIST_ENTRY(head, node)
 	{
 		if (base->type != node->type)
 			continue;
@@ -117,7 +117,7 @@ pkg_fragment_free(pkg_fragment_t *head)
 {
 	pkg_fragment_t *node, *next;
 
-	foreach_list_entry_safe(head, next, node)
+	PKG_FOREACH_LIST_ENTRY_SAFE(head, next, node)
 		pkg_fragment_delete(node);
 }
 

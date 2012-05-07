@@ -100,7 +100,7 @@ collect_cflags(pkg_t *pkg, void *data)
 	pkg_fragment_t **list = data;
 	pkg_fragment_t *frag;
 
-	foreach_list_entry(pkg->cflags, frag)
+	PKG_FOREACH_LIST_ENTRY(pkg->cflags, frag)
 		*list = pkg_fragment_copy(*list, frag);
 }
 
@@ -109,7 +109,7 @@ print_cflags(pkg_fragment_t *list)
 {
 	pkg_fragment_t *frag;
 
-	foreach_list_entry(list, frag)
+	PKG_FOREACH_LIST_ENTRY(list, frag)
 	{
 		if (want_cflags == WANT_CFLAGS_ONLY_I && frag->type != 'I')
 			continue;
@@ -126,12 +126,12 @@ collect_libs(pkg_t *pkg, void *data)
 	pkg_fragment_t **list = data;
 	pkg_fragment_t *frag;
 
-	foreach_list_entry(pkg->libs, frag)
+	PKG_FOREACH_LIST_ENTRY(pkg->libs, frag)
 		*list = pkg_fragment_copy(*list, frag);
 
 	if (want_static)
 	{
-		foreach_list_entry(pkg->libs_private, frag)
+		PKG_FOREACH_LIST_ENTRY(pkg->libs_private, frag)
 			*list = pkg_fragment_copy(*list, frag);
 	}
 }
@@ -141,7 +141,7 @@ print_libs(pkg_fragment_t *list)
 {
 	pkg_fragment_t *frag;
 
-	foreach_list_entry(list, frag)
+	PKG_FOREACH_LIST_ENTRY(list, frag)
 	{
 		if (want_libs == WANT_LIBS_ONLY_LDPATH && frag->type != 'L')
 			continue;
@@ -180,7 +180,7 @@ print_variables(pkg_t *pkg, void *unused)
 	pkg_tuple_t *node;
 	(void) unused;
 
-	foreach_list_entry(pkg->vars, node)
+	PKG_FOREACH_LIST_ENTRY(pkg->vars, node)
 		printf("%s\n", node->key);
 }
 
@@ -190,7 +190,7 @@ print_requires(pkg_t *pkg, void *unused)
 	pkg_dependency_t *node;
 	(void) unused;
 
-	foreach_list_entry(pkg->requires, node)
+	PKG_FOREACH_LIST_ENTRY(pkg->requires, node)
 	{
 		printf("%s", node->package);
 
@@ -207,7 +207,7 @@ print_requires_private(pkg_t *pkg, void *unused)
 	pkg_dependency_t *node;
 	(void) unused;
 
-	foreach_list_entry(pkg->requires_private, node)
+	PKG_FOREACH_LIST_ENTRY(pkg->requires_private, node)
 	{
 		printf("%s", node->package);
 
@@ -226,7 +226,7 @@ print_digraph_node(pkg_t *pkg, void *unused)
 
 	printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
 
-	foreach_list_entry(pkg->requires, node)
+	PKG_FOREACH_LIST_ENTRY(pkg->requires, node)
 	{
 		printf("\"%s\" -- \"%s\" [fontname=Sans fontsize=8]\n", node->package, pkg->id);
 	}
@@ -279,7 +279,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	else if (maximum_traverse_depth > 0)
 		maximum_traverse_depth++;
 
-	foreach_list_entry_safe(head, next_pkgq, pkgq)
+	PKG_FOREACH_LIST_ENTRY_SAFE(head, next_pkgq, pkgq)
 	{
 		pkg_dependency_t *pkgdep;
 
@@ -350,7 +350,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		foreach_list_entry(world.requires, iter)
+		PKG_FOREACH_LIST_ENTRY(world.requires, iter)
 		{
 			pkg_t *pkg;
 
@@ -371,7 +371,7 @@ pkg_queue_walk(pkg_queue_t *head)
 		want_cflags = 0;
 		want_libs = 0;
 
-		foreach_list_entry(world.requires, iter)
+		PKG_FOREACH_LIST_ENTRY(world.requires, iter)
 		{
 			pkg_t *pkg;
 
