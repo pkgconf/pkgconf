@@ -443,7 +443,7 @@ usage(void)
 	printf("  --print-variables                 print all known variables in module to stdout\n");
 	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
 	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", INCLUDEDIR);
-	printf("  --keep-system-libs                keep -L%s entries in cflags output\n", LIBDIR);
+	printf("  --keep-system-libs                keep -L%s entries in libs output\n", LIBDIR);
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
