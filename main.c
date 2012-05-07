@@ -371,6 +371,8 @@ pkg_queue_walk(pkg_queue_t *head)
 		wanted_something++;
 		pkg_traverse(&world, collect_cflags, &list, maximum_traverse_depth, global_traverse_flags | PKGF_SEARCH_PRIVATE);
 		print_cflags(list);
+
+		pkg_fragment_free(list);
 	}
 
 	if (want_libs)
@@ -380,6 +382,8 @@ pkg_queue_walk(pkg_queue_t *head)
 		wanted_something++;
 		pkg_traverse(&world, collect_libs, &list, maximum_traverse_depth, global_traverse_flags);
 		print_libs(list);
+
+		pkg_fragment_free(list);
 	}
 
 	if (want_variable)
