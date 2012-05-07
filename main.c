@@ -270,6 +270,7 @@ pkg_queue_walk(pkg_queue_t *head)
 	pkg_t world = (pkg_t){
 		.id = "world",
 		.realname = "virtual",
+		.flags = PKG_PROPF_VIRTUAL,
 	};
 
 	/* if maximum_traverse_depth is one, then we will not traverse deeper
@@ -389,6 +390,8 @@ pkg_queue_walk(pkg_queue_t *head)
 
 	if (wanted_something)
 		printf("\n");
+
+	pkg_free(&world);
 
 	return EXIT_SUCCESS;
 }
