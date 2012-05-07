@@ -116,9 +116,13 @@ pkg_find(const char *name, unsigned int flags)
 		free(path);
 	}
 
+	env_path = getenv("PKG_CONFIG_LIBDIR");
+	if (env_path == NULL)
+		env_path = PKG_DEFAULT_PATH;
+
 	if (!(flags & PKGF_ENV_ONLY))
 	{
-		count = path_split(PKG_DEFAULT_PATH, &path);
+		count = path_split(env_path, &path);
 
 		iter = 0;
 		while (iter < count)
