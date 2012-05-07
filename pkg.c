@@ -461,6 +461,8 @@ pkg_walk_list(pkg_dependency_t *deplist,
 			return pkg_report_graph_error(pkgdep, node, eflags);
 
 		pkg_traverse(pkgdep, pkg_traverse_func, data, depth - 1, flags);
+
+		pkg_free(pkgdep);
 	}
 }
 
