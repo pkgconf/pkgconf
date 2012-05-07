@@ -154,6 +154,7 @@ int pkg_argv_split(const char *src, int *argc, char ***argv);
 void pkg_argv_free(char **argv);
 
 /* fragment.c */
+pkg_fragment_t *pkg_fragment_parse(pkg_fragment_t *head, pkg_tuple_t *vars, const char *value);
 pkg_fragment_t *pkg_fragment_append(pkg_fragment_t *head, pkg_fragment_t *tail);
 pkg_fragment_t *pkg_fragment_add(pkg_fragment_t *head, const char *string);
 pkg_fragment_t *pkg_fragment_copy(pkg_fragment_t *head, pkg_fragment_t *base);

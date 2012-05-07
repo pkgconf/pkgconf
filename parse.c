@@ -24,25 +24,6 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
-static pkg_fragment_t *
-parse_fragment_list(pkg_t *pkg, const char *string)
-{
-	int i, argc;
-	char **argv;
-	char *repstr = pkg_tuple_parse(pkg->vars, string);
-	pkg_fragment_t *head = NULL;
-
-	pkg_argv_split(repstr, &argc, &argv);
-
-	for (i = 0; i < argc; i++)
-		head = pkg_fragment_add(head, argv[i]);
-
-	pkg_argv_free(argv);
-	free(repstr);
-
-	return head;
-}
-
 /*
  * pkg_dependency_parse(pkg, depends)
  *
@@ -362,11 +343,11 @@ pkg_new_from_file(const char *filename, FILE *f)
 			else if (!strcasecmp(key, "Version"))
 				pkg->version = pkg_tuple_parse(pkg->vars, value);
 			else if (!strcasecmp(key, "CFLAGS"))
-				pkg->cflags = parse_fragment_list(pkg, value);
+				pkg->cflags = pkg_fragment_parse(pkg->cflags, pkg->vars, value);
 			else if (!strcasecmp(key, "LIBS"))
-				pkg->libs = parse_fragment_list(pkg, value);
+				pkg->libs = pkg_fragment_parse(pkg->libs, pkg->vars, value);
 			else if (!strcasecmp(key, "LIBS.private"))
-				pkg->libs_private = parse_fragment_list(pkg, value);
+				pkg->libs_private = pkg_fragment_parse(pkg->libs_private, pkg->vars, value);
 			else if (!strcasecmp(key, "Requires"))
 				pkg->requires = pkg_dependency_parse(pkg, value);
 			else if (!strcasecmp(key, "Requires.private"))

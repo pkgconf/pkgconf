@@ -120,3 +120,21 @@ pkg_fragment_free(pkg_fragment_t *head)
 	foreach_list_entry_safe(head, next, node)
 		pkg_fragment_delete(node);
 }
+
+pkg_fragment_t *
+pkg_fragment_parse(pkg_fragment_t *head, pkg_tuple_t *vars, const char *value)
+{
+	int i, argc;
+	char **argv;
+	char *repstr = pkg_tuple_parse(vars, value);
+
+	pkg_argv_split(repstr, &argc, &argv);
+
+	for (i = 0; i < argc; i++)
+		head = pkg_fragment_add(head, argv[i]);
+
+	pkg_argv_free(argv);
+	free(repstr);
+
+	return head;
+}
