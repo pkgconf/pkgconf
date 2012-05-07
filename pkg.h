@@ -124,6 +124,7 @@ struct pkg_ {
 #define PKGF_SEARCH_PRIVATE		0x1
 #define PKGF_ENV_ONLY			0x2
 #define PKGF_NO_UNINSTALLED		0x4
+#define PKGF_SKIP_ROOT_VIRTUAL		0x8
 
 #define PKG_ERRF_OK			0x0
 #define PKG_ERRF_PACKAGE_NOT_FOUND	0x1

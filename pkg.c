@@ -594,6 +594,9 @@ pkg_traverse(pkg_t *root,
 			return eflags;
 	}
 
+	if ((root->flags & PKG_PROPF_VIRTUAL) && (flags & PKGF_SKIP_ROOT_VIRTUAL))
+		return eflags;
+
 	if (pkg_traverse_func != NULL)
 		pkg_traverse_func(root, data);
 
