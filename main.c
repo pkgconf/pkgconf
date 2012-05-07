@@ -452,6 +452,7 @@ usage(void)
 
 	printf("\nquerying specific pkg-config database fields:\n\n");
 
+	printf("  --define-variable=varname=value   define variable 'varname' as 'value'\n");
 	printf("  --variable=varname                print specified variable entry to stdout\n");
 	printf("  --cflags                          print required CFLAGS to stdout\n");
 	printf("  --cflags-only-I                   print required include-dir CFLAGS to stdout\n");
@@ -506,6 +507,7 @@ main(int argc, char *argv[])
 		{ "no-uninstalled", no_argument, &want_no_uninstalled, 25, },
 		{ "keep-system-cflags", no_argument, &want_keep_system_cflags, 26, },
 		{ "keep-system-libs", no_argument, &want_keep_system_libs, 26, },
+		{ "define-variable", required_argument, NULL, 27, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -524,6 +526,9 @@ main(int argc, char *argv[])
 			break;
 		case 11:
 			maximum_traverse_depth = atoi(optarg);
+			break;
+		case 27:
+			pkg_tuple_define_global(optarg);
 			break;
 		default:
 			break;

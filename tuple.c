@@ -52,6 +52,22 @@ pkg_tuple_free_global(void)
 	pkg_tuple_free(pkg_global_var);
 }
 
+void
+pkg_tuple_define_global(const char *kv)
+{
+	char *workbuf = strdup(kv);
+	char *value;
+
+	value = strchr(workbuf, '=');
+	if (value == NULL)
+		goto out;
+
+	*value++ = '\0';
+	pkg_tuple_add_global(workbuf, value);
+out:
+	free(workbuf);
+}
+
 pkg_tuple_t *
 pkg_tuple_add(pkg_tuple_t *parent, const char *key, const char *value)
 {
