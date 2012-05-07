@@ -54,6 +54,7 @@ static int want_variables = 0;
 static int want_digraph = 0;
 static int want_env_only = 0;
 static int want_uninstalled = 0;
+static int want_no_uninstalled = 0;
 static int maximum_traverse_depth = -1;
 
 static char *required_pkgconfig_version = NULL;
@@ -417,6 +418,7 @@ usage(void)
 	printf("  --atleast-version                 require a specific version of a module\n");
 	printf("  --exists                          check whether or not a module exists\n");
 	printf("  --uninstalled                     check whether or not an uninstalled module will be used\n");
+	printf("  --no-uninstalled                  never use uninstalled modules when satisfying dependencies\n");
 	printf("  --maximum-traverse-depth          maximum allowed depth for dependency graph\n");
 	printf("  --static                          be more aggressive when computing dependency graph\n");
 	printf("                                    (for static linking)\n");
@@ -473,6 +475,7 @@ main(int argc, char *argv[])
 		{ "libs-only-l", no_argument, &want_libs, WANT_LIBS_ONLY_LIBNAME, },
 		{ "libs-only-other", no_argument, &want_libs, WANT_LIBS_ONLY_OTHER, },
 		{ "uninstalled", no_argument, &want_uninstalled, 24, },
+		{ "no-uninstalled", no_argument, &want_no_uninstalled, 25, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -514,6 +517,9 @@ main(int argc, char *argv[])
 
 	if (want_env_only)
 		global_traverse_flags |= PKGF_ENV_ONLY;
+
+	if (want_no_uninstalled || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
+		global_traverse_flags |= PKGF_NO_UNINSTALLED;
 
 	if (required_pkgconfig_version != NULL)
 	{
