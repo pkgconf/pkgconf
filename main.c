@@ -291,7 +291,11 @@ pkg_queue_walk(pkg_queue_t *head)
 	}
 
 	/* we should verify that the graph is complete before attempting to compute cflags etc. */
-	pkg_verify_graph(&world, maximum_traverse_depth, global_traverse_flags);
+	if (pkg_verify_graph(&world, maximum_traverse_depth, global_traverse_flags) != PKG_ERRF_OK)
+	{
+		retval = EXIT_FAILURE;
+		goto out;
+	}
 
 	if (want_uninstalled)
 	{
