@@ -71,6 +71,10 @@ char *
 pkg_tuple_find(pkg_tuple_t *head, const char *key)
 {
 	pkg_tuple_t *node;
+	char *res;
+
+	if ((res = pkg_tuple_find_global(key)) != NULL)
+		return res;
 
 	PKG_FOREACH_LIST_ENTRY(head, node)
 	{
@@ -78,7 +82,7 @@ pkg_tuple_find(pkg_tuple_t *head, const char *key)
 			return node->value;
 	}
 
-	return pkg_tuple_find_global(key);
+	return NULL;
 }
 
 char *
