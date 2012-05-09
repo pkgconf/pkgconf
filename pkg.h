@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <alloca.h>
 
 #ifndef BUFSIZ
 #define BUFSIZ	65535
