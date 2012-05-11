@@ -25,7 +25,6 @@
 #include "bsdstubs.h"
 
 #ifdef _WIN32
-#	include <windows.h>
 #	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
 #endif
 

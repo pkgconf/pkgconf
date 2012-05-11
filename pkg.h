@@ -25,14 +25,7 @@
 #define __PKG_H
 
 #include "config.h"
-
-#define _GNU_SOURCE
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <alloca.h>
+#include "stdinc.h"
 
 #ifndef BUFSIZ
 #define BUFSIZ	65535
