@@ -337,6 +337,7 @@ int
 pkg_compare_version(const char *a, const char *b)
 {
 	char oldch1, oldch2;
+	char buf1[BUFSIZ], buf2[BUFSIZ];
 	char *str1, *str2;
 	char *one, *two;
 	int ret;
@@ -346,11 +347,11 @@ pkg_compare_version(const char *a, const char *b)
 	if (!strcasecmp(a, b))
 		return 0;
 
-	str1 = PKG_LOCAL_COPY(a);
-	str2 = PKG_LOCAL_COPY(b);
+	strlcpy(buf1, a, sizeof buf1);
+	strlcpy(buf2, b, sizeof buf2);
 
-	one = str1;
-	two = str2;
+	one = str1 = buf1;
+	two = str2 = buf2;
 
 	while (*one && *two)
 	{
