@@ -92,6 +92,12 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --define-variable=prefix=/test --
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 PKG_CONFIG_SYSROOT_DIR=/test ${1} --cflags baz" \
 	'-I/test/usr/include/foo'
 
+# 8) tests for 'Conflicts'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs conflicts; echo \$?" \
+	'1'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --ignore-conflicts --libs conflicts; echo \$?" \
+	'-lconflicts' '0'
+
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
 	exit 1
