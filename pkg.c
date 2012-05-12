@@ -602,7 +602,7 @@ pkg_walk_list(pkg_dependency_t *deplist,
 		if (eflags != PKG_ERRF_OK)
 			return pkg_report_graph_error(pkgdep, node, eflags);
 
-		pkg_traverse(pkgdep, func, data, depth - 1, flags);
+		eflags = pkg_traverse(pkgdep, func, data, depth - 1, flags);
 
 		pkg_free(pkgdep);
 	}
