@@ -122,6 +122,7 @@ struct pkg_ {
 #define PKG_ERRF_OK			0x0
 #define PKG_ERRF_PACKAGE_NOT_FOUND	0x1
 #define PKG_ERRF_PACKAGE_VER_MISMATCH	0x2
+#define PKG_ERRF_PACKAGE_CONFLICT	0x4
 
 typedef void (*pkg_traverse_func_t)(pkg_t *pkg, void *data, unsigned int flags);
 
