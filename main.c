@@ -111,17 +111,6 @@ print_fragment(pkg_fragment_t *frag)
 }
 
 static void
-collect_cflags(pkg_t *pkg, void *data, unsigned int flags)
-{
-	pkg_fragment_t **list = data;
-	pkg_fragment_t *frag;
-	(void) flags;
-
-	PKG_FOREACH_LIST_ENTRY(pkg->cflags, frag)
-		*list = pkg_fragment_copy(*list, frag);
-}
-
-static void
 print_cflags(pkg_fragment_t *list)
 {
 	pkg_fragment_t *frag;
@@ -406,10 +395,10 @@ pkg_queue_walk(pkg_queue_t *head)
 
 	if (want_cflags)
 	{
-		pkg_fragment_t *list = NULL;
+		pkg_fragment_t *list;
 
 		wanted_something++;
-		pkg_traverse(&world, collect_cflags, &list, maximum_traverse_depth, global_traverse_flags | PKGF_SEARCH_PRIVATE);
+		list = pkg_cflags(&world, maximum_traverse_depth, global_traverse_flags | PKGF_SEARCH_PRIVATE);
 		print_cflags(list);
 
 		pkg_fragment_free(list);
