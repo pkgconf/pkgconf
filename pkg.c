@@ -631,11 +631,11 @@ pkg_walk_conflicts_list(pkg_t *root, pkg_dependency_t *deplist, unsigned int fla
 				node->version != NULL ? " " : "", node->version != NULL ? node->version : "");
 			fprintf(stderr, "It may be possible to ignore this conflict and continue, try the\n");
 			fprintf(stderr, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
+
+			return PKG_ERRF_PACKAGE_CONFLICT;
 		}
 
 		pkg_free(pkgdep);
-
-		return PKG_ERRF_PACKAGE_CONFLICT;
 	}
 
 	return PKG_ERRF_OK;
