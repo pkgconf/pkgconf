@@ -647,3 +647,25 @@ pkg_traverse(pkg_t *root,
 
 	return eflags;
 }
+
+static void
+pkg_cflags_collect(pkg_t *pkg, void *data, unsigned int flags)
+{
+	pkg_fragment_t **list = data;
+	pkg_fragment_t *frag;
+	(void) flags;
+
+	PKG_FOREACH_LIST_ENTRY(pkg->cflags, frag)
+		*list = pkg_fragment_copy(*list, frag);
+}
+
+pkg_fragment_t *
+pkg_cflags(pkg_t *root, int maxdepth, unsigned int flags)
+{
+	pkg_fragment_t *head = NULL;
+
+	pkg_traverse(root, pkg_cflags_collect, &head, maxdepth, flags);
+
+	return head;
+}
+
