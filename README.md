@@ -24,7 +24,7 @@ if you do this, it will be running in native mode, so you may have some very
 strange results as the dependency graph is compiled differently in native
 mode.
 
-## technical design
+## technical design (why pkgconf is better for distros)
 
 pkgconf builds an acyclic directed dependency graph.  This allows for the user
 to more conservatively link their binaries -- which may be helpful in some 
@@ -35,8 +35,9 @@ other hand builds a database of all known pkg-config files on the system before
 attempting to resolve dependencies, which is a considerably slower and less
 efficient design.
 
-pkgconf also does not provide support for pointlessly stupid features implemented
-in pkg-config.
+pkgconf also does not bundle any third-party libraries or depend on any third-party
+libraries, making it a great tool for embedded systems and distributions with
+security concerns.
 
 ## compiling
 
