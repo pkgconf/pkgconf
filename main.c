@@ -127,22 +127,6 @@ print_cflags(pkg_fragment_t *list)
 }
 
 static void
-collect_libs(pkg_t *pkg, void *data, unsigned int flags)
-{
-	pkg_fragment_t **list = data;
-	pkg_fragment_t *frag;
-
-	PKG_FOREACH_LIST_ENTRY(pkg->libs, frag)
-		*list = pkg_fragment_copy(*list, frag);
-
-	if (flags & PKGF_MERGE_PRIVATE_FRAGMENTS)
-	{
-		PKG_FOREACH_LIST_ENTRY(pkg->libs_private, frag)
-			*list = pkg_fragment_copy(*list, frag);
-	}
-}
-
-static void
 print_libs(pkg_fragment_t *list)
 {
 	pkg_fragment_t *frag;
@@ -406,10 +390,10 @@ pkg_queue_walk(pkg_queue_t *head)
 
 	if (want_libs)
 	{
-		pkg_fragment_t *list = NULL;
+		pkg_fragment_t *list;
 
 		wanted_something++;
-		pkg_traverse(&world, collect_libs, &list, maximum_traverse_depth, global_traverse_flags);
+		list = pkg_libs(&world, maximum_traverse_depth, global_traverse_flags);
 		print_libs(list);
 
 		pkg_fragment_free(list);
