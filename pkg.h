@@ -121,10 +121,12 @@ struct pkg_ {
 #define PKG_ERRF_PACKAGE_NOT_FOUND	0x1
 #define PKG_ERRF_PACKAGE_VER_MISMATCH	0x2
 
+typedef void (*pkg_traverse_func_t)(pkg_t *pkg, void *data);
+
 /* pkg.c */
 void pkg_free(pkg_t *pkg);
 pkg_t *pkg_find(const char *name, unsigned int flags);
-unsigned int pkg_traverse(pkg_t *root, void (*pkg_traverse_func)(pkg_t *package, void *data), void *data, int maxdepth, unsigned int flags);
+unsigned int pkg_traverse(pkg_t *root, pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags);
 unsigned int pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
 int pkg_compare_version(const char *a, const char *b);
 pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);

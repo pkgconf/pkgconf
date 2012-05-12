@@ -583,7 +583,7 @@ pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 
 static inline unsigned int
 pkg_walk_list(pkg_dependency_t *deplist,
-	void (*pkg_traverse_func)(pkg_t *package, void *data),
+	pkg_traverse_func_t func,
 	void *data,
 	int depth,
 	unsigned int flags)
@@ -602,7 +602,7 @@ pkg_walk_list(pkg_dependency_t *deplist,
 		if (eflags != PKG_ERRF_OK)
 			return pkg_report_graph_error(pkgdep, node, eflags);
 
-		pkg_traverse(pkgdep, pkg_traverse_func, data, depth - 1, flags);
+		pkg_traverse(pkgdep, func, data, depth - 1, flags);
 
 		pkg_free(pkgdep);
 	}
@@ -611,13 +611,13 @@ pkg_walk_list(pkg_dependency_t *deplist,
 }
 
 /*
- * pkg_traverse(root, pkg_traverse_func, data, maxdepth)
+ * pkg_traverse(root, func, data, maxdepth, flags)
  *
  * walk the dependency graph up to maxdepth levels.  -1 means infinite recursion.
  */
 unsigned int
 pkg_traverse(pkg_t *root,
-	void (*pkg_traverse_func)(pkg_t *package, void *data),
+	pkg_traverse_func_t func,
 	void *data,
 	int maxdepth,
 	unsigned int flags)
@@ -628,13 +628,13 @@ pkg_traverse(pkg_t *root,
 	if (maxdepth == 0)
 		return eflags;
 
-	eflags = pkg_walk_list(root->requires, pkg_traverse_func, data, maxdepth, rflags);
+	eflags = pkg_walk_list(root->requires, func, data, maxdepth, rflags);
 	if (eflags != PKG_ERRF_OK)
 		return eflags;
 
 	if (flags & PKGF_SEARCH_PRIVATE)
 	{
-		eflags = pkg_walk_list(root->requires_private, pkg_traverse_func, data, maxdepth, rflags);
+		eflags = pkg_walk_list(root->requires_private, func, data, maxdepth, rflags);
 		if (eflags != PKG_ERRF_OK)
 			return eflags;
 	}
@@ -642,8 +642,8 @@ pkg_traverse(pkg_t *root,
 	if ((root->flags & PKG_PROPF_VIRTUAL) && (flags & PKGF_SKIP_ROOT_VIRTUAL))
 		return eflags;
 
-	if (pkg_traverse_func != NULL)
-		pkg_traverse_func(root, data);
+	if (func != NULL)
+		func(root, data);
 
 	return eflags;
 }
