@@ -603,8 +603,11 @@ pkg_walk_list(pkg_dependency_t *deplist,
 			return pkg_report_graph_error(pkgdep, node, eflags);
 
 		eflags = pkg_traverse(pkgdep, func, data, depth - 1, flags);
-
 		pkg_free(pkgdep);
+
+		/* optimization: if a break has been found in the depgraph, quit walking it */
+		if (eflags != PKG_ERRF_OK)
+			break;
 	}
 
 	return eflags;
