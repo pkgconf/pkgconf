@@ -92,10 +92,31 @@ static inline const char *
 get_pkgconfig_path(void)
 {
 	const char *env_path;
+#ifdef _WIN32
+	static char outbuf[MAX_PATH];
+	char namebuf[MAX_PATH];
+	char *p;
+#endif
 
 	env_path = getenv("PKG_CONFIG_LIBDIR");
 	if (env_path != NULL)
 		return env_path;
+
+#ifdef _WIN32
+	GetModuleFileName(NULL, namebuf, sizeof namebuf);
+
+	p = strrchr(namebuf, '\\');
+	if (p == NULL)
+		p = strrchr(namebuf, '/');
+	if (p == NULL)
+		return PKG_DEFAULT_PATH;
+
+	*p = '\0';
+	strlcpy(outbuf, namebuf, sizeof outbuf);
+	strlcat(outbuf, "/lib/pkgconfig", sizeof outbuf);
+
+	return outbuf;
+#endif
 
 	return PKG_DEFAULT_PATH;
 }
