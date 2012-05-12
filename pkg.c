@@ -643,7 +643,7 @@ pkg_traverse(pkg_t *root,
 		return eflags;
 
 	if (func != NULL)
-		func(root, data);
+		func(root, data, flags);
 
 	return eflags;
 }
