@@ -142,12 +142,11 @@ collect_libs(pkg_t *pkg, void *data, unsigned int flags)
 {
 	pkg_fragment_t **list = data;
 	pkg_fragment_t *frag;
-	(void) flags;
 
 	PKG_FOREACH_LIST_ENTRY(pkg->libs, frag)
 		*list = pkg_fragment_copy(*list, frag);
 
-	if (want_static)
+	if (flags & PKGF_MERGE_PRIVATE_FRAGMENTS)
 	{
 		PKG_FOREACH_LIST_ENTRY(pkg->libs_private, frag)
 			*list = pkg_fragment_copy(*list, frag);
@@ -580,7 +579,7 @@ main(int argc, char *argv[])
 	}
 
 	if (want_static)
-		global_traverse_flags |= PKGF_SEARCH_PRIVATE;
+		global_traverse_flags |= (PKGF_SEARCH_PRIVATE | PKGF_MERGE_PRIVATE_FRAGMENTS);
 
 	if (want_env_only)
 		global_traverse_flags |= PKGF_ENV_ONLY;
