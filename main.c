@@ -54,6 +54,7 @@ static int want_uninstalled = 0;
 static int want_no_uninstalled = 0;
 static int want_keep_system_cflags = 0;
 static int want_keep_system_libs = 0;
+static int want_ignore_conflicts = 0;
 static int maximum_traverse_depth = -1;
 
 static char *required_pkgconfig_version = NULL;
@@ -444,6 +445,7 @@ usage(void)
 	printf("  --static                          be more aggressive when computing dependency graph\n");
 	printf("                                    (for static linking)\n");
 	printf("  --env-only                        look only for package entries in PKG_CONFIG_PATH\n");
+	printf("  --ignore-conflicts                ignore 'conflicts' rules in modules\n");
 
 	printf("\nquerying specific pkg-config database fields:\n\n");
 
@@ -506,6 +508,7 @@ main(int argc, char *argv[])
 		{ "define-variable", required_argument, NULL, 27, },
 		{ "exact-version", required_argument, NULL, 28, },
 		{ "max-version", required_argument, NULL, 29, },
+		{ "ignore-conflicts", no_argument, &want_ignore_conflicts, 30, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -550,6 +553,9 @@ main(int argc, char *argv[])
 		usage();
 		return EXIT_SUCCESS;
 	}
+
+	if (want_ignore_conflicts || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
+		global_traverse_flags |= PKGF_SKIP_CONFLICTS;
 
 	if (want_static)
 		global_traverse_flags |= (PKGF_SEARCH_PRIVATE | PKGF_MERGE_PRIVATE_FRAGMENTS);
