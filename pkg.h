@@ -133,6 +133,7 @@ int pkg_compare_version(const char *a, const char *b);
 pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
 const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
 pkg_fragment_t *pkg_cflags(pkg_t *root, int maxdepth, unsigned int flags);
+pkg_fragment_t *pkg_libs(pkg_t *root, int maxdepth, unsigned int flags);
 
 /* parse.c */
 pkg_t *pkg_new_from_file(const char *path, FILE *f);

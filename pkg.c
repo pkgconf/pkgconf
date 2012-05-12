@@ -669,3 +669,28 @@ pkg_cflags(pkg_t *root, int maxdepth, unsigned int flags)
 	return head;
 }
 
+static void
+pkg_libs_collect(pkg_t *pkg, void *data, unsigned int flags)
+{
+	pkg_fragment_t **list = data;
+	pkg_fragment_t *frag;
+
+	PKG_FOREACH_LIST_ENTRY(pkg->libs, frag)
+		*list = pkg_fragment_copy(*list, frag);
+
+	if (flags & PKGF_MERGE_PRIVATE_FRAGMENTS)
+	{
+		PKG_FOREACH_LIST_ENTRY(pkg->libs_private, frag)
+			*list = pkg_fragment_copy(*list, frag);
+	}
+}
+
+pkg_fragment_t *
+pkg_libs(pkg_t *root, int maxdepth, unsigned int flags)
+{
+	pkg_fragment_t *head = NULL;
+
+	pkg_traverse(root, pkg_libs_collect, &head, maxdepth, flags);
+
+	return head;
+}
