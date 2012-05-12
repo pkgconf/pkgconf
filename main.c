@@ -111,10 +111,11 @@ print_fragment(pkg_fragment_t *frag)
 }
 
 static void
-collect_cflags(pkg_t *pkg, void *data)
+collect_cflags(pkg_t *pkg, void *data, unsigned int flags)
 {
 	pkg_fragment_t **list = data;
 	pkg_fragment_t *frag;
+	(void) flags;
 
 	PKG_FOREACH_LIST_ENTRY(pkg->cflags, frag)
 		*list = pkg_fragment_copy(*list, frag);
@@ -137,10 +138,11 @@ print_cflags(pkg_fragment_t *list)
 }
 
 static void
-collect_libs(pkg_t *pkg, void *data)
+collect_libs(pkg_t *pkg, void *data, unsigned int flags)
 {
 	pkg_fragment_t **list = data;
 	pkg_fragment_t *frag;
+	(void) flags;
 
 	PKG_FOREACH_LIST_ENTRY(pkg->libs, frag)
 		*list = pkg_fragment_copy(*list, frag);
@@ -171,19 +173,21 @@ print_libs(pkg_fragment_t *list)
 }
 
 static void
-print_modversion(pkg_t *pkg, void *unused)
+print_modversion(pkg_t *pkg, void *unused, unsigned int flags)
 {
 	(void) unused;
+	(void) flags;
 
 	if (pkg->version != NULL)
 		printf("%s\n", pkg->version);
 }
 
 static void
-print_variable(pkg_t *pkg, void *unused)
+print_variable(pkg_t *pkg, void *unused, unsigned int flags)
 {
 	const char *var;
 	(void) unused;
+	(void) flags;
 
 	var = pkg_tuple_find(pkg->vars, want_variable);
 	if (var != NULL)
@@ -191,20 +195,20 @@ print_variable(pkg_t *pkg, void *unused)
 }
 
 static void
-print_variables(pkg_t *pkg, void *unused)
+print_variables(pkg_t *pkg, void *unused, unsigned int flags)
 {
 	pkg_tuple_t *node;
 	(void) unused;
+	(void) flags;
 
 	PKG_FOREACH_LIST_ENTRY(pkg->vars, node)
 		printf("%s\n", node->key);
 }
 
 static void
-print_requires(pkg_t *pkg, void *unused)
+print_requires(pkg_t *pkg)
 {
 	pkg_dependency_t *node;
-	(void) unused;
 
 	PKG_FOREACH_LIST_ENTRY(pkg->requires, node)
 	{
@@ -218,10 +222,9 @@ print_requires(pkg_t *pkg, void *unused)
 }
 
 static void
-print_requires_private(pkg_t *pkg, void *unused)
+print_requires_private(pkg_t *pkg)
 {
 	pkg_dependency_t *node;
-	(void) unused;
 
 	PKG_FOREACH_LIST_ENTRY(pkg->requires_private, node)
 	{
@@ -235,10 +238,11 @@ print_requires_private(pkg_t *pkg, void *unused)
 }
 
 static void
-print_digraph_node(pkg_t *pkg, void *unused)
+print_digraph_node(pkg_t *pkg, void *unused, unsigned int flags)
 {
 	pkg_dependency_t *node;
 	(void) unused;
+	(void) flags;
 
 	printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
 
@@ -249,9 +253,10 @@ print_digraph_node(pkg_t *pkg, void *unused)
 }
 
 static void
-check_uninstalled(pkg_t *pkg, void *unused)
+check_uninstalled(pkg_t *pkg, void *data, unsigned int flags)
 {
-	int *retval = unused;
+	int *retval = data;
+	(void) flags;
 
 	if (pkg->uninstalled)
 		*retval = EXIT_SUCCESS;
@@ -371,7 +376,7 @@ pkg_queue_walk(pkg_queue_t *head)
 			pkg_t *pkg;
 
 			pkg = pkg_verify_dependency(iter, global_traverse_flags, NULL);
-			print_requires(pkg, NULL);
+			print_requires(pkg);
 
 			pkg_free(pkg);
 		}
@@ -392,7 +397,7 @@ pkg_queue_walk(pkg_queue_t *head)
 			pkg_t *pkg;
 
 			pkg = pkg_verify_dependency(iter, global_traverse_flags | PKGF_SEARCH_PRIVATE, NULL);
-			print_requires_private(pkg, NULL);
+			print_requires_private(pkg);
 
 			pkg_free(pkg);
 		}
