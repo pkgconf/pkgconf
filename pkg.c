@@ -635,6 +635,8 @@ pkg_walk_conflicts_list(pkg_t *root, pkg_dependency_t *deplist, unsigned int fla
 			fprintf(stderr, "It may be possible to ignore this conflict and continue, try the\n");
 			fprintf(stderr, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
 
+			pkg_free(pkgdep);
+
 			return PKG_ERRF_PACKAGE_CONFLICT;
 		}
 
