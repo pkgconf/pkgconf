@@ -88,6 +88,18 @@ str_has_suffix(const char *str, const char *suffix)
 	return !strncasecmp(str + str_len - suf_len, suffix, suf_len);
 }
 
+static inline const char *
+get_pkgconfig_path(void)
+{
+	const char *env_path;
+
+	env_path = getenv("PKG_CONFIG_LIBDIR");
+	if (env_path != NULL)
+		return env_path;
+
+	return PKG_DEFAULT_PATH;
+}
+
 /*
  * pkg_new_from_file(filename, file)
  *
@@ -298,12 +310,11 @@ pkg_find(const char *name, unsigned int flags)
 			if (pkg != NULL)
 				goto out;
 		}
+
+		path_free(path, count);
 	}
 
-	env_path = getenv("PKG_CONFIG_LIBDIR");
-	if (env_path == NULL)
-		env_path = PKG_DEFAULT_PATH;
-
+	env_path = get_pkgconfig_path();
 	if (!(flags & PKGF_ENV_ONLY))
 	{
 		count = path_split(env_path, &path);
