@@ -48,6 +48,10 @@ compiled:
     $ make
     $ sudo make install
 
+## release tarballs
+
+Release tarballs are available at <http://tortois.es/~nenolod/distfiles>.
+
 ## reporting bugs
 
-see <https://github.com/nenolod/pkgconf/issues>.
+See <https://github.com/nenolod/pkgconf/issues>.
