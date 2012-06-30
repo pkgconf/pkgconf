@@ -509,6 +509,7 @@ main(int argc, char *argv[])
 		{ "exact-version", required_argument, NULL, 28, },
 		{ "max-version", required_argument, NULL, 29, },
 		{ "ignore-conflicts", no_argument, &want_ignore_conflicts, 30, },
+		{ "errors-to-stdout", no_argument, NULL, 31, },
 		{ NULL, 0, NULL, 0 }
 	};
 
