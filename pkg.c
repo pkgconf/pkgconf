@@ -26,6 +26,8 @@
 
 #ifdef _WIN32
 #	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
+#	undef PKG_DEFAULT_PATH
+#	define PKG_DEFAULT_PATH "../lib/pkgconfig:../share/pkgconfig"
 #endif
 
 #define PKG_CONFIG_EXT		".pc"
@@ -113,7 +115,10 @@ get_pkgconfig_path(void)
 
 	*p = '\0';
 	strlcpy(outbuf, namebuf, sizeof outbuf);
-	strlcat(outbuf, "/lib/pkgconfig", sizeof outbuf);
+	strlcat(outbuf, "../lib/pkgconfig", sizeof outbuf);
+	strlcat(outbuf, ":", sizeof outbuf);
+	strlcat(outbuf, namebuf, sizeof outbuf);
+	strlcat(outbuf, "../share/pkgconfig", sizeof outbuf);
 
 	return outbuf;
 #endif
@@ -283,11 +288,11 @@ pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags)
 	while (RegEnumValue(key, i++, buf, &bufsize, NULL, NULL, NULL, NULL)
 			== ERROR_SUCCESS)
 	{
-		BYTE pathbuf[PKG_CONFIG_PATH_SZ];
+		char pathbuf[PKG_CONFIG_PATH_SZ];
 		DWORD type;
 		DWORD pathbuflen = sizeof pathbuf;
 
-		if (RegQueryValueEx(key, buf, NULL, &type, pathbuf, &pathbuflen)
+		if (RegQueryValueEx(key, buf, NULL, &type, (LPBYTE) pathbuf, &pathbuflen)
 				== ERROR_SUCCESS && type == REG_SZ)
 		{
 			pkg = pkg_try_specific_path(pathbuf, name, flags);
