@@ -4,6 +4,8 @@ core
 
 .deps
 
+*.exe
+*.dep
 *.diff
 *.orig
 *.patch
