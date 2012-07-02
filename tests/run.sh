@@ -98,10 +98,15 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs conflicts; echo \$?" \
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --ignore-conflicts --libs conflicts; echo \$?" \
 	'-lconflicts' '0'
 
-# 9) tests for --atleast-version
+# 9) tests for --atleast-version (with and without trailing space)
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 1.0 foo; echo \$?" \
 	'0'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 2.0 foo; echo \$?" \
+	'1'
+#    tests for issue #20
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 1.0 'foo '; echo \$?" \
+	'0'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 2.0 'foo '; echo \$?" \
 	'1'
 
 if [ ${failed} -gt 0 ]; then
