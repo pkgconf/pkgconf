@@ -640,7 +640,7 @@ main(int argc, char *argv[])
 			if (pkg == NULL)
 				return EXIT_FAILURE;
 
-			if (pkg_compare_version(pkg->version, required_module_version) == 0)
+			if (pkg_compare_version(pkg->version, required_exact_module_version) == 0)
 				return EXIT_SUCCESS;
 		}
 
@@ -664,7 +664,7 @@ main(int argc, char *argv[])
 			if (pkg == NULL)
 				return EXIT_FAILURE;
 
-			if (pkg_compare_version(pkg->version, required_module_version) <= 0)
+			if (pkg_compare_version(pkg->version, required_max_module_version) <= 0)
 				return EXIT_SUCCESS;
 		}
 
