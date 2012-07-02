@@ -103,11 +103,28 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 1.0 foo; echo \
 	'0'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 2.0 foo; echo \$?" \
 	'1'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exact-version 1.0 foo; echo \$?" \
+	'1'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exact-version 1.2.3 foo; echo \$?" \
+	'0'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --max-version 1.0 foo; echo \$?" \
+	'1'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --max-version 2.0 foo; echo \$?" \
+	'0'
+
 #    tests for issue #20
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 1.0 'foo '; echo \$?" \
 	'0'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 2.0 'foo '; echo \$?" \
 	'1'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exact-version 1.0 'foo '; echo \$?" \
+	'1'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exact-version 1.2.3 'foo '; echo \$?" \
+	'0'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --max-version 1.0 'foo '; echo \$?" \
+	'1'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --max-version 2.0 'foo '; echo \$?" \
+	'0'
 
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
