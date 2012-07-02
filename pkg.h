@@ -169,4 +169,7 @@ char *pkg_tuple_find_global(const char *key);
 void pkg_tuple_free_global(void);
 void pkg_tuple_define_global(const char *kv);
 
+/* main.c */
+extern FILE *error_msgout;
+
 #endif

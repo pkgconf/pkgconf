@@ -592,18 +592,18 @@ pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 {
 	if (eflags & PKG_ERRF_PACKAGE_NOT_FOUND)
 	{
-		fprintf(stderr, "Package %s was not found in the pkg-config search path.\n", node->package);
-		fprintf(stderr, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
-		fprintf(stderr, "to the PKG_CONFIG_PATH environment variable\n");
-		fprintf(stderr, "No package '%s' found\n", node->package);
+		fprintf(error_msgout, "Package %s was not found in the pkg-config search path.\n", node->package);
+		fprintf(error_msgout, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
+		fprintf(error_msgout, "to the PKG_CONFIG_PATH environment variable\n");
+		fprintf(error_msgout, "No package '%s' found\n", node->package);
 	}
 	else if (eflags & PKG_ERRF_PACKAGE_VER_MISMATCH)
 	{
-		fprintf(stderr, "Package dependency requirement '%s %s %s' could not be satisfied.\n",
+		fprintf(error_msgout, "Package dependency requirement '%s %s %s' could not be satisfied.\n",
 			node->package, pkg_get_comparator(node), node->version);
 
 		if (pkg != NULL)
-			fprintf(stderr, "Package '%s' has version '%s', required version is '%s %s'\n",
+			fprintf(error_msgout, "Package '%s' has version '%s', required version is '%s %s'\n",
 				node->package, pkg->version, pkg_get_comparator(node), node->version);
 	}
 
@@ -661,11 +661,11 @@ pkg_walk_conflicts_list(pkg_t *root, pkg_dependency_t *deplist, unsigned int fla
 		pkgdep = pkg_verify_dependency(node, flags, &eflags);
 		if (eflags == PKG_ERRF_OK)
 		{
-			fprintf(stderr, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
+			fprintf(error_msgout, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
 				pkgdep->version, pkgdep->realname, root->realname, node->package, pkg_get_comparator(node),
 				node->version != NULL ? " " : "", node->version != NULL ? node->version : "");
-			fprintf(stderr, "It may be possible to ignore this conflict and continue, try the\n");
-			fprintf(stderr, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
+			fprintf(error_msgout, "It may be possible to ignore this conflict and continue, try the\n");
+			fprintf(error_msgout, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
 
 			pkg_free(pkgdep);
 

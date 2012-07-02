@@ -64,6 +64,8 @@ static char *required_module_version = NULL;
 static char *want_variable = NULL;
 static char *sysroot_dir = NULL;
 
+FILE *error_msgout = NULL;
+
 static bool
 fragment_has_system_dir(pkg_fragment_t *frag)
 {
@@ -432,6 +434,7 @@ usage(void)
 	printf("  --version                         print pkgconf version to stdout\n");
 	printf("  --atleast-pkgconfig-version       check whether or not pkgconf is compatible\n");
 	printf("                                    with a specified pkg-config version\n");
+	printf("  --errors-to-stdout                print all errors on stdout instead of stderr\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -476,6 +479,7 @@ main(int argc, char *argv[])
 	pkg_queue_t *pkgq = NULL;
 	pkg_queue_t *pkgq_head = NULL;
 	char *builddir;
+	int want_errors_on_stdout = 0;
 
 	struct option options[] = {
 		{ "version", no_argument, &want_version, 1, },
@@ -509,7 +513,7 @@ main(int argc, char *argv[])
 		{ "exact-version", required_argument, NULL, 28, },
 		{ "max-version", required_argument, NULL, 29, },
 		{ "ignore-conflicts", no_argument, &want_ignore_conflicts, 30, },
-		{ "errors-to-stdout", no_argument, NULL, 31, },
+		{ "errors-to-stdout", no_argument, &want_errors_on_stdout, 31, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -554,6 +558,10 @@ main(int argc, char *argv[])
 		usage();
 		return EXIT_SUCCESS;
 	}
+
+	error_msgout = stderr;
+	if (want_errors_on_stdout)
+		error_msgout = stdout;
 
 	if (want_ignore_conflicts || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
 		global_traverse_flags |= PKGF_SKIP_CONFLICTS;
@@ -680,7 +688,7 @@ main(int argc, char *argv[])
 
 	if (pkgq_head == NULL)
 	{
-		fprintf(stderr, "Please specify at least one package name on the command line.\n");
+		fprintf(error_msgout, "Please specify at least one package name on the command line.\n");
 		return EXIT_FAILURE;
 	}
 

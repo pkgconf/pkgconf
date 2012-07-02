@@ -62,7 +62,7 @@ pkg_dependency_add(pkg_dependency_t *head, const char *package, const char *vers
 		dep->prev->next = dep;
 
 #if DEBUG_PARSE
-	fprintf(stderr, "--> %s %d %s\n", dep->package, dep->compare, dep->version);
+	fprintf(error_msgout, "--> %s %d %s\n", dep->package, dep->compare, dep->version);
 #endif
 
 	return dep;
@@ -168,7 +168,7 @@ pkg_dependency_parse(pkg_t *pkg, const char *depends)
 
 				package = strndup(iter, ptr - iter);
 #if DEBUG_PARSE
-				fprintf(stderr, "Found package: %s\n", package);
+				fprintf(error_msgout, "Found package: %s\n", package);
 #endif
 				start = ptr;
 			}
@@ -245,7 +245,7 @@ pkg_dependency_parse(pkg_t *pkg, const char *depends)
 
 		case AFTER_OPERATOR:
 #if DEBUG_PARSE
-			fprintf(stderr, "Found op: %d\n", compare);
+			fprintf(error_msgout, "Found op: %d\n", compare);
 #endif
 
 			if (!isspace(*ptr))
@@ -262,7 +262,7 @@ pkg_dependency_parse(pkg_t *pkg, const char *depends)
 				state = OUTSIDE_MODULE;
 
 #if DEBUG_PARSE
-				fprintf(stderr, "Found version: %s\n", version);
+				fprintf(error_msgout, "Found version: %s\n", version);
 #endif
 				deplist = pkg_dependency_add(deplist, package, version, compare);
 
