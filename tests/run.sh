@@ -98,6 +98,12 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs conflicts; echo \$?" \
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --ignore-conflicts --libs conflicts; echo \$?" \
 	'-lconflicts' '0'
 
+# 9) tests for --atleast-version
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 1.0 foo; echo \$?" \
+	'0'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --atleast-version 2.0 foo; echo \$?" \
+	'1'
+
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
 	exit 1
