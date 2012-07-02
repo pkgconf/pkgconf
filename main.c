@@ -602,18 +602,23 @@ main(int argc, char *argv[])
 	if (required_module_version != NULL)
 	{
 		pkg_t *pkg;
-		const char *package;
+		pkg_dependency_t *pkghead = NULL, *pkgiter = NULL;
 
-		package = argv[optind];
-		if (package == NULL)
-			return EXIT_SUCCESS;
+		while (argv[optind])
+		{
+			pkghead = pkg_dependency_parse_str(pkghead, argv[optind]);
+			optind++;
+		}
 
-		pkg = pkg_find(package, global_traverse_flags);
-		if (pkg == NULL)
-			return EXIT_FAILURE;
+		PKG_FOREACH_LIST_ENTRY(pkghead, pkgiter)
+		{
+			pkg = pkg_find(pkgiter->package, global_traverse_flags);
+			if (pkg == NULL)
+				return EXIT_FAILURE;
 
-		if (pkg_compare_version(pkg->version, required_module_version) >= 0)
-			return EXIT_SUCCESS;
+			if (pkg_compare_version(pkg->version, required_module_version) >= 0)
+				return EXIT_SUCCESS;
+		}
 
 		return EXIT_FAILURE;
 	}
@@ -621,18 +626,23 @@ main(int argc, char *argv[])
 	if (required_exact_module_version != NULL)
 	{
 		pkg_t *pkg;
-		const char *package;
+		pkg_dependency_t *pkghead = NULL, *pkgiter = NULL;
 
-		package = argv[optind];
-		if (package == NULL)
-			return EXIT_SUCCESS;
+		while (argv[optind])
+		{
+			pkghead = pkg_dependency_parse_str(pkghead, argv[optind]);
+			optind++;
+		}
 
-		pkg = pkg_find(package, global_traverse_flags);
-		if (pkg == NULL)
-			return EXIT_FAILURE;
+		PKG_FOREACH_LIST_ENTRY(pkghead, pkgiter)
+		{
+			pkg = pkg_find(pkgiter->package, global_traverse_flags);
+			if (pkg == NULL)
+				return EXIT_FAILURE;
 
-		if (pkg_compare_version(pkg->version, required_exact_module_version) == 0)
-			return EXIT_SUCCESS;
+			if (pkg_compare_version(pkg->version, required_module_version) == 0)
+				return EXIT_SUCCESS;
+		}
 
 		return EXIT_FAILURE;
 	}
@@ -640,18 +650,23 @@ main(int argc, char *argv[])
 	if (required_max_module_version != NULL)
 	{
 		pkg_t *pkg;
-		const char *package;
+		pkg_dependency_t *pkghead = NULL, *pkgiter = NULL;
 
-		package = argv[optind];
-		if (package == NULL)
-			return EXIT_SUCCESS;
+		while (argv[optind])
+		{
+			pkghead = pkg_dependency_parse_str(pkghead, argv[optind]);
+			optind++;
+		}
 
-		pkg = pkg_find(package, global_traverse_flags);
-		if (pkg == NULL)
-			return EXIT_FAILURE;
+		PKG_FOREACH_LIST_ENTRY(pkghead, pkgiter)
+		{
+			pkg = pkg_find(pkgiter->package, global_traverse_flags);
+			if (pkg == NULL)
+				return EXIT_FAILURE;
 
-		if (pkg_compare_version(pkg->version, required_max_module_version) <= 0)
-			return EXIT_SUCCESS;
+			if (pkg_compare_version(pkg->version, required_module_version) <= 0)
+				return EXIT_SUCCESS;
+		}
 
 		return EXIT_FAILURE;
 	}
