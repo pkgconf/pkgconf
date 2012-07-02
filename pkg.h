@@ -139,6 +139,7 @@ pkg_fragment_t *pkg_libs(pkg_t *root, int maxdepth, unsigned int flags);
 
 /* parse.c */
 pkg_t *pkg_new_from_file(const char *path, FILE *f);
+pkg_dependency_t *pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends);
 pkg_dependency_t *pkg_dependency_parse(pkg_t *pkg, const char *depends);
 pkg_dependency_t *pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail);
 void pkg_dependency_free(pkg_dependency_t *head);

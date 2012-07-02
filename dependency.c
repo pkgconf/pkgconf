@@ -107,22 +107,19 @@ pkg_dependency_free(pkg_dependency_t *head)
 }
 
 pkg_dependency_t *
-pkg_dependency_parse(pkg_t *pkg, const char *depends)
+pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 {
 	parse_state_t state = OUTSIDE_MODULE;
 	pkg_dependency_t *deplist = NULL;
-	pkg_dependency_t *deplist_head = NULL;
 	pkg_comparator_t compare = PKG_ANY;
 	char buf[BUFSIZ];
-	char *kvdepends = pkg_tuple_parse(pkg->vars, depends);
 	char *start = buf;
 	char *ptr = buf;
 	char *vstart = NULL;
 	char *package = NULL, *version = NULL;
 
-	strlcpy(buf, kvdepends, sizeof buf);
+	strlcpy(buf, depends, sizeof buf);
 	strlcat(buf, " ", sizeof buf);
-	free(kvdepends);
 
 	while (*ptr)
 	{
@@ -293,4 +290,16 @@ pkg_dependency_parse(pkg_t *pkg, const char *depends)
 	}
 
 	return deplist_head;
+}
+
+pkg_dependency_t *
+pkg_dependency_parse(pkg_t *pkg, const char *depends)
+{
+	pkg_dependency_t *list = NULL;
+	char *kvdepends = pkg_tuple_parse(pkg->vars, depends);
+
+	list = pkg_dependency_parse_str(list, kvdepends);
+	free(kvdepends);
+
+	return list;
 }
