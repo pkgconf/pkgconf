@@ -13,9 +13,13 @@ AC_CACHE_CHECK([whether to enable strict mode],
 
 if test "x$ac_cv_use_strict" = "xyes"; then
 	AC_DEFINE([HAVE_STRICT_MODE], [1], [Define if strict mode is requested.])
+	STRICT_MODE=yes
 else
 	AC_DEFINE([HAVE_STRICT_MODE], [0], [Define if strict mode is requested.])
+	STRICT_MODE=no
 fi
+
+AC_SUBST([STRICT_MODE])
 
 AC_PROG_CPP
 AC_PROG_CC
@@ -26,5 +30,5 @@ BUILDSYS_SHARED_LIB
 BUILDSYS_PROG_IMPLIB
 BUILDSYS_TOUCH_DEPS
 
-AC_CONFIG_FILES([buildsys.mk])
+AC_CONFIG_FILES([buildsys.mk tests/run.sh])
 AC_OUTPUT
