@@ -8,17 +8,9 @@
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * This software is provided 'as is' and without any warranty, express or
+ * implied.  In no event shall the authors be liable for any damages arising
+ * from the use of this software.
  */
 
 #include "config.h"
@@ -416,6 +408,14 @@ static void
 version(void)
 {
 	printf("%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
+	printf("Copyright (c) 2011 - 2012 William Pitcock <nenolod@dereferenced.org>.\n\n");
+	printf("Permission to use, copy, modify, and/or distribute this software for any\n");
+	printf("purpose with or without fee is hereby granted, provided that the above\n");
+	printf("copyright notice and this permission notice appear in all copies.\n\n");
+	printf("This software is provided by the author 'as is' and without any warranty, express\n");
+	printf("or implied.  In no event shall the authors be liable for any damages arising\n");
+	printf("from the use of this software.\n\n");
+	printf("Report bugs at <%s>.\n", PACKAGE_BUGREPORT);
 }
 
 static void
