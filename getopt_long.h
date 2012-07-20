@@ -35,8 +35,6 @@
 #ifndef _GETOPT_LONG_H_
 #define _GETOPT_LONG_H_
 
-#ifndef HAVE_GETOPT_LONG
-
 #include <sys/cdefs.h>
 
 /*
@@ -47,7 +45,7 @@
 #define required_argument  1
 #define optional_argument  2
 
-struct option {
+struct pkg_option {
 	/* name of long option */
 	const char *name;
 	/*
@@ -61,16 +59,14 @@ struct option {
 	int val;
 };
 
-int	getopt_long(int, char * const *, const char *,
-	const struct option *, int *);
-int	getopt_long_only(int, char * const *, const char *,
-	const struct option *, int *);
-int	 getopt(int, char * const [], const char *);
+int	pkg_getopt_long(int, char * const *, const char *,
+	const struct pkg_option *, int *);
+int	pkg_getopt_long_only(int, char * const *, const char *,
+	const struct pkg_option *, int *);
+int	pkg_getopt(int, char * const [], const char *);
 
-extern char *optarg;			/* getopt(3) external variables */
-extern int optind, opterr, optopt;
-extern int optreset;			/* getopt(3) external variable */
+extern char *pkg_optarg;			/* getopt(3) external variables */
+extern int pkg_optind, pkg_opterr, pkg_optopt;
+extern int pkg_optreset;			/* getopt(3) external variable */
 
 #endif
-
-#endif /* !_GETOPT_H_ */

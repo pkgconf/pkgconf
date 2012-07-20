@@ -23,12 +23,7 @@
 
 #include "config.h"
 #include "pkg.h"
-
-#ifdef HAVE_GETOPT_LONG
-# include <getopt.h>
-#else
-# include "bsdstubs.h"
-#endif
+#include "bsdstubs.h"
 
 #define WANT_CFLAGS_ONLY_I		(19)
 #define WANT_CFLAGS_ONLY_OTHER		(20)
@@ -481,7 +476,7 @@ main(int argc, char *argv[])
 	char *builddir;
 	int want_errors_on_stdout = 0;
 
-	struct option options[] = {
+	struct pkg_option options[] = {
 		{ "version", no_argument, &want_version, 1, },
 		{ "atleast-version", required_argument, NULL, 2, },
 		{ "atleast-pkgconfig-version", required_argument, NULL, 3, },
@@ -517,30 +512,30 @@ main(int argc, char *argv[])
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = getopt_long(argc, argv, "", options, NULL)) != -1)
+	while ((ret = pkg_getopt_long(argc, argv, "", options, NULL)) != -1)
 	{
 		switch (ret)
 		{
 		case 2:
-			required_module_version = optarg;
+			required_module_version = pkg_optarg;
 			break;
 		case 3:
-			required_pkgconfig_version = optarg;
+			required_pkgconfig_version = pkg_optarg;
 			break;
 		case 7:
-			want_variable = optarg;
+			want_variable = pkg_optarg;
 			break;
 		case 11:
-			maximum_traverse_depth = atoi(optarg);
+			maximum_traverse_depth = atoi(pkg_optarg);
 			break;
 		case 27:
-			pkg_tuple_define_global(optarg);
+			pkg_tuple_define_global(pkg_optarg);
 			break;
 		case 28:
-			required_exact_module_version = optarg;
+			required_exact_module_version = pkg_optarg;
 			break;
 		case 29:
-			required_max_module_version = optarg;
+			required_max_module_version = pkg_optarg;
 			break;
 		default:
 			break;
@@ -604,10 +599,10 @@ main(int argc, char *argv[])
 		pkg_t *pkg;
 		pkg_dependency_t *pkghead = NULL, *pkgiter = NULL;
 
-		while (argv[optind])
+		while (argv[pkg_optind])
 		{
-			pkghead = pkg_dependency_parse_str(pkghead, argv[optind]);
-			optind++;
+			pkghead = pkg_dependency_parse_str(pkghead, argv[pkg_optind]);
+			pkg_optind++;
 		}
 
 		PKG_FOREACH_LIST_ENTRY(pkghead, pkgiter)
@@ -628,10 +623,10 @@ main(int argc, char *argv[])
 		pkg_t *pkg;
 		pkg_dependency_t *pkghead = NULL, *pkgiter = NULL;
 
-		while (argv[optind])
+		while (argv[pkg_optind])
 		{
-			pkghead = pkg_dependency_parse_str(pkghead, argv[optind]);
-			optind++;
+			pkghead = pkg_dependency_parse_str(pkghead, argv[pkg_optind]);
+			pkg_optind++;
 		}
 
 		PKG_FOREACH_LIST_ENTRY(pkghead, pkgiter)
@@ -652,10 +647,10 @@ main(int argc, char *argv[])
 		pkg_t *pkg;
 		pkg_dependency_t *pkghead = NULL, *pkgiter = NULL;
 
-		while (argv[optind])
+		while (argv[pkg_optind])
 		{
-			pkghead = pkg_dependency_parse_str(pkghead, argv[optind]);
-			optind++;
+			pkghead = pkg_dependency_parse_str(pkghead, argv[pkg_optind]);
+			pkg_optind++;
 		}
 
 		PKG_FOREACH_LIST_ENTRY(pkghead, pkgiter)
@@ -673,26 +668,26 @@ main(int argc, char *argv[])
 
 	while (1)
 	{
-		const char *package = argv[optind];
+		const char *package = argv[pkg_optind];
 
 		if (package == NULL)
 			break;
 
-		if (argv[optind + 1] == NULL || !PKG_OPERATOR_CHAR(*(argv[optind + 1])))
+		if (argv[pkg_optind + 1] == NULL || !PKG_OPERATOR_CHAR(*(argv[pkg_optind + 1])))
 		{
 			pkgq = pkg_queue_push(pkgq, package);
 
 			if (pkgq_head == NULL)
 				pkgq_head = pkgq;
 
-			optind++;
+			pkg_optind++;
 		}
 		else
 		{
 			char packagebuf[BUFSIZ];
 
-			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[optind + 1], argv[optind + 2]);
-			optind += 3;
+			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[pkg_optind + 1], argv[pkg_optind + 2]);
+			pkg_optind += 3;
 
 			pkgq = pkg_queue_push(pkgq, packagebuf);
 
