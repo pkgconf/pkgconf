@@ -512,7 +512,7 @@ main(int argc, char *argv[])
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = pkg_getopt_long(argc, argv, "", options, NULL)) != -1)
+	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
 		switch (ret)
 		{
