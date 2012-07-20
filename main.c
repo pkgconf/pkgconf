@@ -412,8 +412,8 @@ version(void)
 	printf("Permission to use, copy, modify, and/or distribute this software for any\n");
 	printf("purpose with or without fee is hereby granted, provided that the above\n");
 	printf("copyright notice and this permission notice appear in all copies.\n\n");
-	printf("This software is provided by the author 'as is' and without any warranty, express\n");
-	printf("or implied.  In no event shall the authors be liable for any damages arising\n");
+	printf("This software is provided 'as is' and without any warranty, express or\n");
+	printf("implied.  In no event shall the authors be liable for any damages arising\n");
 	printf("from the use of this software.\n\n");
 	printf("Report bugs at <%s>.\n", PACKAGE_BUGREPORT);
 }
