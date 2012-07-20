@@ -43,6 +43,10 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs foo" \
 	'-lfoo'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --cflags --libs foo" \
 	'-lfoo' '-I/usr/include/foo' '-fPIC'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --cflags --libs 'foo > 1.2'" \
+	'-lfoo' '-I/usr/include/foo' '-fPIC'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --cflags --libs 'foo' '>' '1.2'" \
+	'-lfoo' '-I/usr/include/foo' '-fPIC'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'foo > 1.2'; echo \$?" \
 	'0'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'foo > 1.2.3'; echo \$?" \
@@ -75,6 +79,8 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs dos-lineendings" \
 	'-L/usr/lib/dos-lineendings -ldos-lineendings'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs argv-parse" \
 	'-llib-2 -lpthread'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists -foo; echo \$?" \
+	'1'
 
 # 5) tests for other regressions
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --variable=includedir foo" \
