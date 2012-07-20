@@ -68,7 +68,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define GNU_COMPATIBLE		/* Be more compatible, configure's use us! */
+#if HAVE_STRICT_MODE > 0
+# define GNU_COMPATIBLE		/* Be more compatible, configure's use us! */
+#endif
 
 int	pkg_opterr = 1;		/* if error message should be printed */
 int	pkg_optind = 1;		/* index into parent argv vector */
@@ -378,6 +380,9 @@ getopt_internal(int nargc, char * const *nargv, const char *options,
 		flags &= ~FLAG_PERMUTE;
 	else if (*options == '-')
 		flags |= FLAG_ALLARGS;
+#endif
+#if HAVE_STRICT_MODE >= 1
+	flags &= ~FLAG_PERMUTE;
 #endif
 	if (*options == '+' || *options == '-')
 		options++;
