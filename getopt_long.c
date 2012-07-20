@@ -60,11 +60,10 @@
 
 #include "getopt_long.h"
 
-#include <sys/cdefs.h>
+#include "stdinc.h"
 
 #include <err.h>
 #include <errno.h>
-#include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
 
