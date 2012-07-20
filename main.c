@@ -537,6 +537,10 @@ main(int argc, char *argv[])
 		case 29:
 			required_max_module_version = pkg_optarg;
 			break;
+		case '?':
+		case ':':
+			return EXIT_FAILURE;
+			break;
 		default:
 			break;
 		}
