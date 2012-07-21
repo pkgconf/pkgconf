@@ -61,6 +61,8 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --uninstalled 'omg'; echo \$?" \
 	'0'
 run_test "${1} --modversion ${selfdir}/lib1/foo.pc" \
 	'1.2.3'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'foo >= '; echo \$?" \
+	'1'
 
 # 2) tests for PKG_CONFIG_PATH order
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1:${selfdir}/lib2 ${1} --libs foo" \
