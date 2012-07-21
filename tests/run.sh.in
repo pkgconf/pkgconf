@@ -92,7 +92,7 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --variable=includedir foo" \
 
 # 6) tests for builtins
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --modversion pkg-config" \
-	'0.26'
+	'0.27'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --variable=prefix foo" \
 	'/usr'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --define-variable=prefix=/test --variable=prefix foo" \
