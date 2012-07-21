@@ -50,7 +50,7 @@ compiled:
 
 ## release tarballs
 
-Release tarballs are available at <http://tortois.es/~nenolod/distfiles>.
+Release tarballs are available at <http://nenolod.net/~nenolod/distfiles>.
 
 ## reporting bugs
 
