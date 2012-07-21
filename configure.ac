@@ -1,3 +1,16 @@
+dnl configure.ac
+dnl m4 preprocessor script for autotools
+dnl
+dnl Copyright (c) 2011, 2012 William Pitcock <nenolod@dereferenced.org>.
+dnl
+dnl Permission to use, copy, modify, and/or distribute this software for any
+dnl purpose with or without fee is hereby granted, provided that the above
+dnl copyright notice and this permission notice appear in all copies.
+dnl
+dnl This software is provided 'as is' and without any warranty, express or
+dnl implied.  In no event shall the authors be liable for any damages arising
+dnl from the use of this software.
+
 AC_PREREQ([2.68])
 AC_INIT([pkgconf], [0.8.1], [http://github.com/nenolod/pkgconf/issues])
 AC_CONFIG_SRCDIR([pkg.c])
