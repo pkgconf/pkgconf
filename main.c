@@ -267,11 +267,18 @@ pkg_queue_walk(pkg_queue_t *head)
 		pkg_dependency_t *pkgdep;
 
 		pkgdep = pkg_dependency_parse(&world, pkgq->package);
-		world.requires = pkg_dependency_append(world.requires, pkgdep);
+		if (pkgdep != NULL)
+			world.requires = pkg_dependency_append(world.requires, pkgdep);
+		else
+			retval = EXIT_FAILURE;
 
 		free(pkgq->package);
 		free(pkgq);
 	}
+
+	/* we couldn't build the entire depgraph, so bail. */
+	if (retval != EXIT_SUCCESS)
+		goto out;
 
 	/* we should verify that the graph is complete before attempting to compute cflags etc. */
 	if (pkg_verify_graph(&world, maximum_traverse_depth, global_traverse_flags) != PKG_ERRF_OK)
