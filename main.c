@@ -437,6 +437,7 @@ usage(void)
 	printf("  --atleast-pkgconfig-version       check whether or not pkgconf is compatible\n");
 	printf("                                    with a specified pkg-config version\n");
 	printf("  --errors-to-stdout                print all errors on stdout instead of stderr\n");
+	printf("  --silence-errors                  explicitly be silent about errors\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -482,6 +483,7 @@ main(int argc, char *argv[])
 	pkg_queue_t *pkgq_head = NULL;
 	char *builddir;
 	int want_errors_on_stdout = 0;
+	int want_silence_errors = 1;
 
 	struct pkg_option options[] = {
 		{ "version", no_argument, &want_version, 1, },
@@ -516,6 +518,7 @@ main(int argc, char *argv[])
 		{ "max-version", required_argument, NULL, 29, },
 		{ "ignore-conflicts", no_argument, &want_ignore_conflicts, 30, },
 		{ "errors-to-stdout", no_argument, &want_errors_on_stdout, 31, },
+		{ "silence-errors", no_argument, &want_silence_errors, 32, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -568,6 +571,8 @@ main(int argc, char *argv[])
 	error_msgout = stderr;
 	if (want_errors_on_stdout)
 		error_msgout = stdout;
+	if (want_silence_errors)
+		error_msgout = fopen(PATH_DEV_NULL, "w");
 
 	if (want_ignore_conflicts || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
 		global_traverse_flags |= PKGF_SKIP_CONFLICTS;
@@ -590,12 +595,12 @@ main(int argc, char *argv[])
 	if ((builddir = getenv("PKG_CONFIG_TOP_BUILD_DIR")) != NULL)
 		pkg_tuple_add_global("pc_top_builddir", builddir);
 	else
-		pkg_tuple_add_global("pc_top_builddir", "$(top_builddir)");	
+		pkg_tuple_add_global("pc_top_builddir", "$(top_builddir)");
 
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
 		pkg_tuple_add_global("pc_sysrootdir", sysroot_dir);
 	else
-		pkg_tuple_add_global("pc_sysrootdir", "/");	
+		pkg_tuple_add_global("pc_sysrootdir", "/");
 
 	if (required_pkgconfig_version != NULL)
 	{

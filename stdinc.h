@@ -28,6 +28,9 @@
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 # include <malloc.h>
+# define PATH_DEV_NULL	"nul"
+#else
+# define PATH_DEV_NULL	"/dev/null"
 #endif
 
 #endif
