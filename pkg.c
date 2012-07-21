@@ -127,12 +127,12 @@ pkg_t *
 pkg_new_from_file(const char *filename, FILE *f)
 {
 	pkg_t *pkg;
-	char readbuf[BUFSIZ];
+	char readbuf[PKG_BUFSIZE];
 
 	pkg = calloc(sizeof(pkg_t), 1);
 	pkg->filename = strdup(filename);
 
-	while (pkg_fgetline(readbuf, BUFSIZ, f) != NULL)
+	while (pkg_fgetline(readbuf, PKG_BUFSIZE, f) != NULL)
 	{
 		char op, *p, *key = NULL, *value = NULL;
 
@@ -366,7 +366,7 @@ int
 pkg_compare_version(const char *a, const char *b)
 {
 	char oldch1, oldch2;
-	char buf1[BUFSIZ], buf2[BUFSIZ];
+	char buf1[PKG_BUFSIZE], buf2[PKG_BUFSIZE];
 	char *str1, *str2;
 	char *one, *two;
 	int ret;

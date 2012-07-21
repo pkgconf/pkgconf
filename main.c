@@ -700,7 +700,7 @@ main(int argc, char *argv[])
 		}
 		else
 		{
-			char packagebuf[BUFSIZ];
+			char packagebuf[PKG_BUFSIZE];
 
 			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[pkg_optind + 1], argv[pkg_optind + 2]);
 			pkg_optind += 3;

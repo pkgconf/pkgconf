@@ -96,17 +96,17 @@ pkg_tuple_find(pkg_tuple_t *head, const char *key)
 char *
 pkg_tuple_parse(pkg_tuple_t *vars, const char *value)
 {
-	char buf[BUFSIZ];
+	char buf[PKG_BUFSIZE];
 	const char *ptr;
 	char *bptr = buf;
 
-	for (ptr = value; *ptr != '\0' && bptr - buf < BUFSIZ; ptr++)
+	for (ptr = value; *ptr != '\0' && bptr - buf < PKG_BUFSIZE; ptr++)
 	{
 		if (*ptr != '$')
 			*bptr++ = *ptr;
 		else if (*(ptr + 1) == '{')
 		{
-			static char varname[BUFSIZ];
+			static char varname[PKG_BUFSIZE];
 			char *vptr = varname;
 			const char *pptr;
 			char *kv, *parsekv;
@@ -131,7 +131,7 @@ pkg_tuple_parse(pkg_tuple_t *vars, const char *value)
 			{
 				parsekv = pkg_tuple_parse(vars, kv);
 
-				strncpy(bptr, parsekv, BUFSIZ - (bptr - buf));
+				strncpy(bptr, parsekv, PKG_BUFSIZE - (bptr - buf));
 				bptr += strlen(parsekv);
 
 				free(parsekv);

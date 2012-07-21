@@ -104,7 +104,7 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 	parse_state_t state = OUTSIDE_MODULE;
 	pkg_dependency_t *deplist = NULL;
 	pkg_comparator_t compare = PKG_ANY;
-	char buf[BUFSIZ];
+	char buf[PKG_BUFSIZE];
 	char *start = buf;
 	char *ptr = buf;
 	char *vstart = NULL;

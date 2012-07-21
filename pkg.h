@@ -19,9 +19,7 @@
 #include "config.h"
 #include "stdinc.h"
 
-#ifndef BUFSIZ
-#define BUFSIZ	65535
-#endif
+#define PKG_BUFSIZE	(65535)
 
 /* we are compatible with 0.27 of pkg-config */
 #define PKG_PKGCONFIG_VERSION_EQUIV	"0.27"
