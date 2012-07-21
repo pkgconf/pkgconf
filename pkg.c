@@ -118,6 +118,20 @@ get_pkgconfig_path(void)
 	return PKG_DEFAULT_PATH;
 }
 
+static const char *
+pkg_get_parent_dir(pkg_t *pkg)
+{
+	static char buf[PKG_BUFSIZE];
+	static char filebuf[PKG_BUFSIZE];
+	char *pathbuf;
+
+	strlcpy(filebuf, pkg->filename, sizeof filebuf);
+	pathbuf = dirname(filebuf);
+	strlcpy(buf, pathbuf, sizeof buf);
+
+	return buf;
+}
+
 /*
  * pkg_new_from_file(filename, file)
  *
@@ -131,6 +145,7 @@ pkg_new_from_file(const char *filename, FILE *f)
 
 	pkg = calloc(sizeof(pkg_t), 1);
 	pkg->filename = strdup(filename);
+	pkg->vars = pkg_tuple_add(pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg));
 
 	while (pkg_fgetline(readbuf, PKG_BUFSIZE, f) != NULL)
 	{
