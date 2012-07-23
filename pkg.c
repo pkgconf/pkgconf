@@ -516,6 +516,8 @@ pkg_get_comparator(pkg_dependency_t *pkgdep)
 static pkg_t pkg_config_virtual = {
 	.id = "pkg-config",
 	.realname = "pkg-config",
+	.description = "virtual package defining pkg-config API version supported",
+	.url = PACKAGE_BUGREPORT,
 	.version = PKG_PKGCONFIG_VERSION_EQUIV,
 	.flags = PKG_PROPF_VIRTUAL,
 };
