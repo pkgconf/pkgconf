@@ -215,7 +215,7 @@ cleanup:
 void
 pkg_free(pkg_t *pkg)
 {
-	if (pkg == NULL)
+	if (pkg == NULL || pkg->flags & PKG_PROPF_VIRTUAL)
 		return;
 
 	pkg_dependency_free(pkg->requires);
@@ -227,9 +227,6 @@ pkg_free(pkg_t *pkg)
 	pkg_fragment_free(pkg->libs_private);
 
 	pkg_tuple_free(pkg->vars);
-
-	if (pkg->flags & PKG_PROPF_VIRTUAL)
-		return;
 
 	if (pkg->id != NULL)
 		free(pkg->id);
@@ -520,6 +517,10 @@ static pkg_t pkg_config_virtual = {
 	.url = PACKAGE_BUGREPORT,
 	.version = PKG_PKGCONFIG_VERSION_EQUIV,
 	.flags = PKG_PROPF_VIRTUAL,
+	.vars = &(pkg_tuple_t){
+		.key = "pc_path",
+		.value = PKG_DEFAULT_PATH,
+	},
 };
 
 /*
