@@ -483,7 +483,7 @@ main(int argc, char *argv[])
 	pkg_queue_t *pkgq_head = NULL;
 	char *builddir;
 	int want_errors_on_stdout = 0;
-	int want_silence_errors = 1;
+	int want_silence_errors = 0;
 
 	struct pkg_option options[] = {
 		{ "version", no_argument, &want_version, 1, },
