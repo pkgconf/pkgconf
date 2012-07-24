@@ -17,6 +17,7 @@ AC_CONFIG_SRCDIR([pkg.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CHECK_FUNCS([strlcpy strlcat strndup])
 
+
 AC_ARG_ENABLE([strict],
 	      [AC_HELP_STRING([--enable-strict],
 			     [enable POSIX-strict argument checking and disable some workarounds])],
@@ -33,6 +34,13 @@ else
 fi
 
 AC_SUBST([STRICT_MODE])
+
+AC_ARG_WITH([pkg-config-dir],[AC_HELP_STRING([--with-pkg-config-dir],[specify
+	     the place where pc files will be found])],PKGCONFIGDIR="$withval",
+	     PKGCONFIGDIR="${libdir}/pkgconfig:${datadir}/pkgconfig")
+
+AC_SUBST([PKGCONFIGDIR])
+
 
 AC_PROG_CPP
 AC_PROG_CC

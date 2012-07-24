@@ -5,6 +5,7 @@ libdir		= @libdir@
 datarootdir	= @datarootdir@
 datadir		= @datadir@
 includedir	= @includedir@
+pkgconfigdir	= @PKGCONFIGDIR@
 
 CC		= @CC@
 PROG		= pkgconf@EXEEXT@
@@ -12,7 +13,7 @@ SRCS		= main.c pkg.c bsdstubs.c getopt_long.c fragment.c argvsplit.c fileio.c tu
 OBJS		= ${SRCS:.c=.o}
 CFLAGS		= @CFLAGS@
 LDFLAGS		= @LDFLAGS@
-CFLAGS		+= -DLIBDIR=\"${libdir}\" -DINCLUDEDIR=\"${includedir}\" -DPKG_DEFAULT_PATH=\"${libdir}/pkgconfig:${datadir}/pkgconfig\" -Wall -Wextra -Wformat=2 -std=gnu99 -D_FORTIFY_SOURCE=2
+CFLAGS		+= -DLIBDIR=\"${libdir}\" -DINCLUDEDIR=\"${includedir}\" -DPKG_DEFAULT_PATH=\"${pkgconfigdir}\" -Wall -Wextra -Wformat=2 -std=gnu99 -D_FORTIFY_SOURCE=2
 
 all: build
 build: ${PROG}
