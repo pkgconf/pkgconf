@@ -41,6 +41,17 @@ AC_ARG_WITH([pkg-config-dir],[AC_HELP_STRING([--with-pkg-config-dir],[specify
 
 AC_SUBST([PKGCONFIGDIR])
 
+AC_ARG_WITH([system-libdir],[AC_HELP_STRING([--with-system-libdir],[specify the
+	     system library directory (default LIBDIR)])],
+	     SYSTEM_LIBDIR="$withval", SYSTEM_LIBDIR="${libdir}")
+
+AC_SUBST([SYSTEM_LIBDIR])
+
+AC_ARG_WITH([system-includedir],[AC_HELP_STRING([--with-system-libdir],[specify the
+	     system include directory (default INCLUDEDIR)])],
+	     SYSTEM_INCLUDEDIR="$withval", SYSTEM_INCLUDEDIR="${includedir}")
+
+AC_SUBST([SYSTEM_INCLUDEDIR])
 
 AC_PROG_CPP
 AC_PROG_CC
