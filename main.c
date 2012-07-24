@@ -59,10 +59,10 @@ fragment_has_system_dir(pkg_fragment_t *frag)
 	switch (frag->type)
 	{
 	case 'L':
-		if (!want_keep_system_libs && !strcasecmp(LIBDIR, frag->data))
+		if (!want_keep_system_libs && !strcasecmp(SYSTEM_LIBDIR, frag->data))
 			return true;
 	case 'I':
-		if (!want_keep_system_cflags && !strcasecmp(INCLUDEDIR, frag->data))
+		if (!want_keep_system_cflags && !strcasecmp(SYSTEM_INCLUDEDIR, frag->data))
 			return true;
 	default:
 		break;
@@ -469,8 +469,8 @@ usage(void)
 	printf("                                    linking to stdout\n");
 	printf("  --print-variables                 print all known variables in module to stdout\n");
 	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
-	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", INCLUDEDIR);
-	printf("  --keep-system-libs                keep -L%s entries in libs output\n", LIBDIR);
+	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", SYSTEM_INCLUDEDIR);
+	printf("  --keep-system-libs                keep -L%s entries in libs output\n", SYSTEM_LIBDIR);
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
