@@ -11,6 +11,7 @@ PROG		= pkgconf@EXEEXT@
 SRCS		= main.c pkg.c bsdstubs.c getopt_long.c fragment.c argvsplit.c fileio.c tuple.c dependency.c
 OBJS		= ${SRCS:.c=.o}
 CFLAGS		= @CFLAGS@
+LDFLAGS		= @LDFLAGS@
 CFLAGS		+= -DLIBDIR=\"${libdir}\" -DINCLUDEDIR=\"${includedir}\" -DPKG_DEFAULT_PATH=\"${libdir}/pkgconfig:${datadir}/pkgconfig\" -Wall -Wextra -Wformat=2 -std=gnu99 -D_FORTIFY_SOURCE=2
 
 all: build
@@ -33,7 +34,7 @@ valgrind-check: $(PROG)
 	$(SHELL) tests/run.sh 'valgrind --leak-check=full --show-reachable=yes ./$(PROG)'
 
 $(PROG): $(OBJS)
-	${CC} -o $@ $(OBJS)
+	${CC} ${LDFLAGS} -o $@ $(OBJS)
 
 .c.o:
 	${CC} ${CFLAGS} -c $< -o $@
