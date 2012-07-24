@@ -394,12 +394,24 @@ pkg_compare_version(const char *a, const char *b)
 	one = str1 = buf1;
 	two = str2 = buf2;
 
-	while (*one && *two)
+	while (*one || *two)
 	{
-		while (*one && !isalnum(*one))
+		while (*one && !isalnum(*one) && *one != '~')
 			one++;
-		while (*two && !isalnum(*two))
+		while (*two && !isalnum(*two) && *two != '~')
 			two++;
+
+		if (*one == '~' || *two == '~')
+		{
+			if (*one != '~')
+				return 1;
+			if (*two != '~')
+				return -1;
+
+			one++;
+			two++;
+			continue;
+		}
 
 		if (!(*one && *two))
 			break;
