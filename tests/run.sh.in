@@ -99,6 +99,12 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists -foo; echo \$?" \
 # 5) tests for other regressions
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --variable=includedir foo" \
 	'/usr/include'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs-only-L cflags-libs-only" \
+	'-L/usr/local/lib'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs-only-L --libs-only-l cflags-libs-only" \
+	'-lfoo'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --cflags-only-I --cflags-only-other cflags-libs-only" \
+	'-I/usr/local/include'
 
 # 6) tests for builtins
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --modversion pkg-config" \
