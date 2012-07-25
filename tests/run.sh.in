@@ -160,7 +160,7 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --max-version 2.0 'foo '; echo \$
 	'0'
 
 # 10) tests for internal getopt implementation with options at the end
-if [ "x@STRICT_MODE@" == "xno" ]; then
+if [ "x@STRICT_MODE@" = "xno" ]; then
 	run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} foo --libs" \
 		'-lfoo'
 	run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} foo --cflags --libs" \
