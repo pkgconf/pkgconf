@@ -487,6 +487,8 @@ main(int argc, char *argv[])
 	int want_libs_L = 0;
 	int want_libs_l = 0;
 	int want_libs_other = 0;
+	int want_cflags_I = 0;
+	int want_cflags_other = 0;
 
 	struct pkg_option options[] = {
 		{ "version", no_argument, &want_version, 1, },
@@ -507,8 +509,8 @@ main(int argc, char *argv[])
 		{ "help", no_argument, &want_help, 16, },
 		{ "env-only", no_argument, &want_env_only, 17, },
 		{ "print-requires-private", no_argument, &want_requires_private, 18, },
-		{ "cflags-only-I", no_argument, &want_cflags, WANT_CFLAGS_ONLY_I, },
-		{ "cflags-only-other", no_argument, &want_cflags, WANT_CFLAGS_ONLY_OTHER, },
+		{ "cflags-only-I", no_argument, &want_cflags_I, WANT_CFLAGS_ONLY_I, },
+		{ "cflags-only-other", no_argument, &want_cflags_other, WANT_CFLAGS_ONLY_OTHER, },
 		{ "libs-only-L", no_argument, &want_libs_L, WANT_LIBS_ONLY_LDPATH, },
 		{ "libs-only-l", no_argument, &want_libs_l, WANT_LIBS_ONLY_LIBNAME, },
 		{ "libs-only-other", no_argument, &want_libs_other, WANT_LIBS_ONLY_OTHER, },
@@ -565,6 +567,11 @@ main(int argc, char *argv[])
 		want_libs = want_libs_L;
 	else if (want_libs_other)
 		want_libs = want_libs_other;
+
+	if (want_cflags_I)
+		want_cflags = want_cflags_I;
+	else if (want_cflags_other)
+		want_cflags = want_cflags_other;
 
 	if (want_version)
 	{
