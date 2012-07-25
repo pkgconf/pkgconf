@@ -689,6 +689,15 @@ main(int argc, char *argv[])
 		if (package == NULL)
 			break;
 
+		while (isspace(package[0]))
+			package++;
+
+		/* skip empty packages */
+		if (package[0] == '\0') {
+			pkg_optind++;
+			continue;
+		}
+
 		if (argv[pkg_optind + 1] == NULL || !PKG_OPERATOR_CHAR(*(argv[pkg_optind + 1])))
 		{
 			pkgq = pkg_queue_push(pkgq, package);
