@@ -64,7 +64,7 @@ pkg_argv_split(const char *src, int *argc, char ***argv)
 		}
 		else if (isspace(*src_iter))
 		{
-			if (*(src_iter + 1) == '-' && (*argv)[argc_count] != NULL)
+			if ((*argv)[argc_count] != NULL)
 			{
 				argc_count++, dst_iter++;
 
