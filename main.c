@@ -484,6 +484,9 @@ main(int argc, char *argv[])
 	char *builddir;
 	int want_errors_on_stdout = 0;
 	int want_silence_errors = 0;
+	int want_libs_L = 0;
+	int want_libs_l = 0;
+	int want_libs_other = 0;
 
 	struct pkg_option options[] = {
 		{ "version", no_argument, &want_version, 1, },
@@ -506,9 +509,9 @@ main(int argc, char *argv[])
 		{ "print-requires-private", no_argument, &want_requires_private, 18, },
 		{ "cflags-only-I", no_argument, &want_cflags, WANT_CFLAGS_ONLY_I, },
 		{ "cflags-only-other", no_argument, &want_cflags, WANT_CFLAGS_ONLY_OTHER, },
-		{ "libs-only-L", no_argument, &want_libs, WANT_LIBS_ONLY_LDPATH, },
-		{ "libs-only-l", no_argument, &want_libs, WANT_LIBS_ONLY_LIBNAME, },
-		{ "libs-only-other", no_argument, &want_libs, WANT_LIBS_ONLY_OTHER, },
+		{ "libs-only-L", no_argument, &want_libs_L, WANT_LIBS_ONLY_LDPATH, },
+		{ "libs-only-l", no_argument, &want_libs_l, WANT_LIBS_ONLY_LIBNAME, },
+		{ "libs-only-other", no_argument, &want_libs_other, WANT_LIBS_ONLY_OTHER, },
 		{ "uninstalled", no_argument, &want_uninstalled, 24, },
 		{ "no-uninstalled", no_argument, &want_no_uninstalled, 25, },
 		{ "keep-system-cflags", no_argument, &want_keep_system_cflags, 26, },
@@ -555,6 +558,13 @@ main(int argc, char *argv[])
 			break;
 		}
 	}
+
+	if (want_libs_l)
+		want_libs = want_libs_l;
+	else if (want_libs_L)
+		want_libs = want_libs_L;
+	else if (want_libs_other)
+		want_libs = want_libs_other;
 
 	if (want_version)
 	{
