@@ -7,10 +7,11 @@ failed=0
 
 run_test() {
 	local res t_ret 2>/dev/null || true
+	local cmdline 2>/dev/null || true
 
-	echo "$ ${1}"
-	eval res="\$(${1})"
-	echo "${res}"
+	cmdline="${1}"
+
+	eval res="\$(${1})" 2>/dev/null
 
 	t_ret=0
 	while [ ${#} -gt 1 ]; do
@@ -20,20 +21,24 @@ run_test() {
 			*${1}*)
 				;;
 			*)
-				echo "! expected ${1}"
+				echo
+				echo "***********************"
+				echo "!!! Test $done failed."
+				echo "!!! $ ${cmdline}"
+				echo "!!! ${res}"
+				echo "!!! expected '${1}' in output"
+				echo "***********************"
 				t_ret=1
 				;;
 		esac
 	done
 
 	if [ ${t_ret} -eq 0 ]; then
-		echo "+ [OK]"
+		echo -n "."
 	else
 		failed=$(( failed + 1 ))
 	fi
 	done=$(( done + 1 ))
-
-	echo
 }
 
 selfdir=$(cd "$(dirname "${0}")"; pwd)
@@ -163,6 +168,8 @@ if [ "x@STRICT_MODE@" == "xno" ]; then
 	run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --cflags foo --libs" \
 		'-lfoo' '-I/usr/include/foo' '-fPIC'
 fi
+
+echo
 
 if [ ${failed} -gt 0 ]; then
 	echo "${failed} of ${done} tests failed. See output for details." >&2
