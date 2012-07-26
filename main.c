@@ -2,7 +2,7 @@
  * main.c
  * main() routine, printer functions
  *
- * Copyright (c) 2011 William Pitcock <nenolod@dereferenced.org>.
+ * Copyright (c) 2011 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -415,7 +415,7 @@ static void
 version(void)
 {
 	printf("%s %s%s\n", PACKAGE_NAME, PACKAGE_VERSION, HAVE_STRICT_MODE ? " [strict]" : " [pkg-config compatible]");
-	printf("Copyright (c) 2011 - 2012 William Pitcock <nenolod@dereferenced.org>.\n\n");
+	printf("Copyright (c) 2011 - 2012 pkgconf authors (see AUTHORS in documentation directory).\n\n");
 	printf("Permission to use, copy, modify, and/or distribute this software for any\n");
 	printf("purpose with or without fee is hereby granted, provided that the above\n");
 	printf("copyright notice and this permission notice appear in all copies.\n\n");

@@ -2,7 +2,7 @@
  * tuple.c
  * management of key->value tuples
  *
- * Copyright (c) 2011, 2012 William Pitcock <nenolod@dereferenced.org>.
+ * Copyright (c) 2011, 2012 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
