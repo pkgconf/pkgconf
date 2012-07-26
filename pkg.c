@@ -286,16 +286,24 @@ pkg_scan_dir(const char *path, pkg_iteration_func_t func)
 
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
 	{
+		static char filebuf[PKG_BUFSIZE];
 		pkg_t *pkg;
 		FILE *f;
 
-		f = fopen(dirent->d_name, "r");
+		strlcpy(filebuf, path, sizeof filebuf);
+		strlcat(filebuf, "/", sizeof filebuf);
+		strlcat(filebuf, dirent->d_name, sizeof filebuf);
+
+		f = fopen(filebuf, "r");
 		if (f == NULL)
 			continue;
 
-		pkg = pkg_new_from_file(dirent->d_name, f);
+		pkg = pkg_new_from_file(filebuf, f);
 		if (pkg != NULL)
+		{
 			func(pkg);
+			pkg_free(pkg);
+		}
 	}
 
 	closedir(dir);
@@ -327,11 +335,11 @@ pkg_scan_all(pkg_iteration_func_t func)
 	path = getenv("PKG_CONFIG_PATH");
 	if (path)
 	{
-		pkg_scan_dir(path, func);
+		pkg_scan(path, func);
 		return;
 	}
 
-	pkg_scan_dir(get_pkgconfig_path(), func);
+	pkg_scan(get_pkgconfig_path(), func);
 }
 
 #ifdef _WIN32
