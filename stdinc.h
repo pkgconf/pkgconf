@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <libgen.h>
+#include <dirent.h>
 
 #ifdef _WIN32
 # define WIN32_LEAN_AND_MEAN

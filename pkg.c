@@ -274,6 +274,66 @@ pkg_try_specific_path(const char *path, const char *name, unsigned int flags)
 	return pkg;
 }
 
+static void
+pkg_scan_dir(const char *path, pkg_iteration_func_t func)
+{
+	DIR *dir;
+	struct dirent *dirent;
+
+	dir = opendir(path);
+	if (dir == NULL)
+		return;
+
+	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
+	{
+		pkg_t *pkg;
+		FILE *f;
+
+		f = fopen(dirent->d_name, "r");
+		if (f == NULL)
+			continue;
+
+		pkg = pkg_new_from_file(dirent->d_name, f);
+		if (pkg != NULL)
+			func(pkg);
+	}
+
+	closedir(dir);
+}
+
+void
+pkg_scan(const char *search_path, pkg_iteration_func_t func)
+{
+	char **path = NULL;
+	size_t count = 0, iter = 0;
+
+	/* PKG_CONFIG_PATH has to take precedence */
+	if (search_path == NULL)
+		return;
+
+	count = path_split(search_path, &path);
+
+	for (iter = 0; iter < count; iter++)
+		pkg_scan_dir(path[iter], func);
+
+	path_free(path, count);
+}
+
+void
+pkg_scan_all(pkg_iteration_func_t func)
+{
+	char *path;
+
+	path = getenv("PKG_CONFIG_PATH");
+	if (path)
+	{
+		pkg_scan_dir(path, func);
+		return;
+	}
+
+	pkg_scan_dir(get_pkgconfig_path(), func);
+}
+
 #ifdef _WIN32
 pkg_t *
 pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags)
