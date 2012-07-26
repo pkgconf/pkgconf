@@ -101,6 +101,12 @@ print_fragment(pkg_fragment_t *frag)
 }
 
 static void
+print_list_entry(const pkg_t *entry)
+{
+	printf("-%30s %s - %s\n", entry->id, entry->realname, entry->description);
+}
+
+static void
 print_cflags(pkg_fragment_t *list)
 {
 	pkg_fragment_t *frag;
@@ -438,6 +444,7 @@ usage(void)
 	printf("                                    with a specified pkg-config version\n");
 	printf("  --errors-to-stdout                print all errors on stdout instead of stderr\n");
 	printf("  --silence-errors                  explicitly be silent about errors\n");
+	printf("  --list-all                        list all known packages\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -489,6 +496,7 @@ main(int argc, char *argv[])
 	int want_libs_other = 0;
 	int want_cflags_I = 0;
 	int want_cflags_other = 0;
+	int want_list = 0;
 
 	struct pkg_option options[] = {
 		{ "version", no_argument, &want_version, 1, },
@@ -524,6 +532,7 @@ main(int argc, char *argv[])
 		{ "ignore-conflicts", no_argument, &want_ignore_conflicts, 30, },
 		{ "errors-to-stdout", no_argument, &want_errors_on_stdout, 31, },
 		{ "silence-errors", no_argument, &want_silence_errors, 32, },
+		{ "list-all", no_argument, &want_list, 33, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -625,6 +634,12 @@ main(int argc, char *argv[])
 			return EXIT_SUCCESS;
 
 		return EXIT_FAILURE;
+	}
+
+	if (want_list)
+	{
+		pkg_scan_all(print_list_entry);
+		return EXIT_SUCCESS;
 	}
 
 	if (required_module_version != NULL)
