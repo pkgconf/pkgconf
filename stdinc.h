@@ -24,6 +24,9 @@
 #include <string.h>
 #include <libgen.h>
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #ifdef _WIN32
 # define WIN32_LEAN_AND_MEAN

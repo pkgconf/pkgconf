@@ -289,10 +289,15 @@ pkg_scan_dir(const char *path, pkg_iteration_func_t func)
 		static char filebuf[PKG_BUFSIZE];
 		pkg_t *pkg;
 		FILE *f;
+		struct stat st;
 
 		strlcpy(filebuf, path, sizeof filebuf);
 		strlcat(filebuf, "/", sizeof filebuf);
 		strlcat(filebuf, dirent->d_name, sizeof filebuf);
+
+		stat(filebuf, &st);
+		if (!(S_ISREG(st.st_mode)))
+			continue;
 
 		f = fopen(filebuf, "r");
 		if (f == NULL)
