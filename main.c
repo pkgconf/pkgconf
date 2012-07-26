@@ -103,7 +103,10 @@ print_fragment(pkg_fragment_t *frag)
 static void
 print_list_entry(const pkg_t *entry)
 {
-	printf("-%30s %s - %s\n", entry->id, entry->realname, entry->description);
+	if (entry->uninstalled)
+		return;
+
+	printf("%-30s %s - %s\n", entry->id, entry->realname, entry->description);
 }
 
 static void
