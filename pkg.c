@@ -142,10 +142,17 @@ pkg_new_from_file(const char *filename, FILE *f)
 {
 	pkg_t *pkg;
 	char readbuf[PKG_BUFSIZE];
+	char *idptr;
 
 	pkg = calloc(sizeof(pkg_t), 1);
 	pkg->filename = strdup(filename);
 	pkg->vars = pkg_tuple_add(pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg));
+
+	/* make module id */
+	pkg->id = strdup(basename(pkg->filename));
+	idptr = strrchr(pkg->id, '.');
+	if (idptr)
+		*idptr = '\0';
 
 	while (pkg_fgetline(readbuf, PKG_BUFSIZE, f) != NULL)
 	{
