@@ -12,10 +12,9 @@ pretty ugly.)
 
 Implementations of pkg-config, such as pkgconf are typically used with the
 PKG_CHECK_MODULES autoconf macro.  As far as I (nenolod) know, pkgconf is
-compatible with all known variations of this macro.  However, I have not
-extensively tested yet for compatibility.  pkgconf detects at runtime
-whether or not it was started as 'pkg-config', and if so, attempts to set
-program options in a way where it's behaviour should be similar.
+compatible with all known variations of this macro. pkgconf detects at
+runtime whether or not it was started as 'pkg-config', and if so, attempts
+to set program options in a way where it's behaviour should be similar.
 
 In terms of the autoconf macro, it is possible to specify the PKG_CONFIG
 environment variable, so that you can test pkgconf without overwriting your
@@ -54,4 +53,4 @@ Release tarballs are available at <http://nenolod.net/~nenolod/distfiles>.
 
 ## reporting bugs
 
-See <https://github.com/nenolod/pkgconf/issues>.
+See <https://github.com/pkgconf/pkgconf/issues>.
