@@ -423,6 +423,12 @@ out:
 static void
 version(void)
 {
+	printf("%s\n", PKG_PKGCONFIG_VERSION_EQUIV);
+}
+
+static void
+about(void)
+{
 	printf("%s %s%s\n", PACKAGE_NAME, PACKAGE_VERSION, HAVE_STRICT_MODE ? " [strict]" : " [pkg-config compatible]");
 	printf("Copyright (c) 2011 - 2012 pkgconf authors (see AUTHORS in documentation directory).\n\n");
 	printf("Permission to use, copy, modify, and/or distribute this software for any\n");
@@ -500,9 +506,11 @@ main(int argc, char *argv[])
 	int want_cflags_I = 0;
 	int want_cflags_other = 0;
 	int want_list = 0;
+	int want_about = 0;
 
 	struct pkg_option options[] = {
 		{ "version", no_argument, &want_version, 1, },
+		{ "about", no_argument, &want_about, 1, },
 		{ "atleast-version", required_argument, NULL, 2, },
 		{ "atleast-pkgconfig-version", required_argument, NULL, 3, },
 		{ "libs", no_argument, &want_libs, 4, },
@@ -584,6 +592,12 @@ main(int argc, char *argv[])
 		want_cflags = want_cflags_I;
 	else if (want_cflags_other)
 		want_cflags = want_cflags_other;
+
+	if (want_about)
+	{
+		about();
+		return EXIT_SUCCESS;
+	}
 
 	if (want_version)
 	{
