@@ -144,13 +144,13 @@ print_modversion(pkg_t *pkg, void *unused, unsigned int flags)
 }
 
 static void
-print_variable(pkg_t *pkg, void *unused, unsigned int flags)
+print_variable(pkg_t *pkg, void *data, unsigned int flags)
 {
+	const char *varname = data;
 	const char *var;
-	(void) unused;
 	(void) flags;
 
-	var = pkg_tuple_find(pkg->vars, want_variable);
+	var = pkg_tuple_find(pkg->vars, varname);
 	if (var != NULL)
 		printf("%s", var);
 }
@@ -214,6 +214,96 @@ print_digraph_node(pkg_t *pkg, void *unused, unsigned int flags)
 }
 
 static void
+apply_digraph(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+{
+	printf("graph deptree {\n");
+	printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
+	printf("node [fontname=Sans fontsize=8]\n");
+
+	pkg_traverse(world, print_digraph_node, unused, maxdepth, flags);
+
+	printf("}\n");
+}
+
+static void
+apply_modversion(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+{
+	pkg_traverse(world, print_modversion, unused, maxdepth, flags);
+}
+
+static void
+apply_variables(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+{
+	pkg_traverse(world, print_variables, unused, maxdepth, flags);
+}
+
+static void
+apply_variable(pkg_t *world, void *variable, int maxdepth, unsigned int flags)
+{
+	pkg_traverse(world, print_variable, variable, maxdepth, flags);
+}
+
+static void
+apply_cflags(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+{
+	pkg_fragment_t *list;
+	(void) unused;
+
+	list = pkg_cflags(world, maxdepth, flags | PKGF_SEARCH_PRIVATE);
+	print_cflags(list);
+
+	pkg_fragment_free(list);
+}
+
+static void
+apply_libs(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+{
+	pkg_fragment_t *list;
+	(void) unused;
+
+	list = pkg_libs(world, maxdepth, flags);
+	print_libs(list);
+
+	pkg_fragment_free(list);
+}
+
+static void
+apply_requires(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+{
+	pkg_dependency_t *iter;
+	(void) unused;
+	(void) maxdepth;
+
+	PKG_FOREACH_LIST_ENTRY(world->requires, iter)
+	{
+		pkg_t *pkg;
+
+		pkg = pkg_verify_dependency(iter, flags, NULL);
+		print_requires(pkg);
+
+		pkg_free(pkg);
+	}
+}
+
+static void
+apply_requires_private(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+{
+	pkg_dependency_t *iter;
+	(void) unused;
+	(void) maxdepth;
+
+	PKG_FOREACH_LIST_ENTRY(world->requires, iter)
+	{
+		pkg_t *pkg;
+
+		pkg = pkg_verify_dependency(iter, flags | PKGF_SEARCH_PRIVATE, NULL);
+		print_requires_private(pkg);
+
+		pkg_free(pkg);
+	}
+}
+
+static void
 check_uninstalled(pkg_t *pkg, void *data, unsigned int flags)
 {
 	int *retval = data;
@@ -223,160 +313,10 @@ check_uninstalled(pkg_t *pkg, void *data, unsigned int flags)
 		*retval = EXIT_SUCCESS;
 }
 
-int
-pkg_queue_walk(pkg_queue_t *head)
+static void
+apply_uninstalled(pkg_t *world, void *data, int maxdepth, unsigned int flags)
 {
-	int retval = EXIT_SUCCESS;
-	int wanted_something = 0;
-	pkg_t world = (pkg_t){
-		.id = "world",
-		.realname = "virtual",
-		.flags = PKG_PROPF_VIRTUAL,
-	};
-
-	/* if maximum_traverse_depth is one, then we will not traverse deeper
-	 * than our virtual package.
-	 */
-	if (!maximum_traverse_depth)
-		maximum_traverse_depth = -1;
-	else if (maximum_traverse_depth > 0)
-		maximum_traverse_depth++;
-
-	if (!pkg_queue_compile(&world, head))
-	{
-		retval = EXIT_FAILURE;
-		goto out;
-	}
-
-	/* we should verify that the graph is complete before attempting to compute cflags etc. */
-	if (pkg_verify_graph(&world, maximum_traverse_depth, global_traverse_flags) != PKG_ERRF_OK)
-	{
-		retval = EXIT_FAILURE;
-		goto out;
-	}
-
-	if (want_uninstalled)
-	{
-		retval = 1;
-
-		wanted_something = 0;
-		pkg_traverse(&world, check_uninstalled, &retval, maximum_traverse_depth, global_traverse_flags);
-
-		goto out;
-	}
-
-	if (want_digraph)
-	{
-		printf("graph deptree {\n");
-		printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
-		printf("node [fontname=Sans fontsize=8]\n");
-
-		pkg_traverse(&world, print_digraph_node, NULL, maximum_traverse_depth, global_traverse_flags);
-
-		printf("}\n");
-
-		goto out;
-	}
-
-	if (want_modversion)
-	{
-		wanted_something = 0;
-		want_cflags = 0;
-		want_libs = 0;
-
-		pkg_traverse(&world, print_modversion, NULL, 2, global_traverse_flags);
-
-		goto out;
-	}
-
-	if (want_variables)
-	{
-		wanted_something = 0;
-		want_cflags = 0;
-		want_libs = 0;
-
-		pkg_traverse(&world, print_variables, NULL, 2, global_traverse_flags);
-
-		goto out;
-	}
-
-	if (want_requires)
-	{
-		pkg_dependency_t *iter;
-
-		wanted_something = 0;
-		want_cflags = 0;
-		want_libs = 0;
-
-		PKG_FOREACH_LIST_ENTRY(world.requires, iter)
-		{
-			pkg_t *pkg;
-
-			pkg = pkg_verify_dependency(iter, global_traverse_flags, NULL);
-			print_requires(pkg);
-
-			pkg_free(pkg);
-		}
-
-		goto out;
-	}
-
-	if (want_requires_private)
-	{
-		pkg_dependency_t *iter;
-
-		wanted_something = 0;
-		want_cflags = 0;
-		want_libs = 0;
-
-		PKG_FOREACH_LIST_ENTRY(world.requires, iter)
-		{
-			pkg_t *pkg;
-
-			pkg = pkg_verify_dependency(iter, global_traverse_flags | PKGF_SEARCH_PRIVATE, NULL);
-			print_requires_private(pkg);
-
-			pkg_free(pkg);
-		}
-
-		goto out;
-	}
-
-	if (want_cflags)
-	{
-		pkg_fragment_t *list;
-
-		wanted_something++;
-		list = pkg_cflags(&world, maximum_traverse_depth, global_traverse_flags | PKGF_SEARCH_PRIVATE);
-		print_cflags(list);
-
-		pkg_fragment_free(list);
-	}
-
-	if (want_libs)
-	{
-		pkg_fragment_t *list;
-
-		wanted_something++;
-		list = pkg_libs(&world, maximum_traverse_depth, global_traverse_flags);
-		print_libs(list);
-
-		pkg_fragment_free(list);
-	}
-
-	if (want_variable)
-	{
-		wanted_something++;
-		pkg_traverse(&world, print_variable, NULL, 2, global_traverse_flags | PKGF_SKIP_ROOT_VIRTUAL);
-	}
-
-	if (wanted_something)
-		printf("\n");
-
-out:
-	pkg_free(&world);
-
-	return retval;
+	pkg_traverse(world, check_uninstalled, data, maxdepth, flags);
 }
 
 static void
@@ -745,9 +685,105 @@ main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	ret = pkg_queue_walk(pkgq_head);
+	ret = EXIT_SUCCESS;
+
+	if (want_uninstalled)
+	{
+		ret = EXIT_FAILURE;
+		pkg_queue_apply(pkgq_head, apply_uninstalled, maximum_traverse_depth, global_traverse_flags, &ret);
+		goto out;
+	}
+
+	if (want_digraph)
+	{
+		want_cflags = want_libs = 0;
+
+		if (!pkg_queue_apply(pkgq_head, apply_digraph, maximum_traverse_depth, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if (want_modversion)
+	{
+		want_cflags = want_libs = 0;
+
+		if (!pkg_queue_apply(pkgq_head, apply_modversion, 2, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if (want_variables)
+	{
+		want_cflags = want_libs = 0;
+
+		if (!pkg_queue_apply(pkgq_head, apply_variables, 2, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if (want_variable)
+	{
+		want_cflags = want_libs = 0;
+
+		if (!pkg_queue_apply(pkgq_head, apply_variable, 2, global_traverse_flags | PKGF_SKIP_ROOT_VIRTUAL, want_variable))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if (want_requires)
+	{
+		want_cflags = want_libs = 0;
+
+		if (!pkg_queue_apply(pkgq_head, apply_requires, maximum_traverse_depth, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if (want_requires_private)
+	{
+		want_cflags = want_libs = 0;
+
+		if (!pkg_queue_apply(pkgq_head, apply_requires_private, maximum_traverse_depth, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if (want_cflags)
+	{
+		if (!pkg_queue_apply(pkgq_head, apply_cflags, maximum_traverse_depth, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if (want_libs)
+	{
+		if (!pkg_queue_apply(pkgq_head, apply_libs, maximum_traverse_depth, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if (want_cflags || want_libs)
+		printf("\n");
+
 	pkg_queue_free(pkgq_head);
 
+out:
 	pkg_tuple_free_global();
 	return ret;
 }
