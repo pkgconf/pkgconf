@@ -26,28 +26,18 @@
 
 static unsigned int global_traverse_flags = PKGF_NONE;
 
-static int want_help = 0;
-static int want_version = 0;
 static int want_cflags = 0;
 static int want_libs = 0;
 static int want_modversion = 0;
-static int want_static = 0;
 static int want_requires = 0;
 static int want_requires_private = 0;
 static int want_variables = 0;
 static int want_digraph = 0;
-static int want_env_only = 0;
 static int want_uninstalled = 0;
-static int want_no_uninstalled = 0;
 static int want_keep_system_cflags = 0;
 static int want_keep_system_libs = 0;
-static int want_ignore_conflicts = 0;
 static int maximum_traverse_depth = -1;
 
-static char *required_pkgconfig_version = NULL;
-static char *required_exact_module_version = NULL;
-static char *required_max_module_version = NULL;
-static char *required_module_version = NULL;
 static char *want_variable = NULL;
 static char *sysroot_dir = NULL;
 
@@ -498,6 +488,11 @@ main(int argc, char *argv[])
 	pkg_queue_t *pkgq = NULL;
 	pkg_queue_t *pkgq_head = NULL;
 	char *builddir;
+	char *required_pkgconfig_version = NULL;
+	char *required_exact_module_version = NULL;
+	char *required_max_module_version = NULL;
+	char *required_module_version = NULL;
+	int want_env_only = 0;
 	int want_errors_on_stdout = 0;
 	int want_silence_errors = 0;
 	int want_libs_L = 0;
@@ -507,6 +502,11 @@ main(int argc, char *argv[])
 	int want_cflags_other = 0;
 	int want_list = 0;
 	int want_about = 0;
+	int want_help = 0;
+	int want_version = 0;
+	int want_ignore_conflicts = 0;
+	int want_static = 0;
+	int want_no_uninstalled = 0;
 
 	struct pkg_option options[] = {
 		{ "version", no_argument, &want_version, 1, },
