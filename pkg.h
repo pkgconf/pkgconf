@@ -121,6 +121,7 @@ struct pkg_ {
 
 typedef void (*pkg_iteration_func_t)(const pkg_t *pkg);
 typedef void (*pkg_traverse_func_t)(pkg_t *pkg, void *data, unsigned int flags);
+typedef void (*pkg_queue_apply_func_t)(pkg_t *world, void *data, int maxdepth, unsigned int flags);
 
 /* pkg.c */
 void pkg_free(pkg_t *pkg);
@@ -175,5 +176,6 @@ extern FILE *error_msgout;
 pkg_queue_t *pkg_queue_push(pkg_queue_t *parent, const char *package);
 bool pkg_queue_compile(pkg_t *world, pkg_queue_t *head);
 void pkg_queue_free(pkg_queue_t *head);
+bool pkg_queue_apply(pkg_queue_t *head, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
 
 #endif
