@@ -223,24 +223,6 @@ check_uninstalled(pkg_t *pkg, void *data, unsigned int flags)
 		*retval = EXIT_SUCCESS;
 }
 
-typedef struct pkg_queue_ {
-	struct pkg_queue_ *prev, *next;
-	char *package;
-} pkg_queue_t;
-
-static pkg_queue_t *
-pkg_queue_push(pkg_queue_t *parent, const char *package)
-{
-	pkg_queue_t *pkgq = calloc(sizeof(pkg_queue_t), 1);
-
-	pkgq->package = strdup(package);
-	pkgq->prev = parent;
-	if (pkgq->prev != NULL)
-		pkgq->prev->next = pkgq;
-
-	return pkgq;
-}
-
 int
 pkg_queue_walk(pkg_queue_t *head)
 {
