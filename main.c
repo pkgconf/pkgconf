@@ -248,10 +248,6 @@ pkg_queue_walk(pkg_queue_t *head)
 		goto out;
 	}
 
-	/* we couldn't build the entire depgraph, so bail. */
-	if (retval != EXIT_SUCCESS)
-		goto out;
-
 	/* we should verify that the graph is complete before attempting to compute cflags etc. */
 	if (pkg_verify_graph(&world, maximum_traverse_depth, global_traverse_flags) != PKG_ERRF_OK)
 	{
