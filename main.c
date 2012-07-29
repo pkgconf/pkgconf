@@ -687,6 +687,12 @@ main(int argc, char *argv[])
 
 	ret = EXIT_SUCCESS;
 
+	if (!pkg_queue_validate(pkgq_head, maximum_traverse_depth, global_traverse_flags))
+	{
+		ret = EXIT_FAILURE;
+		goto out;
+	}
+
 	if (want_uninstalled)
 	{
 		ret = EXIT_FAILURE;

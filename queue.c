@@ -60,6 +60,15 @@ pkg_queue_free(pkg_queue_t *head)
 	}
 }
 
+static inline unsigned int
+pkg_queue_verify(pkg_t *world, pkg_queue_t *head, int maxdepth, unsigned int flags)
+{
+	if (!pkg_queue_compile(world, head))
+		return PKG_ERRF_DEPGRAPH_BREAK;
+
+	return pkg_verify_graph(world, maxdepth, flags);
+}
+
 bool
 pkg_queue_apply(pkg_queue_t *head, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
 {
@@ -69,16 +78,13 @@ pkg_queue_apply(pkg_queue_t *head, pkg_queue_apply_func_t func, int maxdepth, un
 		.flags = PKG_PROPF_VIRTUAL,
 	};
 
-	if (!pkg_queue_compile(&world, head))
-		return false;
-
 	/* if maxdepth is one, then we will not traverse deeper than our virtual package. */
 	if (!maxdepth)
 		maxdepth = -1;
 	else if (maxdepth > 0)
 		maxdepth++;
 
-	if (pkg_verify_graph(&world, maxdepth, flags) != PKG_ERRF_OK)
+	if (pkg_queue_verify(&world, head, maxdepth, flags) != PKG_ERRF_OK)
 		return false;
 
 	func(&world, data, maxdepth, flags);
@@ -86,4 +92,28 @@ pkg_queue_apply(pkg_queue_t *head, pkg_queue_apply_func_t func, int maxdepth, un
 	pkg_free(&world);
 
 	return true;
+}
+
+bool
+pkg_queue_validate(pkg_queue_t *head, int maxdepth, unsigned int flags)
+{
+	bool retval = true;
+	pkg_t world = {
+		.id = "world",
+		.realname = "virtual world package",
+		.flags = PKG_PROPF_VIRTUAL,
+	};
+
+	/* if maxdepth is one, then we will not traverse deeper than our virtual package. */
+	if (!maxdepth)
+		maxdepth = -1;
+	else if (maxdepth > 0)
+		maxdepth++;
+
+	if (pkg_queue_verify(&world, head, maxdepth, flags) != PKG_ERRF_OK)
+		retval = false;
+
+	pkg_free(&world);
+
+	return retval;
 }
