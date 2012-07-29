@@ -72,6 +72,11 @@ struct pkg_tuple_ {
 	char *value;
 };
 
+typedef struct pkg_queue_ {
+	struct pkg_queue_ *prev, *next;
+	char *package;
+} pkg_queue_t;
+
 #define PKG_PROPF_NONE			0x0
 #define PKG_PROPF_VIRTUAL		0x1
 
@@ -165,5 +170,8 @@ void pkg_tuple_define_global(const char *kv);
 
 /* main.c */
 extern FILE *error_msgout;
+
+/* queue.c */
+pkg_queue_t *pkg_queue_push(pkg_queue_t *parent, const char *package);
 
 #endif
