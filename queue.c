@@ -53,7 +53,7 @@ pkg_queue_free(pkg_queue_t *head)
 {
 	pkg_queue_t *pkgq, *next_pkgq;
 
-	PKG_FOREACH_LIST_ENTRY_SAFE(head, pkgq, next_pkgq)
+	PKG_FOREACH_LIST_ENTRY_SAFE(head, next_pkgq, pkgq)
 	{
 		free(pkgq->package);
 		free(pkgq);
