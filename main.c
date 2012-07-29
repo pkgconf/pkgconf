@@ -17,25 +17,35 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
-#define WANT_CFLAGS_ONLY_I		(19)
-#define WANT_CFLAGS_ONLY_OTHER		(20)
-
-#define WANT_LIBS_ONLY_LDPATH		(21)
-#define WANT_LIBS_ONLY_LIBNAME		(22)
-#define WANT_LIBS_ONLY_OTHER		(23)
+#define PKG_CFLAGS			(1<<1)
+#define PKG_CFLAGS_ONLY_I		(1<<2)
+#define PKG_CFLAGS_ONLY_OTHER		(1<<3)
+#define PKG_LIBS			(1<<4)
+#define PKG_LIBS_ONLY_LDPATH		(1<<5)
+#define PKG_LIBS_ONLY_LIBNAME		(1<<6)
+#define PKG_LIBS_ONLY_OTHER		(1<<7)
+#define PKG_MODVERSION			(1<<8)
+#define PKG_REQUIRES			(1<<9)
+#define PKG_REQUIRES_PRIVATE		(1<<10)
+#define PKG_VARIABLES			(1<<11)
+#define PKG_DIGRAPH			(1<<12)
+#define PKG_KEEP_SYSTEM_CFLAGS		(1<<13)
+#define PKG_KEEP_SYSTEM_LIBS		(1<<14)
+#define PKG_VERSION			(1<<15)
+#define PKG_ABOUT			(1<<16)
+#define PKG_ENV_ONLY			(1<<17)
+#define PKG_ERRORS_ON_STDOUT		(1<<18)
+#define PKG_SILENCE_ERRORS		(1<<19)
+#define PKG_IGNORE_CONFLICTS		(1<<20)
+#define PKG_STATIC			(1<<21)
+#define PKG_NO_UNINSTALLED		(1<<22)
+#define PKG_UNINSTALLED			(1<<23)
+#define PKG_LIST			(1<<24)
+#define PKG_HELP			(1<<25)
 
 static unsigned int global_traverse_flags = PKGF_NONE;
 
-static int want_cflags = 0;
-static int want_libs = 0;
-static int want_modversion = 0;
-static int want_requires = 0;
-static int want_requires_private = 0;
-static int want_variables = 0;
-static int want_digraph = 0;
-static int want_uninstalled = 0;
-static int want_keep_system_cflags = 0;
-static int want_keep_system_libs = 0;
+static int want_flags;
 static int maximum_traverse_depth = -1;
 
 static char *want_variable = NULL;
@@ -49,10 +59,10 @@ fragment_has_system_dir(pkg_fragment_t *frag)
 	switch (frag->type)
 	{
 	case 'L':
-		if (!want_keep_system_libs && !strcasecmp(SYSTEM_LIBDIR, frag->data))
+		if ((want_flags & PKG_KEEP_SYSTEM_CFLAGS) == 0 && !strcasecmp(SYSTEM_LIBDIR, frag->data))
 			return true;
 	case 'I':
-		if (!want_keep_system_cflags && !strcasecmp(SYSTEM_INCLUDEDIR, frag->data))
+		if ((want_flags & PKG_KEEP_SYSTEM_LIBS) == 0 && !strcasecmp(SYSTEM_INCLUDEDIR, frag->data))
 			return true;
 	default:
 		break;
@@ -106,9 +116,9 @@ print_cflags(pkg_fragment_t *list)
 
 	PKG_FOREACH_LIST_ENTRY(list, frag)
 	{
-		if (want_cflags == WANT_CFLAGS_ONLY_I && frag->type != 'I')
+		if ((want_flags & PKG_CFLAGS_ONLY_I) == PKG_CFLAGS_ONLY_I && frag->type != 'I')
 			continue;
-		else if (want_cflags == WANT_CFLAGS_ONLY_OTHER && frag->type == 'I')
+		else if ((want_flags & PKG_CFLAGS_ONLY_OTHER) == PKG_CFLAGS_ONLY_OTHER && frag->type == 'I')
 			continue;
 
 		print_fragment(frag);
@@ -122,11 +132,11 @@ print_libs(pkg_fragment_t *list)
 
 	PKG_FOREACH_LIST_ENTRY(list, frag)
 	{
-		if (want_libs == WANT_LIBS_ONLY_LDPATH && frag->type != 'L')
+		if ((want_flags & PKG_LIBS_ONLY_LDPATH) == PKG_LIBS_ONLY_LDPATH && frag->type != 'L')
 			continue;
-		else if (want_libs == WANT_LIBS_ONLY_LIBNAME && frag->type != 'l')
+		else if ((want_flags & PKG_LIBS_ONLY_LIBNAME) == PKG_LIBS_ONLY_LIBNAME && frag->type != 'l')
 			continue;
-		else if (want_libs == WANT_LIBS_ONLY_OTHER && (frag->type == 'l' || frag->type == 'L'))
+		else if ((want_flags & PKG_LIBS_ONLY_OTHER) == PKG_LIBS_ONLY_OTHER && (frag->type == 'l' || frag->type == 'L'))
 			continue;
 
 		print_fragment(frag);
@@ -401,58 +411,45 @@ main(int argc, char *argv[])
 	char *required_exact_module_version = NULL;
 	char *required_max_module_version = NULL;
 	char *required_module_version = NULL;
-	int want_env_only = 0;
-	int want_errors_on_stdout = 0;
-	int want_silence_errors = 0;
-	int want_libs_L = 0;
-	int want_libs_l = 0;
-	int want_libs_other = 0;
-	int want_cflags_I = 0;
-	int want_cflags_other = 0;
-	int want_list = 0;
-	int want_about = 0;
-	int want_help = 0;
-	int want_version = 0;
-	int want_ignore_conflicts = 0;
-	int want_static = 0;
-	int want_no_uninstalled = 0;
+	
+	want_flags = 0;
 
 	struct pkg_option options[] = {
-		{ "version", no_argument, &want_version, 1, },
-		{ "about", no_argument, &want_about, 1, },
+		{ "version", no_argument, &want_flags, PKG_VERSION, },
+		{ "about", no_argument, &want_flags, PKG_ABOUT, },
 		{ "atleast-version", required_argument, NULL, 2, },
 		{ "atleast-pkgconfig-version", required_argument, NULL, 3, },
-		{ "libs", no_argument, &want_libs, 4, },
-		{ "cflags", no_argument, &want_cflags, 5, },
-		{ "modversion", no_argument, &want_modversion, 6, },
+		{ "libs", no_argument, &want_flags, PKG_LIBS, },
+		{ "cflags", no_argument, &want_flags, PKG_CFLAGS, },
+		{ "modversion", no_argument, &want_flags, PKG_MODVERSION, },
 		{ "variable", required_argument, NULL, 7, },
 		{ "exists", no_argument, NULL, 8, },
 		{ "print-errors", no_argument, NULL, 9, },
 		{ "short-errors", no_argument, NULL, 10, },
 		{ "maximum-traverse-depth", required_argument, NULL, 11, },
-		{ "static", no_argument, &want_static, 12, },
-		{ "print-requires", no_argument, &want_requires, 13, },
-		{ "print-variables", no_argument, &want_variables, 14, },
-		{ "digraph", no_argument, &want_digraph, 15, },
-		{ "help", no_argument, &want_help, 16, },
-		{ "env-only", no_argument, &want_env_only, 17, },
-		{ "print-requires-private", no_argument, &want_requires_private, 18, },
-		{ "cflags-only-I", no_argument, &want_cflags_I, WANT_CFLAGS_ONLY_I, },
-		{ "cflags-only-other", no_argument, &want_cflags_other, WANT_CFLAGS_ONLY_OTHER, },
-		{ "libs-only-L", no_argument, &want_libs_L, WANT_LIBS_ONLY_LDPATH, },
-		{ "libs-only-l", no_argument, &want_libs_l, WANT_LIBS_ONLY_LIBNAME, },
-		{ "libs-only-other", no_argument, &want_libs_other, WANT_LIBS_ONLY_OTHER, },
-		{ "uninstalled", no_argument, &want_uninstalled, 24, },
-		{ "no-uninstalled", no_argument, &want_no_uninstalled, 25, },
-		{ "keep-system-cflags", no_argument, &want_keep_system_cflags, 26, },
-		{ "keep-system-libs", no_argument, &want_keep_system_libs, 26, },
+		{ "static", no_argument, &want_flags, PKG_STATIC, },
+		{ "print-requires", no_argument, &want_flags, PKG_REQUIRES, },
+		{ "print-variables", no_argument, &want_flags, PKG_VARIABLES, },
+		{ "digraph", no_argument, &want_flags, PKG_DIGRAPH, },
+		{ "help", no_argument, &want_flags, PKG_HELP, },
+		{ "env-only", no_argument, &want_flags, PKG_ENV_ONLY, },
+		{ "print-requires-private", no_argument, &want_flags, PKG_REQUIRES_PRIVATE, },
+		{ "cflags-only-I", no_argument, &want_flags, PKG_CFLAGS|PKG_CFLAGS_ONLY_I, },
+		{ "cflags-only-other", no_argument, &want_flags, PKG_CFLAGS|PKG_CFLAGS_ONLY_OTHER, },
+		{ "libs-only-L", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_LDPATH, },
+		{ "libs-only-l", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_LIBNAME, },
+		{ "libs-only-other", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_OTHER, },
+		{ "uninstalled", no_argument, &want_flags, PKG_UNINSTALLED, },
+		{ "no-uninstalled", no_argument, &want_flags, PKG_NO_UNINSTALLED, },
+		{ "keep-system-cflags", no_argument, &want_flags, PKG_KEEP_SYSTEM_CFLAGS, },
+		{ "keep-system-libs", no_argument, &want_flags, PKG_KEEP_SYSTEM_LIBS, },
 		{ "define-variable", required_argument, NULL, 27, },
 		{ "exact-version", required_argument, NULL, 28, },
 		{ "max-version", required_argument, NULL, 29, },
-		{ "ignore-conflicts", no_argument, &want_ignore_conflicts, 30, },
-		{ "errors-to-stdout", no_argument, &want_errors_on_stdout, 31, },
-		{ "silence-errors", no_argument, &want_silence_errors, 32, },
-		{ "list-all", no_argument, &want_list, 33, },
+		{ "ignore-conflicts", no_argument, &want_flags, PKG_IGNORE_CONFLICTS, },
+		{ "errors-to-stdout", no_argument, &want_flags, PKG_ERRORS_ON_STDOUT, },
+		{ "silence-errors", no_argument, &want_flags, PKG_SILENCE_ERRORS, },
+		{ "list-all", no_argument, &want_flags, PKG_LIST, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -490,59 +487,55 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (want_libs_l)
-		want_libs = want_libs_l;
-	else if (want_libs_L)
-		want_libs = want_libs_L;
-	else if (want_libs_other)
-		want_libs = want_libs_other;
+	if ((want_flags & PKG_LIBS_ONLY_LIBNAME) == PKG_LIBS_ONLY_LIBNAME)
+		want_flags &= ~(PKG_LIBS_ONLY_OTHER|PKG_LIBS_ONLY_LDPATH);
+	else if ((want_flags & PKG_LIBS_ONLY_LDPATH) == PKG_LIBS_ONLY_LDPATH)
+		want_flags &= ~(PKG_LIBS_ONLY_OTHER);
 
-	if (want_cflags_I)
-		want_cflags = want_cflags_I;
-	else if (want_cflags_other)
-		want_cflags = want_cflags_other;
+	if ((want_flags & PKG_CFLAGS_ONLY_I) == PKG_CFLAGS_ONLY_I)
+		want_flags &= ~(PKG_CFLAGS_ONLY_OTHER);
 
-	if (want_about)
+	if ((want_flags & PKG_ABOUT) == PKG_ABOUT)
 	{
 		about();
 		return EXIT_SUCCESS;
 	}
 
-	if (want_version)
+	if ((want_flags & PKG_VERSION) == PKG_VERSION)
 	{
 		version();
 		return EXIT_SUCCESS;
 	}
 
-	if (want_help)
+	if ((want_flags & PKG_HELP) == PKG_HELP)
 	{
 		usage();
 		return EXIT_SUCCESS;
 	}
 
 	error_msgout = stderr;
-	if (want_errors_on_stdout)
+	if ((want_flags & PKG_ERRORS_ON_STDOUT) == PKG_ERRORS_ON_STDOUT)
 		error_msgout = stdout;
-	if (want_silence_errors)
+	if ((want_flags & PKG_SILENCE_ERRORS) == PKG_SILENCE_ERRORS)
 		error_msgout = fopen(PATH_DEV_NULL, "w");
 
-	if (want_ignore_conflicts || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
+	if ((want_flags & PKG_IGNORE_CONFLICTS) == PKG_IGNORE_CONFLICTS || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
 		global_traverse_flags |= PKGF_SKIP_CONFLICTS;
 
-	if (want_static)
+	if ((want_flags & PKG_STATIC) == PKG_STATIC)
 		global_traverse_flags |= (PKGF_SEARCH_PRIVATE | PKGF_MERGE_PRIVATE_FRAGMENTS);
 
-	if (want_env_only)
+	if ((want_flags & PKG_ENV_ONLY) == PKG_ENV_ONLY)
 		global_traverse_flags |= PKGF_ENV_ONLY;
 
-	if (want_no_uninstalled || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
+	if ((want_flags & PKG_NO_UNINSTALLED) == PKG_NO_UNINSTALLED || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
 		global_traverse_flags |= PKGF_NO_UNINSTALLED;
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
-		want_keep_system_cflags = 1;
+		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_LIBS") != NULL)
-		want_keep_system_libs = 1;
+		want_flags |= PKG_KEEP_SYSTEM_LIBS;
 
 	if ((builddir = getenv("PKG_CONFIG_TOP_BUILD_DIR")) != NULL)
 		pkg_tuple_add_global("pc_top_builddir", builddir);
@@ -562,7 +555,7 @@ main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (want_list)
+	if ((want_flags & PKG_LIST) == PKG_LIST)
 	{
 		pkg_scan_all(print_list_entry);
 		return EXIT_SUCCESS;
@@ -693,16 +686,16 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	if (want_uninstalled)
+	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
 		ret = EXIT_FAILURE;
 		pkg_queue_apply(pkgq_head, apply_uninstalled, maximum_traverse_depth, global_traverse_flags, &ret);
 		goto out;
 	}
 
-	if (want_digraph)
+	if ((want_flags & PKG_DIGRAPH) == PKG_DIGRAPH)
 	{
-		want_cflags = want_libs = 0;
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		if (!pkg_queue_apply(pkgq_head, apply_digraph, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
@@ -711,9 +704,9 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (want_modversion)
+	if ((want_flags & PKG_MODVERSION) == PKG_MODVERSION)
 	{
-		want_cflags = want_libs = 0;
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		if (!pkg_queue_apply(pkgq_head, apply_modversion, 2, global_traverse_flags, NULL))
 		{
@@ -722,9 +715,9 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (want_variables)
+	if ((want_flags & PKG_VARIABLES) == PKG_VARIABLES)
 	{
-		want_cflags = want_libs = 0;
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		if (!pkg_queue_apply(pkgq_head, apply_variables, 2, global_traverse_flags, NULL))
 		{
@@ -735,7 +728,7 @@ main(int argc, char *argv[])
 
 	if (want_variable)
 	{
-		want_cflags = want_libs = 0;
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		if (!pkg_queue_apply(pkgq_head, apply_variable, 2, global_traverse_flags | PKGF_SKIP_ROOT_VIRTUAL, want_variable))
 		{
@@ -744,9 +737,9 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (want_requires)
+	if ((want_flags & PKG_REQUIRES) == PKG_REQUIRES)
 	{
-		want_cflags = want_libs = 0;
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		if (!pkg_queue_apply(pkgq_head, apply_requires, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
@@ -755,9 +748,9 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (want_requires_private)
+	if ((want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE)
 	{
-		want_cflags = want_libs = 0;
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		if (!pkg_queue_apply(pkgq_head, apply_requires_private, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
@@ -766,7 +759,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (want_cflags)
+	if ((want_flags & PKG_CFLAGS) == PKG_CFLAGS)
 	{
 		if (!pkg_queue_apply(pkgq_head, apply_cflags, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
@@ -775,7 +768,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (want_libs)
+	if ((want_flags & PKG_LIBS) == PKG_LIBS)
 	{
 		if (!pkg_queue_apply(pkgq_head, apply_libs, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
@@ -784,7 +777,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (want_cflags || want_libs)
+	if ((want_flags & (PKG_CFLAGS|PKG_LIBS)) == (PKG_CFLAGS|PKG_LIBS))
 		printf("\n");
 
 	pkg_queue_free(pkgq_head);
