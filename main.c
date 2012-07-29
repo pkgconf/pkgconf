@@ -357,7 +357,8 @@ usage(void)
 	printf("\nbasic options:\n\n");
 
 	printf("  --help                            this message\n");
-	printf("  --version                         print pkgconf version to stdout\n");
+	printf("  --about                           print pkgconf version and license to stdout\n");
+	printf("  --version                         print supported pkg-config version to stdout\n");
 	printf("  --atleast-pkgconfig-version       check whether or not pkgconf is compatible\n");
 	printf("                                    with a specified pkg-config version\n");
 	printf("  --errors-to-stdout                print all errors on stdout instead of stderr\n");
