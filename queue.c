@@ -28,3 +28,34 @@ pkg_queue_push(pkg_queue_t *parent, const char *package)
 
 	return pkgq;
 }
+
+bool
+pkg_queue_compile(pkg_t *world, pkg_queue_t *head)
+{
+	pkg_queue_t *pkgq;
+
+	PKG_FOREACH_LIST_ENTRY(head, pkgq)
+	{
+		pkg_dependency_t *pkgdep;
+
+		pkgdep = pkg_dependency_parse(world, pkgq->package);
+		if (pkgdep != NULL)
+			world->requires = pkg_dependency_append(world->requires, pkgdep);
+		else
+			return false;
+	}
+
+	return true;
+}
+
+void
+pkg_queue_free(pkg_queue_t *head)
+{
+	pkg_queue_t *pkgq, *next_pkgq;
+
+	PKG_FOREACH_LIST_ENTRY_SAFE(head, pkgq, next_pkgq)
+	{
+		free(pkgq->package);
+		free(pkgq);
+	}
+}

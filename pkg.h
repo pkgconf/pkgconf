@@ -173,5 +173,7 @@ extern FILE *error_msgout;
 
 /* queue.c */
 pkg_queue_t *pkg_queue_push(pkg_queue_t *parent, const char *package);
+bool pkg_queue_compile(pkg_t *world, pkg_queue_t *head);
+void pkg_queue_free(pkg_queue_t *head);
 
 #endif
