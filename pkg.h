@@ -118,6 +118,7 @@ struct pkg_ {
 #define PKG_ERRF_PACKAGE_NOT_FOUND	0x1
 #define PKG_ERRF_PACKAGE_VER_MISMATCH	0x2
 #define PKG_ERRF_PACKAGE_CONFLICT	0x4
+#define PKG_ERRF_DEPGRAPH_BREAK		0x8
 
 typedef void (*pkg_iteration_func_t)(const pkg_t *pkg);
 typedef void (*pkg_traverse_func_t)(pkg_t *pkg, void *data, unsigned int flags);
@@ -177,5 +178,6 @@ pkg_queue_t *pkg_queue_push(pkg_queue_t *parent, const char *package);
 bool pkg_queue_compile(pkg_t *world, pkg_queue_t *head);
 void pkg_queue_free(pkg_queue_t *head);
 bool pkg_queue_apply(pkg_queue_t *head, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
+bool pkg_queue_validate(pkg_queue_t *head, int maxdepth, unsigned int flags);
 
 #endif
