@@ -228,7 +228,6 @@ pkg_queue_walk(pkg_queue_t *head)
 {
 	int retval = EXIT_SUCCESS;
 	int wanted_something = 0;
-	pkg_queue_t *pkgq, *next_pkgq;
 	pkg_t world = (pkg_t){
 		.id = "world",
 		.realname = "virtual",
@@ -243,18 +242,10 @@ pkg_queue_walk(pkg_queue_t *head)
 	else if (maximum_traverse_depth > 0)
 		maximum_traverse_depth++;
 
-	PKG_FOREACH_LIST_ENTRY_SAFE(head, next_pkgq, pkgq)
+	if (!pkg_queue_compile(&world, head))
 	{
-		pkg_dependency_t *pkgdep;
-
-		pkgdep = pkg_dependency_parse(&world, pkgq->package);
-		if (pkgdep != NULL)
-			world.requires = pkg_dependency_append(world.requires, pkgdep);
-		else
-			retval = EXIT_FAILURE;
-
-		free(pkgq->package);
-		free(pkgq);
+		retval = EXIT_FAILURE;
+		goto out;
 	}
 
 	/* we couldn't build the entire depgraph, so bail. */
@@ -759,6 +750,7 @@ main(int argc, char *argv[])
 	}
 
 	ret = pkg_queue_walk(pkgq_head);
+	pkg_queue_free(pkgq_head);
 
 	pkg_tuple_free_global();
 	return ret;
