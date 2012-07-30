@@ -787,7 +787,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if ((want_flags & (PKG_CFLAGS|PKG_LIBS)))
+	if ((want_flags & (PKG_CFLAGS|PKG_LIBS)) || want_variable != NULL)
 		printf("\n");
 
 	pkg_queue_free(pkgq_head);
