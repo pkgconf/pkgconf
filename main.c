@@ -778,7 +778,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if ((want_flags & (PKG_CFLAGS|PKG_LIBS)) == (PKG_CFLAGS|PKG_LIBS))
+	if ((want_flags & (PKG_CFLAGS|PKG_LIBS)))
 		printf("\n");
 
 	pkg_queue_free(pkgq_head);
