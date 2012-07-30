@@ -69,11 +69,11 @@ run_test "${1} --modversion ${selfdir}/lib1/foo.pc" \
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'foo >= '; echo \$?" \
 	'1'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'tilde <= 1.0.0'; echo \$?" \
-	'0'
+	'1'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'tilde = 1.0.0~rc1'; echo \$?" \
 	'0'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'tilde >= 1.0.0'; echo \$?" \
-	'1'
+	'0'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists '' 'foo'; echo \$?" \
 	'0'
 
