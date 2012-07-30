@@ -100,6 +100,8 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs argv-parse" \
 	'-llib-2 -lpthread'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists -foo; echo \$?" \
 	'1'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs argv-parse-3" \
+	'-llib-1'
 
 # 5) tests for other regressions
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --variable=includedir foo" \
