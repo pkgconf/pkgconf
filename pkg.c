@@ -756,30 +756,36 @@ static inline unsigned int
 pkg_walk_conflicts_list(pkg_t *root, pkg_dependency_t *deplist, unsigned int flags)
 {
 	unsigned int eflags;
-	pkg_dependency_t *node;
+	pkg_dependency_t *node, *depnode;
 
 	PKG_FOREACH_LIST_ENTRY(deplist, node)
 	{
-		pkg_t *pkgdep;
-
 		if (*node->package == '\0')
 			continue;
 
-		pkgdep = pkg_verify_dependency(node, flags, &eflags);
-		if (eflags == PKG_ERRF_OK)
+		PKG_FOREACH_LIST_ENTRY(root->requires, depnode)
 		{
-			fprintf(error_msgout, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
-				pkgdep->version, pkgdep->realname, root->realname, node->package, pkg_get_comparator(node),
-				node->version != NULL ? " " : "", node->version != NULL ? node->version : "");
-			fprintf(error_msgout, "It may be possible to ignore this conflict and continue, try the\n");
-			fprintf(error_msgout, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
+			pkg_t *pkgdep;
+
+			if (*depnode->package == '\0' || strcmp(depnode->package, node->package))
+				continue;
+
+			pkgdep = pkg_verify_dependency(node, flags, &eflags);
+			if (eflags == PKG_ERRF_OK)
+			{
+				fprintf(error_msgout, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
+					pkgdep->version, pkgdep->realname, root->realname, node->package, pkg_get_comparator(node),
+					node->version != NULL ? " " : "", node->version != NULL ? node->version : "");
+				fprintf(error_msgout, "It may be possible to ignore this conflict and continue, try the\n");
+				fprintf(error_msgout, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
+
+				pkg_free(pkgdep);
+
+				return PKG_ERRF_PACKAGE_CONFLICT;
+			}
 
 			pkg_free(pkgdep);
-
-			return PKG_ERRF_PACKAGE_CONFLICT;
 		}
-
-		pkg_free(pkgdep);
 	}
 
 	return PKG_ERRF_OK;
