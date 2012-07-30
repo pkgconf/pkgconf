@@ -484,9 +484,9 @@ pkg_compare_version(const char *a, const char *b)
 		if (*one == '~' || *two == '~')
 		{
 			if (*one != '~')
-				return 1;
-			if (*two != '~')
 				return -1;
+			if (*two != '~')
+				return 1;
 
 			one++;
 			two++;
