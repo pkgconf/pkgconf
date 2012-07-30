@@ -155,18 +155,6 @@ print_modversion(pkg_t *pkg, void *unused, unsigned int flags)
 }
 
 static void
-print_variable(pkg_t *pkg, void *data, unsigned int flags)
-{
-	const char *varname = data;
-	const char *var;
-	(void) flags;
-
-	var = pkg_tuple_find(pkg->vars, varname);
-	if (var != NULL)
-		printf("%s ", var);
-}
-
-static void
 print_variables(pkg_t *pkg, void *unused, unsigned int flags)
 {
 	pkg_tuple_t *node;
@@ -248,10 +236,43 @@ apply_variables(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 	pkg_traverse(world, print_variables, unused, maxdepth, flags);
 }
 
+typedef struct {
+	const char *variable;
+	char buf[PKG_BUFSIZE];
+} var_request_t;
+
+static void
+print_variable(pkg_t *pkg, void *data, unsigned int flags)
+{
+	var_request_t *req = data;
+	const char *var;
+	(void) flags;
+
+	var = pkg_tuple_find(pkg->vars, req->variable);
+	if (var != NULL)
+	{
+		if (*(req->buf) == '\0')
+		{
+			strlcpy(req->buf, var, sizeof(req->buf));
+			return;
+		}
+
+		strlcat(req->buf, " ", sizeof(req->buf));
+		strlcat(req->buf, var, sizeof(req->buf));
+	}
+}
+
 static void
 apply_variable(pkg_t *world, void *variable, int maxdepth, unsigned int flags)
 {
-	pkg_traverse(world, print_variable, variable, maxdepth, flags);
+	var_request_t req = {
+		.variable = variable,
+	};
+
+	*req.buf = '\0';
+
+	pkg_traverse(world, print_variable, &req, maxdepth, flags);
+	printf("%s\n", req.buf);
 }
 
 static void
@@ -787,7 +808,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if ((want_flags & (PKG_CFLAGS|PKG_LIBS)) || want_variable != NULL)
+	if (want_flags & (PKG_CFLAGS|PKG_LIBS))
 		printf("\n");
 
 	pkg_queue_free(pkgq_head);
