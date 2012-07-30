@@ -43,6 +43,7 @@
 #define PKG_LIST			(1<<24)
 #define PKG_HELP			(1<<25)
 #define PKG_PRINT_ERRORS		(1<<26)
+#define PKG_EXISTS			(1<<27)
 
 static unsigned int global_traverse_flags = PKGF_NONE;
 
@@ -425,7 +426,7 @@ main(int argc, char *argv[])
 		{ "cflags", no_argument, &want_flags, PKG_CFLAGS|PKG_PRINT_ERRORS, },
 		{ "modversion", no_argument, &want_flags, PKG_MODVERSION|PKG_PRINT_ERRORS, },
 		{ "variable", required_argument, NULL, 7, },
-		{ "exists", no_argument, NULL, 8, },
+		{ "exists", no_argument, &want_flags, PKG_EXISTS, },
 		{ "print-errors", no_argument, &want_flags, PKG_PRINT_ERRORS, },
 		{ "short-errors", no_argument, NULL, 10, },
 		{ "maximum-traverse-depth", required_argument, NULL, 11, },
@@ -534,6 +535,12 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_STATIC) == PKG_STATIC)
 		global_traverse_flags |= (PKGF_SEARCH_PRIVATE | PKGF_MERGE_PRIVATE_FRAGMENTS);
+
+	if ((want_flags & PKG_EXISTS) == PKG_EXISTS)
+		global_traverse_flags |= (PKGF_SEARCH_PRIVATE);
+
+	if ((want_flags & PKG_CFLAGS) == PKG_CFLAGS)
+		global_traverse_flags |= (PKGF_SEARCH_PRIVATE);
 
 	if ((want_flags & PKG_ENV_ONLY) == PKG_ENV_ONLY)
 		global_traverse_flags |= PKGF_ENV_ONLY;
