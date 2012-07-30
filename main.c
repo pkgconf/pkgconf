@@ -42,6 +42,7 @@
 #define PKG_UNINSTALLED			(1<<23)
 #define PKG_LIST			(1<<24)
 #define PKG_HELP			(1<<25)
+#define PKG_PRINT_ERRORS		(1<<26)
 
 static unsigned int global_traverse_flags = PKGF_NONE;
 
@@ -412,34 +413,34 @@ main(int argc, char *argv[])
 	char *required_exact_module_version = NULL;
 	char *required_max_module_version = NULL;
 	char *required_module_version = NULL;
-	
+
 	want_flags = 0;
 
 	struct pkg_option options[] = {
-		{ "version", no_argument, &want_flags, PKG_VERSION, },
-		{ "about", no_argument, &want_flags, PKG_ABOUT, },
+		{ "version", no_argument, &want_flags, PKG_VERSION|PKG_PRINT_ERRORS, },
+		{ "about", no_argument, &want_flags, PKG_ABOUT|PKG_PRINT_ERRORS, },
 		{ "atleast-version", required_argument, NULL, 2, },
 		{ "atleast-pkgconfig-version", required_argument, NULL, 3, },
-		{ "libs", no_argument, &want_flags, PKG_LIBS, },
-		{ "cflags", no_argument, &want_flags, PKG_CFLAGS, },
-		{ "modversion", no_argument, &want_flags, PKG_MODVERSION, },
+		{ "libs", no_argument, &want_flags, PKG_LIBS|PKG_PRINT_ERRORS, },
+		{ "cflags", no_argument, &want_flags, PKG_CFLAGS|PKG_PRINT_ERRORS, },
+		{ "modversion", no_argument, &want_flags, PKG_MODVERSION|PKG_PRINT_ERRORS, },
 		{ "variable", required_argument, NULL, 7, },
 		{ "exists", no_argument, NULL, 8, },
-		{ "print-errors", no_argument, NULL, 9, },
+		{ "print-errors", no_argument, &want_flags, PKG_PRINT_ERRORS, },
 		{ "short-errors", no_argument, NULL, 10, },
 		{ "maximum-traverse-depth", required_argument, NULL, 11, },
 		{ "static", no_argument, &want_flags, PKG_STATIC, },
 		{ "print-requires", no_argument, &want_flags, PKG_REQUIRES, },
-		{ "print-variables", no_argument, &want_flags, PKG_VARIABLES, },
+		{ "print-variables", no_argument, &want_flags, PKG_VARIABLES|PKG_PRINT_ERRORS, },
 		{ "digraph", no_argument, &want_flags, PKG_DIGRAPH, },
 		{ "help", no_argument, &want_flags, PKG_HELP, },
 		{ "env-only", no_argument, &want_flags, PKG_ENV_ONLY, },
 		{ "print-requires-private", no_argument, &want_flags, PKG_REQUIRES_PRIVATE, },
-		{ "cflags-only-I", no_argument, &want_flags, PKG_CFLAGS|PKG_CFLAGS_ONLY_I, },
-		{ "cflags-only-other", no_argument, &want_flags, PKG_CFLAGS|PKG_CFLAGS_ONLY_OTHER, },
-		{ "libs-only-L", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_LDPATH, },
-		{ "libs-only-l", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_LIBNAME, },
-		{ "libs-only-other", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_OTHER, },
+		{ "cflags-only-I", no_argument, &want_flags, PKG_CFLAGS|PKG_CFLAGS_ONLY_I|PKG_PRINT_ERRORS, },
+		{ "cflags-only-other", no_argument, &want_flags, PKG_CFLAGS|PKG_CFLAGS_ONLY_OTHER|PKG_PRINT_ERRORS, },
+		{ "libs-only-L", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_LDPATH|PKG_PRINT_ERRORS, },
+		{ "libs-only-l", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_LIBNAME|PKG_PRINT_ERRORS, },
+		{ "libs-only-other", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_OTHER|PKG_PRINT_ERRORS, },
 		{ "uninstalled", no_argument, &want_flags, PKG_UNINSTALLED, },
 		{ "no-uninstalled", no_argument, &want_flags, PKG_NO_UNINSTALLED, },
 		{ "keep-system-cflags", no_argument, &want_flags, PKG_KEEP_SYSTEM_CFLAGS, },
@@ -450,7 +451,7 @@ main(int argc, char *argv[])
 		{ "ignore-conflicts", no_argument, &want_flags, PKG_IGNORE_CONFLICTS, },
 		{ "errors-to-stdout", no_argument, &want_flags, PKG_ERRORS_ON_STDOUT, },
 		{ "silence-errors", no_argument, &want_flags, PKG_SILENCE_ERRORS, },
-		{ "list-all", no_argument, &want_flags, PKG_LIST, },
+		{ "list-all", no_argument, &want_flags, PKG_LIST|PKG_PRINT_ERRORS, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -487,6 +488,14 @@ main(int argc, char *argv[])
 			break;
 		}
 	}
+
+	if ((want_flags & PKG_PRINT_ERRORS) != PKG_PRINT_ERRORS)
+		want_flags |= (PKG_SILENCE_ERRORS);
+
+	if ((want_flags & PKG_SILENCE_ERRORS) == PKG_SILENCE_ERRORS && !getenv("PKG_CONFIG_DEBUG_SPEW"))
+		want_flags |= (PKG_SILENCE_ERRORS);
+	else
+		want_flags &= ~(PKG_SILENCE_ERRORS);
 
 	if ((want_flags & PKG_LIBS_ONLY_LIBNAME) == PKG_LIBS_ONLY_LIBNAME)
 		want_flags &= ~(PKG_LIBS_ONLY_OTHER|PKG_LIBS_ONLY_LDPATH);
