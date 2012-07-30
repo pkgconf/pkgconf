@@ -163,7 +163,7 @@ print_variable(pkg_t *pkg, void *data, unsigned int flags)
 
 	var = pkg_tuple_find(pkg->vars, varname);
 	if (var != NULL)
-		printf("%s", var);
+		printf("%s ", var);
 }
 
 static void
