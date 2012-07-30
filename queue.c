@@ -81,8 +81,6 @@ pkg_queue_apply(pkg_queue_t *head, pkg_queue_apply_func_t func, int maxdepth, un
 	/* if maxdepth is one, then we will not traverse deeper than our virtual package. */
 	if (!maxdepth)
 		maxdepth = -1;
-	else if (maxdepth > 0)
-		maxdepth++;
 
 	if (pkg_queue_verify(&world, head, maxdepth, flags) != PKG_ERRF_OK)
 		return false;
@@ -107,8 +105,6 @@ pkg_queue_validate(pkg_queue_t *head, int maxdepth, unsigned int flags)
 	/* if maxdepth is one, then we will not traverse deeper than our virtual package. */
 	if (!maxdepth)
 		maxdepth = -1;
-	else if (maxdepth > 0)
-		maxdepth++;
 
 	if (pkg_queue_verify(&world, head, maxdepth, flags) != PKG_ERRF_OK)
 		retval = false;
