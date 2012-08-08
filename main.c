@@ -277,26 +277,24 @@ apply_variable(pkg_t *world, void *variable, int maxdepth, unsigned int flags)
 }
 
 static void
-apply_cflags(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_cflags(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
-	pkg_fragment_t *head = NULL;
+	pkg_fragment_t **head = list_head;
 	pkg_fragment_t *list;
-	(void) unused;
 
-	list = pkg_cflags(world, &head, maxdepth, flags | PKGF_SEARCH_PRIVATE);
+	list = pkg_cflags(world, head, maxdepth, flags | PKGF_SEARCH_PRIVATE);
 	print_cflags(list);
 
 	pkg_fragment_free(list);
 }
 
 static void
-apply_libs(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_libs(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
-	pkg_fragment_t *head = NULL;
+	pkg_fragment_t **head = list_head;
 	pkg_fragment_t *list;
-	(void) unused;
 
-	list = pkg_libs(world, &head, maxdepth, flags);
+	list = pkg_libs(world, head, maxdepth, flags);
 	print_libs(list);
 
 	pkg_fragment_free(list);
@@ -823,7 +821,9 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_CFLAGS) == PKG_CFLAGS)
 	{
-		if (!pkg_queue_apply(pkgq_head, apply_cflags, maximum_traverse_depth, global_traverse_flags, NULL))
+		pkg_fragment_t *frag_list = NULL;
+
+		if (!pkg_queue_apply(pkgq_head, apply_cflags, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -832,7 +832,9 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_LIBS) == PKG_LIBS)
 	{
-		if (!pkg_queue_apply(pkgq_head, apply_libs, maximum_traverse_depth, global_traverse_flags, NULL))
+		pkg_fragment_t *frag_list = NULL;
+
+		if (!pkg_queue_apply(pkgq_head, apply_libs, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
