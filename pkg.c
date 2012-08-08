@@ -809,6 +809,12 @@ pkg_traverse(pkg_t *root,
 	if (maxdepth == 0)
 		return eflags;
 
+	if ((root->flags & PKG_PROPF_VIRTUAL) != PKG_PROPF_VIRTUAL || (flags & PKGF_SKIP_ROOT_VIRTUAL) != PKGF_SKIP_ROOT_VIRTUAL)
+	{
+		if (func != NULL)
+			func(root, data, flags);
+	}
+
 	if (!(flags & PKGF_SKIP_CONFLICTS))
 	{
 		eflags = pkg_walk_conflicts_list(root, root->conflicts, rflags);
@@ -826,12 +832,6 @@ pkg_traverse(pkg_t *root,
 		if (eflags != PKG_ERRF_OK)
 			return eflags;
 	}
-
-	if ((root->flags & PKG_PROPF_VIRTUAL) && (flags & PKGF_SKIP_ROOT_VIRTUAL))
-		return eflags;
-
-	if (func != NULL)
-		func(root, data, flags);
 
 	return eflags;
 }
