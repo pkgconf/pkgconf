@@ -62,7 +62,6 @@
 
 #include "stdinc.h"
 
-#include <err.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -259,26 +258,32 @@ parse_long_options(char * const *nargv, const char *options,
 	}
 	if (!exact_match && second_partial_match) {
 		/* ambiguous abbreviation */
-		if (PRINT_ERROR)
-			warnx(ambig,
+		if (PRINT_ERROR) {
+			fprintf(stderr, "pkgconf: ");
+			fprintf(stderr, ambig,
 #ifdef GNU_COMPATIBLE
 			     current_dash,
 #endif
 			     (int)current_argv_len,
 			     current_argv);
+			fprintf(stderr, "\n");
+		}
 		pkg_optopt = 0;
 		return (BADCH);
 	}
 	if (match != -1) {		/* option found */
 		if (long_options[match].has_arg == no_argument
 		    && has_equal) {
-			if (PRINT_ERROR)
-				warnx(noarg,
+			if (PRINT_ERROR) {
+				fprintf(stderr, "pkgconf: ");
+				fprintf(stderr, noarg,
 #ifdef GNU_COMPATIBLE
 				     current_dash,
 #endif
 				     (int)current_argv_len,
 				     current_argv);
+				fprintf(stderr, "\n");
+			}
 			/*
 			 * XXX: GNU sets pkg_optopt to val regardless of flag
 			 */
@@ -310,12 +315,15 @@ parse_long_options(char * const *nargv, const char *options,
 			 * Missing argument; leading ':' indicates no error
 			 * should be generated.
 			 */
-			if (PRINT_ERROR)
-				warnx(recargstring,
+			if (PRINT_ERROR) {
+				fprintf(stderr, "pkgconf: ");
+				fprintf(stderr, recargstring,
 #ifdef GNU_COMPATIBLE
 				    current_dash,
 #endif
 				    current_argv);
+				fprintf(stderr, "\n");
+			}
 			/*
 			 * XXX: GNU sets pkg_optopt to val regardless of flag
 			 */
@@ -331,12 +339,15 @@ parse_long_options(char * const *nargv, const char *options,
 			--pkg_optind;
 			return (-1);
 		}
-		if (PRINT_ERROR)
-			warnx(illoptstring,
+		if (PRINT_ERROR) {
+			fprintf(stderr, "pkgconf: ");
+			fprintf(stderr, illoptstring,
 #ifdef GNU_COMPATIBLE
 			      current_dash,
 #endif
 			      current_argv);
+			fprintf(stderr, "\n");
+		}
 		pkg_optopt = 0;
 		return (BADCH);
 	}
@@ -517,12 +528,18 @@ start:
 		if (!*place)
 			++pkg_optind;
 #ifdef GNU_COMPATIBLE
-		if (PRINT_ERROR)
-			warnx(posixly_correct ? illoptchar : gnuoptchar,
-			      optchar);
+		if (PRINT_ERROR) {
+			fprintf(stderr, "pkgconf: ");
+			fprintf(stderr, posixly_correct ? illoptchar : gnuoptchar,
+					optchar);
+			fprintf(stderr, "\n");
+		}
 #else
-		if (PRINT_ERROR)
-			warnx(illoptchar, optchar);
+		if (PRINT_ERROR) {
+			fprintf(stderr, "pkgconf: ");
+			fprintf(stderr, illoptchar, optchar);
+			fprintf(stderr, "\n");
+		}
 #endif
 		pkg_optopt = optchar;
 		return (BADCH);
@@ -533,8 +550,11 @@ start:
 			/* NOTHING */;
 		else if (++pkg_optind >= nargc) {	/* no arg */
 			place = EMSG;
-			if (PRINT_ERROR)
-				warnx(recargchar, optchar);
+			if (PRINT_ERROR) {
+				fprintf(stderr, "pkgconf: ");
+				fprintf(stderr, recargchar, optchar);
+				fprintf(stderr, "\n");
+			}
 			pkg_optopt = optchar;
 			return (BADARG);
 		} else				/* white space */
@@ -557,8 +577,11 @@ start:
 		else if (oli[1] != ':') {	/* arg not optional */
 			if (++pkg_optind >= nargc) {	/* no arg */
 				place = EMSG;
-				if (PRINT_ERROR)
-					warnx(recargchar, optchar);
+				if (PRINT_ERROR) {
+					fprintf(stderr, "pkgconf: ");
+					fprintf(stderr, recargchar, optchar);
+					fprintf(stderr, "\n");
+				}
 				pkg_optopt = optchar;
 				return (BADARG);
 			} else
