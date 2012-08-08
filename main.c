@@ -279,10 +279,11 @@ apply_variable(pkg_t *world, void *variable, int maxdepth, unsigned int flags)
 static void
 apply_cflags(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
+	pkg_fragment_t *head = NULL;
 	pkg_fragment_t *list;
 	(void) unused;
 
-	list = pkg_cflags(world, maxdepth, flags | PKGF_SEARCH_PRIVATE);
+	list = pkg_cflags(world, &head, maxdepth, flags | PKGF_SEARCH_PRIVATE);
 	print_cflags(list);
 
 	pkg_fragment_free(list);
@@ -291,10 +292,11 @@ apply_cflags(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 static void
 apply_libs(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
+	pkg_fragment_t *head = NULL;
 	pkg_fragment_t *list;
 	(void) unused;
 
-	list = pkg_libs(world, maxdepth, flags);
+	list = pkg_libs(world, &head, maxdepth, flags);
 	print_libs(list);
 
 	pkg_fragment_free(list);
@@ -757,7 +759,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkg_queue_apply(pkgq_head, apply_simulate, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkg_queue_apply(pkgq_head, apply_simulate, -1, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;

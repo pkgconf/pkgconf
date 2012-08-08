@@ -848,13 +848,11 @@ pkg_cflags_collect(pkg_t *pkg, void *data, unsigned int flags)
 }
 
 pkg_fragment_t *
-pkg_cflags(pkg_t *root, int maxdepth, unsigned int flags)
+pkg_cflags(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags)
 {
-	pkg_fragment_t *head = NULL;
+	pkg_traverse(root, pkg_cflags_collect, list, maxdepth, flags);
 
-	pkg_traverse(root, pkg_cflags_collect, &head, maxdepth, flags);
-
-	return head;
+	return *list;
 }
 
 static void
@@ -874,11 +872,9 @@ pkg_libs_collect(pkg_t *pkg, void *data, unsigned int flags)
 }
 
 pkg_fragment_t *
-pkg_libs(pkg_t *root, int maxdepth, unsigned int flags)
+pkg_libs(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags)
 {
-	pkg_fragment_t *head = NULL;
+	pkg_traverse(root, pkg_libs_collect, list, maxdepth, flags);
 
-	pkg_traverse(root, pkg_libs_collect, &head, maxdepth, flags);
-
-	return head;
+	return *list;
 }
