@@ -43,6 +43,7 @@
 #define PKG_LIST			(1<<24)
 #define PKG_HELP			(1<<25)
 #define PKG_PRINT_ERRORS		(1<<26)
+#define PKG_SIMULATE			(1<<27)
 
 static unsigned int global_traverse_flags = PKGF_NONE;
 
@@ -352,6 +353,21 @@ apply_uninstalled(pkg_t *world, void *data, int maxdepth, unsigned int flags)
 }
 
 static void
+print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
+{
+	(void) data;
+	(void) flags;
+
+	printf("Considering graph node '%s' (%p)\n", pkg->id, pkg);
+}
+
+static void
+apply_simulate(pkg_t *world, void *data, int maxdepth, unsigned int flags)
+{
+	pkg_traverse(world, print_graph_node, data, maxdepth, flags);
+}
+
+static void
 version(void)
 {
 	printf("%s\n", PKG_PKGCONFIG_VERSION_EQUIV);
@@ -386,6 +402,7 @@ usage(void)
 	printf("  --errors-to-stdout                print all errors on stdout instead of stderr\n");
 	printf("  --silence-errors                  explicitly be silent about errors\n");
 	printf("  --list-all                        list all known packages\n");
+	printf("  --simulate                        simulate walking the calculated dependency graph\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -473,6 +490,7 @@ main(int argc, char *argv[])
 		{ "errors-to-stdout", no_argument, &want_flags, PKG_ERRORS_ON_STDOUT, },
 		{ "silence-errors", no_argument, &want_flags, PKG_SILENCE_ERRORS, },
 		{ "list-all", no_argument, &want_flags, PKG_LIST|PKG_PRINT_ERRORS, },
+		{ "simulate", no_argument, &want_flags, PKG_SIMULATE, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -729,6 +747,17 @@ main(int argc, char *argv[])
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		if (!pkg_queue_apply(pkgq_head, apply_digraph, maximum_traverse_depth, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if ((want_flags & PKG_SIMULATE) == PKG_SIMULATE)
+	{
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
+
+		if (!pkg_queue_apply(pkgq_head, apply_simulate, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
