@@ -76,6 +76,8 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists 'tilde >= 1.0.0'; echo \
 	'0'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --exists '' 'foo'; echo \$?" \
 	'0'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs intermediary-1 intermediary-2" \
+	'-lintermediary-1 -lintermediary-2 -lfoo -lbar -lbaz'
 
 # 2) tests for PKG_CONFIG_PATH order
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1:${selfdir}/lib2 ${1} --libs foo" \
