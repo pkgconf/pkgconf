@@ -58,8 +58,8 @@ pkg_fragment_add(pkg_fragment_t *head, const char *string)
 	return pkg_fragment_append(head, frag);
 }
 
-bool
-pkg_fragment_exists(pkg_fragment_t *head, pkg_fragment_t *base)
+static inline pkg_fragment_t *
+pkg_fragment_lookup(pkg_fragment_t *head, pkg_fragment_t *base)
 {
 	pkg_fragment_t *node;
 
@@ -69,10 +69,16 @@ pkg_fragment_exists(pkg_fragment_t *head, pkg_fragment_t *base)
 			continue;
 
 		if (!strcmp(base->data, node->data))
-			return true;
+			return node;
 	}
 
-	return false;
+	return NULL;
+}
+
+bool
+pkg_fragment_exists(pkg_fragment_t *head, pkg_fragment_t *base)
+{
+	return pkg_fragment_lookup(head, base) != NULL;
 }
 
 pkg_fragment_t *
