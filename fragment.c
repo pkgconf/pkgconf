@@ -86,8 +86,13 @@ pkg_fragment_copy(pkg_fragment_t *head, pkg_fragment_t *base)
 {
 	pkg_fragment_t *frag;
 
-	if (pkg_fragment_exists(head, base))
-		return head;
+	if ((frag = pkg_fragment_lookup(head, base)) != NULL)
+	{
+		if (head == frag)
+			head = frag->next;
+
+		pkg_fragment_delete(frag);
+	}
 
 	frag = calloc(sizeof(pkg_fragment_t), 1);
 
