@@ -78,6 +78,6 @@ parse_options "$@"
 
 cd $TOP_DIR
 
-run_or_die $ACLOCAL -I m4
+run_or_die $ACLOCAL
 run_or_die $AUTOHEADER
 run_or_die $AUTOCONF
