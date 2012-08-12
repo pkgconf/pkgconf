@@ -85,7 +85,11 @@ pkg_queue_apply(pkg_queue_t *head, pkg_queue_apply_func_t func, int maxdepth, un
 	if (pkg_queue_verify(&world, head, maxdepth, flags) != PKG_ERRF_OK)
 		return false;
 
-	func(&world, data, maxdepth, flags);
+	if (!func(&world, data, maxdepth, flags))
+	{
+		pkg_free(&world);
+		return false;
+	}
 
 	pkg_free(&world);
 

@@ -122,7 +122,7 @@ struct pkg_ {
 
 typedef void (*pkg_iteration_func_t)(const pkg_t *pkg);
 typedef void (*pkg_traverse_func_t)(pkg_t *pkg, void *data, unsigned int flags);
-typedef void (*pkg_queue_apply_func_t)(pkg_t *world, void *data, int maxdepth, unsigned int flags);
+typedef bool (*pkg_queue_apply_func_t)(pkg_t *world, void *data, int maxdepth, unsigned int flags);
 
 /* pkg.c */
 void pkg_free(pkg_t *pkg);

@@ -213,28 +213,48 @@ print_digraph_node(pkg_t *pkg, void *unused, unsigned int flags)
 	}
 }
 
-static void
+static bool
 apply_digraph(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
+	int eflag;
+
 	printf("graph deptree {\n");
 	printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
 	printf("node [fontname=Sans fontsize=8]\n");
 
-	pkg_traverse(world, print_digraph_node, unused, maxdepth, flags);
+	eflag = pkg_traverse(world, print_digraph_node, unused, maxdepth, flags);
+
+	if (eflag != PKG_ERRF_OK)
+		return false;
 
 	printf("}\n");
+	return true;
 }
 
-static void
+static bool
 apply_modversion(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
-	pkg_traverse(world, print_modversion, unused, maxdepth, flags);
+	int eflag;
+
+	eflag = pkg_traverse(world, print_modversion, unused, maxdepth, flags);
+
+	if (eflag != PKG_ERRF_OK)
+		return false;
+
+	return true;
 }
 
-static void
+static bool
 apply_variables(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
-	pkg_traverse(world, print_variables, unused, maxdepth, flags);
+	int eflag;
+
+	eflag = pkg_traverse(world, print_variables, unused, maxdepth, flags);
+
+	if (eflag != PKG_ERRF_OK)
+		return false;
+
+	return true;
 }
 
 typedef struct {
@@ -263,44 +283,57 @@ print_variable(pkg_t *pkg, void *data, unsigned int flags)
 	}
 }
 
-static void
+static bool
 apply_variable(pkg_t *world, void *variable, int maxdepth, unsigned int flags)
 {
+	int eflag;
+
 	var_request_t req = {
 		.variable = variable,
 	};
 
 	*req.buf = '\0';
 
-	pkg_traverse(world, print_variable, &req, maxdepth, flags);
+	eflag = pkg_traverse(world, print_variable, &req, maxdepth, flags);
+	if (eflag != PKG_ERRF_OK)
+		return false;
+
 	printf("%s\n", req.buf);
+	return true;
 }
 
-static void
+static bool
 apply_cflags(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
 	pkg_fragment_t **head = list_head;
 	pkg_fragment_t *list;
 
 	list = pkg_cflags(world, head, maxdepth, flags | PKGF_SEARCH_PRIVATE);
+	if (list == NULL)
+		return false;
+
 	print_cflags(list);
 
 	pkg_fragment_free(list);
+	return true;
 }
 
-static void
+static bool
 apply_libs(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
 	pkg_fragment_t **head = list_head;
 	pkg_fragment_t *list;
 
 	list = pkg_libs(world, head, maxdepth, flags);
+	if (list == NULL)
+		return false;
 	print_libs(list);
 
 	pkg_fragment_free(list);
+	return true;
 }
 
-static void
+static bool
 apply_requires(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
 	pkg_dependency_t *iter;
@@ -316,9 +349,10 @@ apply_requires(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 
 		pkg_free(pkg);
 	}
+	return true;
 }
 
-static void
+static bool
 apply_requires_private(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
 	pkg_dependency_t *iter;
@@ -334,6 +368,7 @@ apply_requires_private(pkg_t *world, void *unused, int maxdepth, unsigned int fl
 
 		pkg_free(pkg);
 	}
+	return true;
 }
 
 static void
@@ -346,10 +381,17 @@ check_uninstalled(pkg_t *pkg, void *data, unsigned int flags)
 		*retval = EXIT_SUCCESS;
 }
 
-static void
+static bool
 apply_uninstalled(pkg_t *world, void *data, int maxdepth, unsigned int flags)
 {
-	pkg_traverse(world, check_uninstalled, data, maxdepth, flags);
+	int eflag;
+
+	eflag = pkg_traverse(world, check_uninstalled, data, maxdepth, flags);
+
+	if (eflag != PKG_ERRF_OK)
+		return false;
+
+	return true;
 }
 
 static void
@@ -361,10 +403,17 @@ print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
 	printf("Considering graph node '%s' (%p)\n", pkg->id, pkg);
 }
 
-static void
+static bool
 apply_simulate(pkg_t *world, void *data, int maxdepth, unsigned int flags)
 {
-	pkg_traverse(world, print_graph_node, data, maxdepth, flags);
+	int eflag;
+
+	eflag = pkg_traverse(world, print_graph_node, data, maxdepth, flags);
+
+	if (eflag != PKG_ERRF_OK)
+		return false;
+
+	return true;
 }
 
 static void
