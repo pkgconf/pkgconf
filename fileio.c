@@ -73,7 +73,12 @@ pkg_fgetline(char *line, size_t size, FILE *stream)
 			break;
 		}
 		else
+		{
+			if (quoted)
+				*s++ = '\\';
 			*s++ = c;
+		}
+
 	}
 
 	*s = '\0';
