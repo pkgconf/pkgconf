@@ -74,8 +74,10 @@ pkg_fgetline(char *line, size_t size, FILE *stream)
 		}
 		else
 		{
-			if (quoted)
+			if (quoted) {
 				*s++ = '\\';
+				quoted = false;
+			}
 			*s++ = c;
 		}
 
