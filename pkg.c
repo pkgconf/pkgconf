@@ -164,7 +164,7 @@ pkg_new_from_file(const char *filename, FILE *f)
 
 	while (pkg_fgetline(readbuf, PKG_BUFSIZE, f) != NULL)
 	{
-		char op, *p, *key = NULL, *value = NULL;
+		char op, *p, *key, *value;
 
 		readbuf[strlen(readbuf) - 1] = '\0';
 
@@ -172,19 +172,24 @@ pkg_new_from_file(const char *filename, FILE *f)
 		while (*p && (isalpha(*p) || isdigit(*p) || *p == '_' || *p == '.'))
 			p++;
 
-		key = strndup(readbuf, p - readbuf);
+		key = readbuf;
 		if (!isalpha(*key) && !isdigit(*p))
-			goto cleanup;
+			continue;
+
+		while (*p && isspace(*p)) {
+			/* set to null to avoid trailing spaces in key */
+			*p = '\0';
+			p++;
+		}
+
+		op = *p;
+		*p = '\0';
+		p++;
 
 		while (*p && isspace(*p))
 			p++;
 
-		op = *p++;
-
-		while (*p && isspace(*p))
-			p++;
-
-		value = strdup(p);
+		value = p;
 
 		switch (op)
 		{
@@ -214,13 +219,6 @@ pkg_new_from_file(const char *filename, FILE *f)
 		default:
 			break;
 		}
-
-cleanup:
-		if (key)
-			free(key);
-
-		if (value)
-			free(value);
 	}
 
 	fclose(f);
