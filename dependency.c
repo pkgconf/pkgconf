@@ -37,15 +37,15 @@ typedef enum {
 #define DEBUG_PARSE 0
 
 static inline pkg_dependency_t *
-pkg_dependency_add(pkg_dependency_t *head, const char *package, const char *version, pkg_comparator_t compare)
+pkg_dependency_add(pkg_dependency_t *head, const char *package, size_t package_sz, const char *version, size_t version_sz, pkg_comparator_t compare)
 {
 	pkg_dependency_t *dep;
 
 	dep = calloc(sizeof(pkg_dependency_t), 1);
-	dep->package = strdup(package);
+	dep->package = strndup(package, package_sz);
 
-	if (version != NULL)
-		dep->version = strdup(version);
+	if (version_sz != 0)
+		dep->version = strndup(version, version_sz);
 
 	dep->compare = compare;
 
@@ -105,12 +105,11 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 	pkg_dependency_t *deplist = NULL;
 	pkg_comparator_t compare = PKG_ANY;
 	char buf[PKG_BUFSIZE];
-	char package[PKG_BUFSIZE];
-	char version[PKG_BUFSIZE];
+	size_t package_sz, version_sz;
 	char *start = buf;
 	char *ptr = buf;
 	char *vstart = NULL;
-/*	char *package = NULL, *version = NULL;*/
+	char *package = NULL, *version = NULL;
 
 	strlcpy(buf, depends, sizeof buf);
 	strlcat(buf, " ", sizeof buf);
@@ -157,8 +156,8 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 				while (PKG_MODULE_SEPARATOR(*iter))
 					iter++;
 
-				strlcpy(package, iter, sizeof package);
-				package[ptr - iter] = '\0';
+				package = iter;
+				package_sz = ptr - iter;
 #if DEBUG_PARSE
 				fprintf(error_msgout, "Found package: %s\n", package);
 #endif
@@ -167,7 +166,7 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 
 			if (state == OUTSIDE_MODULE)
 			{
-				deplist = pkg_dependency_add(deplist, package, NULL, compare);
+				deplist = pkg_dependency_add(deplist, package, package_sz, NULL, 0, compare);
 
 				if (deplist_head == NULL)
 					deplist_head = deplist;
@@ -238,14 +237,14 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 		case INSIDE_VERSION:
 			if (PKG_MODULE_SEPARATOR(*ptr) || *(ptr + 1) == '\0')
 			{
-				strlcpy(version, vstart, sizeof version);
-				version[ptr - vstart] = '\0';
+				version = vstart;
+				version_sz = ptr - vstart;
 				state = OUTSIDE_MODULE;
 
 #if DEBUG_PARSE
 				fprintf(error_msgout, "Found version: %s\n", version);
 #endif
-				deplist = pkg_dependency_add(deplist, package, version, compare);
+				deplist = pkg_dependency_add(deplist, package, package_sz, version, version_sz, compare);
 
 				if (deplist_head == NULL)
 					deplist_head = deplist;
