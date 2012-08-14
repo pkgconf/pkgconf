@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <libgen.h>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>

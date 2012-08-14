@@ -32,6 +32,12 @@
 #define PKG_CONFIG_PATH_SEP_S	":"
 #endif
 
+#ifdef _WIN32
+#define PKG_DIR_SEP_S	'\\'
+#else
+#define PKG_DIR_SEP_S	'/'
+#endif
+
 static inline size_t
 path_split(const char *text, char ***parv)
 {
@@ -122,12 +128,11 @@ static const char *
 pkg_get_parent_dir(pkg_t *pkg)
 {
 	static char buf[PKG_BUFSIZE];
-	static char filebuf[PKG_BUFSIZE];
 	char *pathbuf;
 
-	strlcpy(filebuf, pkg->filename, sizeof filebuf);
-	pathbuf = dirname(filebuf);
-	strlcpy(buf, pathbuf, sizeof buf);
+	strlcpy(buf, pkg->filename, sizeof buf);
+	pathbuf = strrchr(buf, PKG_DIR_SEP_S);
+	pathbuf[0] = '\0';
 
 	return buf;
 }
@@ -149,7 +154,10 @@ pkg_new_from_file(const char *filename, FILE *f)
 	pkg->vars = pkg_tuple_add(pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg));
 
 	/* make module id */
-	pkg->id = strdup(basename(pkg->filename));
+	idptr = strrchr(pkg->filename, PKG_DIR_SEP_S);
+	idptr++;
+
+	pkg->id = strdup(idptr);
 	idptr = strrchr(pkg->id, '.');
 	if (idptr)
 		*idptr = '\0';
