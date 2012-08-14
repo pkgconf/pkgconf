@@ -92,6 +92,8 @@ pkg_argv_split(const char *src, int *argc, char ***argv)
 					free(argv);
 					free(buf);
 					return -1;
+				} else {
+					*dst_iter++ = '\\';
 				}
 			default:
 				*dst_iter++ = *src_iter;
