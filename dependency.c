@@ -105,10 +105,12 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 	pkg_dependency_t *deplist = NULL;
 	pkg_comparator_t compare = PKG_ANY;
 	char buf[PKG_BUFSIZE];
+	char package[PKG_BUFSIZE];
+	char version[PKG_BUFSIZE];
 	char *start = buf;
 	char *ptr = buf;
 	char *vstart = NULL;
-	char *package = NULL, *version = NULL;
+/*	char *package = NULL, *version = NULL;*/
 
 	strlcpy(buf, depends, sizeof buf);
 	strlcat(buf, " ", sizeof buf);
@@ -155,7 +157,8 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 				while (PKG_MODULE_SEPARATOR(*iter))
 					iter++;
 
-				package = strndup(iter, ptr - iter);
+				strlcpy(package, iter, sizeof package);
+				package[ptr - iter] = '\0';
 #if DEBUG_PARSE
 				fprintf(error_msgout, "Found package: %s\n", package);
 #endif
@@ -168,18 +171,6 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 
 				if (deplist_head == NULL)
 					deplist_head = deplist;
-
-				if (package != NULL)
-				{
-					free(package);
-					package = NULL;
-				}
-
-				if (version != NULL)
-				{
-					free(version);
-					version = NULL;
-				}
 
 				compare = PKG_ANY;
 			}
@@ -247,7 +238,8 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 		case INSIDE_VERSION:
 			if (PKG_MODULE_SEPARATOR(*ptr) || *(ptr + 1) == '\0')
 			{
-				version = strndup(vstart, (ptr - vstart));
+				strlcpy(version, vstart, sizeof version);
+				version[ptr - vstart] = '\0';
 				state = OUTSIDE_MODULE;
 
 #if DEBUG_PARSE
@@ -257,18 +249,6 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 
 				if (deplist_head == NULL)
 					deplist_head = deplist;
-
-				if (package != NULL)
-				{
-					free(package);
-					package = NULL;
-				}
-
-				if (version != NULL)
-				{
-					free(version);
-					version = NULL;
-				}
 
 				compare = PKG_ANY;
 			}
