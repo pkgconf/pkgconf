@@ -105,7 +105,7 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 	pkg_dependency_t *deplist = NULL;
 	pkg_comparator_t compare = PKG_ANY;
 	char buf[PKG_BUFSIZE];
-	size_t package_sz, version_sz;
+	size_t package_sz = 0, version_sz = 0;
 	char *start = buf;
 	char *ptr = buf;
 	char *vstart = NULL;
@@ -172,6 +172,8 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 					deplist_head = deplist;
 
 				compare = PKG_ANY;
+				package_sz = 0;
+				version_sz = 0;
 			}
 
 			break;
@@ -250,6 +252,8 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 					deplist_head = deplist;
 
 				compare = PKG_ANY;
+				package_sz = 0;
+				version_sz = 0;
 			}
 
 			if (state == OUTSIDE_MODULE)
