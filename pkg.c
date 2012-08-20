@@ -853,7 +853,7 @@ pkg_cflags_collect(pkg_t *pkg, void *data, unsigned int flags)
 		*list = pkg_fragment_copy(*list, frag);
 }
 
-pkg_fragment_t *
+int
 pkg_cflags(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags)
 {
 	int eflag;
@@ -863,10 +863,10 @@ pkg_cflags(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags)
 	if (eflag != PKG_ERRF_OK)
 	{
 		pkg_fragment_free(*list);
-		return NULL;
+		*list = NULL;
 	}
 
-	return *list;
+	return eflag;
 }
 
 static void
@@ -891,7 +891,7 @@ pkg_libs_private_collect(pkg_t *pkg, void *data, unsigned int flags)
 		*list = pkg_fragment_copy(*list, frag);
 }
 
-pkg_fragment_t *
+int
 pkg_libs(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags)
 {
 	int eflag;
@@ -901,7 +901,8 @@ pkg_libs(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags)
 	if (eflag != PKG_ERRF_OK)
 	{
 		pkg_fragment_free(*list);
-		return NULL;
+		*list = NULL;
+		return eflag;
 	}
 
 	if (flags & PKGF_MERGE_PRIVATE_FRAGMENTS)
@@ -910,9 +911,9 @@ pkg_libs(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags)
 		if (eflag != PKG_ERRF_OK)
 		{
 			pkg_fragment_free(*list);
-			return NULL;
+			*list = NULL;
 		}
 	}
 
-	return *list;
+	return eflag;
 }

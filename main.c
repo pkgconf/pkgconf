@@ -306,15 +306,19 @@ static bool
 apply_cflags(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
 	pkg_fragment_t **head = list_head;
-	pkg_fragment_t *list;
+	int eflag;
 
-	list = pkg_cflags(world, head, maxdepth, flags | PKGF_SEARCH_PRIVATE);
-	if (list == NULL)
+	eflag = pkg_cflags(world, head, maxdepth, flags | PKGF_SEARCH_PRIVATE);
+	if (eflag != PKG_ERRF_OK)
 		return false;
 
-	print_cflags(list);
+	if (*head == NULL)
+		return true;
 
-	pkg_fragment_free(list);
+	print_cflags(*head);
+
+	pkg_fragment_free(*head);
+
 	return true;
 }
 
@@ -322,14 +326,18 @@ static bool
 apply_libs(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
 	pkg_fragment_t **head = list_head;
-	pkg_fragment_t *list;
+	int eflag;
 
-	list = pkg_libs(world, head, maxdepth, flags);
-	if (list == NULL)
+	eflag = pkg_libs(world, head, maxdepth, flags);
+	if (eflag != PKG_ERRF_OK)
 		return false;
-	print_libs(list);
 
-	pkg_fragment_free(list);
+	if (*head == NULL)
+		return true;
+
+	print_libs(*head);
+
+	pkg_fragment_free(*head);
 	return true;
 }
 

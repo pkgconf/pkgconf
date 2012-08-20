@@ -171,6 +171,12 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --cflags missing-require; echo \$
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --cflags quotes" \
 	"-DQUOTED=\\\"bla\\\""
 
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs nolib; echo \$?" \
+	'0'
+
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs nocflag; echo \$?" \
+	'0'
+
 # 10) tests for internal getopt implementation with options at the end
 if [ "x@STRICT_MODE@" = "xno" ]; then
 	run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} foo --libs" \
