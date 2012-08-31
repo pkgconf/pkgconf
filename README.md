@@ -6,15 +6,15 @@ pkgconf provides compiler and linker configuration for development frameworks.
 
 pkgconf is a program which helps to configure compiler and linker flags for
 development frameworks.  It is similar to pkg-config, but was written from
-scratch in Summer of 2011 to replace pkg-config, which now needs itself to
+scratch in the summer of 2011 to replace pkg-config, which now needs itself to
 build itself (or you can set a bunch of environment variables, both are
-pretty ugly.)
+pretty ugly).
 
-Implementations of pkg-config, such as pkgconf are typically used with the
+Implementations of pkg-config, such as pkgconf, are typically used with the
 PKG_CHECK_MODULES autoconf macro.  As far as I (nenolod) know, pkgconf is
 compatible with all known variations of this macro. pkgconf detects at
 runtime whether or not it was started as 'pkg-config', and if so, attempts
-to set program options in a way where it's behaviour should be similar.
+to set program options such that its behaviour is similar.
 
 In terms of the autoconf macro, it is possible to specify the PKG_CONFIG
 environment variable, so that you can test pkgconf without overwriting your
