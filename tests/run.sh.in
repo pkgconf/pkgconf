@@ -114,6 +114,8 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs-only-L --libs-only-l cflag
 	'-lfoo'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --cflags-only-I --cflags-only-other cflags-libs-only" \
 	'-I/usr/local/include'
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs incomplete; echo $?" \
+	'0'
 
 # 6) tests for builtins
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --modversion pkg-config" \
