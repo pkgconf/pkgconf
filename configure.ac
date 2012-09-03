@@ -12,7 +12,7 @@ dnl implied.  In no event shall the authors be liable for any damages arising
 dnl from the use of this software.
 
 AC_PREREQ([2.68])
-AC_INIT([pkgconf], [0.8.7], [http://github.com/pkgconf/pkgconf/issues])
+AC_INIT([pkgconf], [0.8.8], [http://github.com/pkgconf/pkgconf/issues])
 AC_CONFIG_SRCDIR([pkg.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CHECK_FUNCS([strlcpy strlcat strndup])
