@@ -883,7 +883,7 @@ main(int argc, char *argv[])
 		if (!pkg_queue_apply(pkgq_head, apply_cflags, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{
 			ret = EXIT_FAILURE;
-			goto out;
+			goto out_println;
 		}
 	}
 
@@ -894,14 +894,15 @@ main(int argc, char *argv[])
 		if (!pkg_queue_apply(pkgq_head, apply_libs, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{
 			ret = EXIT_FAILURE;
-			goto out;
+			goto out_println;
 		}
 	}
 
-	if (want_flags & (PKG_CFLAGS|PKG_LIBS))
-		printf("\n");
-
 	pkg_queue_free(pkgq_head);
+
+out_println:
+	if (want_flags & (PKG_CFLAGS|PKG_LIBS))
+		printf(" \n");
 
 out:
 	pkg_tuple_free_global();
