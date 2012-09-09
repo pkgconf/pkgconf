@@ -25,10 +25,10 @@ clean:
 	rm $(PROG)
 
 install:
-	mkdir -p $(DESTDIR)/$(bindir)
-	install -c -m755 $(PROG) $(DESTDIR)/$(bindir)/$(PROG)
-	mkdir -p $(DESTDIR)/$(datarootdir)/aclocal
-	install -c -m644 pkg.m4 $(DESTDIR)/$(datarootdir)/aclocal/pkg.m4
+	mkdir -p $(DESTDIR)$(bindir)
+	install -c -m755 $(PROG) $(DESTDIR)$(bindir)/$(PROG)
+	mkdir -p $(DESTDIR)$(datarootdir)/aclocal
+	install -c -m644 pkg.m4 $(DESTDIR)$(datarootdir)/aclocal/pkg.m4
 
 check: $(PROG)
 	$(SHELL) tests/run.sh ./$(PROG)
