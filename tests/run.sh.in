@@ -43,6 +43,11 @@ run_test() {
 
 selfdir=$(cd "$(dirname "${0}")"; pwd | sed s#/c/#c:/#)
 
+PATH_SEP=":"
+if [ "$(uname -o)" = "Msys" ]; then
+	PATH_SEP=";"
+fi
+
 # 1) overall 'is it working?' test
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1}; echo \$?" \
 	'1'
@@ -82,9 +87,9 @@ run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs intermediary-1 intermediar
 	'-lintermediary-1 -lintermediary-2 -lfoo -lbar -lbaz'
 
 # 2) tests for PKG_CONFIG_PATH order
-run_test "PKG_CONFIG_PATH=${selfdir}/lib1:${selfdir}/lib2 ${1} --libs foo" \
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1${PATH_SEP}${selfdir}/lib2 ${1} --libs foo" \
 	'-lfoo'
-run_test "PKG_CONFIG_PATH=${selfdir}/lib2:${selfdir}/lib1 ${1} --libs foo" \
+run_test "PKG_CONFIG_PATH=${selfdir}/lib2${PATH_SEP}${selfdir}/lib1 ${1} --libs foo" \
 	'-lbar'
 
 # 3) tests for 'Requires' and 'Requires.private'
