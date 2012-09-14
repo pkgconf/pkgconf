@@ -41,7 +41,7 @@ run_test() {
 	done=$(( done + 1 ))
 }
 
-selfdir=$(cd "$(dirname "${0}")"; pwd)
+selfdir=$(cd "$(dirname "${0}")"; pwd | sed s#/c/#c:/#)
 
 # 1) overall 'is it working?' test
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1}; echo \$?" \
