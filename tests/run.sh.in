@@ -44,6 +44,7 @@ run_test() {
 selfdir=$(cd "$(dirname "${0}")"; pwd | sed s#/c/#c:/#)
 
 PATH_SEP=":"
+SYSROOT_DIR="${selfdir}/test"
 if [ "$(uname -o)" = "Msys" ]; then
 	PATH_SEP=";"
 fi
@@ -139,8 +140,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=pcfiledir foo" \
 	"${selfdir}/lib1"
 
 # 7) tests for env modifiers
-run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='/test' ${1} --cflags baz" \
-	'-I/test/usr/include/foo'
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='${SYSROOT_DIR}' ${1} --cflags baz" \
+	"-I${SYSROOT_DIR}/usr/include/foo"
 
 # 8) tests for 'Conflicts'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs conflicts; echo \$?" \
