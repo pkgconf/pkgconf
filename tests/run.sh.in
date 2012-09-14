@@ -44,6 +44,8 @@ run_test() {
 selfdir=$(cd "$(dirname "${0}")"; pwd)
 
 # 1) overall 'is it working?' test
+run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1}; echo \$?" \
+	'1'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --libs foo" \
 	'-lfoo'
 run_test "PKG_CONFIG_PATH=${selfdir}/lib1 ${1} --cflags --libs foo" \
