@@ -780,7 +780,7 @@ main(int argc, char *argv[])
 
 	if (pkgq_head == NULL)
 	{
-		fprintf(error_msgout, "Please specify at least one package name on the command line.\n");
+		fprintf(stderr, "Please specify at least one package name on the command line.\n");
 		return EXIT_FAILURE;
 	}
 
