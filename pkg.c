@@ -131,7 +131,10 @@ pkg_get_parent_dir(pkg_t *pkg)
 	char *pathbuf;
 
 	strlcpy(buf, pkg->filename, sizeof buf);
-	if ((pathbuf = strrchr(buf, PKG_DIR_SEP_S)) != NULL)
+	pathbuf = strrchr(buf, PKG_DIR_SEP_S);
+	if (pathbuf == NULL)
+		pathbuf = strrchr(buf, '/');
+	if (pathbuf != NULL)
 		pathbuf[0] = '\0';
 
 	return buf;
