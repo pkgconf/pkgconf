@@ -433,7 +433,7 @@ version(void)
 static void
 about(void)
 {
-	printf("%s %s%s\n", PACKAGE_NAME, PACKAGE_VERSION, HAVE_STRICT_MODE ? " [strict]" : " [pkg-config compatible]");
+	printf("%s %s%s\n", PACKAGE_NAME, PACKAGE_VERSION, HAVE_STRICT_MODE ? " [strict]" : " [pkg-config " PKG_PKGCONFIG_VERSION_EQUIV " compatible]");
 	printf("Copyright (c) 2011 - 2012 pkgconf authors (see AUTHORS in documentation directory).\n\n");
 	printf("Permission to use, copy, modify, and/or distribute this software for any\n");
 	printf("purpose with or without fee is hereby granted, provided that the above\n");
