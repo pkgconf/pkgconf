@@ -6,5 +6,5 @@ includedir=${prefix}/include
 Name: intermediary-2
 Description: A testing pkg-config file
 Version: 1.2.3
-Libs: -L${libdir} -lintermediary-2 -lfoo -lbar -lbaz
-Cflags: -fPIC -I${includedir}/foo
+Libs: -lintermediary-2 -lfoo -lbar -lbaz
+Cflags:
