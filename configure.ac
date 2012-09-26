@@ -47,7 +47,7 @@ AC_ARG_WITH([system-libdir],[AC_HELP_STRING([--with-system-libdir],[specify the
 
 AC_SUBST([SYSTEM_LIBDIR])
 
-AC_ARG_WITH([system-includedir],[AC_HELP_STRING([--with-system-libdir],[specify the
+AC_ARG_WITH([system-includedir],[AC_HELP_STRING([--with-system-includedir],[specify the
 	     system include directory (default INCLUDEDIR)])],
 	     SYSTEM_INCLUDEDIR="$withval", SYSTEM_INCLUDEDIR="${includedir}")
 
