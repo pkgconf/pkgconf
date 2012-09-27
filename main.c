@@ -55,24 +55,6 @@ static char *sysroot_dir = NULL;
 
 FILE *error_msgout = NULL;
 
-static bool
-fragment_has_system_dir(pkg_fragment_t *frag)
-{
-	switch (frag->type)
-	{
-	case 'L':
-		if ((want_flags & PKG_KEEP_SYSTEM_CFLAGS) == 0 && !strcasecmp(SYSTEM_LIBDIR, frag->data))
-			return true;
-	case 'I':
-		if ((want_flags & PKG_KEEP_SYSTEM_LIBS) == 0 && !strcasecmp(SYSTEM_INCLUDEDIR, frag->data))
-			return true;
-	default:
-		break;
-	}
-
-	return false;
-}
-
 static inline const char *
 print_sysroot_dir(pkg_fragment_t *frag)
 {
@@ -93,9 +75,6 @@ print_sysroot_dir(pkg_fragment_t *frag)
 static void
 print_fragment(pkg_fragment_t *frag)
 {
-	if (fragment_has_system_dir(frag))
-		return;
-
 	if (frag->type)
 		printf("-%c%s%s ", frag->type, print_sysroot_dir(frag), frag->data);
 	else
