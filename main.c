@@ -48,7 +48,7 @@
 static unsigned int global_traverse_flags = PKGF_NONE;
 
 static int want_flags;
-static int maximum_traverse_depth = -1;
+static int maximum_traverse_depth = 2000;
 
 static char *want_variable = NULL;
 static char *sysroot_dir = NULL;
