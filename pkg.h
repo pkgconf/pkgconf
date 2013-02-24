@@ -32,7 +32,8 @@ typedef enum {
 	PKG_GREATER_THAN_EQUAL,
 	PKG_EQUAL,
 	PKG_NOT_EQUAL,
-	PKG_ALWAYS_MATCH
+	PKG_ALWAYS_MATCH,
+	PKG_CMP_SIZE
 } pkg_comparator_t;
 
 typedef struct pkg_ pkg_t;

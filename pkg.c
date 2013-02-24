@@ -582,37 +582,6 @@ pkg_compare_version(const char *a, const char *b)
 	return 1;
 }
 
-/*
- * pkg_get_comparator(pkgdep)
- *
- * returns the comparator used in a depgraph dependency node as a string.
- */
-const char *
-pkg_get_comparator(pkg_dependency_t *pkgdep)
-{
-	switch(pkgdep->compare)
-	{
-	case PKG_LESS_THAN:
-		return "<";
-	case PKG_GREATER_THAN:
-		return ">";
-	case PKG_LESS_THAN_EQUAL:
-		return "<=";
-	case PKG_GREATER_THAN_EQUAL:
-		return ">=";
-	case PKG_EQUAL:
-		return "=";
-	case PKG_NOT_EQUAL:
-		return "!=";
-	case PKG_ANY:
-		return "(any)";
-	default:
-		return "???";
-	}
-
-	return "???";
-}
-
 static pkg_t pkg_config_virtual = {
 	.id = "pkg-config",
 	.realname = "pkg-config",
@@ -625,6 +594,43 @@ static pkg_t pkg_config_virtual = {
 		.value = PKG_DEFAULT_PATH,
 	},
 };
+
+typedef bool (*pkg_vercmp_res_func_t)(pkg_t *pkg, pkg_dependency_t *pkgdep);
+
+typedef struct {
+	const char *name;
+	pkg_comparator_t compare;
+} pkg_comparator_name_t;
+
+static pkg_comparator_name_t pkg_comparator_names[PKG_CMP_SIZE + 1] = {
+	{"<",		PKG_LESS_THAN},
+	{">",		PKG_GREATER_THAN},
+	{"<=",		PKG_LESS_THAN_EQUAL},
+	{">=",		PKG_GREATER_THAN_EQUAL},
+	{"=",		PKG_EQUAL},
+	{"!=",		PKG_NOT_EQUAL},
+	{"(any)",	PKG_ANY},
+	{"???",		PKG_CMP_SIZE},
+};
+
+/*
+ * pkg_get_comparator(pkgdep)
+ *
+ * returns the comparator used in a depgraph dependency node as a string.
+ */
+const char *
+pkg_get_comparator(pkg_dependency_t *pkgdep)
+{
+	const pkg_comparator_name_t *i;
+
+	for (i = pkg_comparator_names; i->compare != PKG_CMP_SIZE; i++)
+	{
+		if (i->compare == pkgdep->compare)
+			return i->name;
+	}
+
+	return "???";
+}
 
 /*
  * pkg_verify_dependency(pkgdep, flags)
