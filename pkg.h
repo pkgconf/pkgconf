@@ -118,6 +118,7 @@ struct pkg_ {
 #define PKGF_MERGE_PRIVATE_FRAGMENTS	0x10
 #define PKGF_SKIP_CONFLICTS		0x20
 #define PKGF_NO_CACHE			0x40
+#define PKGF_MUNGE_SYSROOT_PREFIX	0x80
 
 #define PKG_ERRF_OK			0x0
 #define PKG_ERRF_PACKAGE_NOT_FOUND	0x1
@@ -144,7 +145,7 @@ int pkg_libs(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flag
 pkg_comparator_t pkg_comparator_lookup_by_name(const char *name);
 
 /* parse.c */
-pkg_t *pkg_new_from_file(const char *path, FILE *f);
+pkg_t *pkg_new_from_file(const char *path, FILE *f, unsigned int flags);
 pkg_dependency_t *pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends);
 pkg_dependency_t *pkg_dependency_parse(pkg_t *pkg, const char *depends);
 pkg_dependency_t *pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail);

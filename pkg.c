@@ -143,12 +143,12 @@ pkg_get_parent_dir(pkg_t *pkg)
 static pkg_t *pkg_cache = NULL;
 
 /*
- * pkg_new_from_file(filename, file)
+ * pkg_new_from_file(filename, file, flags)
  *
  * Parse a .pc file into a pkg_t object structure.
  */
 pkg_t *
-pkg_new_from_file(const char *filename, FILE *f)
+pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 {
 	pkg_t *pkg;
 	char readbuf[PKG_BUFSIZE];
@@ -221,7 +221,18 @@ pkg_new_from_file(const char *filename, FILE *f)
 				pkg->conflicts = pkg_dependency_parse(pkg, value);
 			break;
 		case '=':
-			pkg->vars = pkg_tuple_add(pkg->vars, key, value);
+			if (!(flags & PKGF_MUNGE_SYSROOT_PREFIX) || strcasecmp(key, "prefix"))
+				pkg->vars = pkg_tuple_add(pkg->vars, key, value);
+			else
+			{
+				char mungebuf[PKG_BUFSIZE];
+				char *sysroot_dir = pkg_tuple_find_global("pc_sysrootdir");
+
+				strlcpy(mungebuf, sysroot_dir, sizeof mungebuf);
+				strlcat(mungebuf, value, sizeof mungebuf);
+
+				pkg->vars = pkg_tuple_add(pkg->vars, key, mungebuf);
+			}
 			break;
 		default:
 			break;
@@ -294,11 +305,11 @@ pkg_try_specific_path(const char *path, const char *name, unsigned int flags)
 
 	if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 	{
-		pkg = pkg_new_from_file(uninst_locbuf, f);
+		pkg = pkg_new_from_file(uninst_locbuf, f, flags);
 		pkg->uninstalled = true;
 	}
 	else if ((f = fopen(locbuf, "r")) != NULL)
-		pkg = pkg_new_from_file(locbuf, f);
+		pkg = pkg_new_from_file(locbuf, f, flags);
 
 	return pkg;
 }
@@ -332,7 +343,7 @@ pkg_scan_dir(const char *path, pkg_iteration_func_t func)
 		if (f == NULL)
 			continue;
 
-		pkg = pkg_new_from_file(filebuf, f);
+		pkg = pkg_new_from_file(filebuf, f, 0);
 		if (pkg != NULL)
 		{
 			func(pkg);
@@ -427,7 +438,7 @@ pkg_find(const char *name, unsigned int flags)
 	if (str_has_suffix(name, PKG_CONFIG_EXT))
 	{
 		if ((f = fopen(name, "r")) != NULL)
-			return pkg_new_from_file(name, f);
+			return pkg_new_from_file(name, f, flags);
 	}
 
 	/* check cache */
