@@ -690,6 +690,29 @@ pkg_get_comparator(pkg_dependency_t *pkgdep)
 }
 
 /*
+ * pkg_comparator_lookup_by_name(name)
+ *
+ * look up the appropriate comparator bytecode in the comparator set (defined
+ * above, see pkg_comparator_names and pkg_comparator_impls).
+ *
+ * XXX: on error return PKG_ANY or maybe we should return PKG_CMP_SIZE which
+ * is poisoned?
+ */
+pkg_comparator_t
+pkg_comparator_lookup_by_name(const char *name)
+{
+	const pkg_comparator_name_t *i;
+
+	for (i = pkg_comparator_names; i->compare != PKG_CMP_SIZE; i++)
+	{
+		if (!strcmp(i->name, name))
+			return i->compare;
+	}
+
+	return PKG_ANY;
+}
+
+/*
  * pkg_verify_dependency(pkgdep, flags)
  *
  * verify a pkg_dependency_t node in the depgraph.  if the dependency is solvable,

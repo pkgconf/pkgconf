@@ -137,6 +137,7 @@ pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsig
 const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
 int pkg_cflags(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags);
 int pkg_libs(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags);
+pkg_comparator_t pkg_comparator_lookup_by_name(const char *name);
 
 /* parse.c */
 pkg_t *pkg_new_from_file(const char *path, FILE *f);
