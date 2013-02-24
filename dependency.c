@@ -104,12 +104,16 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 	parse_state_t state = OUTSIDE_MODULE;
 	pkg_dependency_t *deplist = NULL;
 	pkg_comparator_t compare = PKG_ANY;
+	char cmpname[PKG_BUFSIZE];
 	char buf[PKG_BUFSIZE];
 	size_t package_sz = 0, version_sz = 0;
 	char *start = buf;
 	char *ptr = buf;
 	char *vstart = NULL;
 	char *package = NULL, *version = NULL;
+	char *cnameptr = cmpname;
+
+	memset(cmpname, '\0', sizeof cmpname);
 
 	strlcpy(buf, depends, sizeof buf);
 	strlcat(buf, " ", sizeof buf);
@@ -181,46 +185,20 @@ pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends)
 		case BEFORE_OPERATOR:
 			if (PKG_OPERATOR_CHAR(*ptr))
 			{
-				switch(*ptr)
-				{
-				case '=':
-					compare = PKG_EQUAL;
-					break;
-				case '>':
-					compare = PKG_GREATER_THAN;
-					break;
-				case '<':
-					compare = PKG_LESS_THAN;
-					break;
-				case '!':
-					compare = PKG_NOT_EQUAL;
-					break;
-				default:
-					break;
-				}
-
 				state = INSIDE_OPERATOR;
+				*cnameptr++ = *ptr;
 			}
 
 			break;
 
 		case INSIDE_OPERATOR:
 			if (!PKG_OPERATOR_CHAR(*ptr))
-				state = AFTER_OPERATOR;
-			else if (*ptr == '=')
 			{
-				switch(compare)
-				{
-				case PKG_LESS_THAN:
-					compare = PKG_LESS_THAN_EQUAL;
-					break;
-				case PKG_GREATER_THAN:
-					compare = PKG_GREATER_THAN_EQUAL;
-					break;
-				default:
-					break;
-				}
+				state = AFTER_OPERATOR;
+				compare = pkg_comparator_lookup_by_name(cmpname);
 			}
+			else
+				*cnameptr++ = *ptr;
 
 			break;
 
