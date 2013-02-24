@@ -152,6 +152,10 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=pcfiledir foo" \
 # 7) tests for env modifiers
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='${SYSROOT_DIR}' ${1} --cflags baz" \
 	"-I${SYSROOT_DIR}/usr/include/foo"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='${SYSROOT_DIR}' ${1} --variable=prefix baz" \
+	"${SYSROOT_DIR}/usr"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='${SYSROOT_DIR}' ${1} --variable=includedir baz" \
+	"${SYSROOT_DIR}/usr/include"
 
 # 8) tests for 'Conflicts'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs conflicts; echo \$?" \
