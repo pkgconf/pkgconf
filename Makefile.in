@@ -22,7 +22,7 @@ all: build
 build: ${PROG}
 
 clean:
-	rm *.o
+	rm *.o *.og *.gcda *.gcno *.gcov
 	rm $(PROG)
 
 install:
