@@ -90,6 +90,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs circular-1" \
 	'-lcircular-2 -lcircular-3 -lcircular-1'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs circular-3" \
 	'-lcircular-1 -lcircular-2 -lcircular-3'
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs static-archive-libs" \
+	'/libfoo.a -pthread'
 
 # 2) tests for PKG_CONFIG_PATH order
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1${PATH_SEP}${selfdir}/lib2' ${1} --libs foo" \
