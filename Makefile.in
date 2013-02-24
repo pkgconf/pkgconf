@@ -13,6 +13,7 @@ CC			= @CC@
 PROG			= pkgconf@EXEEXT@
 SRCS			= main.c pkg.c bsdstubs.c getopt_long.c fragment.c argvsplit.c fileio.c tuple.c dependency.c queue.c
 OBJS			= ${SRCS:.c=.o}
+GCOV_OBJS		= ${SRCS:.c=.og}
 CFLAGS			= @CFLAGS@
 LDFLAGS			= @LDFLAGS@
 CFLAGS			+= -DLIBDIR=\"${libdir}\" -DINCLUDEDIR=\"${includedir}\" -DPKG_DEFAULT_PATH=\"${pkgconfigdir}\" -DSYSTEM_INCLUDEDIR=\"${system_includedir}\" -DSYSTEM_LIBDIR=\"${system_libdir}\" -Wall -Wextra -Wformat=2 -std=gnu99 -D_FORTIFY_SOURCE=2
@@ -39,5 +40,15 @@ valgrind-check: $(PROG)
 $(PROG): $(OBJS)
 	${CC} ${LDFLAGS} -o $@ $(OBJS)
 
+$(PROG)-gcov: $(GCOV_OBJS)
+	${CC} ${LDFLAGS} -fprofile-arcs -ftest-coverage -o $@ $(GCOV_OBJS)
+
+gcov-check: $(PROG)-gcov
+	$(SHELL) tests/run.sh ./$(PROG)-gcov
+	@echo "gcov(1) reporting data should now be generated..."
+
 .c.o:
 	${CC} ${CFLAGS} -c $< -o $@
+
+.c.og:
+	${CC} ${CFLAGS} -fprofile-arcs -ftest-coverage -c $< -o $@
