@@ -220,6 +220,9 @@ if [ "x@STRICT_MODE@" = "xno" ]; then
 		'-lfoo' '-I/usr/include/foo' '-fPIC'
 fi
 
+run_test "${1} --blah; echo \$?" \
+	'1'
+
 echo
 
 if [ ${failed} -gt 0 ]; then
