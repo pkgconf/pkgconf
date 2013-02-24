@@ -44,6 +44,7 @@
 #define PKG_HELP			(1<<25)
 #define PKG_PRINT_ERRORS		(1<<26)
 #define PKG_SIMULATE			(1<<27)
+#define PKG_NO_CACHE			(1<<28)
 
 static unsigned int global_traverse_flags = PKGF_NONE;
 
@@ -460,6 +461,8 @@ usage(void)
 	printf("  --silence-errors                  explicitly be silent about errors\n");
 	printf("  --list-all                        list all known packages\n");
 	printf("  --simulate                        simulate walking the calculated dependency graph\n");
+	printf("  --no-cache                        do not cache already seen packages when\n");
+	printf("                                    walking the dependency graph\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -548,6 +551,7 @@ main(int argc, char *argv[])
 		{ "silence-errors", no_argument, &want_flags, PKG_SILENCE_ERRORS, },
 		{ "list-all", no_argument, &want_flags, PKG_LIST|PKG_PRINT_ERRORS, },
 		{ "simulate", no_argument, &want_flags, PKG_SIMULATE, },
+		{ "no-cache", no_argument, &want_flags, PKG_NO_CACHE, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -633,6 +637,9 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_ENV_ONLY) == PKG_ENV_ONLY)
 		global_traverse_flags |= PKGF_ENV_ONLY;
+
+	if ((want_flags & PKG_NO_CACHE) == PKG_NO_CACHE)
+		global_traverse_flags |= PKGF_NO_CACHE;
 
 	if ((want_flags & PKG_NO_UNINSTALLED) == PKG_NO_UNINSTALLED || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
 		global_traverse_flags |= PKGF_NO_UNINSTALLED;
