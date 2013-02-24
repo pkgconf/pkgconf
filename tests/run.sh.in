@@ -141,7 +141,7 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs incomplete" \
 
 # 6) tests for builtins
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --modversion pkg-config" \
-	'0.27'
+	'0.28'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=prefix foo" \
 	'/usr'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --define-variable=prefix=/test --variable=prefix foo" \
