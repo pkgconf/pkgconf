@@ -22,8 +22,8 @@ all: build
 build: ${PROG}
 
 clean:
-	rm *.o *.og *.gcda *.gcno *.gcov
-	rm $(PROG)
+	rm -f *.o *.og *.gcda *.gcno *.gcov
+	rm -f $(PROG)
 
 install:
 	mkdir -p $(DESTDIR)$(bindir)
