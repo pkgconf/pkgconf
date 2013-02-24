@@ -613,6 +613,63 @@ static pkg_comparator_name_t pkg_comparator_names[PKG_CMP_SIZE + 1] = {
 	{"???",		PKG_CMP_SIZE},
 };
 
+static bool pkg_comparator_lt(pkg_t *pkg, pkg_dependency_t *pkgdep)
+{
+	return (pkg_compare_version(pkg->version, pkgdep->version) < 0);
+}
+
+static bool pkg_comparator_gt(pkg_t *pkg, pkg_dependency_t *pkgdep)
+{
+	return (pkg_compare_version(pkg->version, pkgdep->version) > 0);
+}
+
+static bool pkg_comparator_lte(pkg_t *pkg, pkg_dependency_t *pkgdep)
+{
+	return (pkg_compare_version(pkg->version, pkgdep->version) <= 0);
+}
+
+static bool pkg_comparator_gte(pkg_t *pkg, pkg_dependency_t *pkgdep)
+{
+	return (pkg_compare_version(pkg->version, pkgdep->version) >= 0);
+}
+
+static bool pkg_comparator_eq(pkg_t *pkg, pkg_dependency_t *pkgdep)
+{
+	return (pkg_compare_version(pkg->version, pkgdep->version) == 0);
+}
+
+static bool pkg_comparator_ne(pkg_t *pkg, pkg_dependency_t *pkgdep)
+{
+	return (pkg_compare_version(pkg->version, pkgdep->version) != 0);
+}
+
+static bool pkg_comparator_any(pkg_t *pkg, pkg_dependency_t *pkgdep)
+{
+	(void) pkg;
+	(void) pkgdep;
+
+	return true;
+}
+
+static bool pkg_comparator_unimplemented(pkg_t *pkg, pkg_dependency_t *pkgdep)
+{
+	(void) pkg;
+	(void) pkgdep;
+
+	return false;
+}
+
+static pkg_vercmp_res_func_t pkg_comparator_impls[PKG_CMP_SIZE + 1] = {
+	[PKG_ANY]			= pkg_comparator_any,
+	[PKG_LESS_THAN]			= pkg_comparator_lt,
+	[PKG_GREATER_THAN]		= pkg_comparator_gt,
+	[PKG_LESS_THAN_EQUAL]		= pkg_comparator_lte,
+	[PKG_GREATER_THAN_EQUAL]	= pkg_comparator_gte,
+	[PKG_EQUAL]			= pkg_comparator_eq,
+	[PKG_NOT_EQUAL]			= pkg_comparator_ne,
+	[PKG_CMP_SIZE]			= pkg_comparator_unimplemented,
+};
+
 /*
  * pkg_get_comparator(pkgdep)
  *
@@ -662,36 +719,8 @@ pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int
 	if (pkg->id == NULL)
 		pkg->id = strdup(pkgdep->package);
 
-	switch(pkgdep->compare)
-	{
-	case PKG_LESS_THAN:
-		if (pkg_compare_version(pkg->version, pkgdep->version) < 0)
-			return pkg;
-		break;
-	case PKG_GREATER_THAN:
-		if (pkg_compare_version(pkg->version, pkgdep->version) > 0)
-			return pkg;
-		break;
-	case PKG_LESS_THAN_EQUAL:
-		if (pkg_compare_version(pkg->version, pkgdep->version) <= 0)
-			return pkg;
-		break;
-	case PKG_GREATER_THAN_EQUAL:
-		if (pkg_compare_version(pkg->version, pkgdep->version) >= 0)
-			return pkg;
-		break;
-	case PKG_EQUAL:
-		if (pkg_compare_version(pkg->version, pkgdep->version) == 0)
-			return pkg;
-		break;
-	case PKG_NOT_EQUAL:
-		if (pkg_compare_version(pkg->version, pkgdep->version) != 0)
-			return pkg;
-		break;
-	case PKG_ANY:
-	default:
+	if (pkg_comparator_impls[pkgdep->compare](pkg, pkgdep) == true)
 		return pkg;
-	}
 
 	if (eflags != NULL)
 		*eflags |= PKG_ERRF_PACKAGE_VER_MISMATCH;
