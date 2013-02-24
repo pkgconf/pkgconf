@@ -87,9 +87,9 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists '' 'foo'; echo \$?" \
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs intermediary-1 intermediary-2" \
 	'-lintermediary-1 -lintermediary-2 -lfoo -lbar -lbaz'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs circular-1" \
-	'-lcircular-2 -lcircular-3 -lcircular-1'
-run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs circular-3" \
 	'-lcircular-1 -lcircular-2 -lcircular-3'
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs circular-3" \
+	'-lcircular-3 -lcircular-1 -lcircular-2'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs static-archive-libs" \
 	'/libfoo.a -pthread'
 

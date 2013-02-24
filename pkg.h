@@ -80,8 +80,11 @@ typedef struct pkg_queue_ {
 
 #define PKG_PROPF_NONE			0x0
 #define PKG_PROPF_VIRTUAL		0x1
+#define PKG_PROPF_CACHED		0x2
 
 struct pkg_ {
+	pkg_t *prev, *next;				/* for pkg_cache */
+
 	char *id;
 	char *filename;
 	char *realname;
@@ -114,6 +117,7 @@ struct pkg_ {
 #define PKGF_SKIP_ROOT_VIRTUAL		0x08
 #define PKGF_MERGE_PRIVATE_FRAGMENTS	0x10
 #define PKGF_SKIP_CONFLICTS		0x20
+#define PKGF_NO_CACHE			0x40
 
 #define PKG_ERRF_OK			0x0
 #define PKG_ERRF_PACKAGE_NOT_FOUND	0x1
