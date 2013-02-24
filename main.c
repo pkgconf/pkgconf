@@ -2,7 +2,7 @@
  * main.c
  * main() routine, printer functions
  *
- * Copyright (c) 2011 pkgconf authors (see AUTHORS).
+ * Copyright (c) 2011, 2012, 2013 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
