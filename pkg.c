@@ -806,7 +806,7 @@ pkg_verify_graph(pkg_t *root, int depth, unsigned int flags)
 	return pkg_traverse(root, NULL, NULL, depth, flags);
 }
 
-unsigned int
+static unsigned int
 pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 {
 	if (eflags & PKG_ERRF_PACKAGE_NOT_FOUND)
