@@ -493,7 +493,7 @@ pkg_find(const char *name, unsigned int flags)
 #endif
 
 out:
-	if (!(flags & PKGF_NO_CACHE))
+	if (pkg != NULL && !(flags & PKGF_NO_CACHE))
 	{
 		pkg->next = pkg_cache;
 		pkg_cache = pkg;
