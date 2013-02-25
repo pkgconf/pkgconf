@@ -187,4 +187,9 @@ void pkg_queue_free(pkg_queue_t *head);
 bool pkg_queue_apply(pkg_queue_t *head, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
 bool pkg_queue_validate(pkg_queue_t *head, int maxdepth, unsigned int flags);
 
+/* cache.c */
+pkg_t *pkg_cache_lookup(const char *id);
+void pkg_cache_add(pkg_t *pkg);
+void pkg_cache_remove(pkg_t *pkg);
+
 #endif

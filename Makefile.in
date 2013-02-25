@@ -11,7 +11,7 @@ pkgconfigdir		= @PKGCONFIGDIR@
 
 CC			= @CC@
 PROG			= pkgconf@EXEEXT@
-SRCS			= main.c pkg.c bsdstubs.c getopt_long.c fragment.c argvsplit.c fileio.c tuple.c dependency.c queue.c
+SRCS			= main.c cache.c pkg.c bsdstubs.c getopt_long.c fragment.c argvsplit.c fileio.c tuple.c dependency.c queue.c
 OBJS			= ${SRCS:.c=.o}
 GCOV_OBJS		= ${SRCS:.c=.og}
 CFLAGS			= @CFLAGS@
