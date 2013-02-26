@@ -436,7 +436,10 @@ pkg_find(const char *name, unsigned int flags)
 	if (!(flags & PKGF_NO_CACHE))
 	{
 		if ((pkg = pkg_cache_lookup(name)) != NULL)
+		{
+			pkg->flags |= PKG_PROPF_CACHED;
 			return pkg;
+		}
 	}
 
 	/* PKG_CONFIG_PATH has to take precedence */
