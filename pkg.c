@@ -140,8 +140,6 @@ pkg_get_parent_dir(pkg_t *pkg)
 	return buf;
 }
 
-static pkg_t *pkg_cache = NULL;
-
 /*
  * pkg_new_from_file(filename, file, flags)
  *
@@ -249,14 +247,7 @@ pkg_free(pkg_t *pkg)
 	if (pkg == NULL || pkg->flags & PKG_PROPF_VIRTUAL)
 		return;
 
-	if (pkg->next != NULL)
-		pkg->next->prev = pkg->prev;
-
-	if (pkg->prev != NULL)
-		pkg->prev->next = pkg->next;
-
-	if (pkg == pkg_cache)
-		pkg_cache = pkg->next;
+	pkg_cache_remove(pkg);
 
 	pkg_dependency_free(pkg->requires);
 	pkg_dependency_free(pkg->requires_private);
@@ -444,16 +435,8 @@ pkg_find(const char *name, unsigned int flags)
 	/* check cache */
 	if (!(flags & PKGF_NO_CACHE))
 	{
-		PKG_FOREACH_LIST_ENTRY(pkg_cache, pkg)
-		{
-			if (!strcmp(pkg->id, name))
-			{
-				pkg->flags |= PKG_PROPF_CACHED;
-				return pkg;
-			}
-		}
-
-		pkg = NULL;
+		if ((pkg = pkg_cache_lookup(name)) != NULL)
+			return pkg;
 	}
 
 	/* PKG_CONFIG_PATH has to take precedence */
@@ -493,13 +476,9 @@ pkg_find(const char *name, unsigned int flags)
 #endif
 
 out:
-	if (pkg != NULL && !(flags & PKGF_NO_CACHE))
-	{
-		pkg->next = pkg_cache;
-		pkg_cache = pkg;
-	}
-
+	pkg_cache_add(pkg);
 	path_free(path, count);
+
 	return pkg;
 }
 

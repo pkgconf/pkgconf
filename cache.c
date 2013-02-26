@@ -55,12 +55,12 @@ pkg_cache_add(pkg_t *pkg)
 }
 
 /*
- * pkg_cache_delete
+ * pkg_cache_remove(pkg)
  *
  * deletes a package from the cache entry.
  */
 void
-pkg_cache_delete(pkg_t *pkg)
+pkg_cache_remove(pkg_t *pkg)
 {
 	if (pkg->prev != NULL)
 		pkg->prev->next = pkg->next;
