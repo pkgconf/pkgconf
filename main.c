@@ -899,5 +899,7 @@ out_println:
 
 out:
 	pkg_tuple_free_global();
+	pkg_cache_free();
+
 	return ret;
 }

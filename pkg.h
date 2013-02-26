@@ -81,10 +81,12 @@ typedef struct pkg_queue_ {
 #define PKG_PROPF_NONE			0x0
 #define PKG_PROPF_VIRTUAL		0x1
 #define PKG_PROPF_CACHED		0x2
+#define PKG_PROPF_SEEN			0x4
 
 struct pkg_ {
 	pkg_t *prev, *next;				/* for pkg_cache */
 
+	int refcount;
 	char *id;
 	char *filename;
 	char *realname;
@@ -131,6 +133,8 @@ typedef void (*pkg_traverse_func_t)(pkg_t *pkg, void *data, unsigned int flags);
 typedef bool (*pkg_queue_apply_func_t)(pkg_t *world, void *data, int maxdepth, unsigned int flags);
 
 /* pkg.c */
+pkg_t *pkg_ref(pkg_t *pkg);
+void pkg_unref(pkg_t *pkg);
 void pkg_free(pkg_t *pkg);
 pkg_t *pkg_find(const char *name, unsigned int flags);
 void pkg_scan(const char *search_path, pkg_iteration_func_t func);
@@ -191,5 +195,6 @@ bool pkg_queue_validate(pkg_queue_t *head, int maxdepth, unsigned int flags);
 pkg_t *pkg_cache_lookup(const char *id);
 void pkg_cache_add(pkg_t *pkg);
 void pkg_cache_remove(pkg_t *pkg);
+void pkg_cache_free(void);
 
 #endif

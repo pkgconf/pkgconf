@@ -238,7 +238,7 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 	}
 
 	fclose(f);
-	return pkg;
+	return pkg_ref(pkg);
 }
 
 void
@@ -281,6 +281,21 @@ pkg_free(pkg_t *pkg)
 		free(pkg->pc_filedir);
 
 	free(pkg);
+}
+
+pkg_t *
+pkg_ref(pkg_t *pkg)
+{
+	pkg->refcount++;
+	return pkg;
+}
+
+void
+pkg_unref(pkg_t *pkg)
+{
+	pkg->refcount--;
+	if (pkg->refcount <= 0)
+		pkg_free(pkg);
 }
 
 static inline pkg_t *
@@ -338,7 +353,7 @@ pkg_scan_dir(const char *path, pkg_iteration_func_t func)
 		if (pkg != NULL)
 		{
 			func(pkg);
-			pkg_free(pkg);
+			pkg_unref(pkg);
 		}
 	}
 
@@ -809,7 +824,7 @@ pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 	}
 
 	if (pkg != NULL)
-		pkg_free(pkg);
+		pkg_unref(pkg);
 
 	return eflags;
 }
@@ -834,11 +849,16 @@ pkg_walk_list(pkg_dependency_t *deplist,
 		pkgdep = pkg_verify_dependency(node, flags, &eflags);
 		if (eflags != PKG_ERRF_OK)
 			return pkg_report_graph_error(pkgdep, node, eflags);
-		if (pkgdep->flags & PKG_PROPF_CACHED)
+		if (pkgdep->flags & PKG_PROPF_SEEN)
+		{
+			pkg_unref(pkgdep);
 			continue;
+		}
 
+		pkgdep->flags |= PKG_PROPF_SEEN;
 		eflags = pkg_traverse(pkgdep, func, data, depth - 1, flags);
-		pkg_free(pkgdep);
+		pkgdep->flags &= ~PKG_PROPF_SEEN;
+		pkg_unref(pkgdep);
 
 		/* optimization: if a break has been found in the depgraph, quit walking it */
 		if (eflags != PKG_ERRF_OK)
@@ -875,12 +895,12 @@ pkg_walk_conflicts_list(pkg_t *root, pkg_dependency_t *deplist, unsigned int fla
 				fprintf(error_msgout, "It may be possible to ignore this conflict and continue, try the\n");
 				fprintf(error_msgout, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
 
-				pkg_free(pkgdep);
+				pkg_unref(pkgdep);
 
 				return PKG_ERRF_PACKAGE_CONFLICT;
 			}
 
-			pkg_free(pkgdep);
+			pkg_unref(pkgdep);
 		}
 	}
 
@@ -949,7 +969,6 @@ pkg_cflags(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags)
 	int eflag;
 
 	eflag = pkg_traverse(root, pkg_cflags_collect, list, maxdepth, flags);
-
 	if (eflag != PKG_ERRF_OK)
 	{
 		pkg_fragment_free(*list);

@@ -32,7 +32,7 @@ pkg_cache_lookup(const char *id)
 	PKG_FOREACH_LIST_ENTRY(pkg_cache, pkg)
 	{
 		if (!strcmp(pkg->id, id))
-			return pkg;
+			return pkg_ref(pkg);
 	}
 
 	return NULL;
@@ -47,6 +47,8 @@ pkg_cache_lookup(const char *id)
 void
 pkg_cache_add(pkg_t *pkg)
 {
+	pkg_ref(pkg);
+
 	pkg->next = pkg_cache;
 	pkg_cache = pkg;
 
@@ -74,5 +76,16 @@ pkg_cache_remove(pkg_t *pkg)
 			pkg_cache = pkg->prev;
 		else
 			pkg_cache = pkg->next;
+	}
+}
+
+void
+pkg_cache_free(void)
+{
+	pkg_t *iter, *iter2;
+
+	PKG_FOREACH_LIST_ENTRY_SAFE(pkg_cache, iter2, iter)
+	{
+		pkg_free(iter);
 	}
 }
