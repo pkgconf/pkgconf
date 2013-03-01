@@ -16,29 +16,8 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
-pkg_fragment_t *
-pkg_fragment_append(pkg_fragment_t *head, pkg_fragment_t *tail)
-{
-	pkg_fragment_t *node;
-
-	if (head == NULL)
-		return tail;
-
-	/* skip to end of list */
-	PKG_FOREACH_LIST_ENTRY(head, node)
-	{
-		if (node->next == NULL)
-			break;
-	}
-
-	node->next = tail;
-	tail->prev = node;
-
-	return head;
-}
-
-pkg_fragment_t *
-pkg_fragment_add(pkg_fragment_t *head, const char *string)
+void
+pkg_fragment_add(pkg_list_t *list, const char *string)
 {
 	pkg_fragment_t *frag;
 
@@ -55,77 +34,75 @@ pkg_fragment_add(pkg_fragment_t *head, const char *string)
 		frag->data = strdup(string);
 	}
 
-	return pkg_fragment_append(head, frag);
+	pkg_node_insert_tail(&frag->iter, frag, list);
 }
 
 static inline pkg_fragment_t *
-pkg_fragment_lookup(pkg_fragment_t *head, pkg_fragment_t *base)
+pkg_fragment_lookup(pkg_list_t *list, pkg_fragment_t *base)
 {
-	pkg_fragment_t *node;
+	pkg_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(head, node)
+	PKG_FOREACH_LIST_ENTRY(list->head, node)
 	{
-		if (base->type != node->type)
+		pkg_fragment_t *frag = node->data;
+
+		if (base->type != frag->type)
 			continue;
 
-		if (!strcmp(base->data, node->data))
-			return node;
+		if (!strcmp(base->data, frag->data))
+			return frag;
 	}
 
 	return NULL;
 }
 
 bool
-pkg_fragment_exists(pkg_fragment_t *head, pkg_fragment_t *base)
+pkg_fragment_exists(pkg_list_t *list, pkg_fragment_t *base)
 {
-	return pkg_fragment_lookup(head, base) != NULL;
+	return pkg_fragment_lookup(list, base) != NULL;
 }
 
-pkg_fragment_t *
-pkg_fragment_copy(pkg_fragment_t *head, pkg_fragment_t *base)
+void
+pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base)
 {
 	pkg_fragment_t *frag;
 
-	if ((frag = pkg_fragment_lookup(head, base)) != NULL)
-	{
-		if (head == frag)
-			head = frag->next;
-
-		pkg_fragment_delete(frag);
-	}
+	if ((frag = pkg_fragment_lookup(list, base)) != NULL)
+		pkg_fragment_delete(list, frag);
 
 	frag = calloc(sizeof(pkg_fragment_t), 1);
 
 	frag->type = base->type;
 	frag->data = strdup(base->data);
 
-	return pkg_fragment_append(head, frag);
+	pkg_node_insert_tail(&frag->iter, frag, list);
 }
 
 void
-pkg_fragment_delete(pkg_fragment_t *node)
+pkg_fragment_delete(pkg_list_t *list, pkg_fragment_t *node)
 {
-	if (node->prev != NULL)
-		node->prev->next = node->next;
-
-	if (node->next != NULL)
-		node->next->prev = node->prev;
+	pkg_node_delete(&node->iter, list);
 
 	free(node->data);
 	free(node);
 }
 
 void
-pkg_fragment_free(pkg_fragment_t *head)
+pkg_fragment_free(pkg_list_t *list)
 {
-	pkg_fragment_t *node, *next;
+	pkg_node_t *node, *next;
 
-	PKG_FOREACH_LIST_ENTRY_SAFE(head, next, node)
-		pkg_fragment_delete(node);
+	PKG_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
+	{
+		pkg_fragment_t *frag = node->data;
+
+		free(frag->data);
+		free(frag);
+	}
 }
 
-pkg_fragment_t *
-pkg_fragment_parse(pkg_fragment_t *head, pkg_list_t *vars, const char *value)
+void
+pkg_fragment_parse(pkg_list_t *list, pkg_list_t *vars, const char *value)
 {
 	int i, argc;
 	char **argv;
@@ -134,10 +111,8 @@ pkg_fragment_parse(pkg_fragment_t *head, pkg_list_t *vars, const char *value)
 	pkg_argv_split(repstr, &argc, &argv);
 
 	for (i = 0; i < argc; i++)
-		head = pkg_fragment_add(head, argv[i]);
+		pkg_fragment_add(list, argv[i]);
 
 	pkg_argv_free(argv);
 	free(repstr);
-
-	return head;
 }

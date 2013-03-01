@@ -96,12 +96,14 @@ print_list_entry(const pkg_t *entry)
 }
 
 static void
-print_cflags(pkg_fragment_t *list)
+print_cflags(pkg_list_t *list)
 {
-	pkg_fragment_t *frag;
+	pkg_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(list, frag)
+	PKG_FOREACH_LIST_ENTRY(list->head, node)
 	{
+		pkg_fragment_t *frag = node->data;
+
 		if ((want_flags & PKG_CFLAGS_ONLY_I) == PKG_CFLAGS_ONLY_I && frag->type != 'I')
 			continue;
 		else if ((want_flags & PKG_CFLAGS_ONLY_OTHER) == PKG_CFLAGS_ONLY_OTHER && frag->type == 'I')
@@ -112,12 +114,14 @@ print_cflags(pkg_fragment_t *list)
 }
 
 static void
-print_libs(pkg_fragment_t *list)
+print_libs(pkg_list_t *list)
 {
-	pkg_fragment_t *frag;
+	pkg_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(list, frag)
+	PKG_FOREACH_LIST_ENTRY(list->head, node)
 	{
+		pkg_fragment_t *frag = node->data;
+
 		if ((want_flags & PKG_LIBS_ONLY_LDPATH) == PKG_LIBS_ONLY_LDPATH && frag->type != 'L')
 			continue;
 		else if ((want_flags & PKG_LIBS_ONLY_LIBNAME) == PKG_LIBS_ONLY_LIBNAME && frag->type != 'l')
@@ -293,19 +297,19 @@ apply_variable(pkg_t *world, void *variable, int maxdepth, unsigned int flags)
 static bool
 apply_cflags(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
-	pkg_fragment_t **head = list_head;
+	pkg_list_t *list = list_head;
 	int eflag;
 
-	eflag = pkg_cflags(world, head, maxdepth, flags | PKGF_SEARCH_PRIVATE);
+	eflag = pkg_cflags(world, list, maxdepth, flags | PKGF_SEARCH_PRIVATE);
 	if (eflag != PKG_ERRF_OK)
 		return false;
 
-	if (*head == NULL)
+	if (list->head == NULL)
 		return true;
 
-	print_cflags(*head);
+	print_cflags(list);
 
-	pkg_fragment_free(*head);
+	pkg_fragment_free(list);
 
 	return true;
 }
@@ -313,19 +317,20 @@ apply_cflags(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 static bool
 apply_libs(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
-	pkg_fragment_t **head = list_head;
+	pkg_list_t *list = list_head;
 	int eflag;
 
-	eflag = pkg_libs(world, head, maxdepth, flags);
+	eflag = pkg_libs(world, list, maxdepth, flags);
 	if (eflag != PKG_ERRF_OK)
 		return false;
 
-	if (*head == NULL)
+	if (list->head == NULL)
 		return true;
 
-	print_libs(*head);
+	print_libs(list);
 
-	pkg_fragment_free(*head);
+	pkg_fragment_free(list);
+
 	return true;
 }
 
@@ -867,7 +872,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_CFLAGS) == PKG_CFLAGS)
 	{
-		pkg_fragment_t *frag_list = NULL;
+		pkg_list_t frag_list = PKG_LIST_INITIALIZER;
 
 		if (!pkg_queue_apply(&pkgq, apply_cflags, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{
@@ -878,7 +883,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_LIBS) == PKG_LIBS)
 	{
-		pkg_fragment_t *frag_list = NULL;
+		pkg_list_t frag_list = PKG_LIST_INITIALIZER;
 
 		if (!pkg_queue_apply(&pkgq, apply_libs, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{

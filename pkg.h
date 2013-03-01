@@ -52,7 +52,7 @@ typedef struct pkg_fragment_ pkg_fragment_t;
 #define PKG_MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 struct pkg_fragment_ {
-	struct pkg_fragment_ *prev, *next;
+	pkg_node_t iter;
 
 	char type;
 	char *data;
@@ -91,9 +91,9 @@ struct pkg_ {
 	char *url;
 	char *pc_filedir;
 
-	pkg_fragment_t *libs;
-	pkg_fragment_t *libs_private;
-	pkg_fragment_t *cflags;
+	pkg_list_t libs;
+	pkg_list_t libs_private;
+	pkg_list_t cflags;
 
 	pkg_dependency_t *requires;
 	pkg_dependency_t *requires_private;
@@ -141,8 +141,8 @@ unsigned int pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
 int pkg_compare_version(const char *a, const char *b);
 pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
 const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
-int pkg_cflags(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags);
-int pkg_libs(pkg_t *root, pkg_fragment_t **list, int maxdepth, unsigned int flags);
+int pkg_cflags(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags);
+int pkg_libs(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags);
 pkg_comparator_t pkg_comparator_lookup_by_name(const char *name);
 
 /* parse.c */
@@ -157,13 +157,12 @@ int pkg_argv_split(const char *src, int *argc, char ***argv);
 void pkg_argv_free(char **argv);
 
 /* fragment.c */
-pkg_fragment_t *pkg_fragment_parse(pkg_fragment_t *head, pkg_list_t *vars, const char *value);
-pkg_fragment_t *pkg_fragment_append(pkg_fragment_t *head, pkg_fragment_t *tail);
-pkg_fragment_t *pkg_fragment_add(pkg_fragment_t *head, const char *string);
-pkg_fragment_t *pkg_fragment_copy(pkg_fragment_t *head, pkg_fragment_t *base);
-void pkg_fragment_delete(pkg_fragment_t *node);
-bool pkg_fragment_exists(pkg_fragment_t *head, pkg_fragment_t *base);
-void pkg_fragment_free(pkg_fragment_t *head);
+void pkg_fragment_parse(pkg_list_t *list, pkg_list_t *vars, const char *value);
+void pkg_fragment_add(pkg_list_t *list, const char *string);
+void pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base);
+void pkg_fragment_delete(pkg_list_t *list, pkg_fragment_t *node);
+bool pkg_fragment_exists(pkg_list_t *head, pkg_fragment_t *base);
+void pkg_fragment_free(pkg_list_t *list);
 
 /* fileio.c */
 char *pkg_fgetline(char *line, size_t size, FILE *stream);
