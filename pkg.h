@@ -74,11 +74,6 @@ struct pkg_tuple_ {
 	char *value;
 };
 
-typedef struct pkg_queue_ {
-	struct pkg_queue_ *prev, *next;
-	char *package;
-} pkg_queue_t;
-
 #define PKG_PROPF_NONE			0x0
 #define PKG_PROPF_VIRTUAL		0x1
 #define PKG_PROPF_CACHED		0x2
@@ -186,11 +181,11 @@ void pkg_tuple_define_global(const char *kv);
 extern FILE *error_msgout;
 
 /* queue.c */
-pkg_queue_t *pkg_queue_push(pkg_queue_t *parent, const char *package);
-bool pkg_queue_compile(pkg_t *world, pkg_queue_t *head);
-void pkg_queue_free(pkg_queue_t *head);
-bool pkg_queue_apply(pkg_queue_t *head, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
-bool pkg_queue_validate(pkg_queue_t *head, int maxdepth, unsigned int flags);
+void pkg_queue_push(pkg_list_t *list, const char *package);
+bool pkg_queue_compile(pkg_t *world, pkg_list_t *list);
+void pkg_queue_free(pkg_list_t *list);
+bool pkg_queue_apply(pkg_list_t *list, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
+bool pkg_queue_validate(pkg_list_t *list, int maxdepth, unsigned int flags);
 
 /* cache.c */
 pkg_t *pkg_cache_lookup(const char *id);

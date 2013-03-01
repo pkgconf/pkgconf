@@ -52,6 +52,28 @@ pkg_node_insert(pkg_node_t *node, void *data, pkg_list_t *list)
 }
 
 static inline void
+pkg_node_insert_tail(pkg_node_t *node, void *data, pkg_list_t *list)
+{
+	pkg_node_t *tnode;
+
+	node->data = data;
+
+	if (list->head == NULL)
+	{
+		list->head = node;
+		list->tail = node;
+		return;
+	}
+
+	tnode = list->tail;
+
+	node->prev = tnode;
+	tnode->next = node;
+
+	list->tail = node;
+}
+
+static inline void
 pkg_node_delete(pkg_node_t *node, pkg_list_t *list)
 {
 	if (node->prev == NULL)
