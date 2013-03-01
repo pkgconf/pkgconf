@@ -89,7 +89,7 @@ print_fragment(pkg_fragment_t *frag)
 static void
 print_list_entry(const pkg_t *entry)
 {
-	if (entry->uninstalled)
+	if (entry->flags & PKG_PROPF_UNINSTALLED)
 		return;
 
 	printf("%-30s %s - %s\n", entry->id, entry->realname, entry->description);
@@ -387,7 +387,7 @@ check_uninstalled(pkg_t *pkg, void *data, unsigned int flags)
 	int *retval = data;
 	(void) flags;
 
-	if (pkg->uninstalled)
+	if (pkg->flags & PKG_PROPF_UNINSTALLED)
 		*retval = EXIT_SUCCESS;
 }
 

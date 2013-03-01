@@ -78,6 +78,7 @@ struct pkg_tuple_ {
 #define PKG_PROPF_VIRTUAL		0x1
 #define PKG_PROPF_CACHED		0x2
 #define PKG_PROPF_SEEN			0x4
+#define PKG_PROPF_UNINSTALLED		0x8
 
 struct pkg_ {
 	pkg_node_t cache_iter;
@@ -100,8 +101,6 @@ struct pkg_ {
 	pkg_list_t conflicts;
 
 	pkg_list_t vars;
-
-	bool uninstalled;
 
 	unsigned int flags;
 };

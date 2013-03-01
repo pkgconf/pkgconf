@@ -312,7 +312,7 @@ pkg_try_specific_path(const char *path, const char *name, unsigned int flags)
 	if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 	{
 		pkg = pkg_new_from_file(uninst_locbuf, f, flags);
-		pkg->uninstalled = true;
+		pkg->flags |= PKG_PROPF_UNINSTALLED;
 	}
 	else if ((f = fopen(locbuf, "r")) != NULL)
 		pkg = pkg_new_from_file(locbuf, f, flags);
