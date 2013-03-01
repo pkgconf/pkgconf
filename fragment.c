@@ -125,7 +125,7 @@ pkg_fragment_free(pkg_fragment_t *head)
 }
 
 pkg_fragment_t *
-pkg_fragment_parse(pkg_fragment_t *head, pkg_tuple_t *vars, const char *value)
+pkg_fragment_parse(pkg_fragment_t *head, pkg_list_t *vars, const char *value)
 {
 	int i, argc;
 	char **argv;

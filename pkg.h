@@ -68,7 +68,7 @@ struct pkg_dependency_ {
 };
 
 struct pkg_tuple_ {
-	struct pkg_tuple_ *prev, *next;
+	pkg_node_t iter;
 
 	char *key;
 	char *value;
@@ -98,7 +98,8 @@ struct pkg_ {
 	pkg_dependency_t *requires;
 	pkg_dependency_t *requires_private;
 	pkg_dependency_t *conflicts;
-	pkg_tuple_t *vars;
+
+	pkg_list_t vars;
 
 	bool uninstalled;
 
@@ -156,7 +157,7 @@ int pkg_argv_split(const char *src, int *argc, char ***argv);
 void pkg_argv_free(char **argv);
 
 /* fragment.c */
-pkg_fragment_t *pkg_fragment_parse(pkg_fragment_t *head, pkg_tuple_t *vars, const char *value);
+pkg_fragment_t *pkg_fragment_parse(pkg_fragment_t *head, pkg_list_t *vars, const char *value);
 pkg_fragment_t *pkg_fragment_append(pkg_fragment_t *head, pkg_fragment_t *tail);
 pkg_fragment_t *pkg_fragment_add(pkg_fragment_t *head, const char *string);
 pkg_fragment_t *pkg_fragment_copy(pkg_fragment_t *head, pkg_fragment_t *base);
@@ -168,10 +169,10 @@ void pkg_fragment_free(pkg_fragment_t *head);
 char *pkg_fgetline(char *line, size_t size, FILE *stream);
 
 /* tuple.c */
-pkg_tuple_t *pkg_tuple_add(pkg_tuple_t *parent, const char *key, const char *value);
-char *pkg_tuple_find(pkg_tuple_t *head, const char *key);
-char *pkg_tuple_parse(pkg_tuple_t *vars, const char *value);
-void pkg_tuple_free(pkg_tuple_t *head);
+pkg_tuple_t *pkg_tuple_add(pkg_list_t *parent, const char *key, const char *value);
+char *pkg_tuple_find(pkg_list_t *list, const char *key);
+char *pkg_tuple_parse(pkg_list_t *list, const char *value);
+void pkg_tuple_free(pkg_list_t *list);
 void pkg_tuple_add_global(const char *key, const char *value);
 char *pkg_tuple_find_global(const char *key);
 void pkg_tuple_free_global(void);

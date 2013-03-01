@@ -154,7 +154,7 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 
 	pkg = calloc(sizeof(pkg_t), 1);
 	pkg->filename = strdup(filename);
-	pkg->vars = pkg_tuple_add(pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg));
+	pkg_tuple_add(&pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg));
 
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
@@ -200,17 +200,17 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 		{
 		case ':':
 			if (!strcasecmp(key, "Name"))
-				pkg->realname = pkg_tuple_parse(pkg->vars, value);
+				pkg->realname = pkg_tuple_parse(&pkg->vars, value);
 			else if (!strcasecmp(key, "Description"))
-				pkg->description = pkg_tuple_parse(pkg->vars, value);
+				pkg->description = pkg_tuple_parse(&pkg->vars, value);
 			else if (!strcasecmp(key, "Version"))
-				pkg->version = pkg_tuple_parse(pkg->vars, value);
+				pkg->version = pkg_tuple_parse(&pkg->vars, value);
 			else if (!strcasecmp(key, "CFLAGS"))
-				pkg->cflags = pkg_fragment_parse(pkg->cflags, pkg->vars, value);
+				pkg->cflags = pkg_fragment_parse(pkg->cflags, &pkg->vars, value);
 			else if (!strcasecmp(key, "LIBS"))
-				pkg->libs = pkg_fragment_parse(pkg->libs, pkg->vars, value);
+				pkg->libs = pkg_fragment_parse(pkg->libs, &pkg->vars, value);
 			else if (!strcasecmp(key, "LIBS.private"))
-				pkg->libs_private = pkg_fragment_parse(pkg->libs_private, pkg->vars, value);
+				pkg->libs_private = pkg_fragment_parse(pkg->libs_private, &pkg->vars, value);
 			else if (!strcasecmp(key, "Requires"))
 				pkg->requires = pkg_dependency_parse(pkg, value);
 			else if (!strcasecmp(key, "Requires.private"))
@@ -220,7 +220,7 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 			break;
 		case '=':
 			if (!(flags & PKGF_MUNGE_SYSROOT_PREFIX) || strcasecmp(key, "prefix"))
-				pkg->vars = pkg_tuple_add(pkg->vars, key, value);
+				pkg_tuple_add(&pkg->vars, key, value);
 			else
 			{
 				char mungebuf[PKG_BUFSIZE];
@@ -229,7 +229,7 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 				strlcpy(mungebuf, sysroot_dir, sizeof mungebuf);
 				strlcat(mungebuf, value, sizeof mungebuf);
 
-				pkg->vars = pkg_tuple_add(pkg->vars, key, mungebuf);
+				pkg_tuple_add(&pkg->vars, key, mungebuf);
 			}
 			break;
 		default:
@@ -257,7 +257,7 @@ pkg_free(pkg_t *pkg)
 	pkg_fragment_free(pkg->libs);
 	pkg_fragment_free(pkg->libs_private);
 
-	pkg_tuple_free(pkg->vars);
+	pkg_tuple_free(&pkg->vars);
 
 	if (pkg->id != NULL)
 		free(pkg->id);
@@ -629,9 +629,16 @@ static pkg_t pkg_config_virtual = {
 	.url = PACKAGE_BUGREPORT,
 	.version = PKG_PKGCONFIG_VERSION_EQUIV,
 	.flags = PKG_PROPF_VIRTUAL,
-	.vars = &(pkg_tuple_t){
-		.key = "pc_path",
-		.value = PKG_DEFAULT_PATH,
+	.vars = {
+		.head = &(pkg_node_t){
+			.prev = NULL,
+			.next = NULL,
+			.data = &(pkg_tuple_t){
+				.key = "pc_path",
+				.value = PKG_DEFAULT_PATH,
+			},
+		},
+		.tail = NULL,
 	},
 };
 

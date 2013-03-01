@@ -16,23 +16,25 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
-static pkg_tuple_t *pkg_global_var;
+static pkg_list_t pkg_global_var = PKG_LIST_INITIALIZER;
 
 void
 pkg_tuple_add_global(const char *key, const char *value)
 {
-	pkg_global_var = pkg_tuple_add(pkg_global_var, key, value);
+	pkg_tuple_add(&pkg_global_var, key, value);
 }
 
 char *
 pkg_tuple_find_global(const char *key)
 {
-	pkg_tuple_t *node;
+	pkg_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(pkg_global_var, node)
+	PKG_FOREACH_LIST_ENTRY(pkg_global_var.head, node)
 	{
-		if (!strcasecmp(node->key, key))
-			return node->value;
+		pkg_tuple_t *tuple = node->data;
+
+		if (!strcasecmp(tuple->key, key))
+			return tuple->value;
 	}
 
 	return NULL;
@@ -41,7 +43,7 @@ pkg_tuple_find_global(const char *key)
 void
 pkg_tuple_free_global(void)
 {
-	pkg_tuple_free(pkg_global_var);
+	pkg_tuple_free(&pkg_global_var);
 }
 
 void
@@ -61,40 +63,40 @@ out:
 }
 
 pkg_tuple_t *
-pkg_tuple_add(pkg_tuple_t *parent, const char *key, const char *value)
+pkg_tuple_add(pkg_list_t *list, const char *key, const char *value)
 {
 	pkg_tuple_t *tuple = calloc(sizeof(pkg_tuple_t), 1);
 
 	tuple->key = strdup(key);
-	tuple->value = pkg_tuple_parse(parent, value);
+	tuple->value = pkg_tuple_parse(list, value);
 
-	tuple->next = parent;
-	if (tuple->next != NULL)
-		tuple->next->prev = tuple;
+	pkg_node_insert(&tuple->iter, tuple, list);
 
 	return tuple;
 }
 
 char *
-pkg_tuple_find(pkg_tuple_t *head, const char *key)
+pkg_tuple_find(pkg_list_t *list, const char *key)
 {
-	pkg_tuple_t *node;
+	pkg_node_t *node;
 	char *res;
 
 	if ((res = pkg_tuple_find_global(key)) != NULL)
 		return res;
 
-	PKG_FOREACH_LIST_ENTRY(head, node)
+	PKG_FOREACH_LIST_ENTRY(list->head, node)
 	{
-		if (!strcasecmp(node->key, key))
-			return node->value;
+		pkg_tuple_t *tuple = node->data;
+
+		if (!strcasecmp(tuple->key, key))
+			return tuple->value;
 	}
 
 	return NULL;
 }
 
 char *
-pkg_tuple_parse(pkg_tuple_t *vars, const char *value)
+pkg_tuple_parse(pkg_list_t *vars, const char *value)
 {
 	char buf[PKG_BUFSIZE];
 	const char *ptr;
@@ -145,14 +147,16 @@ pkg_tuple_parse(pkg_tuple_t *vars, const char *value)
 }
 
 void
-pkg_tuple_free(pkg_tuple_t *head)
+pkg_tuple_free(pkg_list_t *list)
 {
-	pkg_tuple_t *node, *next;
+	pkg_node_t *node, *next;
 
-	PKG_FOREACH_LIST_ENTRY_SAFE(head, next, node)
+	PKG_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
 	{
-		free(node->key);
-		free(node->value);
-		free(node);
+		pkg_tuple_t *tuple = node->data;
+
+		free(tuple->key);
+		free(tuple->value);
+		free(tuple);
 	}
 }

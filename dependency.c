@@ -249,7 +249,7 @@ pkg_dependency_t *
 pkg_dependency_parse(pkg_t *pkg, const char *depends)
 {
 	pkg_dependency_t *list = NULL;
-	char *kvdepends = pkg_tuple_parse(pkg->vars, depends);
+	char *kvdepends = pkg_tuple_parse(&pkg->vars, depends);
 
 	list = pkg_dependency_parse_str(list, kvdepends);
 	free(kvdepends);

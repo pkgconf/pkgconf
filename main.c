@@ -142,12 +142,16 @@ print_modversion(pkg_t *pkg, void *unused, unsigned int flags)
 static void
 print_variables(pkg_t *pkg, void *unused, unsigned int flags)
 {
-	pkg_tuple_t *node;
+	pkg_node_t *node;
 	(void) unused;
 	(void) flags;
 
-	PKG_FOREACH_LIST_ENTRY(pkg->vars, node)
-		printf("%s\n", node->key);
+	PKG_FOREACH_LIST_ENTRY(pkg->vars.head, node)
+	{
+		pkg_tuple_t *tuple = node->data;
+
+		printf("%s\n", tuple->key);
+	}
 }
 
 static void
@@ -253,7 +257,7 @@ print_variable(pkg_t *pkg, void *data, unsigned int flags)
 	const char *var;
 	(void) flags;
 
-	var = pkg_tuple_find(pkg->vars, req->variable);
+	var = pkg_tuple_find(&pkg->vars, req->variable);
 	if (var != NULL)
 	{
 		if (*(req->buf) == '\0')
