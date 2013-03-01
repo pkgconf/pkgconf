@@ -18,6 +18,7 @@
 
 #include "config.h"
 #include "stdinc.h"
+#include "iter.h"
 
 #define PKG_BUFSIZE	(65535)
 
