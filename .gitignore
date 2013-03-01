@@ -1,6 +1,7 @@
 *.h.in~
 *.o
 *.og
+*.op
 *.gcno
 *.gcda
 *.gcov
@@ -27,5 +28,6 @@ core
 /configure
 /pkgconf
 /pkgconf-gcov
+/pkgconf-profile
 
 Makefile
