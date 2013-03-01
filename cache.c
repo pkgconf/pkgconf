@@ -15,7 +15,7 @@
 
 #include "pkg.h"
 
-static pkg_t *pkg_cache = NULL;
+static pkg_list_t pkg_cache = PKG_LIST_INITIALIZER;
 
 /*
  * pkg_cache_lookup(id)
@@ -27,10 +27,12 @@ static pkg_t *pkg_cache = NULL;
 pkg_t *
 pkg_cache_lookup(const char *id)
 {
-	pkg_t *pkg;
+	pkg_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(pkg_cache, pkg)
+	PKG_FOREACH_LIST_ENTRY(pkg_cache.head, node)
 	{
+		pkg_t *pkg = node->data;
+
 		if (!strcmp(pkg->id, id))
 			return pkg_ref(pkg);
 	}
@@ -49,11 +51,7 @@ pkg_cache_add(pkg_t *pkg)
 {
 	pkg_ref(pkg);
 
-	pkg->next = pkg_cache;
-	pkg_cache = pkg;
-
-	if (pkg->next != NULL)
-		pkg->next->prev = pkg;
+	pkg_node_insert(&pkg->cache_iter, pkg, &pkg_cache);
 }
 
 /*
@@ -64,28 +62,18 @@ pkg_cache_add(pkg_t *pkg)
 void
 pkg_cache_remove(pkg_t *pkg)
 {
-	if (pkg->prev != NULL)
-		pkg->prev->next = pkg->next;
-
-	if (pkg->next != NULL)
-		pkg->next->prev = pkg->prev;
-
-	if (pkg == pkg_cache)
-	{
-		if (pkg->prev != NULL)
-			pkg_cache = pkg->prev;
-		else
-			pkg_cache = pkg->next;
-	}
+	pkg_node_delete(&pkg->cache_iter, &pkg_cache);
 }
 
 void
 pkg_cache_free(void)
 {
-	pkg_t *iter, *iter2;
+	pkg_node_t *iter, *iter2;
 
-	PKG_FOREACH_LIST_ENTRY_SAFE(pkg_cache, iter2, iter)
+	PKG_FOREACH_LIST_ENTRY_SAFE(pkg_cache.head, iter2, iter)
 	{
-		pkg_free(iter);
+		pkg_t *pkg = iter->data;
+
+		pkg_free(pkg);
 	}
 }

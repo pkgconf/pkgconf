@@ -85,7 +85,7 @@ typedef struct pkg_queue_ {
 #define PKG_PROPF_SEEN			0x4
 
 struct pkg_ {
-	pkg_t *prev, *next;				/* for pkg_cache */
+	pkg_node_t cache_iter;
 
 	int refcount;
 	char *id;

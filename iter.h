@@ -27,6 +27,8 @@ typedef struct {
 	pkg_node_t *head, *tail;
 } pkg_list_t;
 
+#define PKG_LIST_INITIALIZER		{ NULL, NULL }
+
 static inline void
 pkg_node_insert(pkg_node_t *node, void *data, pkg_list_t *list)
 {
