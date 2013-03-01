@@ -59,7 +59,7 @@ struct pkg_fragment_ {
 };
 
 struct pkg_dependency_ {
-	struct pkg_dependency_ *prev, *next;
+	pkg_node_t iter;
 
 	char *package;
 	pkg_comparator_t compare;
@@ -95,9 +95,9 @@ struct pkg_ {
 	pkg_list_t libs_private;
 	pkg_list_t cflags;
 
-	pkg_dependency_t *requires;
-	pkg_dependency_t *requires_private;
-	pkg_dependency_t *conflicts;
+	pkg_list_t requires;
+	pkg_list_t requires_private;
+	pkg_list_t conflicts;
 
 	pkg_list_t vars;
 
@@ -147,10 +147,10 @@ pkg_comparator_t pkg_comparator_lookup_by_name(const char *name);
 
 /* parse.c */
 pkg_t *pkg_new_from_file(const char *path, FILE *f, unsigned int flags);
-pkg_dependency_t *pkg_dependency_parse_str(pkg_dependency_t *deplist_head, const char *depends);
-pkg_dependency_t *pkg_dependency_parse(pkg_t *pkg, const char *depends);
-pkg_dependency_t *pkg_dependency_append(pkg_dependency_t *head, pkg_dependency_t *tail);
-void pkg_dependency_free(pkg_dependency_t *head);
+void pkg_dependency_parse_str(pkg_list_t *deplist_head, const char *depends);
+void pkg_dependency_parse(pkg_t *pkg, pkg_list_t *deplist_head, const char *depends);
+void pkg_dependency_append(pkg_list_t *list, pkg_dependency_t *tail);
+void pkg_dependency_free(pkg_list_t *list);
 
 /* argvsplit.c */
 int pkg_argv_split(const char *src, int *argc, char ***argv);

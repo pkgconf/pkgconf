@@ -38,18 +38,12 @@ pkg_queue_compile(pkg_t *world, pkg_list_t *list)
 	PKG_FOREACH_LIST_ENTRY(list->head, iter)
 	{
 		pkg_queue_t *pkgq;
-		pkg_dependency_t *pkgdep;
 
 		pkgq = iter->data;
-		pkgdep = pkg_dependency_parse(world, pkgq->package);
-
-		if (pkgdep != NULL)
-			world->requires = pkg_dependency_append(world->requires, pkgdep);
-		else
-			return false;
+		pkg_dependency_parse(world, &world->requires, pkgq->package);
 	}
 
-	return true;
+	return (world->requires.head != NULL);
 }
 
 void

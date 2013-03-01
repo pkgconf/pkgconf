@@ -161,14 +161,16 @@ print_variables(pkg_t *pkg, void *unused, unsigned int flags)
 static void
 print_requires(pkg_t *pkg)
 {
-	pkg_dependency_t *node;
+	pkg_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(pkg->requires, node)
+	PKG_FOREACH_LIST_ENTRY(pkg->requires.head, node)
 	{
-		printf("%s", node->package);
+		pkg_dependency_t *dep = node->data;
 
-		if (node->version != NULL)
-			printf(" %s %s", pkg_get_comparator(node), node->version);
+		printf("%s", dep->package);
+
+		if (dep->version != NULL)
+			printf(" %s %s", pkg_get_comparator(dep), dep->version);
 
 		printf("\n");
 	}
@@ -177,14 +179,16 @@ print_requires(pkg_t *pkg)
 static void
 print_requires_private(pkg_t *pkg)
 {
-	pkg_dependency_t *node;
+	pkg_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(pkg->requires_private, node)
+	PKG_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
 	{
-		printf("%s", node->package);
+		pkg_dependency_t *dep = node->data;
 
-		if (node->version != NULL)
-			printf(" %s %s", pkg_get_comparator(node), node->version);
+		printf("%s", dep->package);
+
+		if (dep->version != NULL)
+			printf(" %s %s", pkg_get_comparator(dep), dep->version);
 
 		printf("\n");
 	}
@@ -193,15 +197,17 @@ print_requires_private(pkg_t *pkg)
 static void
 print_digraph_node(pkg_t *pkg, void *unused, unsigned int flags)
 {
-	pkg_dependency_t *node;
+	pkg_node_t *node;
 	(void) unused;
 	(void) flags;
 
 	printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
 
-	PKG_FOREACH_LIST_ENTRY(pkg->requires, node)
+	PKG_FOREACH_LIST_ENTRY(pkg->requires.head, node)
 	{
-		printf("\"%s\" -- \"%s\" [fontname=Sans fontsize=8]\n", node->package, pkg->id);
+		pkg_dependency_t *dep = node->data;
+
+		printf("\"%s\" -- \"%s\" [fontname=Sans fontsize=8]\n", dep->package, pkg->id);
 	}
 }
 
@@ -337,34 +343,37 @@ apply_libs(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 static bool
 apply_requires(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
-	pkg_dependency_t *iter;
+	pkg_node_t *iter;
 	(void) unused;
 	(void) maxdepth;
 
-	PKG_FOREACH_LIST_ENTRY(world->requires, iter)
+	PKG_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
 		pkg_t *pkg;
+		pkg_dependency_t *dep = iter->data;
 
-		pkg = pkg_verify_dependency(iter, flags, NULL);
+		pkg = pkg_verify_dependency(dep, flags, NULL);
 		print_requires(pkg);
 
 		pkg_free(pkg);
 	}
+
 	return true;
 }
 
 static bool
 apply_requires_private(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
-	pkg_dependency_t *iter;
+	pkg_node_t *iter;
 	(void) unused;
 	(void) maxdepth;
 
-	PKG_FOREACH_LIST_ENTRY(world->requires, iter)
+	PKG_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
 		pkg_t *pkg;
+		pkg_dependency_t *dep = iter->data;
 
-		pkg = pkg_verify_dependency(iter, flags | PKGF_SEARCH_PRIVATE, NULL);
+		pkg = pkg_verify_dependency(dep, flags | PKGF_SEARCH_PRIVATE, NULL);
 		print_requires_private(pkg);
 
 		pkg_free(pkg);
@@ -671,16 +680,19 @@ main(int argc, char *argv[])
 	if (required_module_version != NULL)
 	{
 		pkg_t *pkg;
-		pkg_dependency_t *pkghead = NULL, *pkgiter = NULL;
+		pkg_node_t *node;
+		pkg_list_t deplist = PKG_LIST_INITIALIZER;
 
 		while (argv[pkg_optind])
 		{
-			pkghead = pkg_dependency_parse_str(pkghead, argv[pkg_optind]);
+			pkg_dependency_parse_str(&deplist, argv[pkg_optind]);
 			pkg_optind++;
 		}
 
-		PKG_FOREACH_LIST_ENTRY(pkghead, pkgiter)
+		PKG_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
+			pkg_dependency_t *pkgiter = node->data;
+
 			pkg = pkg_find(pkgiter->package, global_traverse_flags);
 			if (pkg == NULL)
 				return EXIT_FAILURE;
@@ -695,16 +707,19 @@ main(int argc, char *argv[])
 	if (required_exact_module_version != NULL)
 	{
 		pkg_t *pkg;
-		pkg_dependency_t *pkghead = NULL, *pkgiter = NULL;
+		pkg_node_t *node;
+		pkg_list_t deplist = PKG_LIST_INITIALIZER;
 
 		while (argv[pkg_optind])
 		{
-			pkghead = pkg_dependency_parse_str(pkghead, argv[pkg_optind]);
+			pkg_dependency_parse_str(&deplist, argv[pkg_optind]);
 			pkg_optind++;
 		}
 
-		PKG_FOREACH_LIST_ENTRY(pkghead, pkgiter)
+		PKG_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
+			pkg_dependency_t *pkgiter = node->data;
+
 			pkg = pkg_find(pkgiter->package, global_traverse_flags);
 			if (pkg == NULL)
 				return EXIT_FAILURE;
@@ -719,16 +734,19 @@ main(int argc, char *argv[])
 	if (required_max_module_version != NULL)
 	{
 		pkg_t *pkg;
-		pkg_dependency_t *pkghead = NULL, *pkgiter = NULL;
+		pkg_node_t *node;
+		pkg_list_t deplist = PKG_LIST_INITIALIZER;
 
 		while (argv[pkg_optind])
 		{
-			pkghead = pkg_dependency_parse_str(pkghead, argv[pkg_optind]);
+			pkg_dependency_parse_str(&deplist, argv[pkg_optind]);
 			pkg_optind++;
 		}
 
-		PKG_FOREACH_LIST_ENTRY(pkghead, pkgiter)
+		PKG_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
+			pkg_dependency_t *pkgiter = node->data;
+
 			pkg = pkg_find(pkgiter->package, global_traverse_flags);
 			if (pkg == NULL)
 				return EXIT_FAILURE;

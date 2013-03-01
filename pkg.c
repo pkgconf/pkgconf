@@ -212,11 +212,11 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 			else if (!strcasecmp(key, "LIBS.private"))
 				pkg_fragment_parse(&pkg->libs_private, &pkg->vars, value);
 			else if (!strcasecmp(key, "Requires"))
-				pkg->requires = pkg_dependency_parse(pkg, value);
+				pkg_dependency_parse(pkg, &pkg->requires, value);
 			else if (!strcasecmp(key, "Requires.private"))
-				pkg->requires_private = pkg_dependency_parse(pkg, value);
+				pkg_dependency_parse(pkg, &pkg->requires_private, value);
 			else if (!strcasecmp(key, "Conflicts"))
-				pkg->conflicts = pkg_dependency_parse(pkg, value);
+				pkg_dependency_parse(pkg, &pkg->conflicts, value);
 			break;
 		case '=':
 			if (!(flags & PKGF_MUNGE_SYSROOT_PREFIX) || strcasecmp(key, "prefix"))
@@ -249,9 +249,9 @@ pkg_free(pkg_t *pkg)
 
 	pkg_cache_remove(pkg);
 
-	pkg_dependency_free(pkg->requires);
-	pkg_dependency_free(pkg->requires_private);
-	pkg_dependency_free(pkg->conflicts);
+	pkg_dependency_free(&pkg->requires);
+	pkg_dependency_free(&pkg->requires_private);
+	pkg_dependency_free(&pkg->conflicts);
 
 	pkg_fragment_free(&pkg->cflags);
 	pkg_fragment_free(&pkg->libs);
@@ -837,25 +837,26 @@ pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 }
 
 static inline unsigned int
-pkg_walk_list(pkg_dependency_t *deplist,
+pkg_walk_list(pkg_list_t *deplist,
 	pkg_traverse_func_t func,
 	void *data,
 	int depth,
 	unsigned int flags)
 {
 	unsigned int eflags = PKG_ERRF_OK;
-	pkg_dependency_t *node;
+	pkg_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(deplist, node)
+	PKG_FOREACH_LIST_ENTRY(deplist->head, node)
 	{
+		pkg_dependency_t *depnode = node->data;
 		pkg_t *pkgdep;
 
-		if (*node->package == '\0')
+		if (*depnode->package == '\0')
 			continue;
 
-		pkgdep = pkg_verify_dependency(node, flags, &eflags);
+		pkgdep = pkg_verify_dependency(depnode, flags, &eflags);
 		if (eflags != PKG_ERRF_OK)
-			return pkg_report_graph_error(pkgdep, node, eflags);
+			return pkg_report_graph_error(pkgdep, depnode, eflags);
 		if (pkgdep->flags & PKG_PROPF_SEEN)
 		{
 			pkg_unref(pkgdep);
@@ -876,29 +877,32 @@ pkg_walk_list(pkg_dependency_t *deplist,
 }
 
 static inline unsigned int
-pkg_walk_conflicts_list(pkg_t *root, pkg_dependency_t *deplist, unsigned int flags)
+pkg_walk_conflicts_list(pkg_t *root, pkg_list_t *deplist, unsigned int flags)
 {
 	unsigned int eflags;
-	pkg_dependency_t *node, *depnode;
+	pkg_node_t *node, *childnode;
 
-	PKG_FOREACH_LIST_ENTRY(deplist, node)
+	PKG_FOREACH_LIST_ENTRY(deplist->head, node)
 	{
-		if (*node->package == '\0')
+		pkg_dependency_t *parentnode = node->data;
+
+		if (*parentnode->package == '\0')
 			continue;
 
-		PKG_FOREACH_LIST_ENTRY(root->requires, depnode)
+		PKG_FOREACH_LIST_ENTRY(root->requires.head, childnode)
 		{
 			pkg_t *pkgdep;
+			pkg_dependency_t *depnode = childnode->data;
 
-			if (*depnode->package == '\0' || strcmp(depnode->package, node->package))
+			if (*depnode->package == '\0' || strcmp(depnode->package, parentnode->package))
 				continue;
 
-			pkgdep = pkg_verify_dependency(node, flags, &eflags);
+			pkgdep = pkg_verify_dependency(parentnode, flags, &eflags);
 			if (eflags == PKG_ERRF_OK)
 			{
 				fprintf(error_msgout, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
-					pkgdep->version, pkgdep->realname, root->realname, node->package, pkg_get_comparator(node),
-					node->version != NULL ? " " : "", node->version != NULL ? node->version : "");
+					pkgdep->version, pkgdep->realname, root->realname, parentnode->package, pkg_get_comparator(parentnode),
+					parentnode->version != NULL ? " " : "", parentnode->version != NULL ? parentnode->version : "");
 				fprintf(error_msgout, "It may be possible to ignore this conflict and continue, try the\n");
 				fprintf(error_msgout, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
 
@@ -940,18 +944,18 @@ pkg_traverse(pkg_t *root,
 
 	if (!(flags & PKGF_SKIP_CONFLICTS))
 	{
-		eflags = pkg_walk_conflicts_list(root, root->conflicts, rflags);
+		eflags = pkg_walk_conflicts_list(root, &root->conflicts, rflags);
 		if (eflags != PKG_ERRF_OK)
 			return eflags;
 	}
 
-	eflags = pkg_walk_list(root->requires, func, data, maxdepth, rflags);
+	eflags = pkg_walk_list(&root->requires, func, data, maxdepth, rflags);
 	if (eflags != PKG_ERRF_OK)
 		return eflags;
 
 	if (flags & PKGF_SEARCH_PRIVATE)
 	{
-		eflags = pkg_walk_list(root->requires_private, func, data, maxdepth, rflags);
+		eflags = pkg_walk_list(&root->requires_private, func, data, maxdepth, rflags);
 		if (eflags != PKG_ERRF_OK)
 			return eflags;
 	}
