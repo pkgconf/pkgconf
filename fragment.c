@@ -23,7 +23,7 @@ pkg_fragment_add(pkg_list_t *list, const char *string)
 
 	frag = calloc(sizeof(pkg_fragment_t), 1);
 
-	if (*string == '-' && strncmp(string, "-lib:", 5))
+	if (*string == '-' && strncmp(string, "-lib:", 5) && strncmp(string, "-framework", 10))
 	{
 		frag->type = *(string + 1);
 		frag->data = strdup(string + 2);
@@ -56,10 +56,34 @@ pkg_fragment_lookup(pkg_list_t *list, pkg_fragment_t *base)
 	return NULL;
 }
 
-bool
+static inline bool
+pkg_fragment_can_merge_back(pkg_fragment_t *base)
+{
+	if (base->type == 'F')
+		return false;
+
+	return true;
+}
+
+static inline bool
+pkg_fragment_can_merge(pkg_fragment_t *base)
+{
+	if (!strncmp(base->data, "-framework", 10))
+		return false;
+
+	return true;
+}
+
+static inline pkg_fragment_t *
 pkg_fragment_exists(pkg_list_t *list, pkg_fragment_t *base)
 {
-	return pkg_fragment_lookup(list, base) != NULL;
+	if (!pkg_fragment_can_merge_back(base))
+		return NULL;
+
+	if (!pkg_fragment_can_merge(base))
+		return NULL;
+
+	return pkg_fragment_lookup(list, base);
 }
 
 void
@@ -67,8 +91,10 @@ pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base)
 {
 	pkg_fragment_t *frag;
 
-	if ((frag = pkg_fragment_lookup(list, base)) != NULL)
+	if ((frag = pkg_fragment_exists(list, base)) != NULL)
 		pkg_fragment_delete(list, frag);
+	else if (!pkg_fragment_can_merge_back(base) && (pkg_fragment_lookup(list, base) != NULL))
+		return;
 
 	frag = calloc(sizeof(pkg_fragment_t), 1);
 
