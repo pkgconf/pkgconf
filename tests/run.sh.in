@@ -214,6 +214,12 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs nocflag; echo \$?" \
 run_test "cp ${selfdir}/lib1/foo.pc . && ${1} --libs foo.pc; rm -f foo.pc" \
 	'-lfoo'
 
+# test 47 - framework flags
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-1" \
+	"-F/usr/lib -framework framework-1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-2" \
+	"-F/usr/lib -framework framework-1 -framework framework-2"
+
 # 10) tests for internal getopt implementation with options at the end
 if [ "x@STRICT_MODE@" = "xno" ]; then
 	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} foo --libs" \
