@@ -49,6 +49,9 @@ pkg_cache_lookup(const char *id)
 void
 pkg_cache_add(pkg_t *pkg)
 {
+	if (pkg == NULL)
+		return;
+
 	pkg_ref(pkg);
 
 	pkg_node_insert(&pkg->cache_iter, pkg, &pkg_cache);
@@ -62,6 +65,9 @@ pkg_cache_add(pkg_t *pkg)
 void
 pkg_cache_remove(pkg_t *pkg)
 {
+	if (pkg == NULL)
+		return;
+
 	pkg_node_delete(&pkg->cache_iter, &pkg_cache);
 }
 
