@@ -811,14 +811,14 @@ pkg_verify_graph(pkg_t *root, int depth, unsigned int flags)
 }
 
 static unsigned int
-pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
+pkg_report_graph_error(pkg_t *parent, pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 {
 	if (eflags & PKG_ERRF_PACKAGE_NOT_FOUND)
 	{
 		fprintf(error_msgout, "Package %s was not found in the pkg-config search path.\n", node->package);
 		fprintf(error_msgout, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
 		fprintf(error_msgout, "to the PKG_CONFIG_PATH environment variable\n");
-		fprintf(error_msgout, "No package '%s' found\n", node->package);
+		fprintf(error_msgout, "Package '%s', required by '%s', not found\n", node->package, parent->id);
 	}
 	else if (eflags & PKG_ERRF_PACKAGE_VER_MISMATCH)
 	{
@@ -837,7 +837,8 @@ pkg_report_graph_error(pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 }
 
 static inline unsigned int
-pkg_walk_list(pkg_list_t *deplist,
+pkg_walk_list(pkg_t *parent,
+	pkg_list_t *deplist,
 	pkg_traverse_func_t func,
 	void *data,
 	int depth,
@@ -856,7 +857,7 @@ pkg_walk_list(pkg_list_t *deplist,
 
 		pkgdep = pkg_verify_dependency(depnode, flags, &eflags);
 		if (eflags != PKG_ERRF_OK)
-			return pkg_report_graph_error(pkgdep, depnode, eflags);
+			return pkg_report_graph_error(parent, pkgdep, depnode, eflags);
 		if (pkgdep->flags & PKG_PROPF_SEEN)
 		{
 			pkg_unref(pkgdep);
@@ -949,13 +950,13 @@ pkg_traverse(pkg_t *root,
 			return eflags;
 	}
 
-	eflags = pkg_walk_list(&root->requires, func, data, maxdepth, rflags);
+	eflags = pkg_walk_list(root, &root->requires, func, data, maxdepth, rflags);
 	if (eflags != PKG_ERRF_OK)
 		return eflags;
 
 	if (flags & PKGF_SEARCH_PRIVATE)
 	{
-		eflags = pkg_walk_list(&root->requires_private, func, data, maxdepth, rflags);
+		eflags = pkg_walk_list(root, &root->requires_private, func, data, maxdepth, rflags);
 		if (eflags != PKG_ERRF_OK)
 			return eflags;
 	}
