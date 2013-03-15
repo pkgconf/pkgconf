@@ -133,7 +133,6 @@ pkg_t *pkg_ref(pkg_t *pkg);
 void pkg_unref(pkg_t *pkg);
 void pkg_free(pkg_t *pkg);
 pkg_t *pkg_find(const char *name, unsigned int flags);
-void pkg_scan(const char *search_path, pkg_iteration_func_t func);
 void pkg_scan_all(pkg_iteration_func_t func);
 unsigned int pkg_traverse(pkg_t *root, pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags);
 unsigned int pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
