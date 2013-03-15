@@ -38,8 +38,13 @@
 #define PKG_DIR_SEP_S	'/'
 #endif
 
+typedef struct {
+	char *path;
+	pkg_node_t node;
+} pkg_path_t;
+
 static inline size_t
-path_split(const char *text, char ***parv)
+path_split(const char *text, pkg_list_t *dirlist)
 {
 	size_t count = 0;
 	char *workbuf, *p, *iter;
@@ -47,15 +52,17 @@ path_split(const char *text, char ***parv)
 	if (text == NULL)
 		return 0;
 
-	*parv = malloc(sizeof (void *));
-
 	iter = workbuf = strdup(text);
 	while ((p = strtok(iter, PKG_CONFIG_PATH_SEP_S)) != NULL)
 	{
-		(*parv)[count] = strdup(p);
-		count++, iter = NULL;
+		pkg_path_t *pkg_path;
 
-		*parv = realloc(*parv, sizeof (void *) * (count + 1));
+		pkg_path = calloc(sizeof(pkg_path_t), 1);
+		pkg_path->path = strdup(p);
+
+		pkg_node_insert_tail(&pkg_path->node, pkg_path, dirlist);
+
+		count++, iter = NULL;
 	}
 	free(workbuf);
 
@@ -63,17 +70,17 @@ path_split(const char *text, char ***parv)
 }
 
 static inline void
-path_free(char **parv, size_t count)
+path_free(pkg_list_t *dirlist)
 {
-	size_t iter;
+	pkg_node_t *n, *tn;
 
-	if (parv == NULL)
-		return;
+	PKG_FOREACH_LIST_ENTRY_SAFE(dirlist->head, tn, n)
+	{
+		pkg_path_t *pkg_path = n->data;
 
-	for (iter = 0; iter < count; iter++)
-		free(parv[iter]);
-
-	free(parv);
+		free(pkg_path->path);
+		free(pkg_path);
+	}
 }
 
 static inline bool
@@ -363,19 +370,23 @@ pkg_scan_dir(const char *path, pkg_iteration_func_t func)
 void
 pkg_scan(const char *search_path, pkg_iteration_func_t func)
 {
-	char **path = NULL;
-	size_t count = 0, iter = 0;
+	pkg_list_t path = PKG_LIST_INITIALIZER;
+	pkg_node_t *n;
 
 	/* PKG_CONFIG_PATH has to take precedence */
 	if (search_path == NULL)
 		return;
 
-	count = path_split(search_path, &path);
+	path_split(search_path, &path);
 
-	for (iter = 0; iter < count; iter++)
-		pkg_scan_dir(path[iter], func);
+	PKG_FOREACH_LIST_ENTRY(path.head, n)
+	{
+		pkg_path_t *pkg_path = n->data;
 
-	path_free(path, count);
+		pkg_scan_dir(pkg_path->path, func);
+	}
+
+	path_free(&path);
 }
 
 void
@@ -434,8 +445,7 @@ pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags)
 pkg_t *
 pkg_find(const char *name, unsigned int flags)
 {
-	char **path = NULL;
-	size_t count = 0, iter = 0;
+	pkg_list_t path = PKG_LIST_INITIALIZER;
 	const char *env_path;
 	pkg_t *pkg = NULL;
 	FILE *f;
@@ -461,26 +471,34 @@ pkg_find(const char *name, unsigned int flags)
 	env_path = getenv("PKG_CONFIG_PATH");
 	if (env_path)
 	{
-		count = path_split(env_path, &path);
+		pkg_node_t *n;
 
-		for (iter = 0; iter < count; iter++)
+		path_split(env_path, &path);
+
+		PKG_FOREACH_LIST_ENTRY(path.head, n)
 		{
-			pkg = pkg_try_specific_path(path[iter], name, flags);
+			pkg_path_t *pkg_path = n->data;
+
+			pkg = pkg_try_specific_path(pkg_path->path, name, flags);
 			if (pkg != NULL)
 				goto out;
 		}
 
-		path_free(path, count);
+		path_free(&path);
 	}
 
 	env_path = get_pkgconfig_path();
 	if (!(flags & PKGF_ENV_ONLY))
 	{
-		count = path_split(env_path, &path);
+		pkg_node_t *n;
 
-		for (iter = 0; iter < count; iter++)
+		path_split(env_path, &path);
+
+		PKG_FOREACH_LIST_ENTRY(path.head, n)
 		{
-			pkg = pkg_try_specific_path(path[iter], name, flags);
+			pkg_path_t *pkg_path = n->data;
+
+			pkg = pkg_try_specific_path(pkg_path->path, name, flags);
 			if (pkg != NULL)
 				goto out;
 		}
@@ -495,7 +513,7 @@ pkg_find(const char *name, unsigned int flags)
 
 out:
 	pkg_cache_add(pkg);
-	path_free(path, count);
+	path_free(&path);
 
 	return pkg;
 }
