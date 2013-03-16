@@ -865,7 +865,7 @@ pkg_walk_list(pkg_t *parent,
 			continue;
 
 		pkgdep = pkg_verify_dependency(depnode, flags, &eflags);
-		if (eflags != PKG_ERRF_OK)
+		if (eflags != PKG_ERRF_OK && !(flags & PKGF_SKIP_ERRORS))
 			return pkg_report_graph_error(parent, pkgdep, depnode, eflags);
 		if (pkgdep->flags & PKG_PROPF_SEEN)
 		{

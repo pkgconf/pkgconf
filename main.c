@@ -412,12 +412,10 @@ print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
 	(void) data;
 	(void) flags;
 
-	printf("node '%s'", pkg->id);
+	printf("node '%s' {\n", pkg->id);
 
-	if (pkg->requires.head != NULL)
-		printf(" {\n");
-	else
-		printf(";\n");
+	if (pkg->version != NULL)
+		printf("    version = '%s';\n", pkg->version);
 
 	PKG_FOREACH_LIST_ENTRY(pkg->requires.head, n)
 	{
@@ -434,8 +432,7 @@ print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
 			printf(";\n");
 	}
 
-	if (pkg->requires.head != NULL)
-		printf("};\n");
+	printf("};\n");
 }
 
 static bool
@@ -823,6 +820,17 @@ main(int argc, char *argv[])
 
 	ret = EXIT_SUCCESS;
 
+	if ((want_flags & PKG_SIMULATE) == PKG_SIMULATE)
+	{
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
+
+		if (!pkg_queue_apply(&pkgq, apply_simulate, -1, global_traverse_flags | PKGF_SKIP_ERRORS, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
 	if (!pkg_queue_validate(&pkgq, maximum_traverse_depth, global_traverse_flags))
 	{
 		ret = EXIT_FAILURE;
@@ -841,17 +849,6 @@ main(int argc, char *argv[])
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		if (!pkg_queue_apply(&pkgq, apply_digraph, maximum_traverse_depth, global_traverse_flags, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
-	}
-
-	if ((want_flags & PKG_SIMULATE) == PKG_SIMULATE)
-	{
-		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-
-		if (!pkg_queue_apply(&pkgq, apply_simulate, -1, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;

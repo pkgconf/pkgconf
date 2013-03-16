@@ -108,15 +108,16 @@ struct pkg_ {
 #define PKG_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((c)))
 #define PKG_OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
 
-#define PKGF_NONE			0x00
-#define PKGF_SEARCH_PRIVATE		0x01
-#define PKGF_ENV_ONLY			0x02
-#define PKGF_NO_UNINSTALLED		0x04
-#define PKGF_SKIP_ROOT_VIRTUAL		0x08
-#define PKGF_MERGE_PRIVATE_FRAGMENTS	0x10
-#define PKGF_SKIP_CONFLICTS		0x20
-#define PKGF_NO_CACHE			0x40
-#define PKGF_MUNGE_SYSROOT_PREFIX	0x80
+#define PKGF_NONE			0x000
+#define PKGF_SEARCH_PRIVATE		0x001
+#define PKGF_ENV_ONLY			0x002
+#define PKGF_NO_UNINSTALLED		0x004
+#define PKGF_SKIP_ROOT_VIRTUAL		0x008
+#define PKGF_MERGE_PRIVATE_FRAGMENTS	0x010
+#define PKGF_SKIP_CONFLICTS		0x020
+#define PKGF_NO_CACHE			0x040
+#define PKGF_MUNGE_SYSROOT_PREFIX	0x080
+#define PKGF_SKIP_ERRORS		0x100
 
 #define PKG_ERRF_OK			0x0
 #define PKG_ERRF_PACKAGE_NOT_FOUND	0x1
