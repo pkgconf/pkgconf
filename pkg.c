@@ -822,11 +822,18 @@ pkg_verify_graph(pkg_t *root, int depth, unsigned int flags)
 static unsigned int
 pkg_report_graph_error(pkg_t *parent, pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
 {
+	static bool already_sent_notice = false;
+
 	if (eflags & PKG_ERRF_PACKAGE_NOT_FOUND)
 	{
-		fprintf(error_msgout, "Package %s was not found in the pkg-config search path.\n", node->package);
-		fprintf(error_msgout, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
-		fprintf(error_msgout, "to the PKG_CONFIG_PATH environment variable\n");
+		if (!already_sent_notice)
+		{
+			fprintf(error_msgout, "Package %s was not found in the pkg-config search path.\n", node->package);
+			fprintf(error_msgout, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
+			fprintf(error_msgout, "to the PKG_CONFIG_PATH environment variable\n");
+			already_sent_notice = true;
+		}
+
 		fprintf(error_msgout, "Package '%s', required by '%s', not found\n", node->package, parent->id);
 	}
 	else if (eflags & PKG_ERRF_PACKAGE_VER_MISMATCH)
@@ -858,15 +865,24 @@ pkg_walk_list(pkg_t *parent,
 
 	PKG_FOREACH_LIST_ENTRY(deplist->head, node)
 	{
+		unsigned int eflags_local = PKG_ERRF_OK;
 		pkg_dependency_t *depnode = node->data;
 		pkg_t *pkgdep;
 
 		if (*depnode->package == '\0')
 			continue;
 
-		pkgdep = pkg_verify_dependency(depnode, flags, &eflags);
-		if (eflags != PKG_ERRF_OK && !(flags & PKGF_SKIP_ERRORS))
-			return pkg_report_graph_error(parent, pkgdep, depnode, eflags);
+		pkgdep = pkg_verify_dependency(depnode, flags, &eflags_local);
+
+		eflags |= eflags_local;
+		if (eflags_local != PKG_ERRF_OK && !(flags & PKGF_SKIP_ERRORS))
+		{
+			pkg_report_graph_error(parent, pkgdep, depnode, eflags_local);
+			continue;
+		}
+		if (pkgdep == NULL)
+			continue;
+
 		if (pkgdep->flags & PKG_PROPF_SEEN)
 		{
 			pkg_unref(pkgdep);
@@ -877,10 +893,6 @@ pkg_walk_list(pkg_t *parent,
 		eflags = pkg_traverse(pkgdep, func, data, depth - 1, flags);
 		pkgdep->flags &= ~PKG_PROPF_SEEN;
 		pkg_unref(pkgdep);
-
-		/* optimization: if a break has been found in the depgraph, quit walking it */
-		if (eflags != PKG_ERRF_OK)
-			break;
 	}
 
 	return eflags;
