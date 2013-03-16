@@ -407,10 +407,18 @@ apply_uninstalled(pkg_t *world, void *data, int maxdepth, unsigned int flags)
 static void
 print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
 {
+	pkg_node_t *n;
+
 	(void) data;
 	(void) flags;
 
 	printf("Considering graph node '%s' (%p)\n", pkg->id, pkg);
+	PKG_FOREACH_LIST_ENTRY(pkg->requires.head, n)
+	{
+		pkg_dependency_t *dep = n->data;
+		printf("  Dependency '%s' %s '%s' (%p)\n", dep->package,
+			pkg_get_comparator(dep), dep->version != NULL ? dep->version : "*", dep);
+	}	
 }
 
 static bool
