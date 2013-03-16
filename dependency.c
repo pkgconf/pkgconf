@@ -208,6 +208,8 @@ pkg_dependency_parse_str(pkg_list_t *deplist_head, const char *depends)
 				pkg_dependency_add(deplist_head, package, package_sz, version, version_sz, compare);
 
 				compare = PKG_ANY;
+				cnameptr = cmpname;
+				memset(cmpname, 0, sizeof cmpname);
 				package_sz = 0;
 				version_sz = 0;
 			}
