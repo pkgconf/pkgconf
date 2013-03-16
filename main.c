@@ -412,13 +412,30 @@ print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
 	(void) data;
 	(void) flags;
 
-	printf("Considering graph node '%s' (%p)\n", pkg->id, pkg);
+	printf("node '%s'", pkg->id);
+
+	if (pkg->requires.head != NULL)
+		printf(" {\n");
+	else
+		printf(";\n");
+
 	PKG_FOREACH_LIST_ENTRY(pkg->requires.head, n)
 	{
 		pkg_dependency_t *dep = n->data;
-		printf("  Dependency '%s' %s '%s' (%p)\n", dep->package,
-			pkg_get_comparator(dep), dep->version != NULL ? dep->version : "*", dep);
-	}	
+		printf("    dependency '%s'", dep->package);
+		if (dep->compare != PKG_ANY)
+		{
+			printf(" {\n");
+			printf("        comparator = '%s';\n", pkg_get_comparator(dep));
+			printf("        version = '%s';\n", dep->version);
+			printf("    };\n");
+		}
+		else
+			printf(";\n");
+	}
+
+	if (pkg->requires.head != NULL)
+		printf("};\n");
 }
 
 static bool
