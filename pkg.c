@@ -890,7 +890,7 @@ pkg_walk_list(pkg_t *parent,
 		}
 
 		pkgdep->flags |= PKG_PROPF_SEEN;
-		eflags = pkg_traverse(pkgdep, func, data, depth - 1, flags);
+		eflags |= pkg_traverse(pkgdep, func, data, depth - 1, flags);
 		pkgdep->flags &= ~PKG_PROPF_SEEN;
 		pkg_unref(pkgdep);
 	}
