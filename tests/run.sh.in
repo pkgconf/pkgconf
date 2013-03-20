@@ -225,8 +225,11 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-2" \
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'foo > 0.6.0 foo < 0.8.0'; echo \$?" \
 	'1'
 
-run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1}  --exists --print-errors 'nonexisting foo <= 3'; echo \$?" \
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'nonexisting foo <= 3'; echo \$?" \
 	'1'
+
+run_test "PKG_CONFIG_PATH='${selfdir}/lib2' ${1} ${selfdir}/lib3/bar.pc --cflags'" \
+	'-fPIC -I/usr/include/foo'
 
 # 10) tests for internal getopt implementation with options at the end
 if [ "x@STRICT_MODE@" = "xno" ]; then
