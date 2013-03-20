@@ -461,6 +461,8 @@ pkg_find(const char *name, unsigned int flags)
 	pkg_node_t *n;
 	FILE *f;
 
+	pkg_dir_list_build(flags);
+
 	/* name might actually be a filename. */
 	if (str_has_suffix(name, PKG_CONFIG_EXT))
 	{
@@ -484,8 +486,6 @@ pkg_find(const char *name, unsigned int flags)
 			return pkg;
 		}
 	}
-
-	pkg_dir_list_build(flags);
 
 	PKG_FOREACH_LIST_ENTRY(pkg_dir_list.head, n)
 	{
