@@ -6,5 +6,5 @@ includedir=${prefix}/include
 Name: foo
 Description: A testing pkg-config file
 Version: 1.2.3
-Libs: -L${libdir} -lbar
-Cflags: -fPIC -I${includedir}/bar
+Libs: -L${libdir} -lfoo
+Cflags: -fPIC -I${includedir}/foo
