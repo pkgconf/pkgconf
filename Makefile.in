@@ -1,6 +1,7 @@
 prefix			= @prefix@
 exec_prefix		= @exec_prefix@
 bindir			= @bindir@
+srcdir			= @srcdir@
 libdir			= @libdir@
 datarootdir		= @datarootdir@
 datadir			= @datadir@
@@ -30,13 +31,16 @@ install:
 	mkdir -p $(DESTDIR)$(bindir)
 	install -c -m755 $(PROG) $(DESTDIR)$(bindir)/$(PROG)
 	mkdir -p $(DESTDIR)$(datarootdir)/aclocal
-	install -c -m644 pkg.m4 $(DESTDIR)$(datarootdir)/aclocal/pkg.m4
+	install -c -m644 $(srcdir)/pkg.m4 $(DESTDIR)$(datarootdir)/aclocal/pkg.m4
 
 check: $(PROG)
 	$(SHELL) tests/run.sh ./$(PROG)
 
 valgrind-check: $(PROG)
 	$(SHELL) tests/run.sh 'valgrind --leak-check=full --show-reachable=yes ./$(PROG)'
+
+%.o: $(srcdir)/%.c
+	$(CC) -c $(CFLAGS) -I. $(CPPFLAGS) $< -o $@
 
 $(PROG): $(OBJS)
 	${CC} ${LDFLAGS} -o $@ $(OBJS)
