@@ -66,6 +66,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define PKGCONF_HACK_LOGICAL_OR_ALL_VALUES
+
 #if HAVE_STRICT_MODE > 0
 # define GNU_COMPATIBLE		/* Be more compatible, configure's use us! */
 #endif
@@ -354,7 +356,11 @@ parse_long_options(char * const *nargv, const char *options,
 	if (idx)
 		*idx = match;
 	if (long_options[match].flag) {
+#ifdef PKGCONF_HACK_LOGICAL_OR_ALL_VALUES
 		*long_options[match].flag |= long_options[match].val;
+#else
+		*long_options[match].flag = long_options[match].val;
+#endif
 		return (0);
 	} else
 		return (long_options[match].val);
