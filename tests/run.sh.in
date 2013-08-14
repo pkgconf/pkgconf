@@ -114,6 +114,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --libs baz" \
 	'-lfoo' '-lbaz' '-lzee'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --libs argv-parse-2" \
 	'-pthread '
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --cflags baz" \
+	'-fPIC' '-I/usr/include/foo' '-DFOO_STATIC'
 
 # 4) tests for parser bugs
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs dos-lineendings" \
