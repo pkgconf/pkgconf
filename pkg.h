@@ -95,6 +95,7 @@ struct pkg_ {
 	pkg_list_t libs;
 	pkg_list_t libs_private;
 	pkg_list_t cflags;
+	pkg_list_t cflags_private;
 
 	pkg_list_t requires;
 	pkg_list_t requires_private;

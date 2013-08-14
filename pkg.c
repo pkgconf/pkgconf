@@ -248,6 +248,8 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 				pkg->version = pkg_tuple_parse(&pkg->vars, value);
 			else if (!strcasecmp(key, "CFLAGS"))
 				pkg_fragment_parse(&pkg->cflags, &pkg->vars, value);
+			else if (!strcasecmp(key, "CFLAGS.private"))
+				pkg_fragment_parse(&pkg->cflags_private, &pkg->vars, value);
 			else if (!strcasecmp(key, "LIBS"))
 				pkg_fragment_parse(&pkg->libs, &pkg->vars, value);
 			else if (!strcasecmp(key, "LIBS.private"))
@@ -295,6 +297,7 @@ pkg_free(pkg_t *pkg)
 	pkg_dependency_free(&pkg->conflicts);
 
 	pkg_fragment_free(&pkg->cflags);
+	pkg_fragment_free(&pkg->cflags_private);
 	pkg_fragment_free(&pkg->libs);
 	pkg_fragment_free(&pkg->libs_private);
 
@@ -1000,6 +1003,21 @@ pkg_cflags_collect(pkg_t *pkg, void *data, unsigned int flags)
 	}
 }
 
+static void
+pkg_cflags_private_collect(pkg_t *pkg, void *data, unsigned int flags)
+{
+	pkg_list_t *list = data;
+	pkg_node_t *node;
+	(void) flags;
+
+	PKG_FOREACH_LIST_ENTRY(pkg->cflags_private.head, node)
+	{
+		pkg_fragment_t *frag = node->data;
+
+		pkg_fragment_copy(list, frag);
+	}
+}
+
 int
 pkg_cflags(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags)
 {
@@ -1008,6 +1026,13 @@ pkg_cflags(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags)
 	eflag = pkg_traverse(root, pkg_cflags_collect, list, maxdepth, flags);
 	if (eflag != PKG_ERRF_OK)
 		pkg_fragment_free(list);
+
+	if (flags & PKGF_MERGE_PRIVATE_FRAGMENTS)
+	{
+		eflag = pkg_traverse(root, pkg_cflags_private_collect, list, maxdepth, flags);
+		if (eflag != PKG_ERRF_OK)
+			pkg_fragment_free(list);
+	}
 
 	return eflag;
 }
