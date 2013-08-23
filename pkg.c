@@ -999,7 +999,7 @@ pkg_cflags_collect(pkg_t *pkg, void *data, unsigned int flags)
 	{
 		pkg_fragment_t *frag = node->data;
 
-		pkg_fragment_copy(list, frag);
+		pkg_fragment_copy(list, frag, flags);
 	}
 }
 
@@ -1014,7 +1014,7 @@ pkg_cflags_private_collect(pkg_t *pkg, void *data, unsigned int flags)
 	{
 		pkg_fragment_t *frag = node->data;
 
-		pkg_fragment_copy(list, frag);
+		pkg_fragment_copy(list, frag, flags);
 	}
 }
 
@@ -1048,7 +1048,7 @@ pkg_libs_collect(pkg_t *pkg, void *data, unsigned int flags)
 	{
 		pkg_fragment_t *frag = node->data;
 
-		pkg_fragment_copy(list, frag);
+		pkg_fragment_copy(list, frag, flags);
 	}
 }
 
@@ -1063,7 +1063,7 @@ pkg_libs_private_collect(pkg_t *pkg, void *data, unsigned int flags)
 	{
 		pkg_fragment_t *frag = node->data;
 
-		pkg_fragment_copy(list, frag);
+		pkg_fragment_copy(list, frag, flags);
 	}
 }
 

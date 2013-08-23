@@ -57,8 +57,11 @@ pkg_fragment_lookup(pkg_list_t *list, pkg_fragment_t *base)
 }
 
 static inline bool
-pkg_fragment_can_merge_back(pkg_fragment_t *base)
+pkg_fragment_can_merge_back(pkg_fragment_t *base, unsigned int flags)
 {
+	if ((flags & PKGF_MERGE_PRIVATE_FRAGMENTS) && base->type == 'l')
+		return false;
+
 	if (base->type == 'F')
 		return false;
 
@@ -66,8 +69,10 @@ pkg_fragment_can_merge_back(pkg_fragment_t *base)
 }
 
 static inline bool
-pkg_fragment_can_merge(pkg_fragment_t *base)
+pkg_fragment_can_merge(pkg_fragment_t *base, unsigned int flags)
 {
+	(void) flags;
+
 	if (!strncmp(base->data, "-framework", 10))
 		return false;
 
@@ -75,25 +80,25 @@ pkg_fragment_can_merge(pkg_fragment_t *base)
 }
 
 static inline pkg_fragment_t *
-pkg_fragment_exists(pkg_list_t *list, pkg_fragment_t *base)
+pkg_fragment_exists(pkg_list_t *list, pkg_fragment_t *base, unsigned int flags)
 {
-	if (!pkg_fragment_can_merge_back(base))
+	if (!pkg_fragment_can_merge_back(base, flags))
 		return NULL;
 
-	if (!pkg_fragment_can_merge(base))
+	if (!pkg_fragment_can_merge(base, flags))
 		return NULL;
 
 	return pkg_fragment_lookup(list, base);
 }
 
 void
-pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base)
+pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base, unsigned int flags)
 {
 	pkg_fragment_t *frag;
 
-	if ((frag = pkg_fragment_exists(list, base)) != NULL)
+	if ((frag = pkg_fragment_exists(list, base, flags)) != NULL)
 		pkg_fragment_delete(list, frag);
-	else if (!pkg_fragment_can_merge_back(base) && (pkg_fragment_lookup(list, base) != NULL))
+	else if (!pkg_fragment_can_merge_back(base, flags) && (pkg_fragment_lookup(list, base) != NULL))
 		return;
 
 	frag = calloc(sizeof(pkg_fragment_t), 1);
