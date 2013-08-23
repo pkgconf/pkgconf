@@ -1,0 +1,6 @@
+Name: private-libs-duplication
+Version: 1.0
+Requires: foo
+Libs: -lprivate
+Libs.private: -lfoo
+
