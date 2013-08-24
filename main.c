@@ -62,10 +62,10 @@ fragment_has_system_dir(pkg_fragment_t *frag)
 	switch (frag->type)
 	{
 	case 'L':
-		if ((want_flags & PKG_KEEP_SYSTEM_CFLAGS) == 0 && !strcasecmp(SYSTEM_LIBDIR, frag->data))
+		if ((want_flags & PKG_KEEP_SYSTEM_LIBS) == 0 && !strcasecmp(SYSTEM_LIBDIR, frag->data))
 			return true;
 	case 'I':
-		if ((want_flags & PKG_KEEP_SYSTEM_LIBS) == 0 && !strcasecmp(SYSTEM_INCLUDEDIR, frag->data))
+		if ((want_flags & PKG_KEEP_SYSTEM_CFLAGS) == 0 && !strcasecmp(SYSTEM_INCLUDEDIR, frag->data))
 			return true;
 	default:
 		break;
