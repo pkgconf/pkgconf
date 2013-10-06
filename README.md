@@ -47,6 +47,24 @@ compiled:
     $ make
     $ sudo make install
 
+If you are installing pkgconf into a custom prefix, such as `/opt/pkgconf`, you will
+likely want to define the default system includedir and libdir for your toolchain.
+To do this, use the `--with-system-includedir` and `--with-system-libdir` configure
+flags like so:
+
+    $ ./configure \
+         --prefix=/opt/pkgconf \
+         --with-system-libdir=/lib:/usr/lib \
+         --with-system-includedir=/usr/include
+    $ make
+    $ sudo make install
+
+If you want pkgconf to be used when you invoke `pkg-config`, you should install a
+symlink for this.  We do not do this for you, as we believe it is better for vendors
+to make this determination themselves.
+
+    $ ln -sf /usr/bin/pkgconf /usr/bin/pkg-config
+
 ## release tarballs
 
 Release tarballs are available at <http://tortois.es/~nenolod/distfiles/>.
