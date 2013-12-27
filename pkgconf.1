@@ -1,0 +1,114 @@
+.\" Copyright (c) 2011, 2012, 2013, 2014 pkgconf authors (see AUTHORS).
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" This software is provided 'as is' and without any warranty, express or
+.\" implied.  In no event shall the authors be liable for any damages arising
+.\" from the use of this software.
+.TH pkgconf 1 "December 2013"
+.SH NAME
+pkgconf \- a system for configuring build dependency information
+.SH SYNOPSIS
+.B pkgconf
+[options] [list of modules]
+.SH DESCRIPTION
+.P
+pkgconf is a program which helps to configure compiler and linker flags for
+development frameworks. This allows build systems to detect other dependencies
+and use them with the system toolchain.
+.SH GENERAL OPTIONS
+.TP
+\fB\-\-version\fP
+Display the supported pkg-config version and exit.
+.TP
+\fB\-\-atleast\-pkgconfig\-version=VERSION\fP
+Exit with error if we do not support the requested pkg-config version.
+.TP
+\fB\-\-errors\-to\-stdout\fP
+Print all errors on the main output stream instead of the error output stream.
+.TP
+\fB\-\-silence\-errors\fP
+Do not display any errors at all.
+.TP
+\fB\-\-list\-all\fP
+Walk all directories listed in the \fBPKG_CONFIG_PATH\fP environmental variable
+and display information on packages which have registered information there.
+.TP
+\fB\-\-simulate\fP
+Simulates resolving a dependency graph based on the requested modules on the
+command line. Dumps a series of trees denoting pkgconf's resolver state.
+.TP
+\fB\-\-no\-cache\fP
+Skip caching packages when they are loaded into the internal resolver.  This may
+result in an alternate dependency graph being computed.
+.TP
+\fB\-\-ignore\-conflicts\fP
+Ignore 'Conflicts' rules in modules.
+.TP
+\fB\-\-env\-only\fP
+Learn about pkgconf's configuration strictly from environmental variables.
+.TP
+\fB\-\-maximum\-traverse\-depth=DEPTH\fP
+Impose a limit on the allowed depth in the dependency graph.  For example, a depth
+of 2 will restrict the resolver from acting on child dependencies of modules added to
+the resolver's solution.
+.TP
+\fB\-\-static\fP
+Compute a deeper dependency graph and use compiler/linker flags intended for static
+linking.
+.SH MODULE\-SPECIFIC OPTIONS
+.TP
+\fB\-\-atleast\-version=VERSION\fP
+Exit with error if a module's version is less than the specified version.
+.TP
+\fB\-\-exact\-version=VERSION\fP
+Exit with error if a module's version is not exactly the specified version.
+.TP
+\fB\-\-max\-version=VERSION\fP
+Exit with error if a module's version is greater than the specified version.
+.TP
+\fB\-\-exists\fP
+Exit with a non-zero result if the dependency resolver was able to find all of the
+requested modules.
+.TP
+\fB\-\-uninstalled\fP
+Exit with a non-zero result if the dependency resolver uses an 'uninstalled' module
+as part of it's solution.
+.TP
+\fB\-\-no\-uninstalled\fP
+Forbids the dependency resolver from considering 'uninstalled' modules as part of a
+solution.
+.SH QUERY\-SPECIFIC OPTIONS
+.TP
+\fB\-\-cflags\fP, \fB\-\-cflags\-only\-I\fP, \fB\-\-cflags\-only\-other\fP
+Display either all CFLAGS, only \fB\-I\fP CFLAGS or only CFLAGS that are not \fB-I\fP.
+.TP
+\fB\-\-libs\fP, \fB\-\-libs\-only\-L\fP, \fB\-\-libs\-only\-l\fP, \fB\-\-libs\-only\-other\fP
+Display either all linker flags, only \fB\-L\fP linker flags, only \fB-l\fP linker flags or only linker flags that are not \fB-L\fP or \fB-l\fP.
+.TP
+\fB\-\-keep\-system\-cflags\fP, \fB\-\-keep\-system\-libs\fP
+Keep CFLAGS or linker flag fragments that would be filtered due to being included by default in the compiler.
+.TP
+\fB\-\-define-variable=VARNAME=VALUE\fP
+Define \fBVARNAME\fP as \fBVALUE\fP. Variables are used in query output, and some modules' results may change based on the presence of a variable definition.
+.TP
+\fB\-\-print\-variables\fP
+Print all seen variables for a module to the output channel.
+.TP
+\fB\-\-variable=VARNAME\fP
+Print the value of \fBVARNAME\fP.
+.TP
+\fB\-\-print-requires\fP, \fB\-\-print\-requires\-private\fP
+Print the modules included in either the \fBRequires\fP field or the \fBRequires.private\fP field.
+.TP
+\fB\-\-digraph\fP
+Dump the dependency resolver's solution as a graphviz 'dot' file.  This can be used with graphviz to visualize
+module interdependencies.
+.SH EXAMPLES
+.TP
+Displaying the CFLAGS of a package:
+shell> pkgconf --cflags foo
+.br
+-fPIC -I/usr/include/foo

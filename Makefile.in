@@ -19,6 +19,7 @@ PROF_OBJS		= ${SRCS:.c=.op}
 CFLAGS			= @CFLAGS@
 LDFLAGS			= @LDFLAGS@
 CFLAGS			+= -DLIBDIR=\"${libdir}\" -DINCLUDEDIR=\"${includedir}\" -DPKG_DEFAULT_PATH=\"${pkgconfigdir}\" -DSYSTEM_INCLUDEDIR=\"${system_includedir}\" -DSYSTEM_LIBDIR=\"${system_libdir}\" -Wall -Wextra -Wformat=2 -std=gnu99 -D_FORTIFY_SOURCE=2
+MANDIR			= ${datarootdir}/man/man1
 
 all: build
 build: ${PROG}
@@ -32,6 +33,8 @@ install:
 	install -c -m755 $(PROG) $(DESTDIR)$(bindir)/$(PROG)
 	mkdir -p $(DESTDIR)$(datarootdir)/aclocal
 	install -c -m644 $(srcdir)/pkg.m4 $(DESTDIR)$(datarootdir)/aclocal/pkg.m4
+	mkdir -p $(DESTDIR)$(MANDIR)
+	install -c -m644 $(srcdir)/pkgconf.1 $(DESTDIR)$(MANDIR)/pkgconf.1
 
 check: $(PROG)
 	$(SHELL) tests/run.sh ./$(PROG)
