@@ -2,7 +2,7 @@
  * fragment.c
  * Management of fragment lists.
  *
- * Copyright (c) 2012 pkgconf authors (see AUTHORS).
+ * Copyright (c) 2012, 2013, 2014 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
