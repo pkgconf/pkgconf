@@ -225,6 +225,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-1" \
 	"-F/usr/lib -framework framework-1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-2" \
 	"-F/usr/lib -framework framework-2 -framework framework-1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-1 framework-2" \
+	"-F/usr/lib -framework framework-1 -framework framework-2"
 
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'foo > 0.6.0 foo < 0.8.0'; echo \$?" \
 	'1'
