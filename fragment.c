@@ -21,15 +21,38 @@ pkg_fragment_add(pkg_list_t *list, const char *string)
 {
 	pkg_fragment_t *frag;
 
-	frag = calloc(sizeof(pkg_fragment_t), 1);
-
 	if (*string == '-' && strncmp(string, "-lib:", 5) && strncmp(string, "-framework", 10))
 	{
+		frag = calloc(sizeof(pkg_fragment_t), 1);
+
 		frag->type = *(string + 1);
 		frag->data = strdup(string + 2);
 	}
 	else
 	{
+		if (list->tail != NULL && list->tail->data != NULL)
+		{
+			pkg_fragment_t *parent = list->tail->data;
+
+			if (!strncmp(parent->data, "-framework", 10))
+			{
+				size_t len = strlen(parent->data) + strlen(string) + 2;
+				char *newdata;
+
+				newdata = malloc(len);
+				strlcpy(newdata, parent->data, len);
+				strlcat(newdata, " ", len);
+				strlcat(newdata, string, len);
+
+				free(parent->data);
+				parent->data = newdata;
+
+				return;
+			}
+		}
+
+		frag = calloc(sizeof(pkg_fragment_t), 1);
+
 		frag->type = 0;
 		frag->data = strdup(string);
 	}
