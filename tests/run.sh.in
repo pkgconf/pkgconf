@@ -237,6 +237,11 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'nonexi
 run_test "PKG_CONFIG_PATH='${selfdir}/lib2' ${1} ${selfdir}/lib3/bar.pc --cflags" \
 	'-fPIC -I/usr/include/foo'
 
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=foo case-sensitivity" \
+	"3"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=Foo case-sensitivity" \
+	"4"
+
 # 10) tests for internal getopt implementation with options at the end
 if [ "x@STRICT_MODE@" = "xno" ]; then
 	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} foo --libs" \
