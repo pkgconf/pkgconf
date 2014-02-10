@@ -240,11 +240,11 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 		switch (op)
 		{
 		case ':':
-			if (!strcasecmp(key, "Name"))
+			if (!strcmp(key, "Name"))
 				pkg->realname = pkg_tuple_parse(&pkg->vars, value);
-			else if (!strcasecmp(key, "Description"))
+			else if (!strcmp(key, "Description"))
 				pkg->description = pkg_tuple_parse(&pkg->vars, value);
-			else if (!strcasecmp(key, "Version"))
+			else if (!strcmp(key, "Version"))
 				pkg->version = pkg_tuple_parse(&pkg->vars, value);
 			else if (!strcasecmp(key, "CFLAGS"))
 				pkg_fragment_parse(&pkg->cflags, &pkg->vars, value);
@@ -254,11 +254,11 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 				pkg_fragment_parse(&pkg->libs, &pkg->vars, value);
 			else if (!strcasecmp(key, "LIBS.private"))
 				pkg_fragment_parse(&pkg->libs_private, &pkg->vars, value);
-			else if (!strcasecmp(key, "Requires"))
+			else if (!strcmp(key, "Requires"))
 				pkg_dependency_parse(pkg, &pkg->requires, value);
-			else if (!strcasecmp(key, "Requires.private"))
+			else if (!strcmp(key, "Requires.private"))
 				pkg_dependency_parse(pkg, &pkg->requires_private, value);
-			else if (!strcasecmp(key, "Conflicts"))
+			else if (!strcmp(key, "Conflicts"))
 				pkg_dependency_parse(pkg, &pkg->conflicts, value);
 			break;
 		case '=':
