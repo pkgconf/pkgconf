@@ -33,7 +33,7 @@ pkg_tuple_find_global(const char *key)
 	{
 		pkg_tuple_t *tuple = node->data;
 
-		if (!strcasecmp(tuple->key, key))
+		if (!strcmp(tuple->key, key))
 			return tuple->value;
 	}
 
@@ -88,7 +88,7 @@ pkg_tuple_find(pkg_list_t *list, const char *key)
 	{
 		pkg_tuple_t *tuple = node->data;
 
-		if (!strcasecmp(tuple->key, key))
+		if (!strcmp(tuple->key, key))
 			return tuple->value;
 	}
 
