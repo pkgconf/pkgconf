@@ -592,6 +592,7 @@ main(int argc, char *argv[])
 		{ "list-all", no_argument, &want_flags, PKG_LIST|PKG_PRINT_ERRORS, },
 		{ "simulate", no_argument, &want_flags, PKG_SIMULATE, },
 		{ "no-cache", no_argument, &want_flags, PKG_NO_CACHE, },
+		{ "debug", no_argument, &want_flags, 0, },
 		{ NULL, 0, NULL, 0 }
 	};
 
