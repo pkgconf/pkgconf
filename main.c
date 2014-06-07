@@ -62,6 +62,7 @@ fragment_has_system_dir(pkg_fragment_t *frag)
 	int check_flags = 0;
 	char *check_paths = NULL;
 	char *save, *chunk;
+	bool ret = false;
 
 	switch (frag->type)
 	{
@@ -80,12 +81,15 @@ fragment_has_system_dir(pkg_fragment_t *frag)
 	for (chunk = strtok_r(check_paths, ":", &save); chunk != NULL; chunk = strtok_r(NULL, ":", &save))
 	{
 		if ((want_flags & check_flags) == 0 && !strcmp(chunk, frag->data))
-			return true;
+		{
+			ret = true;
+			break;
+		}
 	}
 
 	free(check_paths);
 
-	return false;
+	return ret;
 }
 
 static void
