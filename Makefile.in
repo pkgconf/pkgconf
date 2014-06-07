@@ -19,7 +19,7 @@ GCOV_OBJS		= ${SRCS:.c=.og}
 PROF_OBJS		= ${SRCS:.c=.op}
 CFLAGS			= @CFLAGS@
 LDFLAGS			= @LDFLAGS@
-CFLAGS			+= -DLIBDIR=\"${libdir}\" -DINCLUDEDIR=\"${includedir}\" -DPKG_DEFAULT_PATH=\"${pkgconfigdir}\" -DSYSTEM_INCLUDEDIR=\"${system_includedir}\" -DSYSTEM_LIBDIR=\"${system_libdir}\" -Wall -Wextra -Wformat=2 -std=gnu99 -D_FORTIFY_SOURCE=2
+CFLAGS			+= -DLIBDIR=\"${libdir}\" -DINCLUDEDIR=\"${includedir}\" -DPKG_DEFAULT_PATH=\"${pkgconfigdir}\" -DSYSTEM_INCLUDEDIR=\"${system_includedir}\" -DSYSTEM_LIBDIR=\"${system_libdir}\" -Wall -Wextra -Wformat=2 -std=gnu99
 MANDIR			= ${datarootdir}/man/man1
 
 all: build
