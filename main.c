@@ -59,17 +59,31 @@ FILE *error_msgout = NULL;
 static bool
 fragment_has_system_dir(pkg_fragment_t *frag)
 {
+	int check_flags = 0;
+	char *check_paths = NULL;
+	char *save, *chunk;
+
 	switch (frag->type)
 	{
 	case 'L':
-		if ((want_flags & PKG_KEEP_SYSTEM_LIBS) == 0 && !strcasecmp(SYSTEM_LIBDIR, frag->data))
-			return true;
-	case 'I':
-		if ((want_flags & PKG_KEEP_SYSTEM_CFLAGS) == 0 && !strcasecmp(SYSTEM_INCLUDEDIR, frag->data))
-			return true;
-	default:
+		check_flags = PKG_KEEP_SYSTEM_LIBS;
+		check_paths = strdup(SYSTEM_LIBDIR);
 		break;
+	case 'I':
+		check_flags = PKG_KEEP_SYSTEM_CFLAGS;
+		check_paths = strdup(SYSTEM_INCLUDEDIR);
+		break;
+	default:
+		return false;
 	}
+
+	for (chunk = strtok_r(check_paths, ":", &save); chunk != NULL; chunk = strtok_r(NULL, ":", &save))
+	{
+		if ((want_flags & check_flags) == 0 && !strcmp(chunk, frag->data))
+			return true;
+	}
+
+	free(check_paths);
 
 	return false;
 }
