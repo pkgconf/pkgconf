@@ -31,4 +31,8 @@ extern size_t strlcat(char *dst, const char *src, size_t siz);
 extern char *strndup(const char *src, size_t len);
 #endif
 
+#ifndef HAVE_STRTOK_R
+extern char *strtok_r(char *s, const char *sep, char **p);
+#endif
+
 #endif

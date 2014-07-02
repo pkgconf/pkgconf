@@ -15,7 +15,7 @@ AC_PREREQ([2.68])
 AC_INIT([pkgconf], [0.9.6], [http://github.com/pkgconf/pkgconf/issues])
 AC_CONFIG_SRCDIR([pkg.c])
 AC_CONFIG_HEADERS([config.h])
-AC_CHECK_FUNCS([strlcpy strlcat strndup])
+AC_CHECK_FUNCS([strlcpy strlcat strndup strtok_r])
 
 
 AC_ARG_ENABLE([strict],
