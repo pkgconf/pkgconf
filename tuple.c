@@ -104,7 +104,7 @@ pkg_tuple_parse(pkg_list_t *vars, const char *value)
 
 	for (ptr = value; *ptr != '\0' && bptr - buf < PKG_BUFSIZE; ptr++)
 	{
-		if (*ptr != '$')
+		if (*ptr != '$' || (*ptr == '$' && *(ptr + 1) != '{'))
 			*bptr++ = *ptr;
 		else if (*(ptr + 1) == '{')
 		{
