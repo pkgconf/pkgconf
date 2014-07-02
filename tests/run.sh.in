@@ -132,6 +132,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs tilde-quoting" \
 	'-L~'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags tilde-quoting" \
 	'-I~'
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs paren-quoting" \
+	'-L$(libdir)'
 
 # 5) tests for other regressions
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=includedir foo" \
