@@ -5,23 +5,30 @@ pkgconf provides compiler and linker configuration for development frameworks.
 ## general summary
 
 pkgconf is a program which helps to configure compiler and linker flags for
-development frameworks.  It is similar to pkg-config, but was written from
-scratch in the summer of 2011 to replace pkg-config, which now needs itself to
-build itself (or you can set a bunch of environment variables, both are
-pretty ugly).
+development frameworks.
+
+It is similar to pkg-config, but was written from scratch in the summer of 2011
+to replace pkg-config, which for a while needed itself to build itself (they have
+since included a 'stripped down copy of glib 2.0')  Since then we have worked on
+improving pkg-config for embedded use.
+
+## usage
 
 Implementations of pkg-config, such as pkgconf, are typically used with the
-PKG_CHECK_MODULES autoconf macro.  As far as I (nenolod) know, pkgconf is
+PKG_CHECK_MODULES autoconf macro.  As far as we know, pkgconf is
 compatible with all known variations of this macro. pkgconf detects at
 runtime whether or not it was started as 'pkg-config', and if so, attempts
 to set program options such that its behaviour is similar.
 
 In terms of the autoconf macro, it is possible to specify the PKG_CONFIG
 environment variable, so that you can test pkgconf without overwriting your
-pkg-config binary.  (hint: export PKG_CONFIG=/usr/bin/pkgconf)  However,
-if you do this, it will be running in native mode, so you may have some very
-strange results as the dependency graph is compiled differently in native
-mode.
+pkg-config binary.  Some other build systems may also respect the PKG_CONFIG
+environment variable.
+
+To set the enviornment variable on the bourne shell and clones (i.e. bash), you
+can run:
+
+    $ export PKG_CONFIG=/usr/bin/pkgconf
 
 ## technical design (why pkgconf is better for distros)
 
