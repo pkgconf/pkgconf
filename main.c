@@ -292,7 +292,8 @@ print_variable(pkg_t *pkg, void *data, unsigned int flags)
 		{
 			memset(req->buf, 0, sizeof(req->buf));
 
-			if (*var == '/' && (flags & PKGF_MUNGE_SYSROOT_PREFIX))
+			if (*var == '/' && (flags & PKGF_MUNGE_SYSROOT_PREFIX) &&
+			    (sysroot_dir != NULL && strncmp(var, sysroot_dir, strlen(sysroot_dir))))
 				strlcat(req->buf, sysroot_dir, sizeof(req->buf));
 
 			strlcat(req->buf, var, sizeof(req->buf));
@@ -301,7 +302,8 @@ print_variable(pkg_t *pkg, void *data, unsigned int flags)
 
 		strlcat(req->buf, " ", sizeof(req->buf));
 
-		if (*var == '/' && (flags & PKGF_MUNGE_SYSROOT_PREFIX))
+		if (*var == '/' && (flags & PKGF_MUNGE_SYSROOT_PREFIX) &&
+		    (sysroot_dir != NULL && strncmp(var, sysroot_dir, strlen(sysroot_dir))))
 			strlcat(req->buf, sysroot_dir, sizeof(req->buf));
 
 		strlcat(req->buf, var, sizeof(req->buf));
