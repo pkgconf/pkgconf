@@ -290,11 +290,20 @@ print_variable(pkg_t *pkg, void *data, unsigned int flags)
 	{
 		if (*(req->buf) == '\0')
 		{
-			strlcpy(req->buf, var, sizeof(req->buf));
+			memset(req->buf, 0, sizeof(req->buf));
+
+			if (*var == '/' && (flags & PKGF_MUNGE_SYSROOT_PREFIX))
+				strlcat(req->buf, sysroot_dir, sizeof(req->buf));
+
+			strlcat(req->buf, var, sizeof(req->buf));
 			return;
 		}
 
 		strlcat(req->buf, " ", sizeof(req->buf));
+
+		if (*var == '/' && (flags & PKGF_MUNGE_SYSROOT_PREFIX))
+			strlcat(req->buf, sysroot_dir, sizeof(req->buf));
+
 		strlcat(req->buf, var, sizeof(req->buf));
 	}
 }

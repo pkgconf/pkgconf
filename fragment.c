@@ -16,8 +16,29 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
+static inline char *
+pkg_fragment_copy_munged(const char *source, unsigned int flags)
+{
+	char mungebuf[PKG_BUFSIZE];
+	char *sysroot_dir;
+
+	if (!(flags & PKGF_MUNGE_SYSROOT_PREFIX))
+		return strdup(source);
+
+	sysroot_dir = pkg_tuple_find_global("pc_sysrootdir");
+
+	if (*source != '/' ||
+		(sysroot_dir != NULL && !strncmp(sysroot_dir, source, strlen(sysroot_dir))))
+		return strdup(source);
+
+	strlcpy(mungebuf, sysroot_dir, sizeof mungebuf);
+	strlcat(mungebuf, source, sizeof mungebuf);
+
+	return strdup(mungebuf);
+}
+
 void
-pkg_fragment_add(pkg_list_t *list, const char *string)
+pkg_fragment_add(pkg_list_t *list, const char *string, unsigned int flags)
 {
 	pkg_fragment_t *frag;
 
@@ -26,7 +47,7 @@ pkg_fragment_add(pkg_list_t *list, const char *string)
 		frag = calloc(sizeof(pkg_fragment_t), 1);
 
 		frag->type = *(string + 1);
-		frag->data = strdup(string + 2);
+		frag->data = pkg_fragment_copy_munged(string + 2, flags);
 	}
 	else
 	{
@@ -156,7 +177,7 @@ pkg_fragment_free(pkg_list_t *list)
 }
 
 void
-pkg_fragment_parse(pkg_list_t *list, pkg_list_t *vars, const char *value)
+pkg_fragment_parse(pkg_list_t *list, pkg_list_t *vars, const char *value, unsigned int flags)
 {
 	int i, argc;
 	char **argv;
@@ -165,7 +186,7 @@ pkg_fragment_parse(pkg_list_t *list, pkg_list_t *vars, const char *value)
 	pkg_argv_split(repstr, &argc, &argv);
 
 	for (i = 0; i < argc; i++)
-		pkg_fragment_add(list, argv[i]);
+		pkg_fragment_add(list, argv[i], flags);
 
 	pkg_argv_free(argv);
 	free(repstr);

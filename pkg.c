@@ -247,13 +247,13 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 			else if (!strcmp(key, "Version"))
 				pkg->version = pkg_tuple_parse(&pkg->vars, value);
 			else if (!strcasecmp(key, "CFLAGS"))
-				pkg_fragment_parse(&pkg->cflags, &pkg->vars, value);
+				pkg_fragment_parse(&pkg->cflags, &pkg->vars, value, flags);
 			else if (!strcasecmp(key, "CFLAGS.private"))
-				pkg_fragment_parse(&pkg->cflags_private, &pkg->vars, value);
+				pkg_fragment_parse(&pkg->cflags_private, &pkg->vars, value, flags);
 			else if (!strcasecmp(key, "LIBS"))
-				pkg_fragment_parse(&pkg->libs, &pkg->vars, value);
+				pkg_fragment_parse(&pkg->libs, &pkg->vars, value, flags);
 			else if (!strcasecmp(key, "LIBS.private"))
-				pkg_fragment_parse(&pkg->libs_private, &pkg->vars, value);
+				pkg_fragment_parse(&pkg->libs_private, &pkg->vars, value, flags);
 			else if (!strcmp(key, "Requires"))
 				pkg_dependency_parse(pkg, &pkg->requires, value);
 			else if (!strcmp(key, "Requires.private"))
@@ -262,18 +262,7 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 				pkg_dependency_parse(pkg, &pkg->conflicts, value);
 			break;
 		case '=':
-			if (!(flags & PKGF_MUNGE_SYSROOT_PREFIX) || strcasecmp(key, "prefix"))
-				pkg_tuple_add(&pkg->vars, key, value);
-			else
-			{
-				char mungebuf[PKG_BUFSIZE];
-				char *sysroot_dir = pkg_tuple_find_global("pc_sysrootdir");
-
-				strlcpy(mungebuf, sysroot_dir, sizeof mungebuf);
-				strlcat(mungebuf, value, sizeof mungebuf);
-
-				pkg_tuple_add(&pkg->vars, key, mungebuf);
-			}
+			pkg_tuple_add(&pkg->vars, key, value);
 			break;
 		default:
 			break;
