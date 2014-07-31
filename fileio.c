@@ -83,10 +83,18 @@ pkg_fgetline(char *line, size_t size, FILE *stream)
 
 	}
 
-	*s = '\0';
-
 	if (c == EOF && (s == line || ferror(stream)))
 		return NULL;
+
+	*s = '\0';
+
+	/* Remove newline character. */
+	if (s > line && *(--s) == '\n') {
+		*s = '\0';
+
+		if (s > line && *(--s) == '\r')
+			*s = '\0';
+	}
 
 	return line;
 }
