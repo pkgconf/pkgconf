@@ -212,8 +212,6 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 	{
 		char op, *p, *key, *value;
 
-		readbuf[strlen(readbuf) - 1] = '\0';
-
 		p = readbuf;
 		while (*p && (isalpha(*p) || isdigit(*p) || *p == '_' || *p == '.'))
 			p++;
