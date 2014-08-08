@@ -19,7 +19,7 @@
 #ifdef _WIN32
 #	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
 #	undef PKG_DEFAULT_PATH
-#	define PKG_DEFAULT_PATH "../lib/pkgconfig:../share/pkgconfig"
+#	define PKG_DEFAULT_PATH "../lib/pkgconfig;../share/pkgconfig"
 #endif
 
 #define PKG_CONFIG_EXT		".pc"
@@ -116,19 +116,24 @@ get_pkgconfig_path(void)
 		return env_path;
 
 #ifdef _WIN32
-	GetModuleFileName(NULL, namebuf, sizeof namebuf);
-
-	p = strrchr(namebuf, '\\');
-	if (p == NULL)
-		p = strrchr(namebuf, '/');
+	int sizepath = GetModuleFileName(NULL, namebuf, sizeof namebuf);
+	char * winslash;
+	namebuf[sizepath] = '\0';
+	while ((winslash = strchr (namebuf, '\\')) != NULL)
+	{
+		*winslash = '/';
+	}
+	p = strrchr(namebuf, '/');
 	if (p == NULL)
 		return PKG_DEFAULT_PATH;
 
 	*p = '\0';
 	strlcpy(outbuf, namebuf, sizeof outbuf);
+	strlcat(outbuf, "/", sizeof outbuf);
 	strlcat(outbuf, "../lib/pkgconfig", sizeof outbuf);
-	strlcat(outbuf, ":", sizeof outbuf);
+	strlcat(outbuf, ";", sizeof outbuf);
 	strlcat(outbuf, namebuf, sizeof outbuf);
+	strlcat(outbuf, "/", sizeof outbuf);
 	strlcat(outbuf, "../share/pkgconfig", sizeof outbuf);
 
 	return outbuf;
