@@ -142,8 +142,10 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=includedir foo" \
 	'/usr/include'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs-only-L --keep-system-libs cflags-libs-only" \
 	'-L/usr/local/lib'
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs cflags-libs-only" \
+	'-L/usr/local/lib -lfoo'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs-only-L --libs-only-l cflags-libs-only" \
-	'-lfoo'
+	'-L/usr/local/lib -lfoo'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags-only-I --cflags-only-other cflags-libs-only" \
 	'-I/usr/local/include'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs incomplete; echo $?" \

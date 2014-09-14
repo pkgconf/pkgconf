@@ -17,13 +17,13 @@
 #include "pkg.h"
 #include "bsdstubs.h"
 
-#define PKG_CFLAGS			(1<<1)
 #define PKG_CFLAGS_ONLY_I		(1<<2)
 #define PKG_CFLAGS_ONLY_OTHER		(1<<3)
-#define PKG_LIBS			(1<<4)
+#define PKG_CFLAGS			(PKG_CFLAGS_ONLY_I|PKG_CFLAGS_ONLY_OTHER)
 #define PKG_LIBS_ONLY_LDPATH		(1<<5)
 #define PKG_LIBS_ONLY_LIBNAME		(1<<6)
 #define PKG_LIBS_ONLY_OTHER		(1<<7)
+#define PKG_LIBS			(PKG_LIBS_ONLY_LDPATH|PKG_LIBS_ONLY_LIBNAME|PKG_LIBS_ONLY_OTHER)
 #define PKG_MODVERSION			(1<<8)
 #define PKG_REQUIRES			(1<<9)
 #define PKG_REQUIRES_PRIVATE		(1<<10)
@@ -121,10 +121,14 @@ print_cflags(pkg_list_t *list)
 	PKG_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		pkg_fragment_t *frag = node->data;
+		int got_flags = 0;
 
-		if ((want_flags & PKG_CFLAGS_ONLY_I) == PKG_CFLAGS_ONLY_I && frag->type != 'I')
-			continue;
-		else if ((want_flags & PKG_CFLAGS_ONLY_OTHER) == PKG_CFLAGS_ONLY_OTHER && frag->type == 'I')
+		if (frag->type == 'I')
+			got_flags = PKG_CFLAGS_ONLY_I;
+		else
+			got_flags = PKG_CFLAGS_ONLY_OTHER;
+
+		if ((want_flags & got_flags) == 0)
 			continue;
 
 		print_fragment(frag);
@@ -139,12 +143,16 @@ print_libs(pkg_list_t *list)
 	PKG_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		pkg_fragment_t *frag = node->data;
+		int got_flags = 0;
 
-		if ((want_flags & PKG_LIBS_ONLY_LDPATH) == PKG_LIBS_ONLY_LDPATH && frag->type != 'L')
-			continue;
-		else if ((want_flags & PKG_LIBS_ONLY_LIBNAME) == PKG_LIBS_ONLY_LIBNAME && frag->type != 'l')
-			continue;
-		else if ((want_flags & PKG_LIBS_ONLY_OTHER) == PKG_LIBS_ONLY_OTHER && (frag->type == 'l' || frag->type == 'L'))
+		switch (frag->type)
+		{
+			case 'L': got_flags = PKG_LIBS_ONLY_LDPATH; break;
+			case 'l': got_flags = PKG_LIBS_ONLY_LIBNAME; break;
+			default: got_flags = PKG_LIBS_ONLY_OTHER; break;
+		}
+
+		if ((want_flags & got_flags) == 0)
 			continue;
 
 		print_fragment(frag);
@@ -585,11 +593,11 @@ main(int argc, char *argv[])
 		{ "help", no_argument, &want_flags, PKG_HELP, },
 		{ "env-only", no_argument, &want_flags, PKG_ENV_ONLY, },
 		{ "print-requires-private", no_argument, &want_flags, PKG_REQUIRES_PRIVATE, },
-		{ "cflags-only-I", no_argument, &want_flags, PKG_CFLAGS|PKG_CFLAGS_ONLY_I|PKG_PRINT_ERRORS, },
-		{ "cflags-only-other", no_argument, &want_flags, PKG_CFLAGS|PKG_CFLAGS_ONLY_OTHER|PKG_PRINT_ERRORS, },
-		{ "libs-only-L", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_LDPATH|PKG_PRINT_ERRORS, },
-		{ "libs-only-l", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_LIBNAME|PKG_PRINT_ERRORS, },
-		{ "libs-only-other", no_argument, &want_flags, PKG_LIBS|PKG_LIBS_ONLY_OTHER|PKG_PRINT_ERRORS, },
+		{ "cflags-only-I", no_argument, &want_flags, PKG_CFLAGS_ONLY_I|PKG_PRINT_ERRORS, },
+		{ "cflags-only-other", no_argument, &want_flags, PKG_CFLAGS_ONLY_OTHER|PKG_PRINT_ERRORS, },
+		{ "libs-only-L", no_argument, &want_flags, PKG_LIBS_ONLY_LDPATH|PKG_PRINT_ERRORS, },
+		{ "libs-only-l", no_argument, &want_flags, PKG_LIBS_ONLY_LIBNAME|PKG_PRINT_ERRORS, },
+		{ "libs-only-other", no_argument, &want_flags, PKG_LIBS_ONLY_OTHER|PKG_PRINT_ERRORS, },
 		{ "uninstalled", no_argument, &want_flags, PKG_UNINSTALLED, },
 		{ "no-uninstalled", no_argument, &want_flags, PKG_NO_UNINSTALLED, },
 		{ "keep-system-cflags", no_argument, &want_flags, PKG_KEEP_SYSTEM_CFLAGS, },
@@ -648,14 +656,6 @@ main(int argc, char *argv[])
 		want_flags |= (PKG_SILENCE_ERRORS);
 	else
 		want_flags &= ~(PKG_SILENCE_ERRORS);
-
-	if ((want_flags & PKG_LIBS_ONLY_LIBNAME) == PKG_LIBS_ONLY_LIBNAME)
-		want_flags &= ~(PKG_LIBS_ONLY_OTHER|PKG_LIBS_ONLY_LDPATH);
-	else if ((want_flags & PKG_LIBS_ONLY_LDPATH) == PKG_LIBS_ONLY_LDPATH)
-		want_flags &= ~(PKG_LIBS_ONLY_OTHER);
-
-	if ((want_flags & PKG_CFLAGS_ONLY_I) == PKG_CFLAGS_ONLY_I)
-		want_flags &= ~(PKG_CFLAGS_ONLY_OTHER);
 
 	if ((want_flags & PKG_ABOUT) == PKG_ABOUT)
 	{
@@ -940,7 +940,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if ((want_flags & PKG_CFLAGS) == PKG_CFLAGS)
+	if ((want_flags & PKG_CFLAGS))
 	{
 		pkg_list_t frag_list = PKG_LIST_INITIALIZER;
 
@@ -951,7 +951,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if ((want_flags & PKG_LIBS) == PKG_LIBS)
+	if ((want_flags & PKG_LIBS))
 	{
 		pkg_list_t frag_list = PKG_LIST_INITIALIZER;
 
