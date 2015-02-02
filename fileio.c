@@ -37,12 +37,21 @@ pkg_fgetline(char *line, size_t size, FILE *stream)
 
 		else if (c == '\n')
 		{
-			*s++ = c;
-
 			if (quoted)
 			{
+				/* Trim spaces */
+				do {
+					c2 = getc(stream);
+				} while (c2 == '\t' || c2 == ' ');
+
+				ungetc(c2, stream);
+
 				quoted = false;
 				continue;
+			}
+			else
+			{
+				*s++ = c;
 			}
 
 			break;
