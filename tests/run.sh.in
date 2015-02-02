@@ -211,6 +211,10 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --max-version 2.0 'foo '; echo 
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags missing-require; echo \$?" \
 	'1'
 
+# test the multiline description field
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --list-all | grep -q 'multiline description'; echo \$?" \
+	'0'
+
 # test quoted #35
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags quotes" \
 	"-DQUOTED=\\\"bla\\\""
