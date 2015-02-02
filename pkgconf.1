@@ -118,10 +118,6 @@ Dump the dependency resolver's solution as a graphviz
 .Sq dot
 file. This can be used with graphviz to visualize module interdependencies.
 .El
-.Sh EXAMPLES
-Displaying the CFLAGS of a package:
-.Dl $ pkgconf --cflags foo
-.Dl -fPIC -I/usr/include/foo
 .Sh ENVIRONMENT
 .Bl -tag -width indent
 .It Va PKG_CONFIG_PATH
@@ -133,3 +129,8 @@ files are looked up.
 directory, will be prepended to every path defined in
 .Va PKG_CONFIG_PATH .
 Useful for cross compilation.
+.El
+.Sh EXAMPLES
+Displaying the CFLAGS of a package:
+.Dl $ pkgconf --cflags foo
+.Dl -fPIC -I/usr/include/foo
