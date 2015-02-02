@@ -122,3 +122,14 @@ file. This can be used with graphviz to visualize module interdependencies.
 Displaying the CFLAGS of a package:
 .Dl $ pkgconf --cflags foo
 .Dl -fPIC -I/usr/include/foo
+.Sh ENVIRONMENT
+.Bl -tag -width indent
+.It Va PKG_CONFIG_PATH
+List of directories where
+.Sq .pc
+files are looked up.
+.It Va PKG_CONFIG_SYSROOT_DIR
+.Sq sysroot
+directory, will be prepended to every path defined in
+.Va PKG_CONFIG_PATH .
+Useful for cross compilation.
