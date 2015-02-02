@@ -7,108 +7,116 @@
 .\" This software is provided 'as is' and without any warranty, express or
 .\" implied.  In no event shall the authors be liable for any damages arising
 .\" from the use of this software.
-.TH pkgconf 1 "December 2013"
-.SH NAME
-pkgconf \- a system for configuring build dependency information
-.SH SYNOPSIS
-.B pkgconf
-[options] [list of modules]
-.SH DESCRIPTION
-.P
-pkgconf is a program which helps to configure compiler and linker flags for
+.Dd February 2, 2015
+.Dt PKGCONF 1
+.Os
+.Sh NAME
+.Nm pkgconf
+.Nd a system for configuring build dependency information
+.Sh SYNOPSIS
+.Nm
+.Op Ar options
+.Op Ar list of modules
+.Sh DESCRIPTION
+.Nm
+is a program which helps to configure compiler and linker flags for
 development frameworks. This allows build systems to detect other dependencies
 and use them with the system toolchain.
-.SH GENERAL OPTIONS
-.TP
-\fB\-\-version\fP
+.Sh GENERAL OPTIONS
+.Bl -tag -width indent
+.It Fl -version
 Display the supported pkg-config version and exit.
-.TP
-\fB\-\-atleast\-pkgconfig\-version=VERSION\fP
+.It Fl -atleast-pkgconfig-version Ns = Ns Ar VERSION
 Exit with error if we do not support the requested pkg-config version.
-.TP
-\fB\-\-errors\-to\-stdout\fP
+.It Fl -errors-to-stdout
 Print all errors on the main output stream instead of the error output stream.
-.TP
-\fB\-\-silence\-errors\fP
+.It Fl -silence-errors
 Do not display any errors at all.
-.TP
-\fB\-\-list\-all\fP
-Walk all directories listed in the \fBPKG_CONFIG_PATH\fP environmental variable
-and display information on packages which have registered information there.
-.TP
-\fB\-\-simulate\fP
+.It Fl -list-all
+Walk all directories listed in the
+.Va PKG_CONFIG_PATH
+environmental variable and display information on packages which have registered
+information there.
+.It Fl -simulate
 Simulates resolving a dependency graph based on the requested modules on the
 command line. Dumps a series of trees denoting pkgconf's resolver state.
-.TP
-\fB\-\-no\-cache\fP
+.It Fl -no-cache
 Skip caching packages when they are loaded into the internal resolver.  This may
 result in an alternate dependency graph being computed.
-.TP
-\fB\-\-ignore\-conflicts\fP
+.It Fl -ignore-conflicts
 Ignore 'Conflicts' rules in modules.
-.TP
-\fB\-\-env\-only\fP
+.It Fl -env-only
 Learn about pkgconf's configuration strictly from environmental variables.
-.TP
-\fB\-\-maximum\-traverse\-depth=DEPTH\fP
-Impose a limit on the allowed depth in the dependency graph.  For example, a depth
-of 2 will restrict the resolver from acting on child dependencies of modules added to
-the resolver's solution.
-.TP
-\fB\-\-static\fP
-Compute a deeper dependency graph and use compiler/linker flags intended for static
-linking.
-.SH MODULE\-SPECIFIC OPTIONS
-.TP
-\fB\-\-atleast\-version=VERSION\fP
+.It Fl -maximum-traverse-depth Ns = Ns Ar DEPTH
+Impose a limit on the allowed depth in the dependency graph.  For example, a
+depth of 2 will restrict the resolver from acting on child dependencies of
+modules added to the resolver's solution.
+.It Fl -static
+Compute a deeper dependency graph and use compiler/linker flags intended for
+static linking.
+.El
+.Sh MODULE-SPECIFIC OPTIONS
+.Bl -tag -width indent
+.It Fl -atleast-version Ns = Ns Ar VERSION
 Exit with error if a module's version is less than the specified version.
-.TP
-\fB\-\-exact\-version=VERSION\fP
+.It Fl -exact-version Ns = Ns Ar VERSION
 Exit with error if a module's version is not exactly the specified version.
-.TP
-\fB\-\-max\-version=VERSION\fP
+.It Fl -max-version Ns = Ns Ar VERSION
 Exit with error if a module's version is greater than the specified version.
-.TP
-\fB\-\-exists\fP
-Exit with a non-zero result if the dependency resolver was able to find all of the
-requested modules.
-.TP
-\fB\-\-uninstalled\fP
-Exit with a non-zero result if the dependency resolver uses an 'uninstalled' module
-as part of it's solution.
-.TP
-\fB\-\-no\-uninstalled\fP
-Forbids the dependency resolver from considering 'uninstalled' modules as part of a
-solution.
-.SH QUERY\-SPECIFIC OPTIONS
-.TP
-\fB\-\-cflags\fP, \fB\-\-cflags\-only\-I\fP, \fB\-\-cflags\-only\-other\fP
-Display either all CFLAGS, only \fB\-I\fP CFLAGS or only CFLAGS that are not \fB-I\fP.
-.TP
-\fB\-\-libs\fP, \fB\-\-libs\-only\-L\fP, \fB\-\-libs\-only\-l\fP, \fB\-\-libs\-only\-other\fP
-Display either all linker flags, only \fB\-L\fP linker flags, only \fB-l\fP linker flags or only linker flags that are not \fB-L\fP or \fB-l\fP.
-.TP
-\fB\-\-keep\-system\-cflags\fP, \fB\-\-keep\-system\-libs\fP
-Keep CFLAGS or linker flag fragments that would be filtered due to being included by default in the compiler.
-.TP
-\fB\-\-define-variable=VARNAME=VALUE\fP
-Define \fBVARNAME\fP as \fBVALUE\fP. Variables are used in query output, and some modules' results may change based on the presence of a variable definition.
-.TP
-\fB\-\-print\-variables\fP
+.It Fl -exists
+Exit with a non-zero result if the dependency resolver was able to find all of
+the requested modules.
+.It Fl -uninstalled
+Exit with a non-zero result if the dependency resolver uses an
+.Sq uninstalled
+module as part of it's solution.
+.It Fl -no-uninstalled
+Forbids the dependency resolver from considering 'uninstalled' modules as part
+of a solution.
+.El
+.Sh QUERY-SPECIFIC OPTIONS
+.Bl -tag -width indent
+.It Fl -cflags Ns , Fl -cflags-only-I Ns , Fl -cflags-only-other
+Display either all CFLAGS, only
+.Fl I
+CFLAGS or only CFLAGS that are not
+.Fl I .
+.It Fl -libs Ns , Fl -libs-only-L Ns , Fl -libs-only-l Ns , Fl -libs-only-other
+Display either all linker flags, only
+.Fl L
+linker flags, only
+.Fl l
+linker flags or only linker flags that are not
+.Fl L
+or
+.Fl l .
+.It Fl -keep-system-cflags Ns , Fl -keep-system-libs
+Keep CFLAGS or linker flag fragments that would be filtered due to being
+included by default in the compiler.
+.It Fl -define-variable Ns = Ns Ar VARNAME Ns = Ns Ar VALUE
+Define
+.Va VARNAME
+as
+.Va VALUE .
+Variables are used in query output, and some modules' results may change based
+on the presence of a variable definition.
+.It Fl -print-variables
 Print all seen variables for a module to the output channel.
-.TP
-\fB\-\-variable=VARNAME\fP
-Print the value of \fBVARNAME\fP.
-.TP
-\fB\-\-print-requires\fP, \fB\-\-print\-requires\-private\fP
-Print the modules included in either the \fBRequires\fP field or the \fBRequires.private\fP field.
-.TP
-\fB\-\-digraph\fP
-Dump the dependency resolver's solution as a graphviz 'dot' file.  This can be used with graphviz to visualize
-module interdependencies.
-.SH EXAMPLES
-.TP
+.It Fl -variable Ns = Ns Ar VARNAME
+Print the value of
+.Va VARNAME .
+.It Fl -print-requires Ns , Fl -print-requires-private
+Print the modules included in either the
+.Va Requires
+field or the
+.Va Requires.private
+field.
+.It Fl -digraph
+Dump the dependency resolver's solution as a graphviz
+.Sq dot
+file. This can be used with graphviz to visualize module interdependencies.
+.El
+.Sh EXAMPLES
 Displaying the CFLAGS of a package:
-shell> pkgconf --cflags foo
-.br
--fPIC -I/usr/include/foo
+.Dl $ pkgconf --cflags foo
+.Dl -fPIC -I/usr/include/foo
