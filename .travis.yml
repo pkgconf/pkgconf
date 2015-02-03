@@ -5,6 +5,7 @@ compiler:
   - gcc
 
 script:
+  - sh ./autogen.sh
   - ./configure --prefix=/usr
   - make
   - make check
