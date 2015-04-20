@@ -79,3 +79,5 @@ Release tarballs are available at <http://tortois.es/~nenolod/distfiles/>.
 ## reporting bugs
 
 See <https://github.com/pkgconf/pkgconf/issues>.
+
+Also you can contact us at `#pkgconf` at `irc.freenode.net`.
