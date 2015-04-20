@@ -34,7 +34,14 @@ pkg_fgetline(char *line, size_t size, FILE *stream)
 			quoted = true;
 			continue;
 		}
+		else if (c == '#')
+		{
+			if (!quoted)
+				break;
 
+			quoted = false;
+			continue;
+		}
 		else if (c == '\n')
 		{
 			if (quoted)
