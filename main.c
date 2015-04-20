@@ -45,6 +45,7 @@
 #define PKG_PRINT_ERRORS		(1<<26)
 #define PKG_SIMULATE			(1<<27)
 #define PKG_NO_CACHE			(1<<28)
+#define PKG_PROVIDES			(1<<29)
 
 static unsigned int global_traverse_flags = PKGF_NONE;
 
@@ -611,6 +612,7 @@ main(int argc, char *argv[])
 		{ "list-all", no_argument, &want_flags, PKG_LIST|PKG_PRINT_ERRORS, },
 		{ "simulate", no_argument, &want_flags, PKG_SIMULATE, },
 		{ "no-cache", no_argument, &want_flags, PKG_NO_CACHE, },
+		{ "print-provides", no_argument, &want_flags, PKG_PROVIDES, },
 		{ "debug", no_argument, &want_flags, 0, },
 		{ NULL, 0, NULL, 0 }
 	};
@@ -872,6 +874,14 @@ main(int argc, char *argv[])
 		ret = EXIT_FAILURE;
 		pkg_queue_apply(&pkgq, apply_uninstalled, maximum_traverse_depth, global_traverse_flags, &ret);
 		goto out;
+	}
+
+	if ((want_flags & PKG_PROVIDES) == PKG_PROVIDES)
+	{
+		fprintf(stderr, "pkgconf: warning: --print-provides requested which is intentionally unimplemented, along with\n");
+		fprintf(stderr, "  the rest of the Provides system.  The Provides system is broken by design and requires loading every\n");
+		fprintf(stderr, "  package module to calculate the dependency graph.  In practice, there are no consumers of this system\n");
+		fprintf(stderr, "  so it will remain unimplemented until such time that something actually uses it.\n");
 	}
 
 	if ((want_flags & PKG_DIGRAPH) == PKG_DIGRAPH)
