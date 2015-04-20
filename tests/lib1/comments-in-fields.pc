@@ -4,6 +4,6 @@ URL: http://pkgconf.org/
 Version: 0
 Requires: # foo
 Requires.private: foo
-Libs: # -lbar
+Libs: -lfoo # -lbar
 Libs.private:  -lbar
 Cflags: -I${includedir}
