@@ -255,6 +255,9 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=Foo case-sensitivity
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs comments-in-fields" \
 	"-lfoo"
 
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs comments" \
+	"-lfoo"
+
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='/sysroot' ${1} --libs sysroot-dir" \
 	'-L/sysroot/lib -lfoo'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='/sysroot2' ${1} --libs sysroot-dir" \
