@@ -36,9 +36,14 @@ pkg_fgetline(char *line, size_t size, FILE *stream)
 		}
 		else if (c == '#')
 		{
-			if (!quoted)
+			if (!quoted) {
+				/* Skip the rest of the line */
+				do {
+					c = getc(stream);
+				} while (c != '\n' && c != EOF);
+				*s++ = c;
 				break;
-
+			}
 			quoted = false;
 			continue;
 		}
