@@ -17,6 +17,7 @@ AC_CONFIG_SRCDIR([pkg.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CHECK_FUNCS([strlcpy strlcat strndup strtok_r])
 
+AC_SYS_LARGEFILE
 
 AC_ARG_ENABLE([strict],
 	      [AC_HELP_STRING([--enable-strict],
