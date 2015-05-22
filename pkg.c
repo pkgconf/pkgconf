@@ -1039,23 +1039,16 @@ pkg_libs_collect(pkg_t *pkg, void *data, unsigned int flags)
 	PKG_FOREACH_LIST_ENTRY(pkg->libs.head, node)
 	{
 		pkg_fragment_t *frag = node->data;
-
 		pkg_fragment_copy(list, frag, flags);
 	}
-}
 
-static void
-pkg_libs_private_collect(pkg_t *pkg, void *data, unsigned int flags)
-{
-	pkg_list_t *list = data;
-	pkg_node_t *node;
-	(void) flags;
-
-	PKG_FOREACH_LIST_ENTRY(pkg->libs_private.head, node)
+	if (flags & PKGF_MERGE_PRIVATE_FRAGMENTS)
 	{
-		pkg_fragment_t *frag = node->data;
-
-		pkg_fragment_copy(list, frag, flags);
+		PKG_FOREACH_LIST_ENTRY(pkg->libs_private.head, node)
+		{
+			pkg_fragment_t *frag = node->data;
+			pkg_fragment_copy(list, frag, flags);
+		}
 	}
 }
 
@@ -1070,13 +1063,6 @@ pkg_libs(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags)
 	{
 		pkg_fragment_free(list);
 		return eflag;
-	}
-
-	if (flags & PKGF_MERGE_PRIVATE_FRAGMENTS)
-	{
-		eflag = pkg_traverse(root, pkg_libs_private_collect, list, maxdepth, flags);
-		if (eflag != PKG_ERRF_OK)
-			pkg_fragment_free(list);
 	}
 
 	return eflag;
