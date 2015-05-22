@@ -49,7 +49,7 @@
 
 static unsigned int global_traverse_flags = PKGF_NONE;
 
-static int want_flags;
+static uint64_t want_flags;
 static int maximum_traverse_depth = 2000;
 
 static char *want_variable = NULL;
