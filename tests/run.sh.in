@@ -118,6 +118,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --cflags baz" \
 	'-fPIC' '-I/usr/include/foo' '-DFOO_STATIC'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --libs-only-l private-libs-duplication" \
 	'-lprivate -lbaz -lfoo -lbar -lzee'
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --libs static-libs" \
+	'-lbar -lbar-private -lfoo'
 
 # 4) tests for parser bugs
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs dos-lineendings" \
