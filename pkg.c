@@ -972,7 +972,7 @@ pkg_traverse(pkg_t *root,
 
 	if (flags & PKGF_SEARCH_PRIVATE)
 	{
-		eflags = pkg_walk_list(root, &root->requires_private, func, data, maxdepth, rflags);
+		eflags = pkg_walk_list(root, &root->requires_private, func, data, maxdepth, rflags | PKGF_ITER_PKG_IS_PRIVATE);
 		if (eflags != PKG_ERRF_OK)
 			return eflags;
 	}
@@ -990,8 +990,7 @@ pkg_cflags_collect(pkg_t *pkg, void *data, unsigned int flags)
 	PKG_FOREACH_LIST_ENTRY(pkg->cflags.head, node)
 	{
 		pkg_fragment_t *frag = node->data;
-
-		pkg_fragment_copy(list, frag, flags);
+		pkg_fragment_copy(list, frag, flags, false);
 	}
 }
 
@@ -1006,7 +1005,7 @@ pkg_cflags_private_collect(pkg_t *pkg, void *data, unsigned int flags)
 	{
 		pkg_fragment_t *frag = node->data;
 
-		pkg_fragment_copy(list, frag, flags);
+		pkg_fragment_copy(list, frag, flags, true);
 	}
 }
 
@@ -1039,7 +1038,7 @@ pkg_libs_collect(pkg_t *pkg, void *data, unsigned int flags)
 	PKG_FOREACH_LIST_ENTRY(pkg->libs.head, node)
 	{
 		pkg_fragment_t *frag = node->data;
-		pkg_fragment_copy(list, frag, flags);
+		pkg_fragment_copy(list, frag, flags, (flags & PKGF_ITER_PKG_IS_PRIVATE) != 0);
 	}
 
 	if (flags & PKGF_MERGE_PRIVATE_FRAGMENTS)
@@ -1047,7 +1046,7 @@ pkg_libs_collect(pkg_t *pkg, void *data, unsigned int flags)
 		PKG_FOREACH_LIST_ENTRY(pkg->libs_private.head, node)
 		{
 			pkg_fragment_t *frag = node->data;
-			pkg_fragment_copy(list, frag, flags);
+			pkg_fragment_copy(list, frag, flags, true);
 		}
 	}
 }

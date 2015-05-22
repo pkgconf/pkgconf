@@ -48,6 +48,9 @@ typedef struct pkg_fragment_ pkg_fragment_t;
 #define PKG_FOREACH_LIST_ENTRY_SAFE(head, nextiter, value) \
 	for ((value) = (head), (nextiter) = (head) != NULL ? (head)->next : NULL; (value) != NULL; (value) = (nextiter), (nextiter) = (nextiter) != NULL ? (nextiter)->next : NULL)
 
+#define PKG_FOREACH_LIST_ENTRY_REVERSE(tail, value) \
+	for ((value) = (tail); (value) != NULL; (value) = (value)->prev)
+
 #define PKG_MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define PKG_MAX(a,b) (((a) > (b)) ? (a) : (b))
 
@@ -119,6 +122,7 @@ struct pkg_ {
 #define PKGF_NO_CACHE			0x040
 #define PKGF_MUNGE_SYSROOT_PREFIX	0x080
 #define PKGF_SKIP_ERRORS		0x100
+#define PKGF_ITER_PKG_IS_PRIVATE	0x200
 
 #define PKG_ERRF_OK			0x0
 #define PKG_ERRF_PACKAGE_NOT_FOUND	0x1
@@ -159,7 +163,7 @@ void pkg_argv_free(char **argv);
 /* fragment.c */
 void pkg_fragment_parse(pkg_list_t *list, pkg_list_t *vars, const char *value, unsigned int flags);
 void pkg_fragment_add(pkg_list_t *list, const char *string, unsigned int flags);
-void pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base, unsigned int flags);
+void pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base, unsigned int flags, bool is_private);
 void pkg_fragment_delete(pkg_list_t *list, pkg_fragment_t *node);
 void pkg_fragment_free(pkg_list_t *list);
 

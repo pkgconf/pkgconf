@@ -86,7 +86,7 @@ pkg_fragment_lookup(pkg_list_t *list, pkg_fragment_t *base)
 {
 	pkg_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(list->head, node)
+	PKG_FOREACH_LIST_ENTRY_REVERSE(list->tail, node)
 	{
 		pkg_fragment_t *frag = node->data;
 
@@ -101,10 +101,17 @@ pkg_fragment_lookup(pkg_list_t *list, pkg_fragment_t *base)
 }
 
 static inline bool
-pkg_fragment_can_merge_back(pkg_fragment_t *base, unsigned int flags)
+pkg_fragment_can_merge_back(pkg_fragment_t *base, unsigned int flags, bool is_private)
 {
-	if ((flags & PKGF_MERGE_PRIVATE_FRAGMENTS) && base->type == 'l')
-		return false;
+	(void) flags;
+
+	if (base->type == 'l')
+	{
+		if (is_private)
+			return false;
+
+		return true;
+	}
 
 	if (base->type == 'F')
 		return false;
@@ -113,9 +120,12 @@ pkg_fragment_can_merge_back(pkg_fragment_t *base, unsigned int flags)
 }
 
 static inline bool
-pkg_fragment_can_merge(pkg_fragment_t *base, unsigned int flags)
+pkg_fragment_can_merge(pkg_fragment_t *base, unsigned int flags, bool is_private)
 {
 	(void) flags;
+
+	if (is_private)
+		return false;
 
 	if (!strncmp(base->data, "-framework", 10))
 		return false;
@@ -124,25 +134,25 @@ pkg_fragment_can_merge(pkg_fragment_t *base, unsigned int flags)
 }
 
 static inline pkg_fragment_t *
-pkg_fragment_exists(pkg_list_t *list, pkg_fragment_t *base, unsigned int flags)
+pkg_fragment_exists(pkg_list_t *list, pkg_fragment_t *base, unsigned int flags, bool is_private)
 {
-	if (!pkg_fragment_can_merge_back(base, flags))
+	if (!pkg_fragment_can_merge_back(base, flags, is_private))
 		return NULL;
 
-	if (!pkg_fragment_can_merge(base, flags))
+	if (!pkg_fragment_can_merge(base, flags, is_private))
 		return NULL;
 
 	return pkg_fragment_lookup(list, base);
 }
 
 void
-pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base, unsigned int flags)
+pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base, unsigned int flags, bool is_private)
 {
 	pkg_fragment_t *frag;
 
-	if ((frag = pkg_fragment_exists(list, base, flags)) != NULL)
+	if ((frag = pkg_fragment_exists(list, base, flags, is_private)) != NULL)
 		pkg_fragment_delete(list, frag);
-	else if (!pkg_fragment_can_merge_back(base, flags) && (pkg_fragment_lookup(list, base) != NULL))
+	else if (!is_private && !pkg_fragment_can_merge_back(base, flags, is_private) && (pkg_fragment_lookup(list, base) != NULL))
 		return;
 
 	frag = calloc(sizeof(pkg_fragment_t), 1);
