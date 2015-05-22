@@ -74,7 +74,7 @@ to make this determination themselves.
 
 ## release tarballs
 
-Release tarballs are available at <http://tortois.es/~nenolod/distfiles/>.
+Release tarballs are available at <http://rabbit.dereferenced.org/~nenolod/distfiles/>.
 
 ## reporting bugs
 
