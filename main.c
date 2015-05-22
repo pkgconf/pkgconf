@@ -46,6 +46,7 @@
 #define PKG_SIMULATE			(1<<27)
 #define PKG_NO_CACHE			(1<<28)
 #define PKG_PROVIDES			(1<<29)
+#define PKG_VALIDATE			(1<<30)
 
 static unsigned int global_traverse_flags = PKGF_NONE;
 
@@ -538,6 +539,7 @@ usage(void)
 	printf("                                    (for static linking)\n");
 	printf("  --env-only                        look only for package entries in PKG_CONFIG_PATH\n");
 	printf("  --ignore-conflicts                ignore 'conflicts' rules in modules\n");
+	printf("  --validate                        validate specific .pc files for correctness\n");
 
 	printf("\nquerying specific pkg-config database fields:\n\n");
 
@@ -614,6 +616,7 @@ main(int argc, char *argv[])
 		{ "no-cache", no_argument, &want_flags, PKG_NO_CACHE, },
 		{ "print-provides", no_argument, &want_flags, PKG_PROVIDES, },
 		{ "debug", no_argument, &want_flags, 0, },
+		{ "validate", no_argument, NULL, 0 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -868,6 +871,9 @@ main(int argc, char *argv[])
 		ret = EXIT_FAILURE;
 		goto out;
 	}
+
+	if ((want_flags & PKG_VALIDATE) == PKG_VALIDATE)
+		return 0;
 
 	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
