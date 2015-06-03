@@ -56,7 +56,7 @@ struct pkg_option {
 	/* if not NULL, set *flag to val when option found */
 	uint64_t *flag;
 	/* if flag not NULL, value to set *flag to; else return value */
-	int val;
+	uint64_t val;
 };
 
 int	pkg_getopt_long(int, char * const *, const char *,
