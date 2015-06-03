@@ -117,6 +117,15 @@ print_list_entry(const pkg_t *entry)
 }
 
 static void
+print_package_entry(const pkg_t *entry)
+{
+	if (entry->flags & PKG_PROPF_UNINSTALLED)
+		return;
+
+	printf("%s\n", entry->id);
+}
+
+static void
 print_cflags(pkg_list_t *list)
 {
 	pkg_node_t *node;
@@ -523,6 +532,7 @@ usage(void)
 	printf("  --errors-to-stdout                print all errors on stdout instead of stderr\n");
 	printf("  --silence-errors                  explicitly be silent about errors\n");
 	printf("  --list-all                        list all known packages\n");
+	printf("  --list-package-names              list all known package names\n");
 	printf("  --simulate                        simulate walking the calculated dependency graph\n");
 	printf("  --no-cache                        do not cache already seen packages when\n");
 	printf("                                    walking the dependency graph\n");
@@ -613,6 +623,7 @@ main(int argc, char *argv[])
 		{ "errors-to-stdout", no_argument, &want_flags, PKG_ERRORS_ON_STDOUT, },
 		{ "silence-errors", no_argument, &want_flags, PKG_SILENCE_ERRORS, },
 		{ "list-all", no_argument, &want_flags, PKG_LIST|PKG_PRINT_ERRORS, },
+		{ "list-package-names", no_argument, &want_flags, PKG_LIST_PACKAGE_NAMES|PKG_PRINT_ERRORS, },
 		{ "simulate", no_argument, &want_flags, PKG_SIMULATE, },
 		{ "no-cache", no_argument, &want_flags, PKG_NO_CACHE, },
 		{ "print-provides", no_argument, &want_flags, PKG_PROVIDES, },
@@ -732,6 +743,12 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_LIST) == PKG_LIST)
 	{
 		pkg_scan_all(print_list_entry);
+		return EXIT_SUCCESS;
+	}
+
+	if ((want_flags & PKG_LIST_PACKAGE_NAMES) == PKG_LIST_PACKAGE_NAMES)
+	{
+		pkg_scan_all(print_package_entry);
 		return EXIT_SUCCESS;
 	}
 
