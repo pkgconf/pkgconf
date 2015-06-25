@@ -12,6 +12,11 @@ to replace pkg-config, which for a while needed itself to build itself (they hav
 since included a 'stripped down copy of glib 2.0')  Since then we have worked on
 improving pkg-config for embedded use.
 
+If you're wondering what pkg-config is useful for, you might find the tutorial/guide
+docs for [legacy pkg-config][pcdocs] useful.
+
+   [pcdocs]: http://people.freedesktop.org/~dbn/pkg-config-guide.html
+
 ## usage
 
 Implementations of pkg-config, such as pkgconf, are typically used with the
