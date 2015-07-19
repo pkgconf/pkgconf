@@ -7,6 +7,6 @@ Name: prefix-foo2
 Description: A testing pkg-config file
 Version: 1.2.3
 Libs: -L${libdir} -lfoo2
-Cflags: -fPIC -I${includedir}/foo2
+Cflags: -fPIC -I${includedir}/foo -DFOO
 Cflags.private: -DFOO_STATIC
 

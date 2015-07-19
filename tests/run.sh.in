@@ -268,6 +268,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs prefix-foo1" \
 	'-L/usr/bar/lib -lfoo1'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs prefix-foo1 prefix-foo2" \
 	'-L/usr/bar/lib -lfoo1 -lfoo2'
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags prefix-foo1 prefix-foo2" \
+	'-I/usr/bar/include/foo -DBAR -fPIC -DFOO'
 
 # 10) tests for internal getopt implementation with options at the end
 if [ "x@STRICT_MODE@" = "xno" ]; then
