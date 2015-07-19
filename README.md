@@ -50,6 +50,26 @@ pkgconf also does not bundle any third-party libraries or depend on any third-pa
 libraries, making it a great tool for embedded systems and distributions with
 security concerns.
 
+## other differences verses pkg-config
+
+As previously mentioned, pkgconf makes optimizations to the linker flags in both the
+case of static and shared linking in order to avoid overlinking binaries and also
+simplifies the `CFLAGS` and `LIBS` output of the pkgconf tool for improved readability.
+
+This functionality depends on the pkg-config module properly declaring it's dependency
+tree instead of using `Libs` and `Cflags` fields to directly link against other modules
+which have pkg-config metadata files installed.
+
+Doing so is discouraged by the [freedesktop tutorial][fd-tut] anyway.
+
+   [fd-tut]: http://people.freedesktop.org/~dbn/pkg-config-guide.html
+
+Beyond that, we do not provide bug-level compatibility with pkg-config.  What that means
+is, if you feel that there is a legitimate regression verses pkg-config, do let us know,
+but also make sure that the .pc files are valid and follow the rules of the
+[pkg-config tutortial][fd-tut], as most likely fixing them to follow the specified
+rules will solve the problem.
+
 ## compiling
 
 pkgconf is basically compiled the same way any other autotools-based project is
