@@ -1,0 +1,12 @@
+prefix=/usr/bar
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: prefix-foo1
+Description: A testing pkg-config file
+Version: 1.2.3
+Libs: -L${libdir} -lfoo1
+Cflags: -fPIC -I${includedir}/foo1
+Cflags.private: -DFOO_STATIC
+

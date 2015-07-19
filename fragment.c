@@ -115,6 +115,8 @@ pkg_fragment_can_merge_back(pkg_fragment_t *base, unsigned int flags, bool is_pr
 
 	if (base->type == 'F')
 		return false;
+	if (base->type == 'L')
+		return false;
 
 	return true;
 }
