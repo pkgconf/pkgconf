@@ -1,4 +1,4 @@
-prefix=/usr/bar
+prefix=/test/bar
 exec_prefix=${prefix}
 libdir=${prefix}/lib
 includedir=${prefix}/include

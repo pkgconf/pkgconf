@@ -55,13 +55,13 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1}; echo \$?" \
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs foo" \
 	'-lfoo'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags --libs foo" \
-	'-lfoo' '-I/usr/include/foo' '-fPIC'
+	'-lfoo' '-I/test/include/foo' '-fPIC'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags --libs 'foo > 1.2'" \
-	'-lfoo' '-I/usr/include/foo' '-fPIC'
+	'-lfoo' '-I/test/include/foo' '-fPIC'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags --libs 'foo > 1.2 bar >= 1.3'" \
-	'-lfoo' '-I/usr/include/foo' '-fPIC'
+	'-lfoo' '-I/test/include/foo' '-fPIC'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags --libs 'foo' '>' '1.2'" \
-	'-lfoo' '-I/usr/include/foo' '-fPIC'
+	'-lfoo' '-I/test/include/foo' '-fPIC'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists nonexistant; echo \$?" \
 	'1'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} nonexistant; echo \$?" \
@@ -109,23 +109,23 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1${PATH_SEP}${selfdir}/lib2' ${1} --lib
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs bar" \
 	'-lfoo' '-lbar'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs --cflags baz" \
-	'-lbaz' '-fPIC' '-I/usr/include/foo'
+	'-lbaz' '-fPIC' '-I/test/include/foo'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --libs baz" \
 	'-lfoo' '-lbaz' '-lzee'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --libs argv-parse-2" \
 	'-pthread '
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --cflags baz" \
-	'-fPIC' '-I/usr/include/foo' '-DFOO_STATIC'
+	'-fPIC' '-I/test/include/foo' '-DFOO_STATIC'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --libs-only-l private-libs-duplication" \
 	'-lprivate -lfoo -lbaz -lzee -lbar -lfoo'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --static --libs static-libs" \
-	'-lbar -lbar-private -lfoo'
+	'-lbar -lbar-private -L/test/lib -lfoo'
 
 # 4) tests for parser bugs
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs dos-lineendings" \
-	'-L/usr/lib/dos-lineendings -ldos-lineendings'
+	'-L/test/lib/dos-lineendings -ldos-lineendings'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags no-trailing-newline" \
-	'-I/usr/include/no-trailing-newline'
+	'-I/test/include/no-trailing-newline'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs argv-parse" \
 	'-llib-2 -lpthread'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists -foo; echo \$?" \
@@ -141,15 +141,15 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs paren-quoting" \
 
 # 5) tests for other regressions
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=includedir foo" \
-	'/usr/include'
+	'/test/include'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs-only-L --keep-system-libs cflags-libs-only" \
-	'-L/usr/local/lib'
+	'-L/test/local/lib'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs cflags-libs-only" \
-	'-L/usr/local/lib -lfoo'
+	'-L/test/local/lib -lfoo'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs-only-L --libs-only-l cflags-libs-only" \
-	'-L/usr/local/lib -lfoo'
+	'-L/test/local/lib -lfoo'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags-only-I --cflags-only-other cflags-libs-only" \
-	'-I/usr/local/include'
+	'-I/test/local/include'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs incomplete; echo $?" \
 	'0'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags incomplete" \
@@ -161,19 +161,19 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs incomplete" \
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --modversion pkg-config" \
 	'0.28'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=prefix foo" \
-	'/usr'
-run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --define-variable=prefix=/test --variable=prefix foo" \
 	'/test'
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --define-variable=prefix=/test2 --variable=prefix foo" \
+	'/test2'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=pcfiledir foo" \
 	"${selfdir}/lib1"
 
 # 7) tests for env modifiers
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='${SYSROOT_DIR}' ${1} --cflags baz" \
-	"-I${SYSROOT_DIR}/usr/include/foo"
+	"-I${SYSROOT_DIR}/test/include/foo"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='${SYSROOT_DIR}' ${1} --variable=prefix baz" \
-	"${SYSROOT_DIR}/usr"
+	"${SYSROOT_DIR}/test"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='${SYSROOT_DIR}' ${1} --variable=includedir baz" \
-	"${SYSROOT_DIR}/usr/include"
+	"${SYSROOT_DIR}/test/include"
 
 # 8) tests for 'Conflicts'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs conflicts; echo \$?" \
@@ -234,11 +234,11 @@ run_test "cp ${selfdir}/lib1/foo.pc . && ${1} --libs foo.pc; rm -f foo.pc" \
 
 # test 47 - framework flags
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-1" \
-	"-F/usr/lib -framework framework-1"
+	"-F/test/lib -framework framework-1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-2" \
-	"-F/usr/lib -framework framework-2 -framework framework-1"
+	"-F/test/lib -framework framework-2 -framework framework-1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-1 framework-2" \
-	"-F/usr/lib -framework framework-1 -framework framework-2"
+	"-F/test/lib -framework framework-1 -framework framework-2"
 
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'foo > 0.6.0 foo < 0.8.0'; echo \$?" \
 	'1'
@@ -247,7 +247,7 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'nonexi
 	'1'
 
 run_test "PKG_CONFIG_PATH='${selfdir}/lib2' ${1} ${selfdir}/lib3/bar.pc --cflags" \
-	'-fPIC -I/usr/include/foo'
+	'-fPIC -I/test/include/foo'
 
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=foo case-sensitivity" \
 	"3"
@@ -265,20 +265,20 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='/sysroot' ${
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='/sysroot2' ${1} --libs sysroot-dir" \
 	'-L/sysroot2/sysroot/lib -lfoo'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs prefix-foo1" \
-	'-L/usr/bar/lib -lfoo1'
+	'-L/test/bar/lib -lfoo1'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs prefix-foo1 prefix-foo2" \
-	'-L/usr/bar/lib -lfoo1 -lfoo2'
+	'-L/test/bar/lib -lfoo1 -lfoo2'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags prefix-foo1 prefix-foo2" \
-	'-I/usr/bar/include/foo -DBAR -fPIC -DFOO'
+	'-I/test/bar/include/foo -DBAR -fPIC -DFOO'
 
 # 10) tests for internal getopt implementation with options at the end
 if [ "x@STRICT_MODE@" = "xno" ]; then
 	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} foo --libs" \
 		'-lfoo'
 	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} foo --cflags --libs" \
-		'-lfoo' '-I/usr/include/foo' '-fPIC'
+		'-lfoo' '-I/test/include/foo' '-fPIC'
 	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags foo --libs" \
-		'-lfoo' '-I/usr/include/foo' '-fPIC'
+		'-lfoo' '-I/test/include/foo' '-fPIC'
 fi
 
 run_test "${1} --blah; echo \$?" \
