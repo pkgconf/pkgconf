@@ -12,10 +12,11 @@ dnl implied.  In no event shall the authors be liable for any damages arising
 dnl from the use of this software.
 
 AC_PREREQ([2.68])
-AC_INIT([pkgconf], [0.9.12], [http://github.com/pkgconf/pkgconf/issues])
+AC_INIT([pkgconf], [1], [http://github.com/pkgconf/pkgconf/issues])
 AC_CONFIG_SRCDIR([pkg.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CHECK_FUNCS([strlcpy strlcat strndup strtok_r])
+AM_INIT_AUTOMAKE([foreign dist-xz])
 
 AC_SYS_LARGEFILE
 

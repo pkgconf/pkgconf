@@ -11,6 +11,7 @@ fi
 AUTOCONF=${AUTOCONF:-autoconf}
 ACLOCAL=${ACLOCAL:-aclocal}
 AUTOHEADER=${AUTOHEADER:-autoheader}
+AUTOMAKE=${AUTOMAKE:-automake}
 
 dump_help_screen ()
 {
@@ -81,3 +82,4 @@ cd $TOP_DIR
 run_or_die $ACLOCAL
 run_or_die $AUTOHEADER
 run_or_die $AUTOCONF
+run_or_die $AUTOMAKE --add-missing
