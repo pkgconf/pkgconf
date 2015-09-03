@@ -500,13 +500,13 @@ apply_simulate(pkg_t *world, void *data, int maxdepth, unsigned int flags)
 static void
 version(void)
 {
-	printf("%s\n", PKG_PKGCONFIG_VERSION_EQUIV);
+	printf("%s\n", PACKAGE_VERSION);
 }
 
 static void
 about(void)
 {
-	printf("%s %s%s\n", PACKAGE_NAME, PACKAGE_VERSION, HAVE_STRICT_MODE ? " [strict]" : " [pkg-config " PKG_PKGCONFIG_VERSION_EQUIV " compatible]");
+	printf("%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 	printf("Copyright (c) 2011, 2012, 2013, 2014, 2015 pkgconf authors (see AUTHORS in documentation directory).\n\n");
 	printf("Permission to use, copy, modify, and/or distribute this software for any\n");
 	printf("purpose with or without fee is hereby granted, provided that the above\n");
@@ -734,7 +734,7 @@ main(int argc, char *argv[])
 
 	if (required_pkgconfig_version != NULL)
 	{
-		if (pkg_compare_version(PKG_PKGCONFIG_VERSION_EQUIV, required_pkgconfig_version) >= 0)
+		if (pkg_compare_version(PACKAGE_VERSION, required_pkgconfig_version) >= 0)
 			return EXIT_SUCCESS;
 
 		return EXIT_FAILURE;

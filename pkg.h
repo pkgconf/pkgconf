@@ -22,9 +22,6 @@
 
 #define PKG_BUFSIZE	(65535)
 
-/* we are compatible with 0.28 of pkg-config */
-#define PKG_PKGCONFIG_VERSION_EQUIV	"0.28"
-
 typedef enum {
 	PKG_ANY = 0,
 	PKG_LESS_THAN,
