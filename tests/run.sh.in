@@ -41,7 +41,7 @@ run_test() {
 	done=$(( done + 1 ))
 }
 
-selfdir=$(cd "$(dirname "${0}")"; pwd | sed s#/c/#c:/#)
+selfdir=@abs_srcdir@
 
 PATH_SEP=":"
 SYSROOT_DIR="${selfdir}/test"
