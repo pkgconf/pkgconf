@@ -9,7 +9,7 @@ pkgconfigdir           = @PKGCONFIGDIR@
 CFLAGS = -Wall -Wextra -Wformat=2 -std=gnu99
 
 bin_PROGRAMS = pkgconf
-
+noinst_HEADERS = bsdstubs.h getopt_long.h iter.h pkg.h stdinc.h
 pkgconf_SOURCES  = main.c cache.c pkg.c bsdstubs.c getopt_long.c fragment.c argvsplit.c fileio.c tuple.c dependency.c queue.c
 pkgconf_CPPFLAGS = -DLIBDIR=\"${libdir}\" -DINCLUDEDIR=\"${includedir}\" -DPKG_DEFAULT_PATH=\"${pkgconfigdir}\" -DSYSTEM_INCLUDEDIR=\"${system_includedir}\" -DSYSTEM_LIBDIR=\"${system_libdir}\"
 pkgconf_MANS     = pkgconf.1
