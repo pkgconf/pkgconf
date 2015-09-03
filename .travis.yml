@@ -6,9 +6,8 @@ compiler:
 
 script:
   - sh ./autogen.sh
-  - ./configure --prefix=/usr
-  - make
-  - make check
+  - ./configure
+  - make distcheck
 
 notifications:
   email: false
