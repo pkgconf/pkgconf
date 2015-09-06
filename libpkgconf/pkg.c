@@ -212,7 +212,7 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 	if (idptr)
 		*idptr = '\0';
 
-	while (pkg_fgetline(readbuf, PKG_BUFSIZE, f) != NULL)
+	while (pkgconf_fgetline(readbuf, PKG_BUFSIZE, f) != NULL)
 	{
 		char op, *p, *key, *value;
 

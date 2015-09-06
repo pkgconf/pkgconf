@@ -16,14 +16,14 @@
 #include <libpkgconf/libpkgconf.h>
 
 void
-pkg_argv_free(char **argv)
+pkgconf_argv_free(char **argv)
 {
 	free(argv[0]);
 	free(argv);
 }
 
 int
-pkg_argv_split(const char *src, int *argc, char ***argv)
+pkgconf_argv_split(const char *src, int *argc, char ***argv)
 {
 	char *buf = malloc(strlen(src) + 1);
 	const char *src_iter;

@@ -155,8 +155,8 @@ void pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail)
 void pkgconf_dependency_free(pkgconf_list_t *list);
 
 /* argvsplit.c */
-int pkg_argv_split(const char *src, int *argc, char ***argv);
-void pkg_argv_free(char **argv);
+int pkgconf_argv_split(const char *src, int *argc, char ***argv);
+void pkgconf_argv_free(char **argv);
 
 /* fragment.c */
 void pkgconf_fragment_parse(pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags);
@@ -166,7 +166,7 @@ void pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node);
 void pkgconf_fragment_free(pkgconf_list_t *list);
 
 /* fileio.c */
-char *pkg_fgetline(char *line, size_t size, FILE *stream);
+char *pkgconf_fgetline(char *line, size_t size, FILE *stream);
 
 /* tuple.c */
 pkgconf_tuple_t *pkgconf_tuple_add(pkgconf_list_t *parent, const char *key, const char *value);

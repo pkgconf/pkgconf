@@ -196,11 +196,11 @@ pkgconf_fragment_parse(pkgconf_list_t *list, pkgconf_list_t *vars, const char *v
 	char **argv;
 	char *repstr = pkgconf_tuple_parse(vars, value);
 
-	pkg_argv_split(repstr, &argc, &argv);
+	pkgconf_argv_split(repstr, &argc, &argv);
 
 	for (i = 0; i < argc; i++)
 		pkgconf_fragment_add(list, argv[i], flags);
 
-	pkg_argv_free(argv);
+	pkgconf_argv_free(argv);
 	free(repstr);
 }

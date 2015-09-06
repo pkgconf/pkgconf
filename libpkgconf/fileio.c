@@ -16,7 +16,7 @@
 #include <libpkgconf/libpkgconf.h>
 
 char *
-pkg_fgetline(char *line, size_t size, FILE *stream)
+pkgconf_fgetline(char *line, size_t size, FILE *stream)
 {
 	char *s = line;
 	char *end = line + size - 1;
