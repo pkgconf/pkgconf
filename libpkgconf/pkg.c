@@ -258,7 +258,7 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 void
 pkgconf_pkg_free(pkgconf_pkg_t *pkg)
 {
-	if (pkg == NULL || pkg->flags & PKG_PROPF_VIRTUAL)
+	if (pkg == NULL || pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
 
 	pkgconf_cache_remove(pkg);
@@ -327,7 +327,7 @@ pkgconf_pkg_try_specific_path(const char *path, const char *name, unsigned int f
 	if (!(flags & PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 	{
 		pkg = pkgconf_pkg_new_from_file(uninst_locbuf, f, flags);
-		pkg->flags |= PKG_PROPF_UNINSTALLED;
+		pkg->flags |= PKGCONF_PKG_PROPF_UNINSTALLED;
 	}
 	else if ((f = fopen(locbuf, "r")) != NULL)
 		pkg = pkgconf_pkg_new_from_file(locbuf, f, flags);
@@ -456,7 +456,7 @@ pkgconf_pkg_find(const char *name, unsigned int flags)
 	{
 		if ((pkg = pkgconf_cache_lookup(name)) != NULL)
 		{
-			pkg->flags |= PKG_PROPF_CACHED;
+			pkg->flags |= PKGCONF_PKG_PROPF_CACHED;
 			return pkg;
 		}
 	}
@@ -611,7 +611,7 @@ static pkgconf_pkg_t pkg_config_virtual = {
 	.description = "virtual package defining pkg-config API version supported",
 	.url = PACKAGE_BUGREPORT,
 	.version = PACKAGE_VERSION,
-	.flags = PKG_PROPF_VIRTUAL,
+	.flags = PKGCONF_PKG_PROPF_VIRTUAL,
 	.vars = {
 		.head = &(pkgconf_node_t){
 			.prev = NULL,
@@ -857,15 +857,15 @@ pkgconf_pkg_walk_list(pkgconf_pkg_t *parent,
 		if (pkgdep == NULL)
 			continue;
 
-		if (pkgdep->flags & PKG_PROPF_SEEN)
+		if (pkgdep->flags & PKGCONF_PKG_PROPF_SEEN)
 		{
 			pkgconf_pkg_unref(pkgdep);
 			continue;
 		}
 
-		pkgdep->flags |= PKG_PROPF_SEEN;
+		pkgdep->flags |= PKGCONF_PKG_PROPF_SEEN;
 		eflags |= pkgconf_pkg_traverse(pkgdep, func, data, depth - 1, flags);
-		pkgdep->flags &= ~PKG_PROPF_SEEN;
+		pkgdep->flags &= ~PKGCONF_PKG_PROPF_SEEN;
 		pkgconf_pkg_unref(pkgdep);
 	}
 
@@ -932,7 +932,7 @@ pkgconf_pkg_traverse(pkgconf_pkg_t *root,
 	if (maxdepth == 0)
 		return eflags;
 
-	if ((root->flags & PKG_PROPF_VIRTUAL) != PKG_PROPF_VIRTUAL || (flags & PKGF_SKIP_ROOT_VIRTUAL) != PKGF_SKIP_ROOT_VIRTUAL)
+	if ((root->flags & PKGCONF_PKG_PROPF_VIRTUAL) != PKGCONF_PKG_PROPF_VIRTUAL || (flags & PKGF_SKIP_ROOT_VIRTUAL) != PKGF_SKIP_ROOT_VIRTUAL)
 	{
 		if (func != NULL)
 			func(root, data, flags);

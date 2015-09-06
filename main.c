@@ -109,7 +109,7 @@ print_fragment(pkgconf_fragment_t *frag)
 static void
 print_list_entry(const pkgconf_pkg_t *entry)
 {
-	if (entry->flags & PKG_PROPF_UNINSTALLED)
+	if (entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED)
 		return;
 
 	printf("%-30s %s - %s\n", entry->id, entry->realname, entry->description);
@@ -118,7 +118,7 @@ print_list_entry(const pkgconf_pkg_t *entry)
 static void
 print_package_entry(const pkgconf_pkg_t *entry)
 {
-	if (entry->flags & PKG_PROPF_UNINSTALLED)
+	if (entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED)
 		return;
 
 	printf("%s\n", entry->id);
@@ -435,7 +435,7 @@ check_uninstalled(pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 	int *retval = data;
 	(void) flags;
 
-	if (pkg->flags & PKG_PROPF_UNINSTALLED)
+	if (pkg->flags & PKGCONF_PKG_PROPF_UNINSTALLED)
 		*retval = EXIT_SUCCESS;
 }
 

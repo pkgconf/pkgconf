@@ -1,8 +1,8 @@
 /*
- * pkg.h
- * Global include file for everything.
+ * libpkgconf.h
+ * Global include file for everything in libpkgconf.
  *
- * Copyright (c) 2011 pkgconf authors (see AUTHORS).
+ * Copyright (c) 2011, 2015 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -13,8 +13,8 @@
  * from the use of this software.
  */
 
-#ifndef __PKG_H
-#define __PKG_H
+#ifndef LIBPKGCONF__LIBPKGCONF_H
+#define LIBPKGCONF__LIBPKGCONF_H
 
 #include <libpkgconf/config.h>
 #include <libpkgconf/stdinc.h>
@@ -72,11 +72,11 @@ struct pkgconf_tuple_ {
 	char *value;
 };
 
-#define PKG_PROPF_NONE			0x0
-#define PKG_PROPF_VIRTUAL		0x1
-#define PKG_PROPF_CACHED		0x2
-#define PKG_PROPF_SEEN			0x4
-#define PKG_PROPF_UNINSTALLED		0x8
+#define PKGCONF_PKG_PROPF_NONE			0x0
+#define PKGCONF_PKG_PROPF_VIRTUAL		0x1
+#define PKGCONF_PKG_PROPF_CACHED		0x2
+#define PKGCONF_PKG_PROPF_SEEN			0x4
+#define PKGCONF_PKG_PROPF_UNINSTALLED		0x8
 
 struct pkgconf_pkg_ {
 	pkgconf_node_t cache_iter;
