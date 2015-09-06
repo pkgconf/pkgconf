@@ -137,15 +137,16 @@ pkg_t *pkg_ref(pkg_t *pkg);
 void pkg_unref(pkg_t *pkg);
 void pkg_free(pkg_t *pkg);
 pkg_t *pkg_find(const char *name, unsigned int flags);
-void pkg_scan_all(pkg_iteration_func_t func);
 unsigned int pkg_traverse(pkg_t *root, pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags);
 unsigned int pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
-int pkg_compare_version(const char *a, const char *b);
 pkg_t *pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
 const char *pkgconf_pkg_get_comparator(pkgconf_dependency_t *pkgdep);
 int pkg_cflags(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 int pkg_libs(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 pkgconf_pkg_comparator_t pkgconf_pkg_comparator_lookup_by_name(const char *name);
+
+int pkgconf_compare_version(const char *a, const char *b);
+void pkgconf_scan_all(pkg_iteration_func_t func);
 
 /* parse.c */
 pkg_t *pkg_new_from_file(const char *path, FILE *f, unsigned int flags);

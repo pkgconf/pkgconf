@@ -733,7 +733,7 @@ main(int argc, char *argv[])
 
 	if (required_pkgconfig_version != NULL)
 	{
-		if (pkg_compare_version(PACKAGE_VERSION, required_pkgconfig_version) >= 0)
+		if (pkgconf_compare_version(PACKAGE_VERSION, required_pkgconfig_version) >= 0)
 			return EXIT_SUCCESS;
 
 		return EXIT_FAILURE;
@@ -741,13 +741,13 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_LIST) == PKG_LIST)
 	{
-		pkg_scan_all(print_list_entry);
+		pkgconf_scan_all(print_list_entry);
 		return EXIT_SUCCESS;
 	}
 
 	if ((want_flags & PKG_LIST_PACKAGE_NAMES) == PKG_LIST_PACKAGE_NAMES)
 	{
-		pkg_scan_all(print_package_entry);
+		pkgconf_scan_all(print_package_entry);
 		return EXIT_SUCCESS;
 	}
 
@@ -771,7 +771,7 @@ main(int argc, char *argv[])
 			if (pkg == NULL)
 				return EXIT_FAILURE;
 
-			if (pkg_compare_version(pkg->version, required_module_version) >= 0)
+			if (pkgconf_compare_version(pkg->version, required_module_version) >= 0)
 				return EXIT_SUCCESS;
 		}
 
@@ -798,7 +798,7 @@ main(int argc, char *argv[])
 			if (pkg == NULL)
 				return EXIT_FAILURE;
 
-			if (pkg_compare_version(pkg->version, required_exact_module_version) == 0)
+			if (pkgconf_compare_version(pkg->version, required_exact_module_version) == 0)
 				return EXIT_SUCCESS;
 		}
 
@@ -825,7 +825,7 @@ main(int argc, char *argv[])
 			if (pkg == NULL)
 				return EXIT_FAILURE;
 
-			if (pkg_compare_version(pkg->version, required_max_module_version) <= 0)
+			if (pkgconf_compare_version(pkg->version, required_max_module_version) <= 0)
 				return EXIT_SUCCESS;
 		}
 

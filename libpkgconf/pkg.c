@@ -396,7 +396,7 @@ pkg_scan_dir(const char *path, pkg_iteration_func_t func)
 }
 
 void
-pkg_scan_all(pkg_iteration_func_t func)
+pkgconf_scan_all(pkg_iteration_func_t func)
 {
 	pkgconf_node_t *n;
 
@@ -504,12 +504,12 @@ out:
 }
 
 /*
- * pkg_compare_version(a, b)
+ * pkgconf_compare_version(a, b)
  *
  * compare versions using RPM version comparison rules as described in the LSB.
  */
 int
-pkg_compare_version(const char *a, const char *b)
+pkgconf_compare_version(const char *a, const char *b)
 {
 	char oldch1, oldch2;
 	char buf1[PKG_BUFSIZE], buf2[PKG_BUFSIZE];
@@ -665,32 +665,32 @@ static pkgconf_pkg_comparator_name_t pkgconf_pkg_comparator_names[PKG_CMP_SIZE +
 
 static bool pkgconf_pkg_comparator_lt(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
-	return (pkg_compare_version(pkg->version, pkgdep->version) < 0);
+	return (pkgconf_compare_version(pkg->version, pkgdep->version) < 0);
 }
 
 static bool pkgconf_pkg_comparator_gt(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
-	return (pkg_compare_version(pkg->version, pkgdep->version) > 0);
+	return (pkgconf_compare_version(pkg->version, pkgdep->version) > 0);
 }
 
 static bool pkgconf_pkg_comparator_lte(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
-	return (pkg_compare_version(pkg->version, pkgdep->version) <= 0);
+	return (pkgconf_compare_version(pkg->version, pkgdep->version) <= 0);
 }
 
 static bool pkgconf_pkg_comparator_gte(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
-	return (pkg_compare_version(pkg->version, pkgdep->version) >= 0);
+	return (pkgconf_compare_version(pkg->version, pkgdep->version) >= 0);
 }
 
 static bool pkgconf_pkg_comparator_eq(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
-	return (pkg_compare_version(pkg->version, pkgdep->version) == 0);
+	return (pkgconf_compare_version(pkg->version, pkgdep->version) == 0);
 }
 
 static bool pkgconf_pkg_comparator_ne(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
-	return (pkg_compare_version(pkg->version, pkgdep->version) != 0);
+	return (pkgconf_compare_version(pkg->version, pkgdep->version) != 0);
 }
 
 static bool pkgconf_pkg_comparator_any(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
