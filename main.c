@@ -189,7 +189,7 @@ print_variables(pkg_t *pkg, void *unused, unsigned int flags)
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->vars.head, node)
 	{
-		pkg_tuple_t *tuple = node->data;
+		pkgconf_tuple_t *tuple = node->data;
 
 		printf("%s\n", tuple->key);
 	}
@@ -304,7 +304,7 @@ print_variable(pkg_t *pkg, void *data, unsigned int flags)
 	const char *var;
 	(void) flags;
 
-	var = pkg_tuple_find(&pkg->vars, req->variable);
+	var = pkgconf_tuple_find(&pkg->vars, req->variable);
 	if (var != NULL)
 	{
 		if (*(req->buf) == '\0')
@@ -648,7 +648,7 @@ main(int argc, char *argv[])
 			maximum_traverse_depth = atoi(pkg_optarg);
 			break;
 		case 27:
-			pkg_tuple_define_global(pkg_optarg);
+			pkgconf_tuple_define_global(pkg_optarg);
 			break;
 		case 28:
 			required_exact_module_version = pkg_optarg;
@@ -719,17 +719,17 @@ main(int argc, char *argv[])
 		want_flags |= PKG_KEEP_SYSTEM_LIBS;
 
 	if ((builddir = getenv("PKG_CONFIG_TOP_BUILD_DIR")) != NULL)
-		pkg_tuple_add_global("pc_top_builddir", builddir);
+		pkgconf_tuple_add_global("pc_top_builddir", builddir);
 	else
-		pkg_tuple_add_global("pc_top_builddir", "$(top_builddir)");
+		pkgconf_tuple_add_global("pc_top_builddir", "$(top_builddir)");
 
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
 	{
-		pkg_tuple_add_global("pc_sysrootdir", sysroot_dir);
+		pkgconf_tuple_add_global("pc_sysrootdir", sysroot_dir);
 		global_traverse_flags |= PKGF_MUNGE_SYSROOT_PREFIX;
 	}
 	else
-		pkg_tuple_add_global("pc_sysrootdir", "/");
+		pkgconf_tuple_add_global("pc_sysrootdir", "/");
 
 	if (required_pkgconfig_version != NULL)
 	{
@@ -1002,7 +1002,7 @@ out_println:
 		printf(" \n");
 
 out:
-	pkg_tuple_free_global();
+	pkgconf_tuple_free_global();
 	pkg_cache_free();
 
 	return ret;

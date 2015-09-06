@@ -199,7 +199,7 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 
 	pkg = calloc(sizeof(pkg_t), 1);
 	pkg->filename = strdup(filename);
-	pkg_tuple_add(&pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg));
+	pkgconf_tuple_add(&pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg));
 
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
@@ -243,11 +243,11 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 		{
 		case ':':
 			if (!strcmp(key, "Name"))
-				pkg->realname = pkg_tuple_parse(&pkg->vars, value);
+				pkg->realname = pkgconf_tuple_parse(&pkg->vars, value);
 			else if (!strcmp(key, "Description"))
-				pkg->description = pkg_tuple_parse(&pkg->vars, value);
+				pkg->description = pkgconf_tuple_parse(&pkg->vars, value);
 			else if (!strcmp(key, "Version"))
-				pkg->version = pkg_tuple_parse(&pkg->vars, value);
+				pkg->version = pkgconf_tuple_parse(&pkg->vars, value);
 			else if (!strcasecmp(key, "CFLAGS"))
 				pkg_fragment_parse(&pkg->cflags, &pkg->vars, value, flags);
 			else if (!strcasecmp(key, "CFLAGS.private"))
@@ -264,7 +264,7 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 				pkgconf_dependency_parse(pkg, &pkg->conflicts, value);
 			break;
 		case '=':
-			pkg_tuple_add(&pkg->vars, key, value);
+			pkgconf_tuple_add(&pkg->vars, key, value);
 			break;
 		default:
 			break;
@@ -292,7 +292,7 @@ pkg_free(pkg_t *pkg)
 	pkg_fragment_free(&pkg->libs);
 	pkg_fragment_free(&pkg->libs_private);
 
-	pkg_tuple_free(&pkg->vars);
+	pkgconf_tuple_free(&pkg->vars);
 
 	if (pkg->id != NULL)
 		free(pkg->id);
@@ -636,7 +636,7 @@ static pkg_t pkg_config_virtual = {
 		.head = &(pkgconf_node_t){
 			.prev = NULL,
 			.next = NULL,
-			.data = &(pkg_tuple_t){
+			.data = &(pkgconf_tuple_t){
 				.key = "pc_path",
 				.value = PKG_DEFAULT_PATH,
 			},

@@ -24,7 +24,7 @@ pkg_fragment_copy_munged(const char *source, unsigned int flags)
 	if (!(flags & PKGF_MUNGE_SYSROOT_PREFIX))
 		return strdup(source);
 
-	sysroot_dir = pkg_tuple_find_global("pc_sysrootdir");
+	sysroot_dir = pkgconf_tuple_find_global("pc_sysrootdir");
 
 	if (*source != '/' ||
 		(sysroot_dir != NULL && !strncmp(sysroot_dir, source, strlen(sysroot_dir))))
@@ -194,7 +194,7 @@ pkg_fragment_parse(pkgconf_list_t *list, pkgconf_list_t *vars, const char *value
 {
 	int i, argc;
 	char **argv;
-	char *repstr = pkg_tuple_parse(vars, value);
+	char *repstr = pkgconf_tuple_parse(vars, value);
 
 	pkg_argv_split(repstr, &argc, &argv);
 

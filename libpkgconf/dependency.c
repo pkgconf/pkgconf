@@ -225,7 +225,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 void
 pkgconf_dependency_parse(pkg_t *pkg, pkgconf_list_t *deplist, const char *depends)
 {
-	char *kvdepends = pkg_tuple_parse(&pkg->vars, depends);
+	char *kvdepends = pkgconf_tuple_parse(&pkg->vars, depends);
 
 	pkgconf_dependency_parse_str(deplist, kvdepends);
 	free(kvdepends);

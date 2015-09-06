@@ -37,7 +37,7 @@ typedef enum {
 
 typedef struct pkg_ pkg_t;
 typedef struct pkgconf_dependency_ pkgconf_dependency_t;
-typedef struct pkg_tuple_ pkg_tuple_t;
+typedef struct pkgconf_tuple_ pkgconf_tuple_t;
 typedef struct pkg_fragment_ pkg_fragment_t;
 
 #define PKGCONF_FOREACH_LIST_ENTRY(head, value) \
@@ -68,7 +68,7 @@ struct pkgconf_dependency_ {
 	pkg_t *parent;
 };
 
-struct pkg_tuple_ {
+struct pkgconf_tuple_ {
 	pkgconf_node_t iter;
 
 	char *key;
@@ -169,14 +169,14 @@ void pkg_fragment_free(pkgconf_list_t *list);
 char *pkg_fgetline(char *line, size_t size, FILE *stream);
 
 /* tuple.c */
-pkg_tuple_t *pkg_tuple_add(pkgconf_list_t *parent, const char *key, const char *value);
-char *pkg_tuple_find(pkgconf_list_t *list, const char *key);
-char *pkg_tuple_parse(pkgconf_list_t *list, const char *value);
-void pkg_tuple_free(pkgconf_list_t *list);
-void pkg_tuple_add_global(const char *key, const char *value);
-char *pkg_tuple_find_global(const char *key);
-void pkg_tuple_free_global(void);
-void pkg_tuple_define_global(const char *kv);
+pkgconf_tuple_t *pkgconf_tuple_add(pkgconf_list_t *parent, const char *key, const char *value);
+char *pkgconf_tuple_find(pkgconf_list_t *list, const char *key);
+char *pkgconf_tuple_parse(pkgconf_list_t *list, const char *value);
+void pkgconf_tuple_free(pkgconf_list_t *list);
+void pkgconf_tuple_add_global(const char *key, const char *value);
+char *pkgconf_tuple_find_global(const char *key);
+void pkgconf_tuple_free_global(void);
+void pkgconf_tuple_define_global(const char *kv);
 
 /* main.c */
 extern FILE *error_msgout;
