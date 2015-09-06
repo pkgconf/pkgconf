@@ -18,25 +18,25 @@
 typedef struct {
 	pkgconf_node_t iter;
 	char *package;
-} pkg_queue_t;
+} pkgconf_queue_t;
 
 void
-pkg_queue_push(pkgconf_list_t *list, const char *package)
+pkgconf_queue_push(pkgconf_list_t *list, const char *package)
 {
-	pkg_queue_t *pkgq = calloc(sizeof(pkg_queue_t), 1);
+	pkgconf_queue_t *pkgq = calloc(sizeof(pkgconf_queue_t), 1);
 
 	pkgq->package = strdup(package);
 	pkgconf_node_insert_tail(&pkgq->iter, pkgq, list);
 }
 
 bool
-pkg_queue_compile(pkg_t *world, pkgconf_list_t *list)
+pkgconf_queue_compile(pkg_t *world, pkgconf_list_t *list)
 {
 	pkgconf_node_t *iter;
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
 	{
-		pkg_queue_t *pkgq;
+		pkgconf_queue_t *pkgq;
 
 		pkgq = iter->data;
 		pkgconf_dependency_parse(world, &world->requires, pkgq->package);
@@ -46,13 +46,13 @@ pkg_queue_compile(pkg_t *world, pkgconf_list_t *list)
 }
 
 void
-pkg_queue_free(pkgconf_list_t *list)
+pkgconf_queue_free(pkgconf_list_t *list)
 {
 	pkgconf_node_t *node, *tnode;
 
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, tnode, node)
 	{
-		pkg_queue_t *pkgq = node->data;
+		pkgconf_queue_t *pkgq = node->data;
 
 		free(pkgq->package);
 		free(pkgq);
@@ -60,16 +60,16 @@ pkg_queue_free(pkgconf_list_t *list)
 }
 
 static inline unsigned int
-pkg_queue_verify(pkg_t *world, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+pkgconf_queue_verify(pkg_t *world, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
-	if (!pkg_queue_compile(world, list))
+	if (!pkgconf_queue_compile(world, list))
 		return PKG_ERRF_DEPGRAPH_BREAK;
 
 	return pkg_verify_graph(world, maxdepth, flags);
 }
 
 bool
-pkg_queue_apply(pkgconf_list_t *list, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
+pkgconf_queue_apply(pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
 {
 	pkg_t world = {
 		.id = "world",
@@ -81,7 +81,7 @@ pkg_queue_apply(pkgconf_list_t *list, pkg_queue_apply_func_t func, int maxdepth,
 	if (!maxdepth)
 		maxdepth = -1;
 
-	if (pkg_queue_verify(&world, list, maxdepth, flags) != PKG_ERRF_OK)
+	if (pkgconf_queue_verify(&world, list, maxdepth, flags) != PKG_ERRF_OK)
 		return false;
 
 	if (!func(&world, data, maxdepth, flags))
@@ -96,7 +96,7 @@ pkg_queue_apply(pkgconf_list_t *list, pkg_queue_apply_func_t func, int maxdepth,
 }
 
 bool
-pkg_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags)
+pkgconf_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	bool retval = true;
 	pkg_t world = {
@@ -109,7 +109,7 @@ pkg_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags)
 	if (!maxdepth)
 		maxdepth = -1;
 
-	if (pkg_queue_verify(&world, list, maxdepth, flags) != PKG_ERRF_OK)
+	if (pkgconf_queue_verify(&world, list, maxdepth, flags) != PKG_ERRF_OK)
 		retval = false;
 
 	pkg_free(&world);

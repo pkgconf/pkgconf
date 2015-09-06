@@ -850,7 +850,7 @@ main(int argc, char *argv[])
 
 		if (argv[pkg_optind + 1] == NULL || !PKG_OPERATOR_CHAR(*(argv[pkg_optind + 1])))
 		{
-			pkg_queue_push(&pkgq, package);
+			pkgconf_queue_push(&pkgq, package);
 			pkg_optind++;
 		}
 		else
@@ -860,7 +860,7 @@ main(int argc, char *argv[])
 			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[pkg_optind + 1], argv[pkg_optind + 2]);
 			pkg_optind += 3;
 
-			pkg_queue_push(&pkgq, packagebuf);
+			pkgconf_queue_push(&pkgq, packagebuf);
 		}
 	}
 
@@ -876,14 +876,14 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkg_queue_apply(&pkgq, apply_simulate, -1, global_traverse_flags | PKGF_SKIP_ERRORS, NULL))
+		if (!pkgconf_queue_apply(&pkgq, apply_simulate, -1, global_traverse_flags | PKGF_SKIP_ERRORS, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
 		}
 	}
 
-	if (!pkg_queue_validate(&pkgq, maximum_traverse_depth, global_traverse_flags))
+	if (!pkgconf_queue_validate(&pkgq, maximum_traverse_depth, global_traverse_flags))
 	{
 		ret = EXIT_FAILURE;
 		goto out;
@@ -895,7 +895,7 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
 		ret = EXIT_FAILURE;
-		pkg_queue_apply(&pkgq, apply_uninstalled, maximum_traverse_depth, global_traverse_flags, &ret);
+		pkgconf_queue_apply(&pkgq, apply_uninstalled, maximum_traverse_depth, global_traverse_flags, &ret);
 		goto out;
 	}
 
@@ -911,7 +911,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkg_queue_apply(&pkgq, apply_digraph, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkgq, apply_digraph, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -922,7 +922,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkg_queue_apply(&pkgq, apply_modversion, 2, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkgq, apply_modversion, 2, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -933,7 +933,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkg_queue_apply(&pkgq, apply_variables, 2, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkgq, apply_variables, 2, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -944,7 +944,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkg_queue_apply(&pkgq, apply_variable, 2, global_traverse_flags | PKGF_SKIP_ROOT_VIRTUAL, want_variable))
+		if (!pkgconf_queue_apply(&pkgq, apply_variable, 2, global_traverse_flags | PKGF_SKIP_ROOT_VIRTUAL, want_variable))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -955,7 +955,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkg_queue_apply(&pkgq, apply_requires, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkgq, apply_requires, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -966,7 +966,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkg_queue_apply(&pkgq, apply_requires_private, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkgq, apply_requires_private, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -977,7 +977,7 @@ main(int argc, char *argv[])
 	{
 		pkgconf_list_t frag_list = PKGCONF_LIST_INITIALIZER;
 
-		if (!pkg_queue_apply(&pkgq, apply_cflags, maximum_traverse_depth, global_traverse_flags, &frag_list))
+		if (!pkgconf_queue_apply(&pkgq, apply_cflags, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{
 			ret = EXIT_FAILURE;
 			goto out_println;
@@ -988,14 +988,14 @@ main(int argc, char *argv[])
 	{
 		pkgconf_list_t frag_list = PKGCONF_LIST_INITIALIZER;
 
-		if (!pkg_queue_apply(&pkgq, apply_libs, maximum_traverse_depth, global_traverse_flags, &frag_list))
+		if (!pkgconf_queue_apply(&pkgq, apply_libs, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{
 			ret = EXIT_FAILURE;
 			goto out_println;
 		}
 	}
 
-	pkg_queue_free(&pkgq);
+	pkgconf_queue_free(&pkgq);
 
 out_println:
 	if (want_flags & (PKG_CFLAGS|PKG_LIBS))
