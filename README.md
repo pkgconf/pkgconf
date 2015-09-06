@@ -1,4 +1,4 @@
-# pkgconf
+# pkgconf [![Build Status](https://travis-ci.org/pkgconf/pkgconf.svg?branch=master)](https://travis-ci.org/pkgconf/pkgconf)
 
 pkgconf provides compiler and linker configuration for development frameworks.
 
