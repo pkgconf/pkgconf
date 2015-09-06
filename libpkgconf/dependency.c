@@ -50,10 +50,6 @@ pkgconf_dependency_add(pkgconf_list_t *list, const char *package, size_t package
 
 	pkgconf_node_insert_tail(&dep->iter, dep, list);
 
-#if DEBUG_PARSE
-	fprintf(error_msgout, "--> %s %d %s\n", dep->package, dep->compare, dep->version);
-#endif
-
 	return dep;
 }
 
@@ -145,9 +141,6 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 
 				package = iter;
 				package_sz = ptr - iter;
-#if DEBUG_PARSE
-				fprintf(error_msgout, "Found package: %s\n", package);
-#endif
 				start = ptr;
 			}
 
@@ -183,10 +176,6 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 			break;
 
 		case AFTER_OPERATOR:
-#if DEBUG_PARSE
-			fprintf(error_msgout, "Found op: %d\n", compare);
-#endif
-
 			if (!isspace(*ptr))
 			{
 				vstart = ptr;
@@ -201,9 +190,6 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 				version_sz = ptr - vstart;
 				state = OUTSIDE_MODULE;
 
-#if DEBUG_PARSE
-				fprintf(error_msgout, "Found version: %s\n", version);
-#endif
 				pkgconf_dependency_add(deplist_head, package, package_sz, version, version_sz, compare);
 
 				compare = PKGCONF_CMP_ANY;
