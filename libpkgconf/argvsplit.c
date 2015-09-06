@@ -13,8 +13,7 @@
  * from the use of this software.
  */
 
-#include "config.h"
-#include "pkg.h"
+#include <libpkgconf/libpkgconf.h>
 
 void
 pkg_argv_free(char **argv)

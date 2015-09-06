@@ -13,7 +13,7 @@
  * from the use of this software.
  */
 
-#include "pkg.h"
+#include <libpkgconf/libpkgconf.h>
 
 static pkg_list_t pkg_cache = PKG_LIST_INITIALIZER;
 

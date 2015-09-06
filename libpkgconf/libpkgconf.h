@@ -16,9 +16,10 @@
 #ifndef __PKG_H
 #define __PKG_H
 
-#include "config.h"
-#include "stdinc.h"
-#include "iter.h"
+#include <libpkgconf/config.h>
+#include <libpkgconf/stdinc.h>
+#include <libpkgconf/iter.h>
+#include <libpkgconf/bsdstubs.h>
 
 #define PKG_BUFSIZE	(65535)
 

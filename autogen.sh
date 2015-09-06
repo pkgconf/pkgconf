@@ -12,6 +12,7 @@ AUTOCONF=${AUTOCONF:-autoconf}
 ACLOCAL=${ACLOCAL:-aclocal}
 AUTOHEADER=${AUTOHEADER:-autoheader}
 AUTOMAKE=${AUTOMAKE:-automake}
+LIBTOOLIZE=${LIBTOOLIZE:-libtoolize}
 
 dump_help_screen ()
 {
@@ -82,4 +83,5 @@ cd $TOP_DIR
 run_or_die $ACLOCAL
 run_or_die $AUTOHEADER
 run_or_die $AUTOCONF
+run_or_die $LIBTOOLIZE --install
 run_or_die $AUTOMAKE --add-missing

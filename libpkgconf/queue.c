@@ -13,8 +13,7 @@
  * from the use of this software.
  */
 
-#include "pkg.h"
-#include "bsdstubs.h"
+#include <libpkgconf/libpkgconf.h>
 
 typedef struct {
 	pkg_node_t iter;

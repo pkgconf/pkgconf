@@ -13,8 +13,7 @@
  * from the use of this software.
  */
 
-#include "pkg.h"
-#include "bsdstubs.h"
+#include <libpkgconf/libpkgconf.h>
 
 static pkg_list_t pkg_global_var = PKG_LIST_INITIALIZER;
 

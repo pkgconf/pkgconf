@@ -9,6 +9,7 @@ pkgconfigdir           = @PKGCONFIGDIR@
 CFLAGS = -Wall -Wextra -Wformat=2 -std=gnu99
 
 bin_PROGRAMS = pkgconf
+lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	\
 		tests/lib1/argv-parse-2.pc \
@@ -50,10 +51,22 @@ EXTRA_DIST =	\
 		tests/lib1/conflicts.pc \
 		tests/lib1/omg-uninstalled.pc
 
-noinst_HEADERS = bsdstubs.h getopt_long.h iter.h pkg.h stdinc.h
-pkgconf_SOURCES  = main.c cache.c pkg.c bsdstubs.c getopt_long.c fragment.c argvsplit.c fileio.c tuple.c dependency.c queue.c
-pkgconf_CPPFLAGS = -DLIBDIR=\"${libdir}\" -DINCLUDEDIR=\"${includedir}\" -DPKG_DEFAULT_PATH=\"${pkgconfigdir}\" -DSYSTEM_INCLUDEDIR=\"${system_includedir}\" -DSYSTEM_LIBDIR=\"${system_libdir}\"
+pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h
+libpkgconf_la_SOURCES  =	\
+		libpkgconf/cache.c		\
+		libpkgconf/pkg.c		\
+		libpkgconf/bsdstubs.c		\
+		libpkgconf/fragment.c		\
+		libpkgconf/argvsplit.c		\
+		libpkgconf/fileio.c		\
+		libpkgconf/tuple.c		\
+		libpkgconf/dependency.c		\
+		libpkgconf/queue.c
+libpkgconf_la_LDFLAGS = -version-info 1:0:0
+
 pkgconf_MANS     = pkgconf.1
+pkgconf_LDADD    = libpkgconf.la
+pkgconf_SOURCES  = main.c getopt_long.c
 
 dist_doc_DATA = README.md AUTHORS
 

@@ -13,10 +13,11 @@ dnl from the use of this software.
 
 AC_PREREQ([2.68])
 AC_INIT([pkgconf], [1], [http://github.com/pkgconf/pkgconf/issues])
-AC_CONFIG_SRCDIR([pkg.c])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_SRCDIR([main.c])
+AC_CONFIG_HEADERS([libpkgconf/config.h])
 AC_CHECK_FUNCS([strlcpy strlcat strndup strtok_r])
-AM_INIT_AUTOMAKE([foreign dist-xz])
+AM_INIT_AUTOMAKE([foreign dist-xz subdir-objects])
+LT_INIT
 
 AC_SYS_LARGEFILE
 
@@ -54,6 +55,10 @@ AC_ARG_WITH([system-includedir],[AC_HELP_STRING([--with-system-includedir],[spec
 	     SYSTEM_INCLUDEDIR="$withval", SYSTEM_INCLUDEDIR="${includedir}")
 
 AC_SUBST([SYSTEM_INCLUDEDIR])
+
+AC_DEFINE_UNQUOTED([SYSTEM_LIBDIR], "$SYSTEM_LIBDIR", [System library directory list])
+AC_DEFINE_UNQUOTED([SYSTEM_INCLUDEDIR], "$SYSTEM_INCLUDEDIR", [System include directory list])
+AC_DEFINE_UNQUOTED([PKG_DEFAULT_PATH], "$PKGCONFIGDIR", [Default PKG_CONFIG_PATH search list])
 
 AC_PROG_CPP
 AC_PROG_CC

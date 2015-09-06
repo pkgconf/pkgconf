@@ -13,8 +13,7 @@
  * from the use of this software.
  */
 
-#include "pkg.h"
-#include "bsdstubs.h"
+#include <libpkgconf/libpkgconf.h>
 
 char *
 pkg_fgetline(char *line, size_t size, FILE *stream)

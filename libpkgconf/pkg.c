@@ -13,8 +13,7 @@
  * from the use of this software.
  */
 
-#include "pkg.h"
-#include "bsdstubs.h"
+#include <libpkgconf/libpkgconf.h>
 
 #ifdef _WIN32
 #	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"

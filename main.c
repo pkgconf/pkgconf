@@ -13,9 +13,8 @@
  * from the use of this software.
  */
 
-#include "config.h"
-#include "pkg.h"
-#include "bsdstubs.h"
+#include <libpkgconf/libpkgconf.h>
+#include "getopt_long.h"
 
 #define PKG_CFLAGS_ONLY_I		(uint64_t)(1<<2)
 #define PKG_CFLAGS_ONLY_OTHER		(uint64_t)(1<<3)

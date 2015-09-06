@@ -20,8 +20,8 @@
 #include <sys/types.h>
 #include <string.h>
 
-#include "bsdstubs.h"
-#include "config.h"
+#include <libpkgconf/bsdstubs.h>
+#include <libpkgconf/config.h>
 
 #ifndef HAVE_STRLCPY
 

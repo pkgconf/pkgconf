@@ -13,8 +13,7 @@
  * from the use of this software.
  */
 
-#include "pkg.h"
-#include "bsdstubs.h"
+#include <libpkgconf/libpkgconf.h>
 
 static inline char *
 pkg_fragment_copy_munged(const char *source, unsigned int flags)
