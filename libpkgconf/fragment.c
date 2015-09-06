@@ -18,7 +18,7 @@
 static inline char *
 pkgconf_fragment_copy_munged(const char *source, unsigned int flags)
 {
-	char mungebuf[PKG_BUFSIZE];
+	char mungebuf[PKGCONF_BUFSIZE];
 	char *sysroot_dir;
 
 	if (!(flags & PKGF_MUNGE_SYSROOT_PREFIX))

@@ -294,7 +294,7 @@ apply_variables(pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int f
 
 typedef struct {
 	const char *variable;
-	char buf[PKG_BUFSIZE];
+	char buf[PKGCONF_BUFSIZE];
 } var_request_t;
 
 static void
@@ -855,7 +855,7 @@ main(int argc, char *argv[])
 		}
 		else
 		{
-			char packagebuf[PKG_BUFSIZE];
+			char packagebuf[PKGCONF_BUFSIZE];
 
 			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[pkg_optind + 1], argv[pkg_optind + 2]);
 			pkg_optind += 3;

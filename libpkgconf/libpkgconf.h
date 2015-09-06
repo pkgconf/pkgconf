@@ -21,7 +21,7 @@
 #include <libpkgconf/iter.h>
 #include <libpkgconf/bsdstubs.h>
 
-#define PKG_BUFSIZE	(65535)
+#define PKGCONF_BUFSIZE	(65535)
 
 typedef enum {
 	PKG_ANY = 0,
@@ -48,9 +48,6 @@ typedef struct pkgconf_fragment_ pkgconf_fragment_t;
 
 #define PKGCONF_FOREACH_LIST_ENTRY_REVERSE(tail, value) \
 	for ((value) = (tail); (value) != NULL; (value) = (value)->prev)
-
-#define PKG_MIN(a,b) (((a) < (b)) ? (a) : (b))
-#define PKG_MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 struct pkgconf_fragment_ {
 	pkgconf_node_t iter;

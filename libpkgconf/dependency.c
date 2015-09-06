@@ -87,8 +87,8 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 {
 	parse_state_t state = OUTSIDE_MODULE;
 	pkgconf_pkg_comparator_t compare = PKG_ANY;
-	char cmpname[PKG_BUFSIZE];
-	char buf[PKG_BUFSIZE];
+	char cmpname[PKGCONF_BUFSIZE];
+	char buf[PKGCONF_BUFSIZE];
 	size_t package_sz = 0, version_sz = 0;
 	char *start = buf;
 	char *ptr = buf;

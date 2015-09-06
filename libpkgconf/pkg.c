@@ -130,7 +130,7 @@ get_pkgconfig_path(void)
 static const char *
 pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 {
-	static char buf[PKG_BUFSIZE];
+	static char buf[PKGCONF_BUFSIZE];
 	char *pathbuf;
 
 	strlcpy(buf, pkg->filename, sizeof buf);
@@ -174,7 +174,7 @@ pkgconf_pkg_t *
 pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 {
 	pkgconf_pkg_t *pkg;
-	char readbuf[PKG_BUFSIZE];
+	char readbuf[PKGCONF_BUFSIZE];
 	char *idptr;
 
 	pkg = calloc(sizeof(pkgconf_pkg_t), 1);
@@ -192,7 +192,7 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 	if (idptr)
 		*idptr = '\0';
 
-	while (pkgconf_fgetline(readbuf, PKG_BUFSIZE, f) != NULL)
+	while (pkgconf_fgetline(readbuf, PKGCONF_BUFSIZE, f) != NULL)
 	{
 		char op, *p, *key, *value;
 
@@ -347,7 +347,7 @@ pkgconf_pkg_scan_dir(const char *path, pkgconf_pkg_iteration_func_t func)
 
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
 	{
-		static char filebuf[PKG_BUFSIZE];
+		static char filebuf[PKGCONF_BUFSIZE];
 		pkgconf_pkg_t *pkg;
 		FILE *f;
 		struct stat st;
@@ -492,7 +492,7 @@ int
 pkgconf_compare_version(const char *a, const char *b)
 {
 	char oldch1, oldch2;
-	char buf1[PKG_BUFSIZE], buf2[PKG_BUFSIZE];
+	char buf1[PKGCONF_BUFSIZE], buf2[PKGCONF_BUFSIZE];
 	char *str1, *str2;
 	char *one, *two;
 	int ret;

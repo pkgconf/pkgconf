@@ -97,17 +97,17 @@ pkgconf_tuple_find(pkgconf_list_t *list, const char *key)
 char *
 pkgconf_tuple_parse(pkgconf_list_t *vars, const char *value)
 {
-	char buf[PKG_BUFSIZE];
+	char buf[PKGCONF_BUFSIZE];
 	const char *ptr;
 	char *bptr = buf;
 
-	for (ptr = value; *ptr != '\0' && bptr - buf < PKG_BUFSIZE; ptr++)
+	for (ptr = value; *ptr != '\0' && bptr - buf < PKGCONF_BUFSIZE; ptr++)
 	{
 		if (*ptr != '$' || (*ptr == '$' && *(ptr + 1) != '{'))
 			*bptr++ = *ptr;
 		else if (*(ptr + 1) == '{')
 		{
-			static char varname[PKG_BUFSIZE];
+			static char varname[PKGCONF_BUFSIZE];
 			char *vptr = varname;
 			const char *pptr;
 			char *kv, *parsekv;
@@ -132,7 +132,7 @@ pkgconf_tuple_parse(pkgconf_list_t *vars, const char *value)
 			{
 				parsekv = pkgconf_tuple_parse(vars, kv);
 
-				strncpy(bptr, parsekv, PKG_BUFSIZE - (bptr - buf));
+				strncpy(bptr, parsekv, PKGCONF_BUFSIZE - (bptr - buf));
 				bptr += strlen(parsekv);
 
 				free(parsekv);
