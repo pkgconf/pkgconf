@@ -35,7 +35,7 @@ typedef enum {
 	PKG_CMP_SIZE
 } pkgconf_pkg_comparator_t;
 
-typedef struct pkg_ pkg_t;
+typedef struct pkgconf_pkg_ pkgconf_pkg_t;
 typedef struct pkgconf_dependency_ pkgconf_dependency_t;
 typedef struct pkgconf_tuple_ pkgconf_tuple_t;
 typedef struct pkgconf_fragment_ pkgconf_fragment_t;
@@ -65,7 +65,7 @@ struct pkgconf_dependency_ {
 	char *package;
 	pkgconf_pkg_comparator_t compare;
 	char *version;
-	pkg_t *parent;
+	pkgconf_pkg_t *parent;
 };
 
 struct pkgconf_tuple_ {
@@ -81,7 +81,7 @@ struct pkgconf_tuple_ {
 #define PKG_PROPF_SEEN			0x4
 #define PKG_PROPF_UNINSTALLED		0x8
 
-struct pkg_ {
+struct pkgconf_pkg_ {
 	pkgconf_node_t cache_iter;
 
 	int refcount;
@@ -128,30 +128,30 @@ struct pkg_ {
 #define PKG_ERRF_PACKAGE_CONFLICT	0x4
 #define PKG_ERRF_DEPGRAPH_BREAK		0x8
 
-typedef void (*pkg_iteration_func_t)(const pkg_t *pkg);
-typedef void (*pkg_traverse_func_t)(pkg_t *pkg, void *data, unsigned int flags);
-typedef bool (*pkgconf_queue_apply_func_t)(pkg_t *world, void *data, int maxdepth, unsigned int flags);
+typedef void (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg);
+typedef void (*pkgconf_pkg_traverse_func_t)(pkgconf_pkg_t *pkg, void *data, unsigned int flags);
+typedef bool (*pkgconf_queue_apply_func_t)(pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags);
 
 /* pkg.c */
-pkg_t *pkg_ref(pkg_t *pkg);
-void pkg_unref(pkg_t *pkg);
-void pkg_free(pkg_t *pkg);
-pkg_t *pkg_find(const char *name, unsigned int flags);
-unsigned int pkg_traverse(pkg_t *root, pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags);
-unsigned int pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
-pkg_t *pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
+pkgconf_pkg_t *pkgconf_pkg_ref(pkgconf_pkg_t *pkg);
+void pkgconf_pkg_unref(pkgconf_pkg_t *pkg);
+void pkgconf_pkg_free(pkgconf_pkg_t *pkg);
+pkgconf_pkg_t *pkgconf_pkg_find(const char *name, unsigned int flags);
+unsigned int pkgconf_pkg_traverse(pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags);
+unsigned int pkgconf_pkg_verify_graph(pkgconf_pkg_t *root, int depth, unsigned int flags);
+pkgconf_pkg_t *pkgconf_pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
 const char *pkgconf_pkg_get_comparator(pkgconf_dependency_t *pkgdep);
-int pkg_cflags(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
-int pkg_libs(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
+int pkgconf_pkg_cflags(pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
+int pkgconf_pkg_libs(pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 pkgconf_pkg_comparator_t pkgconf_pkg_comparator_lookup_by_name(const char *name);
 
 int pkgconf_compare_version(const char *a, const char *b);
-void pkgconf_scan_all(pkg_iteration_func_t func);
+void pkgconf_scan_all(pkgconf_pkg_iteration_func_t func);
 
 /* parse.c */
-pkg_t *pkg_new_from_file(const char *path, FILE *f, unsigned int flags);
+pkgconf_pkg_t *pkgconf_pkg_new_from_file(const char *path, FILE *f, unsigned int flags);
 void pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends);
-void pkgconf_dependency_parse(pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
+void pkgconf_dependency_parse(pkgconf_pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
 void pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail);
 void pkgconf_dependency_free(pkgconf_list_t *list);
 
@@ -184,15 +184,15 @@ extern FILE *error_msgout;
 
 /* queue.c */
 void pkgconf_queue_push(pkgconf_list_t *list, const char *package);
-bool pkgconf_queue_compile(pkg_t *world, pkgconf_list_t *list);
+bool pkgconf_queue_compile(pkgconf_pkg_t *world, pkgconf_list_t *list);
 void pkgconf_queue_free(pkgconf_list_t *list);
 bool pkgconf_queue_apply(pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
 bool pkgconf_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags);
 
 /* cache.c */
-pkg_t *pkgconf_cache_lookup(const char *id);
-void pkgconf_cache_add(pkg_t *pkg);
-void pkgconf_cache_remove(pkg_t *pkg);
+pkgconf_pkg_t *pkgconf_cache_lookup(const char *id);
+void pkgconf_cache_add(pkgconf_pkg_t *pkg);
+void pkgconf_cache_remove(pkgconf_pkg_t *pkg);
 void pkgconf_cache_free(void);
 
 #endif

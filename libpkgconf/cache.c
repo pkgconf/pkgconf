@@ -24,17 +24,17 @@ static pkgconf_list_t pkg_cache = PKGCONF_LIST_INITIALIZER;
  * such as 'gtk+-3.0' and returns the already loaded version
  * if present.
  */
-pkg_t *
+pkgconf_pkg_t *
 pkgconf_cache_lookup(const char *id)
 {
 	pkgconf_node_t *node;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg_cache.head, node)
 	{
-		pkg_t *pkg = node->data;
+		pkgconf_pkg_t *pkg = node->data;
 
 		if (!strcmp(pkg->id, id))
-			return pkg_ref(pkg);
+			return pkgconf_pkg_ref(pkg);
 	}
 
 	return NULL;
@@ -47,13 +47,12 @@ pkgconf_cache_lookup(const char *id)
  * the cache entry must be removed if the package is freed.
  */
 void
-pkgconf_cache_add(pkg_t *pkg)
+pkgconf_cache_add(pkgconf_pkg_t *pkg)
 {
 	if (pkg == NULL)
 		return;
 
-	pkg_ref(pkg);
-
+	pkgconf_pkg_ref(pkg);
 	pkgconf_node_insert(&pkg->cache_iter, pkg, &pkg_cache);
 }
 
@@ -63,7 +62,7 @@ pkgconf_cache_add(pkg_t *pkg)
  * deletes a package from the cache entry.
  */
 void
-pkgconf_cache_remove(pkg_t *pkg)
+pkgconf_cache_remove(pkgconf_pkg_t *pkg)
 {
 	if (pkg == NULL)
 		return;
@@ -78,8 +77,7 @@ pkgconf_cache_free(void)
 
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(pkg_cache.head, iter2, iter)
 	{
-		pkg_t *pkg = iter->data;
-
-		pkg_free(pkg);
+		pkgconf_pkg_t *pkg = iter->data;
+		pkgconf_pkg_free(pkg);
 	}
 }

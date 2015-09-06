@@ -30,7 +30,7 @@ pkgconf_queue_push(pkgconf_list_t *list, const char *package)
 }
 
 bool
-pkgconf_queue_compile(pkg_t *world, pkgconf_list_t *list)
+pkgconf_queue_compile(pkgconf_pkg_t *world, pkgconf_list_t *list)
 {
 	pkgconf_node_t *iter;
 
@@ -60,18 +60,18 @@ pkgconf_queue_free(pkgconf_list_t *list)
 }
 
 static inline unsigned int
-pkgconf_queue_verify(pkg_t *world, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+pkgconf_queue_verify(pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	if (!pkgconf_queue_compile(world, list))
 		return PKG_ERRF_DEPGRAPH_BREAK;
 
-	return pkg_verify_graph(world, maxdepth, flags);
+	return pkgconf_pkg_verify_graph(world, maxdepth, flags);
 }
 
 bool
 pkgconf_queue_apply(pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
 {
-	pkg_t world = {
+	pkgconf_pkg_t world = {
 		.id = "world",
 		.realname = "virtual world package",
 		.flags = PKG_PROPF_VIRTUAL,
@@ -86,11 +86,11 @@ pkgconf_queue_apply(pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int m
 
 	if (!func(&world, data, maxdepth, flags))
 	{
-		pkg_free(&world);
+		pkgconf_pkg_free(&world);
 		return false;
 	}
 
-	pkg_free(&world);
+	pkgconf_pkg_free(&world);
 
 	return true;
 }
@@ -99,7 +99,7 @@ bool
 pkgconf_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	bool retval = true;
-	pkg_t world = {
+	pkgconf_pkg_t world = {
 		.id = "world",
 		.realname = "virtual world package",
 		.flags = PKG_PROPF_VIRTUAL,
@@ -112,7 +112,7 @@ pkgconf_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags)
 	if (pkgconf_queue_verify(&world, list, maxdepth, flags) != PKG_ERRF_OK)
 		retval = false;
 
-	pkg_free(&world);
+	pkgconf_pkg_free(&world);
 
 	return retval;
 }
