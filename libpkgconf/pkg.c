@@ -15,6 +15,35 @@
 
 #include <libpkgconf/libpkgconf.h>
 
+static pkgconf_error_handler_func_t pkgconf_error_handler = pkgconf_default_error_handler;
+
+bool
+pkgconf_error(const char *format, ...)
+{
+	char errbuf[PKGCONF_BUFSIZE];
+	va_list va;
+
+	va_start(va, format);
+	vsnprintf(errbuf, sizeof errbuf, format, va);
+	va_end(va);
+
+	return pkgconf_error_handler(errbuf);
+}
+
+bool
+pkgconf_default_error_handler(const char *msg)
+{
+	(void) msg;
+
+	return true;
+}
+
+void
+pkgconf_set_error_handler(pkgconf_error_handler_func_t func)
+{
+	pkgconf_error_handler = func;
+}
+
 #ifdef _WIN32
 #	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
 #	undef PKG_DEFAULT_PATH
@@ -802,21 +831,21 @@ pkgconf_pkg_report_graph_error(pkgconf_pkg_t *parent, pkgconf_pkg_t *pkg, pkgcon
 	{
 		if (!already_sent_notice)
 		{
-			fprintf(error_msgout, "Package %s was not found in the pkg-config search path.\n", node->package);
-			fprintf(error_msgout, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
-			fprintf(error_msgout, "to the PKG_CONFIG_PATH environment variable\n");
+			pkgconf_error("Package %s was not found in the pkg-config search path.\n", node->package);
+			pkgconf_error("Perhaps you should add the directory containing `%s.pc'\n", node->package);
+			pkgconf_error("to the PKG_CONFIG_PATH environment variable\n");
 			already_sent_notice = true;
 		}
 
-		fprintf(error_msgout, "Package '%s', required by '%s', not found\n", node->package, parent->id);
+		pkgconf_error("Package '%s', required by '%s', not found\n", node->package, parent->id);
 	}
 	else if (eflags & PKGCONF_PKG_ERRF_PACKAGE_VER_MISMATCH)
 	{
-		fprintf(error_msgout, "Package dependency requirement '%s %s %s' could not be satisfied.\n",
+		pkgconf_error("Package dependency requirement '%s %s %s' could not be satisfied.\n",
 			node->package, pkgconf_pkg_get_comparator(node), node->version);
 
 		if (pkg != NULL)
-			fprintf(error_msgout, "Package '%s' has version '%s', required version is '%s %s'\n",
+			pkgconf_error("Package '%s' has version '%s', required version is '%s %s'\n",
 				node->package, pkg->version, pkgconf_pkg_get_comparator(node), node->version);
 	}
 
@@ -896,11 +925,11 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_pkg_t *root, pkgconf_list_t *deplist, un
 			pkgdep = pkgconf_pkg_verify_dependency(parentnode, flags, &eflags);
 			if (eflags == PKGCONF_PKG_ERRF_OK)
 			{
-				fprintf(error_msgout, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
+				pkgconf_error("Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
 					pkgdep->version, pkgdep->realname, root->realname, parentnode->package, pkgconf_pkg_get_comparator(parentnode),
 					parentnode->version != NULL ? " " : "", parentnode->version != NULL ? parentnode->version : "");
-				fprintf(error_msgout, "It may be possible to ignore this conflict and continue, try the\n");
-				fprintf(error_msgout, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
+				pkgconf_error("It may be possible to ignore this conflict and continue, try the\n");
+				pkgconf_error("PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
 
 				pkgconf_pkg_unref(pkgdep);
 

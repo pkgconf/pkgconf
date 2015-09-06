@@ -59,6 +59,13 @@ static char *sysroot_dir = NULL;
 FILE *error_msgout = NULL;
 
 static bool
+error_handler(const char *msg)
+{
+	fprintf(error_msgout, "%s", msg);
+	return true;
+}
+
+static bool
 fragment_has_system_dir(pkgconf_fragment_t *frag)
 {
 	int check_flags = 0;
@@ -690,6 +697,8 @@ main(int argc, char *argv[])
 		usage();
 		return EXIT_SUCCESS;
 	}
+
+	pkgconf_set_error_handler(error_handler);
 
 	error_msgout = stderr;
 	if ((want_flags & PKG_ERRORS_ON_STDOUT) == PKG_ERRORS_ON_STDOUT)

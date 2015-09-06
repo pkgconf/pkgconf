@@ -128,8 +128,23 @@ struct pkgconf_pkg_ {
 typedef void (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg);
 typedef void (*pkgconf_pkg_traverse_func_t)(pkgconf_pkg_t *pkg, void *data, unsigned int flags);
 typedef bool (*pkgconf_queue_apply_func_t)(pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags);
+typedef bool (*pkgconf_error_handler_func_t)(const char *msg);
 
 /* pkg.c */
+#if defined(__GNUC__) || defined(__INTEL_COMPILER)
+#define PRINTFLIKE(fmtarg, firstvararg) \
+        __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
+#define DEPRECATED \
+        __attribute__((deprecated))
+#else
+#define PRINTFLIKE(fmtarg, firstvararg)
+#define DEPRECATED
+#endif /* defined(__INTEL_COMPILER) || defined(__GNUC__) */
+
+bool pkgconf_error(const char *format, ...) PRINTFLIKE(1, 2);
+bool pkgconf_default_error_handler(const char *msg);
+void pkgconf_set_error_handler(pkgconf_error_handler_func_t func);
+
 pkgconf_pkg_t *pkgconf_pkg_ref(pkgconf_pkg_t *pkg);
 void pkgconf_pkg_unref(pkgconf_pkg_t *pkg);
 void pkgconf_pkg_free(pkgconf_pkg_t *pkg);
@@ -175,9 +190,6 @@ void pkgconf_tuple_add_global(const char *key, const char *value);
 char *pkgconf_tuple_find_global(const char *key);
 void pkgconf_tuple_free_global(void);
 void pkgconf_tuple_define_global(const char *kv);
-
-/* main.c */
-extern FILE *error_msgout;
 
 /* queue.c */
 void pkgconf_queue_push(pkgconf_list_t *list, const char *package);
