@@ -36,7 +36,7 @@ typedef enum {
 #define DEBUG_PARSE 0
 
 static inline pkgconf_dependency_t *
-pkgconf_dependency_add(pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkg_comparator_t compare)
+pkgconf_dependency_add(pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare)
 {
 	pkgconf_dependency_t *dep;
 
@@ -86,7 +86,7 @@ void
 pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 {
 	parse_state_t state = OUTSIDE_MODULE;
-	pkg_comparator_t compare = PKG_ANY;
+	pkgconf_pkg_comparator_t compare = PKG_ANY;
 	char cmpname[PKG_BUFSIZE];
 	char buf[PKG_BUFSIZE];
 	size_t package_sz = 0, version_sz = 0;
@@ -175,7 +175,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 			if (!PKG_OPERATOR_CHAR(*ptr))
 			{
 				state = AFTER_OPERATOR;
-				compare = pkg_comparator_lookup_by_name(cmpname);
+				compare = pkgconf_pkg_comparator_lookup_by_name(cmpname);
 			}
 			else
 				*cnameptr++ = *ptr;

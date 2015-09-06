@@ -33,7 +33,7 @@ typedef enum {
 	PKG_NOT_EQUAL,
 	PKG_ALWAYS_MATCH,
 	PKG_CMP_SIZE
-} pkg_comparator_t;
+} pkgconf_pkg_comparator_t;
 
 typedef struct pkg_ pkg_t;
 typedef struct pkgconf_dependency_ pkgconf_dependency_t;
@@ -63,7 +63,7 @@ struct pkgconf_dependency_ {
 	pkgconf_node_t iter;
 
 	char *package;
-	pkg_comparator_t compare;
+	pkgconf_pkg_comparator_t compare;
 	char *version;
 	pkg_t *parent;
 };
@@ -142,10 +142,10 @@ unsigned int pkg_traverse(pkg_t *root, pkg_traverse_func_t func, void *data, int
 unsigned int pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
 int pkg_compare_version(const char *a, const char *b);
 pkg_t *pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
-const char *pkg_get_comparator(pkgconf_dependency_t *pkgdep);
+const char *pkgconf_pkg_get_comparator(pkgconf_dependency_t *pkgdep);
 int pkg_cflags(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 int pkg_libs(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
-pkg_comparator_t pkg_comparator_lookup_by_name(const char *name);
+pkgconf_pkg_comparator_t pkgconf_pkg_comparator_lookup_by_name(const char *name);
 
 /* parse.c */
 pkg_t *pkg_new_from_file(const char *path, FILE *f, unsigned int flags);

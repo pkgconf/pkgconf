@@ -645,14 +645,14 @@ static pkg_t pkg_config_virtual = {
 	},
 };
 
-typedef bool (*pkg_vercmp_res_func_t)(pkg_t *pkg, pkgconf_dependency_t *pkgdep);
+typedef bool (*pkgconf_vercmp_res_func_t)(pkg_t *pkg, pkgconf_dependency_t *pkgdep);
 
 typedef struct {
 	const char *name;
-	pkg_comparator_t compare;
-} pkg_comparator_name_t;
+	pkgconf_pkg_comparator_t compare;
+} pkgconf_pkg_comparator_name_t;
 
-static pkg_comparator_name_t pkg_comparator_names[PKG_CMP_SIZE + 1] = {
+static pkgconf_pkg_comparator_name_t pkgconf_pkg_comparator_names[PKG_CMP_SIZE + 1] = {
 	{"<",		PKG_LESS_THAN},
 	{">",		PKG_GREATER_THAN},
 	{"<=",		PKG_LESS_THAN_EQUAL},
@@ -663,37 +663,37 @@ static pkg_comparator_name_t pkg_comparator_names[PKG_CMP_SIZE + 1] = {
 	{"???",		PKG_CMP_SIZE},
 };
 
-static bool pkg_comparator_lt(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_lt(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) < 0);
 }
 
-static bool pkg_comparator_gt(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_gt(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) > 0);
 }
 
-static bool pkg_comparator_lte(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_lte(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) <= 0);
 }
 
-static bool pkg_comparator_gte(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_gte(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) >= 0);
 }
 
-static bool pkg_comparator_eq(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_eq(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) == 0);
 }
 
-static bool pkg_comparator_ne(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_ne(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) != 0);
 }
 
-static bool pkg_comparator_any(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_any(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	(void) pkg;
 	(void) pkgdep;
@@ -701,7 +701,7 @@ static bool pkg_comparator_any(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 	return true;
 }
 
-static bool pkg_comparator_unimplemented(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_unimplemented(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	(void) pkg;
 	(void) pkgdep;
@@ -709,28 +709,28 @@ static bool pkg_comparator_unimplemented(pkg_t *pkg, pkgconf_dependency_t *pkgde
 	return false;
 }
 
-static pkg_vercmp_res_func_t pkg_comparator_impls[PKG_CMP_SIZE + 1] = {
-	[PKG_ANY]			= pkg_comparator_any,
-	[PKG_LESS_THAN]			= pkg_comparator_lt,
-	[PKG_GREATER_THAN]		= pkg_comparator_gt,
-	[PKG_LESS_THAN_EQUAL]		= pkg_comparator_lte,
-	[PKG_GREATER_THAN_EQUAL]	= pkg_comparator_gte,
-	[PKG_EQUAL]			= pkg_comparator_eq,
-	[PKG_NOT_EQUAL]			= pkg_comparator_ne,
-	[PKG_CMP_SIZE]			= pkg_comparator_unimplemented,
+static pkgconf_vercmp_res_func_t pkgconf_pkg_comparator_impls[PKG_CMP_SIZE + 1] = {
+	[PKG_ANY]			= pkgconf_pkg_comparator_any,
+	[PKG_LESS_THAN]			= pkgconf_pkg_comparator_lt,
+	[PKG_GREATER_THAN]		= pkgconf_pkg_comparator_gt,
+	[PKG_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_lte,
+	[PKG_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_gte,
+	[PKG_EQUAL]			= pkgconf_pkg_comparator_eq,
+	[PKG_NOT_EQUAL]			= pkgconf_pkg_comparator_ne,
+	[PKG_CMP_SIZE]			= pkgconf_pkg_comparator_unimplemented,
 };
 
 /*
- * pkg_get_comparator(pkgdep)
+ * pkgconf_pkg_get_comparator(pkgdep)
  *
  * returns the comparator used in a depgraph dependency node as a string.
  */
 const char *
-pkg_get_comparator(pkgconf_dependency_t *pkgdep)
+pkgconf_pkg_get_comparator(pkgconf_dependency_t *pkgdep)
 {
-	const pkg_comparator_name_t *i;
+	const pkgconf_pkg_comparator_name_t *i;
 
-	for (i = pkg_comparator_names; i->compare != PKG_CMP_SIZE; i++)
+	for (i = pkgconf_pkg_comparator_names; i->compare != PKG_CMP_SIZE; i++)
 	{
 		if (i->compare == pkgdep->compare)
 			return i->name;
@@ -740,20 +740,20 @@ pkg_get_comparator(pkgconf_dependency_t *pkgdep)
 }
 
 /*
- * pkg_comparator_lookup_by_name(name)
+ * pkgconf_pkg_comparator_lookup_by_name(name)
  *
  * look up the appropriate comparator bytecode in the comparator set (defined
- * above, see pkg_comparator_names and pkg_comparator_impls).
+ * above, see pkgconf_pkg_comparator_names and pkgconf_pkg_comparator_impls).
  *
  * XXX: on error return PKG_ANY or maybe we should return PKG_CMP_SIZE which
  * is poisoned?
  */
-pkg_comparator_t
-pkg_comparator_lookup_by_name(const char *name)
+pkgconf_pkg_comparator_t
+pkgconf_pkg_comparator_lookup_by_name(const char *name)
 {
-	const pkg_comparator_name_t *i;
+	const pkgconf_pkg_comparator_name_t *i;
 
-	for (i = pkg_comparator_names; i->compare != PKG_CMP_SIZE; i++)
+	for (i = pkgconf_pkg_comparator_names; i->compare != PKG_CMP_SIZE; i++)
 	{
 		if (!strcmp(i->name, name))
 			return i->compare;
@@ -792,7 +792,7 @@ pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned
 	if (pkg->id == NULL)
 		pkg->id = strdup(pkgdep->package);
 
-	if (pkg_comparator_impls[pkgdep->compare](pkg, pkgdep) == true)
+	if (pkgconf_pkg_comparator_impls[pkgdep->compare](pkg, pkgdep) == true)
 		return pkg;
 
 	if (eflags != NULL)
@@ -833,11 +833,11 @@ pkg_report_graph_error(pkg_t *parent, pkg_t *pkg, pkgconf_dependency_t *node, un
 	else if (eflags & PKG_ERRF_PACKAGE_VER_MISMATCH)
 	{
 		fprintf(error_msgout, "Package dependency requirement '%s %s %s' could not be satisfied.\n",
-			node->package, pkg_get_comparator(node), node->version);
+			node->package, pkgconf_pkg_get_comparator(node), node->version);
 
 		if (pkg != NULL)
 			fprintf(error_msgout, "Package '%s' has version '%s', required version is '%s %s'\n",
-				node->package, pkg->version, pkg_get_comparator(node), node->version);
+				node->package, pkg->version, pkgconf_pkg_get_comparator(node), node->version);
 	}
 
 	if (pkg != NULL)
@@ -917,7 +917,7 @@ pkg_walk_conflicts_list(pkg_t *root, pkgconf_list_t *deplist, unsigned int flags
 			if (eflags == PKG_ERRF_OK)
 			{
 				fprintf(error_msgout, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
-					pkgdep->version, pkgdep->realname, root->realname, parentnode->package, pkg_get_comparator(parentnode),
+					pkgdep->version, pkgdep->realname, root->realname, parentnode->package, pkgconf_pkg_get_comparator(parentnode),
 					parentnode->version != NULL ? " " : "", parentnode->version != NULL ? parentnode->version : "");
 				fprintf(error_msgout, "It may be possible to ignore this conflict and continue, try the\n");
 				fprintf(error_msgout, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");

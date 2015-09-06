@@ -207,7 +207,7 @@ print_requires(pkg_t *pkg)
 		printf("%s", dep->package);
 
 		if (dep->version != NULL)
-			printf(" %s %s", pkg_get_comparator(dep), dep->version);
+			printf(" %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
 
 		printf("\n");
 	}
@@ -225,7 +225,7 @@ print_requires_private(pkg_t *pkg)
 		printf("%s", dep->package);
 
 		if (dep->version != NULL)
-			printf(" %s %s", pkg_get_comparator(dep), dep->version);
+			printf(" %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
 
 		printf("\n");
 	}
@@ -472,7 +472,7 @@ print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
 		if (dep->compare != PKG_ANY)
 		{
 			printf(" {\n");
-			printf("        comparator = '%s';\n", pkg_get_comparator(dep));
+			printf("        comparator = '%s';\n", pkgconf_pkg_get_comparator(dep));
 			printf("        version = '%s';\n", dep->version);
 			printf("    };\n");
 		}
