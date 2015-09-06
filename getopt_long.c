@@ -56,15 +56,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-
 #include "getopt_long.h"
 
-#include "stdinc.h"
-
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define PKGCONF_HACK_LOGICAL_OR_ALL_VALUES
 

@@ -30,12 +30,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-
 #ifndef _GETOPT_LONG_H_
 #define _GETOPT_LONG_H_
 
-#include "stdinc.h"
+#include <stdint.h>
 
 /*
  * GNU-like getopt_long()/getopt_long_only() with 4.4BSD optreset extension.
