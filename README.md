@@ -1,6 +1,7 @@
 # pkgconf [![Build Status](https://travis-ci.org/pkgconf/pkgconf.svg?branch=master)](https://travis-ci.org/pkgconf/pkgconf)
 
-pkgconf provides compiler and linker configuration for development frameworks.
+pkgconf is a tool and framework (`libpkgconf`) which provides compiler and linker configuration for
+development frameworks.
 
 ## general summary
 
@@ -17,6 +18,9 @@ docs for [legacy pkg-config][pcdocs] useful.
 
    [pcdocs]: http://people.freedesktop.org/~dbn/pkg-config-guide.html
 
+`libpkgconf` is a library which allows other tools, such as compilers and IDEs, to
+discover and use frameworks configured by pkgconf.
+
 ## usage
 
 Implementations of pkg-config, such as pkgconf, are typically used with the
@@ -30,7 +34,7 @@ environment variable, so that you can test pkgconf without overwriting your
 pkg-config binary.  Some other build systems may also respect the PKG_CONFIG
 environment variable.
 
-To set the enviornment variable on the bourne shell and clones (i.e. bash), you
+To set the environment variable on the bourne shell and clones (i.e. bash), you
 can run:
 
     $ export PKG_CONFIG=/usr/bin/pkgconf
