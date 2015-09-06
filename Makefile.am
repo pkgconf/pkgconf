@@ -62,7 +62,7 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/tuple.c		\
 		libpkgconf/dependency.c		\
 		libpkgconf/queue.c
-libpkgconf_la_LDFLAGS = -version-info 1:0:0
+libpkgconf_la_LDFLAGS = -version-info 1:0:0 -export-symbols-regex '^pkgconf_'
 
 pkgconf_MANS     = pkgconf.1
 pkgconf_LDADD    = libpkgconf.la
