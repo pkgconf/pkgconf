@@ -632,15 +632,15 @@ typedef struct {
 	pkgconf_pkg_comparator_t compare;
 } pkgconf_pkg_comparator_name_t;
 
-static pkgconf_pkg_comparator_name_t pkgconf_pkg_comparator_names[PKG_CMP_SIZE + 1] = {
-	{"<",		PKG_LESS_THAN},
-	{">",		PKG_GREATER_THAN},
-	{"<=",		PKG_LESS_THAN_EQUAL},
-	{">=",		PKG_GREATER_THAN_EQUAL},
-	{"=",		PKG_EQUAL},
-	{"!=",		PKG_NOT_EQUAL},
-	{"(any)",	PKG_ANY},
-	{"???",		PKG_CMP_SIZE},
+static pkgconf_pkg_comparator_name_t pkgconf_pkg_comparator_names[PKGCONF_CMP_SIZE + 1] = {
+	{"<",		PKGCONF_CMP_LESS_THAN},
+	{">",		PKGCONF_CMP_GREATER_THAN},
+	{"<=",		PKGCONF_CMP_LESS_THAN_EQUAL},
+	{">=",		PKGCONF_CMP_GREATER_THAN_EQUAL},
+	{"=",		PKGCONF_CMP_EQUAL},
+	{"!=",		PKGCONF_CMP_NOT_EQUAL},
+	{"(any)",	PKGCONF_CMP_ANY},
+	{"???",		PKGCONF_CMP_SIZE},
 };
 
 static bool pkgconf_pkg_comparator_lt(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep)
@@ -689,15 +689,15 @@ static bool pkgconf_pkg_comparator_unimplemented(pkgconf_pkg_t *pkg, pkgconf_dep
 	return false;
 }
 
-static pkgconf_vercmp_res_func_t pkgconf_pkg_comparator_impls[PKG_CMP_SIZE + 1] = {
-	[PKG_ANY]			= pkgconf_pkg_comparator_any,
-	[PKG_LESS_THAN]			= pkgconf_pkg_comparator_lt,
-	[PKG_GREATER_THAN]		= pkgconf_pkg_comparator_gt,
-	[PKG_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_lte,
-	[PKG_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_gte,
-	[PKG_EQUAL]			= pkgconf_pkg_comparator_eq,
-	[PKG_NOT_EQUAL]			= pkgconf_pkg_comparator_ne,
-	[PKG_CMP_SIZE]			= pkgconf_pkg_comparator_unimplemented,
+static pkgconf_vercmp_res_func_t pkgconf_pkg_comparator_impls[PKGCONF_CMP_SIZE + 1] = {
+	[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_any,
+	[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_lt,
+	[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_gt,
+	[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_lte,
+	[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_gte,
+	[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_eq,
+	[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_ne,
+	[PKGCONF_CMP_SIZE]			= pkgconf_pkg_comparator_unimplemented,
 };
 
 /*
@@ -710,7 +710,7 @@ pkgconf_pkg_get_comparator(pkgconf_dependency_t *pkgdep)
 {
 	const pkgconf_pkg_comparator_name_t *i;
 
-	for (i = pkgconf_pkg_comparator_names; i->compare != PKG_CMP_SIZE; i++)
+	for (i = pkgconf_pkg_comparator_names; i->compare != PKGCONF_CMP_SIZE; i++)
 	{
 		if (i->compare == pkgdep->compare)
 			return i->name;
@@ -725,7 +725,7 @@ pkgconf_pkg_get_comparator(pkgconf_dependency_t *pkgdep)
  * look up the appropriate comparator bytecode in the comparator set (defined
  * above, see pkgconf_pkg_comparator_names and pkgconf_pkg_comparator_impls).
  *
- * XXX: on error return PKG_ANY or maybe we should return PKG_CMP_SIZE which
+ * XXX: on error return PKGCONF_CMP_ANY or maybe we should return PKGCONF_CMP_SIZE which
  * is poisoned?
  */
 pkgconf_pkg_comparator_t
@@ -733,13 +733,13 @@ pkgconf_pkg_comparator_lookup_by_name(const char *name)
 {
 	const pkgconf_pkg_comparator_name_t *i;
 
-	for (i = pkgconf_pkg_comparator_names; i->compare != PKG_CMP_SIZE; i++)
+	for (i = pkgconf_pkg_comparator_names; i->compare != PKGCONF_CMP_SIZE; i++)
 	{
 		if (!strcmp(i->name, name))
 			return i->compare;
 	}
 
-	return PKG_ANY;
+	return PKGCONF_CMP_ANY;
 }
 
 /*

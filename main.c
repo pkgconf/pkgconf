@@ -469,7 +469,7 @@ print_graph_node(pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 	{
 		pkgconf_dependency_t *dep = n->data;
 		printf("    dependency '%s'", dep->package);
-		if (dep->compare != PKG_ANY)
+		if (dep->compare != PKGCONF_CMP_ANY)
 		{
 			printf(" {\n");
 			printf("        comparator = '%s';\n", pkgconf_pkg_get_comparator(dep));

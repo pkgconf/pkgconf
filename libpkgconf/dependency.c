@@ -86,7 +86,7 @@ void
 pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 {
 	parse_state_t state = OUTSIDE_MODULE;
-	pkgconf_pkg_comparator_t compare = PKG_ANY;
+	pkgconf_pkg_comparator_t compare = PKGCONF_CMP_ANY;
 	char cmpname[PKGCONF_BUFSIZE];
 	char buf[PKGCONF_BUFSIZE];
 	size_t package_sz = 0, version_sz = 0;
@@ -155,7 +155,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 			{
 				pkgconf_dependency_add(deplist_head, package, package_sz, NULL, 0, compare);
 
-				compare = PKG_ANY;
+				compare = PKGCONF_CMP_ANY;
 				package_sz = 0;
 				version_sz = 0;
 			}
@@ -206,7 +206,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 #endif
 				pkgconf_dependency_add(deplist_head, package, package_sz, version, version_sz, compare);
 
-				compare = PKG_ANY;
+				compare = PKGCONF_CMP_ANY;
 				cnameptr = cmpname;
 				memset(cmpname, 0, sizeof cmpname);
 				package_sz = 0;
