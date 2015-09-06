@@ -21,7 +21,7 @@ pkgconf_fragment_copy_munged(const char *source, unsigned int flags)
 	char mungebuf[PKGCONF_BUFSIZE];
 	char *sysroot_dir;
 
-	if (!(flags & PKGF_MUNGE_SYSROOT_PREFIX))
+	if (!(flags & PKGCONF_PKG_PKGF_MUNGE_SYSROOT_PREFIX))
 		return strdup(source);
 
 	sysroot_dir = pkgconf_tuple_find_global("pc_sysrootdir");

@@ -48,7 +48,7 @@
 #define PKG_VALIDATE			(uint64_t)(1<<30)
 #define PKG_LIST_PACKAGE_NAMES		(uint64_t)(1<<31)
 
-static unsigned int global_traverse_flags = PKGF_NONE;
+static unsigned int global_traverse_flags = PKGCONF_PKG_PKGF_NONE;
 
 static uint64_t want_flags;
 static int maximum_traverse_depth = 2000;
@@ -259,7 +259,7 @@ apply_digraph(pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int fla
 
 	eflag = pkgconf_pkg_traverse(world, print_digraph_node, unused, maxdepth, flags);
 
-	if (eflag != PKG_ERRF_OK)
+	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
 	printf("}\n");
@@ -273,7 +273,7 @@ apply_modversion(pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int 
 
 	eflag = pkgconf_pkg_traverse(world, print_modversion, unused, maxdepth, flags);
 
-	if (eflag != PKG_ERRF_OK)
+	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
 	return true;
@@ -286,7 +286,7 @@ apply_variables(pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int f
 
 	eflag = pkgconf_pkg_traverse(world, print_variables, unused, maxdepth, flags);
 
-	if (eflag != PKG_ERRF_OK)
+	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
 	return true;
@@ -311,7 +311,7 @@ print_variable(pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 		{
 			memset(req->buf, 0, sizeof(req->buf));
 
-			if (*var == '/' && (flags & PKGF_MUNGE_SYSROOT_PREFIX) &&
+			if (*var == '/' && (flags & PKGCONF_PKG_PKGF_MUNGE_SYSROOT_PREFIX) &&
 			    (sysroot_dir != NULL && strncmp(var, sysroot_dir, strlen(sysroot_dir))))
 				strlcat(req->buf, sysroot_dir, sizeof(req->buf));
 
@@ -321,7 +321,7 @@ print_variable(pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 
 		strlcat(req->buf, " ", sizeof(req->buf));
 
-		if (*var == '/' && (flags & PKGF_MUNGE_SYSROOT_PREFIX) &&
+		if (*var == '/' && (flags & PKGCONF_PKG_PKGF_MUNGE_SYSROOT_PREFIX) &&
 		    (sysroot_dir != NULL && strncmp(var, sysroot_dir, strlen(sysroot_dir))))
 			strlcat(req->buf, sysroot_dir, sizeof(req->buf));
 
@@ -341,7 +341,7 @@ apply_variable(pkgconf_pkg_t *world, void *variable, int maxdepth, unsigned int 
 	*req.buf = '\0';
 
 	eflag = pkgconf_pkg_traverse(world, print_variable, &req, maxdepth, flags);
-	if (eflag != PKG_ERRF_OK)
+	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
 	printf("%s\n", req.buf);
@@ -354,8 +354,8 @@ apply_cflags(pkgconf_pkg_t *world, void *list_head, int maxdepth, unsigned int f
 	pkgconf_list_t *list = list_head;
 	int eflag;
 
-	eflag = pkgconf_pkg_cflags(world, list, maxdepth, flags | PKGF_SEARCH_PRIVATE);
-	if (eflag != PKG_ERRF_OK)
+	eflag = pkgconf_pkg_cflags(world, list, maxdepth, flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
+	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
 	if (list->head == NULL)
@@ -375,7 +375,7 @@ apply_libs(pkgconf_pkg_t *world, void *list_head, int maxdepth, unsigned int fla
 	int eflag;
 
 	eflag = pkgconf_pkg_libs(world, list, maxdepth, flags);
-	if (eflag != PKG_ERRF_OK)
+	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
 	if (list->head == NULL)
@@ -421,7 +421,7 @@ apply_requires_private(pkgconf_pkg_t *world, void *unused, int maxdepth, unsigne
 		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
 
-		pkg = pkgconf_pkg_verify_dependency(dep, flags | PKGF_SEARCH_PRIVATE, NULL);
+		pkg = pkgconf_pkg_verify_dependency(dep, flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE, NULL);
 		print_requires_private(pkg);
 
 		pkgconf_pkg_free(pkg);
@@ -446,7 +446,7 @@ apply_uninstalled(pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int f
 
 	eflag = pkgconf_pkg_traverse(world, check_uninstalled, data, maxdepth, flags);
 
-	if (eflag != PKG_ERRF_OK)
+	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
 	return true;
@@ -490,7 +490,7 @@ apply_simulate(pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flag
 
 	eflag = pkgconf_pkg_traverse(world, print_graph_node, data, maxdepth, flags);
 
-	if (eflag != PKG_ERRF_OK)
+	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
 	return true;
@@ -698,19 +698,19 @@ main(int argc, char *argv[])
 		error_msgout = fopen(PATH_DEV_NULL, "w");
 
 	if ((want_flags & PKG_IGNORE_CONFLICTS) == PKG_IGNORE_CONFLICTS || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
-		global_traverse_flags |= PKGF_SKIP_CONFLICTS;
+		global_traverse_flags |= PKGCONF_PKG_PKGF_SKIP_CONFLICTS;
 
 	if ((want_flags & PKG_STATIC) == PKG_STATIC)
-		global_traverse_flags |= (PKGF_SEARCH_PRIVATE | PKGF_MERGE_PRIVATE_FRAGMENTS);
+		global_traverse_flags |= (PKGCONF_PKG_PKGF_SEARCH_PRIVATE | PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS);
 
 	if ((want_flags & PKG_ENV_ONLY) == PKG_ENV_ONLY)
-		global_traverse_flags |= PKGF_ENV_ONLY;
+		global_traverse_flags |= PKGCONF_PKG_PKGF_ENV_ONLY;
 
 	if ((want_flags & PKG_NO_CACHE) == PKG_NO_CACHE)
-		global_traverse_flags |= PKGF_NO_CACHE;
+		global_traverse_flags |= PKGCONF_PKG_PKGF_NO_CACHE;
 
 	if ((want_flags & PKG_NO_UNINSTALLED) == PKG_NO_UNINSTALLED || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
-		global_traverse_flags |= PKGF_NO_UNINSTALLED;
+		global_traverse_flags |= PKGCONF_PKG_PKGF_NO_UNINSTALLED;
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
 		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
@@ -726,7 +726,7 @@ main(int argc, char *argv[])
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
 	{
 		pkgconf_tuple_add_global("pc_sysrootdir", sysroot_dir);
-		global_traverse_flags |= PKGF_MUNGE_SYSROOT_PREFIX;
+		global_traverse_flags |= PKGCONF_PKG_PKGF_MUNGE_SYSROOT_PREFIX;
 	}
 	else
 		pkgconf_tuple_add_global("pc_sysrootdir", "/");
@@ -876,7 +876,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkgq, apply_simulate, -1, global_traverse_flags | PKGF_SKIP_ERRORS, NULL))
+		if (!pkgconf_queue_apply(&pkgq, apply_simulate, -1, global_traverse_flags | PKGCONF_PKG_PKGF_SKIP_ERRORS, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -944,7 +944,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkgq, apply_variable, 2, global_traverse_flags | PKGF_SKIP_ROOT_VIRTUAL, want_variable))
+		if (!pkgconf_queue_apply(&pkgq, apply_variable, 2, global_traverse_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL, want_variable))
 		{
 			ret = EXIT_FAILURE;
 			goto out;

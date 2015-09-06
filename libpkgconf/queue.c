@@ -63,7 +63,7 @@ static inline unsigned int
 pkgconf_queue_verify(pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	if (!pkgconf_queue_compile(world, list))
-		return PKG_ERRF_DEPGRAPH_BREAK;
+		return PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
 
 	return pkgconf_pkg_verify_graph(world, maxdepth, flags);
 }
@@ -81,7 +81,7 @@ pkgconf_queue_apply(pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int m
 	if (!maxdepth)
 		maxdepth = -1;
 
-	if (pkgconf_queue_verify(&world, list, maxdepth, flags) != PKG_ERRF_OK)
+	if (pkgconf_queue_verify(&world, list, maxdepth, flags) != PKGCONF_PKG_ERRF_OK)
 		return false;
 
 	if (!func(&world, data, maxdepth, flags))
@@ -109,7 +109,7 @@ pkgconf_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags)
 	if (!maxdepth)
 		maxdepth = -1;
 
-	if (pkgconf_queue_verify(&world, list, maxdepth, flags) != PKG_ERRF_OK)
+	if (pkgconf_queue_verify(&world, list, maxdepth, flags) != PKGCONF_PKG_ERRF_OK)
 		retval = false;
 
 	pkgconf_pkg_free(&world);
