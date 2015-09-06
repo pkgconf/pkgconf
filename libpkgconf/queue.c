@@ -16,25 +16,25 @@
 #include <libpkgconf/libpkgconf.h>
 
 typedef struct {
-	pkg_node_t iter;
+	pkgconf_node_t iter;
 	char *package;
 } pkg_queue_t;
 
 void
-pkg_queue_push(pkg_list_t *list, const char *package)
+pkg_queue_push(pkgconf_list_t *list, const char *package)
 {
 	pkg_queue_t *pkgq = calloc(sizeof(pkg_queue_t), 1);
 
 	pkgq->package = strdup(package);
-	pkg_node_insert_tail(&pkgq->iter, pkgq, list);
+	pkgconf_node_insert_tail(&pkgq->iter, pkgq, list);
 }
 
 bool
-pkg_queue_compile(pkg_t *world, pkg_list_t *list)
+pkg_queue_compile(pkg_t *world, pkgconf_list_t *list)
 {
-	pkg_node_t *iter;
+	pkgconf_node_t *iter;
 
-	PKG_FOREACH_LIST_ENTRY(list->head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
 	{
 		pkg_queue_t *pkgq;
 
@@ -46,11 +46,11 @@ pkg_queue_compile(pkg_t *world, pkg_list_t *list)
 }
 
 void
-pkg_queue_free(pkg_list_t *list)
+pkg_queue_free(pkgconf_list_t *list)
 {
-	pkg_node_t *node, *tnode;
+	pkgconf_node_t *node, *tnode;
 
-	PKG_FOREACH_LIST_ENTRY_SAFE(list->head, tnode, node)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, tnode, node)
 	{
 		pkg_queue_t *pkgq = node->data;
 
@@ -60,7 +60,7 @@ pkg_queue_free(pkg_list_t *list)
 }
 
 static inline unsigned int
-pkg_queue_verify(pkg_t *world, pkg_list_t *list, int maxdepth, unsigned int flags)
+pkg_queue_verify(pkg_t *world, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	if (!pkg_queue_compile(world, list))
 		return PKG_ERRF_DEPGRAPH_BREAK;
@@ -69,7 +69,7 @@ pkg_queue_verify(pkg_t *world, pkg_list_t *list, int maxdepth, unsigned int flag
 }
 
 bool
-pkg_queue_apply(pkg_list_t *list, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
+pkg_queue_apply(pkgconf_list_t *list, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
 {
 	pkg_t world = {
 		.id = "world",
@@ -96,7 +96,7 @@ pkg_queue_apply(pkg_list_t *list, pkg_queue_apply_func_t func, int maxdepth, uns
 }
 
 bool
-pkg_queue_validate(pkg_list_t *list, int maxdepth, unsigned int flags)
+pkg_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	bool retval = true;
 	pkg_t world = {

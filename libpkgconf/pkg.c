@@ -39,22 +39,22 @@
 
 typedef struct {
 	char *path;
-	pkg_node_t node;
+	pkgconf_node_t node;
 } pkg_path_t;
 
 static inline void
-path_add(const char *text, pkg_list_t *dirlist)
+path_add(const char *text, pkgconf_list_t *dirlist)
 {
 	pkg_path_t *pkg_path;
 
 	pkg_path = calloc(sizeof(pkg_path_t), 1);
 	pkg_path->path = strdup(text);
 
-	pkg_node_insert_tail(&pkg_path->node, pkg_path, dirlist);
+	pkgconf_node_insert_tail(&pkg_path->node, pkg_path, dirlist);
 }
 
 static inline size_t
-path_split(const char *text, pkg_list_t *dirlist)
+path_split(const char *text, pkgconf_list_t *dirlist)
 {
 	size_t count = 0;
 	char *workbuf, *p, *iter;
@@ -75,11 +75,11 @@ path_split(const char *text, pkg_list_t *dirlist)
 }
 
 static inline void
-path_free(pkg_list_t *dirlist)
+path_free(pkgconf_list_t *dirlist)
 {
-	pkg_node_t *n, *tn;
+	pkgconf_node_t *n, *tn;
 
-	PKG_FOREACH_LIST_ENTRY_SAFE(dirlist->head, tn, n)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(dirlist->head, tn, n)
 	{
 		pkg_path_t *pkg_path = n->data;
 
@@ -157,7 +157,7 @@ pkg_get_parent_dir(pkg_t *pkg)
 	return buf;
 }
 
-static pkg_list_t pkg_dir_list = PKG_LIST_INITIALIZER;
+static pkgconf_list_t pkg_dir_list = PKGCONF_LIST_INITIALIZER;
 
 void
 pkg_dir_list_build(unsigned int flags)
@@ -398,11 +398,11 @@ pkg_scan_dir(const char *path, pkg_iteration_func_t func)
 void
 pkg_scan_all(pkg_iteration_func_t func)
 {
-	pkg_node_t *n;
+	pkgconf_node_t *n;
 
 	pkg_dir_list_build(0);
 
-	PKG_FOREACH_LIST_ENTRY(pkg_dir_list.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg_dir_list.head, n)
 	{
 		pkg_path_t *pkg_path = n->data;
 
@@ -452,7 +452,7 @@ pkg_t *
 pkg_find(const char *name, unsigned int flags)
 {
 	pkg_t *pkg = NULL;
-	pkg_node_t *n;
+	pkgconf_node_t *n;
 	FILE *f;
 
 	pkg_dir_list_build(flags);
@@ -481,7 +481,7 @@ pkg_find(const char *name, unsigned int flags)
 		}
 	}
 
-	PKG_FOREACH_LIST_ENTRY(pkg_dir_list.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg_dir_list.head, n)
 	{
 		pkg_path_t *pkg_path = n->data;
 
@@ -633,7 +633,7 @@ static pkg_t pkg_config_virtual = {
 	.version = PACKAGE_VERSION,
 	.flags = PKG_PROPF_VIRTUAL,
 	.vars = {
-		.head = &(pkg_node_t){
+		.head = &(pkgconf_node_t){
 			.prev = NULL,
 			.next = NULL,
 			.data = &(pkg_tuple_t){
@@ -848,16 +848,16 @@ pkg_report_graph_error(pkg_t *parent, pkg_t *pkg, pkg_dependency_t *node, unsign
 
 static inline unsigned int
 pkg_walk_list(pkg_t *parent,
-	pkg_list_t *deplist,
+	pkgconf_list_t *deplist,
 	pkg_traverse_func_t func,
 	void *data,
 	int depth,
 	unsigned int flags)
 {
 	unsigned int eflags = PKG_ERRF_OK;
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(deplist->head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(deplist->head, node)
 	{
 		unsigned int eflags_local = PKG_ERRF_OK;
 		pkg_dependency_t *depnode = node->data;
@@ -893,19 +893,19 @@ pkg_walk_list(pkg_t *parent,
 }
 
 static inline unsigned int
-pkg_walk_conflicts_list(pkg_t *root, pkg_list_t *deplist, unsigned int flags)
+pkg_walk_conflicts_list(pkg_t *root, pkgconf_list_t *deplist, unsigned int flags)
 {
 	unsigned int eflags;
-	pkg_node_t *node, *childnode;
+	pkgconf_node_t *node, *childnode;
 
-	PKG_FOREACH_LIST_ENTRY(deplist->head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(deplist->head, node)
 	{
 		pkg_dependency_t *parentnode = node->data;
 
 		if (*parentnode->package == '\0')
 			continue;
 
-		PKG_FOREACH_LIST_ENTRY(root->requires.head, childnode)
+		PKGCONF_FOREACH_LIST_ENTRY(root->requires.head, childnode)
 		{
 			pkg_t *pkgdep;
 			pkg_dependency_t *depnode = childnode->data;
@@ -982,11 +982,11 @@ pkg_traverse(pkg_t *root,
 static void
 pkg_cflags_collect(pkg_t *pkg, void *data, unsigned int flags)
 {
-	pkg_list_t *list = data;
-	pkg_node_t *node;
+	pkgconf_list_t *list = data;
+	pkgconf_node_t *node;
 	(void) flags;
 
-	PKG_FOREACH_LIST_ENTRY(pkg->cflags.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags.head, node)
 	{
 		pkg_fragment_t *frag = node->data;
 		pkg_fragment_copy(list, frag, flags, false);
@@ -996,11 +996,11 @@ pkg_cflags_collect(pkg_t *pkg, void *data, unsigned int flags)
 static void
 pkg_cflags_private_collect(pkg_t *pkg, void *data, unsigned int flags)
 {
-	pkg_list_t *list = data;
-	pkg_node_t *node;
+	pkgconf_list_t *list = data;
+	pkgconf_node_t *node;
 	(void) flags;
 
-	PKG_FOREACH_LIST_ENTRY(pkg->cflags_private.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags_private.head, node)
 	{
 		pkg_fragment_t *frag = node->data;
 
@@ -1009,7 +1009,7 @@ pkg_cflags_private_collect(pkg_t *pkg, void *data, unsigned int flags)
 }
 
 int
-pkg_cflags(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags)
+pkg_cflags(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	int eflag;
 
@@ -1030,11 +1030,11 @@ pkg_cflags(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags)
 static void
 pkg_libs_collect(pkg_t *pkg, void *data, unsigned int flags)
 {
-	pkg_list_t *list = data;
-	pkg_node_t *node;
+	pkgconf_list_t *list = data;
+	pkgconf_node_t *node;
 	(void) flags;
 
-	PKG_FOREACH_LIST_ENTRY(pkg->libs.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->libs.head, node)
 	{
 		pkg_fragment_t *frag = node->data;
 		pkg_fragment_copy(list, frag, flags, (flags & PKGF_ITER_PKG_IS_PRIVATE) != 0);
@@ -1042,7 +1042,7 @@ pkg_libs_collect(pkg_t *pkg, void *data, unsigned int flags)
 
 	if (flags & PKGF_MERGE_PRIVATE_FRAGMENTS)
 	{
-		PKG_FOREACH_LIST_ENTRY(pkg->libs_private.head, node)
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->libs_private.head, node)
 		{
 			pkg_fragment_t *frag = node->data;
 			pkg_fragment_copy(list, frag, flags, true);
@@ -1051,7 +1051,7 @@ pkg_libs_collect(pkg_t *pkg, void *data, unsigned int flags)
 }
 
 int
-pkg_libs(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags)
+pkg_libs(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	int eflag;
 

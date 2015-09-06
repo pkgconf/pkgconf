@@ -15,7 +15,7 @@
 
 #include <libpkgconf/libpkgconf.h>
 
-static pkg_list_t pkg_cache = PKG_LIST_INITIALIZER;
+static pkgconf_list_t pkg_cache = PKGCONF_LIST_INITIALIZER;
 
 /*
  * pkg_cache_lookup(id)
@@ -27,9 +27,9 @@ static pkg_list_t pkg_cache = PKG_LIST_INITIALIZER;
 pkg_t *
 pkg_cache_lookup(const char *id)
 {
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(pkg_cache.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg_cache.head, node)
 	{
 		pkg_t *pkg = node->data;
 
@@ -54,7 +54,7 @@ pkg_cache_add(pkg_t *pkg)
 
 	pkg_ref(pkg);
 
-	pkg_node_insert(&pkg->cache_iter, pkg, &pkg_cache);
+	pkgconf_node_insert(&pkg->cache_iter, pkg, &pkg_cache);
 }
 
 /*
@@ -68,15 +68,15 @@ pkg_cache_remove(pkg_t *pkg)
 	if (pkg == NULL)
 		return;
 
-	pkg_node_delete(&pkg->cache_iter, &pkg_cache);
+	pkgconf_node_delete(&pkg->cache_iter, &pkg_cache);
 }
 
 void
 pkg_cache_free(void)
 {
-	pkg_node_t *iter, *iter2;
+	pkgconf_node_t *iter, *iter2;
 
-	PKG_FOREACH_LIST_ENTRY_SAFE(pkg_cache.head, iter2, iter)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(pkg_cache.head, iter2, iter)
 	{
 		pkg_t *pkg = iter->data;
 

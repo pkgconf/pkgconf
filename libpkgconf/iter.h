@@ -16,23 +16,23 @@
 #ifndef PKGCONF__ITER_H
 #define PKGCONF__ITER_H
 
-typedef struct pkg_node_ pkg_node_t;
+typedef struct pkgconf_node_ pkgconf_node_t;
 
-struct pkg_node_ {
-	pkg_node_t *prev, *next;
+struct pkgconf_node_ {
+	pkgconf_node_t *prev, *next;
 	void *data;
 };
 
 typedef struct {
-	pkg_node_t *head, *tail;
-} pkg_list_t;
+	pkgconf_node_t *head, *tail;
+} pkgconf_list_t;
 
-#define PKG_LIST_INITIALIZER		{ NULL, NULL }
+#define PKGCONF_LIST_INITIALIZER		{ NULL, NULL }
 
 static inline void
-pkg_node_insert(pkg_node_t *node, void *data, pkg_list_t *list)
+pkgconf_node_insert(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 {
-	pkg_node_t *tnode;
+	pkgconf_node_t *tnode;
 
 	node->data = data;
 
@@ -52,9 +52,9 @@ pkg_node_insert(pkg_node_t *node, void *data, pkg_list_t *list)
 }
 
 static inline void
-pkg_node_insert_tail(pkg_node_t *node, void *data, pkg_list_t *list)
+pkgconf_node_insert_tail(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 {
-	pkg_node_t *tnode;
+	pkgconf_node_t *tnode;
 
 	node->data = data;
 
@@ -74,7 +74,7 @@ pkg_node_insert_tail(pkg_node_t *node, void *data, pkg_list_t *list)
 }
 
 static inline void
-pkg_node_delete(pkg_node_t *node, pkg_list_t *list)
+pkgconf_node_delete(pkgconf_node_t *node, pkgconf_list_t *list)
 {
 	if (node->prev == NULL)
 		list->head = node->next;

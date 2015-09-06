@@ -15,7 +15,7 @@
 
 #include <libpkgconf/libpkgconf.h>
 
-static pkg_list_t pkg_global_var = PKG_LIST_INITIALIZER;
+static pkgconf_list_t pkg_global_var = PKGCONF_LIST_INITIALIZER;
 
 void
 pkg_tuple_add_global(const char *key, const char *value)
@@ -26,9 +26,9 @@ pkg_tuple_add_global(const char *key, const char *value)
 char *
 pkg_tuple_find_global(const char *key)
 {
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(pkg_global_var.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg_global_var.head, node)
 	{
 		pkg_tuple_t *tuple = node->data;
 
@@ -62,28 +62,28 @@ out:
 }
 
 pkg_tuple_t *
-pkg_tuple_add(pkg_list_t *list, const char *key, const char *value)
+pkg_tuple_add(pkgconf_list_t *list, const char *key, const char *value)
 {
 	pkg_tuple_t *tuple = calloc(sizeof(pkg_tuple_t), 1);
 
 	tuple->key = strdup(key);
 	tuple->value = pkg_tuple_parse(list, value);
 
-	pkg_node_insert(&tuple->iter, tuple, list);
+	pkgconf_node_insert(&tuple->iter, tuple, list);
 
 	return tuple;
 }
 
 char *
-pkg_tuple_find(pkg_list_t *list, const char *key)
+pkg_tuple_find(pkgconf_list_t *list, const char *key)
 {
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 	char *res;
 
 	if ((res = pkg_tuple_find_global(key)) != NULL)
 		return res;
 
-	PKG_FOREACH_LIST_ENTRY(list->head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		pkg_tuple_t *tuple = node->data;
 
@@ -95,7 +95,7 @@ pkg_tuple_find(pkg_list_t *list, const char *key)
 }
 
 char *
-pkg_tuple_parse(pkg_list_t *vars, const char *value)
+pkg_tuple_parse(pkgconf_list_t *vars, const char *value)
 {
 	char buf[PKG_BUFSIZE];
 	const char *ptr;
@@ -146,11 +146,11 @@ pkg_tuple_parse(pkg_list_t *vars, const char *value)
 }
 
 void
-pkg_tuple_free(pkg_list_t *list)
+pkg_tuple_free(pkgconf_list_t *list)
 {
-	pkg_node_t *node, *next;
+	pkgconf_node_t *node, *next;
 
-	PKG_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
 	{
 		pkg_tuple_t *tuple = node->data;
 

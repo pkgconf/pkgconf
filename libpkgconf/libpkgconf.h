@@ -40,27 +40,27 @@ typedef struct pkg_dependency_ pkg_dependency_t;
 typedef struct pkg_tuple_ pkg_tuple_t;
 typedef struct pkg_fragment_ pkg_fragment_t;
 
-#define PKG_FOREACH_LIST_ENTRY(head, value) \
+#define PKGCONF_FOREACH_LIST_ENTRY(head, value) \
 	for ((value) = (head); (value) != NULL; (value) = (value)->next)
 
-#define PKG_FOREACH_LIST_ENTRY_SAFE(head, nextiter, value) \
+#define PKGCONF_FOREACH_LIST_ENTRY_SAFE(head, nextiter, value) \
 	for ((value) = (head), (nextiter) = (head) != NULL ? (head)->next : NULL; (value) != NULL; (value) = (nextiter), (nextiter) = (nextiter) != NULL ? (nextiter)->next : NULL)
 
-#define PKG_FOREACH_LIST_ENTRY_REVERSE(tail, value) \
+#define PKGCONF_FOREACH_LIST_ENTRY_REVERSE(tail, value) \
 	for ((value) = (tail); (value) != NULL; (value) = (value)->prev)
 
 #define PKG_MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define PKG_MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 struct pkg_fragment_ {
-	pkg_node_t iter;
+	pkgconf_node_t iter;
 
 	char type;
 	char *data;
 };
 
 struct pkg_dependency_ {
-	pkg_node_t iter;
+	pkgconf_node_t iter;
 
 	char *package;
 	pkg_comparator_t compare;
@@ -69,7 +69,7 @@ struct pkg_dependency_ {
 };
 
 struct pkg_tuple_ {
-	pkg_node_t iter;
+	pkgconf_node_t iter;
 
 	char *key;
 	char *value;
@@ -82,7 +82,7 @@ struct pkg_tuple_ {
 #define PKG_PROPF_UNINSTALLED		0x8
 
 struct pkg_ {
-	pkg_node_t cache_iter;
+	pkgconf_node_t cache_iter;
 
 	int refcount;
 	char *id;
@@ -93,16 +93,16 @@ struct pkg_ {
 	char *url;
 	char *pc_filedir;
 
-	pkg_list_t libs;
-	pkg_list_t libs_private;
-	pkg_list_t cflags;
-	pkg_list_t cflags_private;
+	pkgconf_list_t libs;
+	pkgconf_list_t libs_private;
+	pkgconf_list_t cflags;
+	pkgconf_list_t cflags_private;
 
-	pkg_list_t requires;
-	pkg_list_t requires_private;
-	pkg_list_t conflicts;
+	pkgconf_list_t requires;
+	pkgconf_list_t requires_private;
+	pkgconf_list_t conflicts;
 
-	pkg_list_t vars;
+	pkgconf_list_t vars;
 
 	unsigned int flags;
 };
@@ -143,36 +143,36 @@ unsigned int pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
 int pkg_compare_version(const char *a, const char *b);
 pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
 const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
-int pkg_cflags(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags);
-int pkg_libs(pkg_t *root, pkg_list_t *list, int maxdepth, unsigned int flags);
+int pkg_cflags(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
+int pkg_libs(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 pkg_comparator_t pkg_comparator_lookup_by_name(const char *name);
 
 /* parse.c */
 pkg_t *pkg_new_from_file(const char *path, FILE *f, unsigned int flags);
-void pkg_dependency_parse_str(pkg_list_t *deplist_head, const char *depends);
-void pkg_dependency_parse(pkg_t *pkg, pkg_list_t *deplist_head, const char *depends);
-void pkg_dependency_append(pkg_list_t *list, pkg_dependency_t *tail);
-void pkg_dependency_free(pkg_list_t *list);
+void pkg_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends);
+void pkg_dependency_parse(pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
+void pkg_dependency_append(pkgconf_list_t *list, pkg_dependency_t *tail);
+void pkg_dependency_free(pkgconf_list_t *list);
 
 /* argvsplit.c */
 int pkg_argv_split(const char *src, int *argc, char ***argv);
 void pkg_argv_free(char **argv);
 
 /* fragment.c */
-void pkg_fragment_parse(pkg_list_t *list, pkg_list_t *vars, const char *value, unsigned int flags);
-void pkg_fragment_add(pkg_list_t *list, const char *string, unsigned int flags);
-void pkg_fragment_copy(pkg_list_t *list, pkg_fragment_t *base, unsigned int flags, bool is_private);
-void pkg_fragment_delete(pkg_list_t *list, pkg_fragment_t *node);
-void pkg_fragment_free(pkg_list_t *list);
+void pkg_fragment_parse(pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags);
+void pkg_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flags);
+void pkg_fragment_copy(pkgconf_list_t *list, pkg_fragment_t *base, unsigned int flags, bool is_private);
+void pkg_fragment_delete(pkgconf_list_t *list, pkg_fragment_t *node);
+void pkg_fragment_free(pkgconf_list_t *list);
 
 /* fileio.c */
 char *pkg_fgetline(char *line, size_t size, FILE *stream);
 
 /* tuple.c */
-pkg_tuple_t *pkg_tuple_add(pkg_list_t *parent, const char *key, const char *value);
-char *pkg_tuple_find(pkg_list_t *list, const char *key);
-char *pkg_tuple_parse(pkg_list_t *list, const char *value);
-void pkg_tuple_free(pkg_list_t *list);
+pkg_tuple_t *pkg_tuple_add(pkgconf_list_t *parent, const char *key, const char *value);
+char *pkg_tuple_find(pkgconf_list_t *list, const char *key);
+char *pkg_tuple_parse(pkgconf_list_t *list, const char *value);
+void pkg_tuple_free(pkgconf_list_t *list);
 void pkg_tuple_add_global(const char *key, const char *value);
 char *pkg_tuple_find_global(const char *key);
 void pkg_tuple_free_global(void);
@@ -182,11 +182,11 @@ void pkg_tuple_define_global(const char *kv);
 extern FILE *error_msgout;
 
 /* queue.c */
-void pkg_queue_push(pkg_list_t *list, const char *package);
-bool pkg_queue_compile(pkg_t *world, pkg_list_t *list);
-void pkg_queue_free(pkg_list_t *list);
-bool pkg_queue_apply(pkg_list_t *list, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
-bool pkg_queue_validate(pkg_list_t *list, int maxdepth, unsigned int flags);
+void pkg_queue_push(pkgconf_list_t *list, const char *package);
+bool pkg_queue_compile(pkg_t *world, pkgconf_list_t *list);
+void pkg_queue_free(pkgconf_list_t *list);
+bool pkg_queue_apply(pkgconf_list_t *list, pkg_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
+bool pkg_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags);
 
 /* cache.c */
 pkg_t *pkg_cache_lookup(const char *id);

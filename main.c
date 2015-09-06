@@ -125,11 +125,11 @@ print_package_entry(const pkg_t *entry)
 }
 
 static void
-print_cflags(pkg_list_t *list)
+print_cflags(pkgconf_list_t *list)
 {
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(list->head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		pkg_fragment_t *frag = node->data;
 		int got_flags = 0;
@@ -147,11 +147,11 @@ print_cflags(pkg_list_t *list)
 }
 
 static void
-print_libs(pkg_list_t *list)
+print_libs(pkgconf_list_t *list)
 {
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(list->head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		pkg_fragment_t *frag = node->data;
 		int got_flags = 0;
@@ -183,11 +183,11 @@ print_modversion(pkg_t *pkg, void *unused, unsigned int flags)
 static void
 print_variables(pkg_t *pkg, void *unused, unsigned int flags)
 {
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 	(void) unused;
 	(void) flags;
 
-	PKG_FOREACH_LIST_ENTRY(pkg->vars.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->vars.head, node)
 	{
 		pkg_tuple_t *tuple = node->data;
 
@@ -198,9 +198,9 @@ print_variables(pkg_t *pkg, void *unused, unsigned int flags)
 static void
 print_requires(pkg_t *pkg)
 {
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(pkg->requires.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires.head, node)
 	{
 		pkg_dependency_t *dep = node->data;
 
@@ -216,9 +216,9 @@ print_requires(pkg_t *pkg)
 static void
 print_requires_private(pkg_t *pkg)
 {
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 
-	PKG_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
 	{
 		pkg_dependency_t *dep = node->data;
 
@@ -234,13 +234,13 @@ print_requires_private(pkg_t *pkg)
 static void
 print_digraph_node(pkg_t *pkg, void *unused, unsigned int flags)
 {
-	pkg_node_t *node;
+	pkgconf_node_t *node;
 	(void) unused;
 	(void) flags;
 
 	printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
 
-	PKG_FOREACH_LIST_ENTRY(pkg->requires.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires.head, node)
 	{
 		pkg_dependency_t *dep = node->data;
 
@@ -351,7 +351,7 @@ apply_variable(pkg_t *world, void *variable, int maxdepth, unsigned int flags)
 static bool
 apply_cflags(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
-	pkg_list_t *list = list_head;
+	pkgconf_list_t *list = list_head;
 	int eflag;
 
 	eflag = pkg_cflags(world, list, maxdepth, flags | PKGF_SEARCH_PRIVATE);
@@ -371,7 +371,7 @@ apply_cflags(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 static bool
 apply_libs(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
-	pkg_list_t *list = list_head;
+	pkgconf_list_t *list = list_head;
 	int eflag;
 
 	eflag = pkg_libs(world, list, maxdepth, flags);
@@ -391,11 +391,11 @@ apply_libs(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 static bool
 apply_requires(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
-	pkg_node_t *iter;
+	pkgconf_node_t *iter;
 	(void) unused;
 	(void) maxdepth;
 
-	PKG_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
 		pkg_t *pkg;
 		pkg_dependency_t *dep = iter->data;
@@ -412,11 +412,11 @@ apply_requires(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 static bool
 apply_requires_private(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
-	pkg_node_t *iter;
+	pkgconf_node_t *iter;
 	(void) unused;
 	(void) maxdepth;
 
-	PKG_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
 		pkg_t *pkg;
 		pkg_dependency_t *dep = iter->data;
@@ -455,7 +455,7 @@ apply_uninstalled(pkg_t *world, void *data, int maxdepth, unsigned int flags)
 static void
 print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
 {
-	pkg_node_t *n;
+	pkgconf_node_t *n;
 
 	(void) data;
 	(void) flags;
@@ -465,7 +465,7 @@ print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
 	if (pkg->version != NULL)
 		printf("    version = '%s';\n", pkg->version);
 
-	PKG_FOREACH_LIST_ENTRY(pkg->requires.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires.head, n)
 	{
 		pkg_dependency_t *dep = n->data;
 		printf("    dependency '%s'", dep->package);
@@ -577,7 +577,7 @@ int
 main(int argc, char *argv[])
 {
 	int ret;
-	pkg_list_t pkgq = PKG_LIST_INITIALIZER;
+	pkgconf_list_t pkgq = PKGCONF_LIST_INITIALIZER;
 	char *builddir;
 	char *required_pkgconfig_version = NULL;
 	char *required_exact_module_version = NULL;
@@ -754,8 +754,8 @@ main(int argc, char *argv[])
 	if (required_module_version != NULL)
 	{
 		pkg_t *pkg;
-		pkg_node_t *node;
-		pkg_list_t deplist = PKG_LIST_INITIALIZER;
+		pkgconf_node_t *node;
+		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
 
 		while (argv[pkg_optind])
 		{
@@ -763,7 +763,7 @@ main(int argc, char *argv[])
 			pkg_optind++;
 		}
 
-		PKG_FOREACH_LIST_ENTRY(deplist.head, node)
+		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
 			pkg_dependency_t *pkgiter = node->data;
 
@@ -781,8 +781,8 @@ main(int argc, char *argv[])
 	if (required_exact_module_version != NULL)
 	{
 		pkg_t *pkg;
-		pkg_node_t *node;
-		pkg_list_t deplist = PKG_LIST_INITIALIZER;
+		pkgconf_node_t *node;
+		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
 
 		while (argv[pkg_optind])
 		{
@@ -790,7 +790,7 @@ main(int argc, char *argv[])
 			pkg_optind++;
 		}
 
-		PKG_FOREACH_LIST_ENTRY(deplist.head, node)
+		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
 			pkg_dependency_t *pkgiter = node->data;
 
@@ -808,8 +808,8 @@ main(int argc, char *argv[])
 	if (required_max_module_version != NULL)
 	{
 		pkg_t *pkg;
-		pkg_node_t *node;
-		pkg_list_t deplist = PKG_LIST_INITIALIZER;
+		pkgconf_node_t *node;
+		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
 
 		while (argv[pkg_optind])
 		{
@@ -817,7 +817,7 @@ main(int argc, char *argv[])
 			pkg_optind++;
 		}
 
-		PKG_FOREACH_LIST_ENTRY(deplist.head, node)
+		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
 			pkg_dependency_t *pkgiter = node->data;
 
@@ -975,7 +975,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_CFLAGS))
 	{
-		pkg_list_t frag_list = PKG_LIST_INITIALIZER;
+		pkgconf_list_t frag_list = PKGCONF_LIST_INITIALIZER;
 
 		if (!pkg_queue_apply(&pkgq, apply_cflags, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{
@@ -986,7 +986,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_LIBS))
 	{
-		pkg_list_t frag_list = PKG_LIST_INITIALIZER;
+		pkgconf_list_t frag_list = PKGCONF_LIST_INITIALIZER;
 
 		if (!pkg_queue_apply(&pkgq, apply_libs, maximum_traverse_depth, global_traverse_flags, &frag_list))
 		{
