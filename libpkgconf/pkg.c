@@ -281,7 +281,7 @@ pkg_free(pkg_t *pkg)
 	if (pkg == NULL || pkg->flags & PKG_PROPF_VIRTUAL)
 		return;
 
-	pkg_cache_remove(pkg);
+	pkgconf_cache_remove(pkg);
 
 	pkgconf_dependency_free(&pkg->requires);
 	pkgconf_dependency_free(&pkg->requires_private);
@@ -474,7 +474,7 @@ pkg_find(const char *name, unsigned int flags)
 	/* check cache */
 	if (!(flags & PKGF_NO_CACHE))
 	{
-		if ((pkg = pkg_cache_lookup(name)) != NULL)
+		if ((pkg = pkgconf_cache_lookup(name)) != NULL)
 		{
 			pkg->flags |= PKG_PROPF_CACHED;
 			return pkg;
@@ -498,7 +498,7 @@ pkg_find(const char *name, unsigned int flags)
 #endif
 
 out:
-	pkg_cache_add(pkg);
+	pkgconf_cache_add(pkg);
 
 	return pkg;
 }

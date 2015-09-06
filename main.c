@@ -1003,7 +1003,7 @@ out_println:
 
 out:
 	pkgconf_tuple_free_global();
-	pkg_cache_free();
+	pkgconf_cache_free();
 
 	return ret;
 }

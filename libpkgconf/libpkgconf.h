@@ -189,9 +189,9 @@ bool pkg_queue_apply(pkgconf_list_t *list, pkg_queue_apply_func_t func, int maxd
 bool pkg_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags);
 
 /* cache.c */
-pkg_t *pkg_cache_lookup(const char *id);
-void pkg_cache_add(pkg_t *pkg);
-void pkg_cache_remove(pkg_t *pkg);
-void pkg_cache_free(void);
+pkg_t *pkgconf_cache_lookup(const char *id);
+void pkgconf_cache_add(pkg_t *pkg);
+void pkgconf_cache_remove(pkg_t *pkg);
+void pkgconf_cache_free(void);
 
 #endif

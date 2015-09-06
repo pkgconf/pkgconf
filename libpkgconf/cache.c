@@ -18,14 +18,14 @@
 static pkgconf_list_t pkg_cache = PKGCONF_LIST_INITIALIZER;
 
 /*
- * pkg_cache_lookup(id)
+ * pkgconf_cache_lookup(id)
  *
  * looks up a package in the cache given an 'id' atom,
  * such as 'gtk+-3.0' and returns the already loaded version
  * if present.
  */
 pkg_t *
-pkg_cache_lookup(const char *id)
+pkgconf_cache_lookup(const char *id)
 {
 	pkgconf_node_t *node;
 
@@ -41,13 +41,13 @@ pkg_cache_lookup(const char *id)
 }
 
 /*
- * pkg_cache_add(pkg)
+ * pkgconf_cache_add(pkg)
  *
  * adds an entry for the package to the package cache.
  * the cache entry must be removed if the package is freed.
  */
 void
-pkg_cache_add(pkg_t *pkg)
+pkgconf_cache_add(pkg_t *pkg)
 {
 	if (pkg == NULL)
 		return;
@@ -58,12 +58,12 @@ pkg_cache_add(pkg_t *pkg)
 }
 
 /*
- * pkg_cache_remove(pkg)
+ * pkgconf_cache_remove(pkg)
  *
  * deletes a package from the cache entry.
  */
 void
-pkg_cache_remove(pkg_t *pkg)
+pkgconf_cache_remove(pkg_t *pkg)
 {
 	if (pkg == NULL)
 		return;
@@ -72,7 +72,7 @@ pkg_cache_remove(pkg_t *pkg)
 }
 
 void
-pkg_cache_free(void)
+pkgconf_cache_free(void)
 {
 	pkgconf_node_t *iter, *iter2;
 
