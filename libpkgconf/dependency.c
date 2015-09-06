@@ -106,7 +106,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 		switch (state)
 		{
 		case OUTSIDE_MODULE:
-			if (!PKG_MODULE_SEPARATOR(*ptr))
+			if (!PKGCONF_IS_MODULE_SEPARATOR(*ptr))
 				state = INSIDE_MODULE_NAME;
 
 			break;
@@ -121,14 +121,14 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 
 				if (*sptr == '\0')
 					state = OUTSIDE_MODULE;
-				else if (PKG_MODULE_SEPARATOR(*sptr))
+				else if (PKGCONF_IS_MODULE_SEPARATOR(*sptr))
 					state = OUTSIDE_MODULE;
-				else if (PKG_OPERATOR_CHAR(*sptr))
+				else if (PKGCONF_IS_OPERATOR_CHAR(*sptr))
 					state = BEFORE_OPERATOR;
 				else
 					state = OUTSIDE_MODULE;
 			}
-			else if (PKG_MODULE_SEPARATOR(*ptr))
+			else if (PKGCONF_IS_MODULE_SEPARATOR(*ptr))
 				state = OUTSIDE_MODULE;
 			else if (*(ptr + 1) == '\0')
 			{
@@ -140,7 +140,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 			{
 				char *iter = start;
 
-				while (PKG_MODULE_SEPARATOR(*iter))
+				while (PKGCONF_IS_MODULE_SEPARATOR(*iter))
 					iter++;
 
 				package = iter;
@@ -163,7 +163,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 			break;
 
 		case BEFORE_OPERATOR:
-			if (PKG_OPERATOR_CHAR(*ptr))
+			if (PKGCONF_IS_OPERATOR_CHAR(*ptr))
 			{
 				state = INSIDE_OPERATOR;
 				*cnameptr++ = *ptr;
@@ -172,7 +172,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 			break;
 
 		case INSIDE_OPERATOR:
-			if (!PKG_OPERATOR_CHAR(*ptr))
+			if (!PKGCONF_IS_OPERATOR_CHAR(*ptr))
 			{
 				state = AFTER_OPERATOR;
 				compare = pkgconf_pkg_comparator_lookup_by_name(cmpname);
@@ -195,7 +195,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 			break;
 
 		case INSIDE_VERSION:
-			if (PKG_MODULE_SEPARATOR(*ptr) || *(ptr + 1) == '\0')
+			if (PKGCONF_IS_MODULE_SEPARATOR(*ptr) || *(ptr + 1) == '\0')
 			{
 				version = vstart;
 				version_sz = ptr - vstart;

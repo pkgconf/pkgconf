@@ -848,7 +848,7 @@ main(int argc, char *argv[])
 			continue;
 		}
 
-		if (argv[pkg_optind + 1] == NULL || !PKG_OPERATOR_CHAR(*(argv[pkg_optind + 1])))
+		if (argv[pkg_optind + 1] == NULL || !PKGCONF_IS_OPERATOR_CHAR(*(argv[pkg_optind + 1])))
 		{
 			pkgconf_queue_push(&pkgq, package);
 			pkg_optind++;
