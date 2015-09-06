@@ -59,7 +59,7 @@ static char *sysroot_dir = NULL;
 FILE *error_msgout = NULL;
 
 static bool
-fragment_has_system_dir(pkg_fragment_t *frag)
+fragment_has_system_dir(pkgconf_fragment_t *frag)
 {
 	int check_flags = 0;
 	char *check_paths = NULL;
@@ -95,7 +95,7 @@ fragment_has_system_dir(pkg_fragment_t *frag)
 }
 
 static void
-print_fragment(pkg_fragment_t *frag)
+print_fragment(pkgconf_fragment_t *frag)
 {
 	if (fragment_has_system_dir(frag))
 		return;
@@ -131,7 +131,7 @@ print_cflags(pkgconf_list_t *list)
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
-		pkg_fragment_t *frag = node->data;
+		pkgconf_fragment_t *frag = node->data;
 		int got_flags = 0;
 
 		if (frag->type == 'I')
@@ -153,7 +153,7 @@ print_libs(pkgconf_list_t *list)
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
-		pkg_fragment_t *frag = node->data;
+		pkgconf_fragment_t *frag = node->data;
 		int got_flags = 0;
 
 		switch (frag->type)
@@ -363,7 +363,7 @@ apply_cflags(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 
 	print_cflags(list);
 
-	pkg_fragment_free(list);
+	pkgconf_fragment_free(list);
 
 	return true;
 }
@@ -383,7 +383,7 @@ apply_libs(pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 
 	print_libs(list);
 
-	pkg_fragment_free(list);
+	pkgconf_fragment_free(list);
 
 	return true;
 }

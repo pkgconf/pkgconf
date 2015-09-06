@@ -38,7 +38,7 @@ typedef enum {
 typedef struct pkg_ pkg_t;
 typedef struct pkgconf_dependency_ pkgconf_dependency_t;
 typedef struct pkgconf_tuple_ pkgconf_tuple_t;
-typedef struct pkg_fragment_ pkg_fragment_t;
+typedef struct pkgconf_fragment_ pkgconf_fragment_t;
 
 #define PKGCONF_FOREACH_LIST_ENTRY(head, value) \
 	for ((value) = (head); (value) != NULL; (value) = (value)->next)
@@ -52,7 +52,7 @@ typedef struct pkg_fragment_ pkg_fragment_t;
 #define PKG_MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define PKG_MAX(a,b) (((a) > (b)) ? (a) : (b))
 
-struct pkg_fragment_ {
+struct pkgconf_fragment_ {
 	pkgconf_node_t iter;
 
 	char type;
@@ -159,11 +159,11 @@ int pkg_argv_split(const char *src, int *argc, char ***argv);
 void pkg_argv_free(char **argv);
 
 /* fragment.c */
-void pkg_fragment_parse(pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags);
-void pkg_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flags);
-void pkg_fragment_copy(pkgconf_list_t *list, pkg_fragment_t *base, unsigned int flags, bool is_private);
-void pkg_fragment_delete(pkgconf_list_t *list, pkg_fragment_t *node);
-void pkg_fragment_free(pkgconf_list_t *list);
+void pkgconf_fragment_parse(pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags);
+void pkgconf_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flags);
+void pkgconf_fragment_copy(pkgconf_list_t *list, pkgconf_fragment_t *base, unsigned int flags, bool is_private);
+void pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node);
+void pkgconf_fragment_free(pkgconf_list_t *list);
 
 /* fileio.c */
 char *pkg_fgetline(char *line, size_t size, FILE *stream);

@@ -16,7 +16,7 @@
 #include <libpkgconf/libpkgconf.h>
 
 static inline char *
-pkg_fragment_copy_munged(const char *source, unsigned int flags)
+pkgconf_fragment_copy_munged(const char *source, unsigned int flags)
 {
 	char mungebuf[PKG_BUFSIZE];
 	char *sysroot_dir;
@@ -37,22 +37,22 @@ pkg_fragment_copy_munged(const char *source, unsigned int flags)
 }
 
 void
-pkg_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flags)
+pkgconf_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flags)
 {
-	pkg_fragment_t *frag;
+	pkgconf_fragment_t *frag;
 
 	if (*string == '-' && strncmp(string, "-lib:", 5) && strncmp(string, "-framework", 10))
 	{
-		frag = calloc(sizeof(pkg_fragment_t), 1);
+		frag = calloc(sizeof(pkgconf_fragment_t), 1);
 
 		frag->type = *(string + 1);
-		frag->data = pkg_fragment_copy_munged(string + 2, flags);
+		frag->data = pkgconf_fragment_copy_munged(string + 2, flags);
 	}
 	else
 	{
 		if (list->tail != NULL && list->tail->data != NULL)
 		{
-			pkg_fragment_t *parent = list->tail->data;
+			pkgconf_fragment_t *parent = list->tail->data;
 
 			if (!strncmp(parent->data, "-framework", 10))
 			{
@@ -71,7 +71,7 @@ pkg_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flags)
 			}
 		}
 
-		frag = calloc(sizeof(pkg_fragment_t), 1);
+		frag = calloc(sizeof(pkgconf_fragment_t), 1);
 
 		frag->type = 0;
 		frag->data = strdup(string);
@@ -80,14 +80,14 @@ pkg_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flags)
 	pkgconf_node_insert_tail(&frag->iter, frag, list);
 }
 
-static inline pkg_fragment_t *
-pkg_fragment_lookup(pkgconf_list_t *list, pkg_fragment_t *base)
+static inline pkgconf_fragment_t *
+pkgconf_fragment_lookup(pkgconf_list_t *list, pkgconf_fragment_t *base)
 {
 	pkgconf_node_t *node;
 
 	PKGCONF_FOREACH_LIST_ENTRY_REVERSE(list->tail, node)
 	{
-		pkg_fragment_t *frag = node->data;
+		pkgconf_fragment_t *frag = node->data;
 
 		if (base->type != frag->type)
 			continue;
@@ -100,7 +100,7 @@ pkg_fragment_lookup(pkgconf_list_t *list, pkg_fragment_t *base)
 }
 
 static inline bool
-pkg_fragment_can_merge_back(pkg_fragment_t *base, unsigned int flags, bool is_private)
+pkgconf_fragment_can_merge_back(pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
 	(void) flags;
 
@@ -123,7 +123,7 @@ pkg_fragment_can_merge_back(pkg_fragment_t *base, unsigned int flags, bool is_pr
 }
 
 static inline bool
-pkg_fragment_can_merge(pkg_fragment_t *base, unsigned int flags, bool is_private)
+pkgconf_fragment_can_merge(pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
 	(void) flags;
 
@@ -136,29 +136,29 @@ pkg_fragment_can_merge(pkg_fragment_t *base, unsigned int flags, bool is_private
 	return true;
 }
 
-static inline pkg_fragment_t *
-pkg_fragment_exists(pkgconf_list_t *list, pkg_fragment_t *base, unsigned int flags, bool is_private)
+static inline pkgconf_fragment_t *
+pkgconf_fragment_exists(pkgconf_list_t *list, pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
-	if (!pkg_fragment_can_merge_back(base, flags, is_private))
+	if (!pkgconf_fragment_can_merge_back(base, flags, is_private))
 		return NULL;
 
-	if (!pkg_fragment_can_merge(base, flags, is_private))
+	if (!pkgconf_fragment_can_merge(base, flags, is_private))
 		return NULL;
 
-	return pkg_fragment_lookup(list, base);
+	return pkgconf_fragment_lookup(list, base);
 }
 
 void
-pkg_fragment_copy(pkgconf_list_t *list, pkg_fragment_t *base, unsigned int flags, bool is_private)
+pkgconf_fragment_copy(pkgconf_list_t *list, pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
-	pkg_fragment_t *frag;
+	pkgconf_fragment_t *frag;
 
-	if ((frag = pkg_fragment_exists(list, base, flags, is_private)) != NULL)
-		pkg_fragment_delete(list, frag);
-	else if (!is_private && !pkg_fragment_can_merge_back(base, flags, is_private) && (pkg_fragment_lookup(list, base) != NULL))
+	if ((frag = pkgconf_fragment_exists(list, base, flags, is_private)) != NULL)
+		pkgconf_fragment_delete(list, frag);
+	else if (!is_private && !pkgconf_fragment_can_merge_back(base, flags, is_private) && (pkgconf_fragment_lookup(list, base) != NULL))
 		return;
 
-	frag = calloc(sizeof(pkg_fragment_t), 1);
+	frag = calloc(sizeof(pkgconf_fragment_t), 1);
 
 	frag->type = base->type;
 	frag->data = strdup(base->data);
@@ -167,7 +167,7 @@ pkg_fragment_copy(pkgconf_list_t *list, pkg_fragment_t *base, unsigned int flags
 }
 
 void
-pkg_fragment_delete(pkgconf_list_t *list, pkg_fragment_t *node)
+pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node)
 {
 	pkgconf_node_delete(&node->iter, list);
 
@@ -176,13 +176,13 @@ pkg_fragment_delete(pkgconf_list_t *list, pkg_fragment_t *node)
 }
 
 void
-pkg_fragment_free(pkgconf_list_t *list)
+pkgconf_fragment_free(pkgconf_list_t *list)
 {
 	pkgconf_node_t *node, *next;
 
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
 	{
-		pkg_fragment_t *frag = node->data;
+		pkgconf_fragment_t *frag = node->data;
 
 		free(frag->data);
 		free(frag);
@@ -190,7 +190,7 @@ pkg_fragment_free(pkgconf_list_t *list)
 }
 
 void
-pkg_fragment_parse(pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
+pkgconf_fragment_parse(pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
 {
 	int i, argc;
 	char **argv;
@@ -199,7 +199,7 @@ pkg_fragment_parse(pkgconf_list_t *list, pkgconf_list_t *vars, const char *value
 	pkg_argv_split(repstr, &argc, &argv);
 
 	for (i = 0; i < argc; i++)
-		pkg_fragment_add(list, argv[i], flags);
+		pkgconf_fragment_add(list, argv[i], flags);
 
 	pkg_argv_free(argv);
 	free(repstr);
