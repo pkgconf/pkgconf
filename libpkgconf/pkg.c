@@ -257,11 +257,11 @@ pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 			else if (!strcasecmp(key, "LIBS.private"))
 				pkg_fragment_parse(&pkg->libs_private, &pkg->vars, value, flags);
 			else if (!strcmp(key, "Requires"))
-				pkg_dependency_parse(pkg, &pkg->requires, value);
+				pkgconf_dependency_parse(pkg, &pkg->requires, value);
 			else if (!strcmp(key, "Requires.private"))
-				pkg_dependency_parse(pkg, &pkg->requires_private, value);
+				pkgconf_dependency_parse(pkg, &pkg->requires_private, value);
 			else if (!strcmp(key, "Conflicts"))
-				pkg_dependency_parse(pkg, &pkg->conflicts, value);
+				pkgconf_dependency_parse(pkg, &pkg->conflicts, value);
 			break;
 		case '=':
 			pkg_tuple_add(&pkg->vars, key, value);
@@ -283,9 +283,9 @@ pkg_free(pkg_t *pkg)
 
 	pkg_cache_remove(pkg);
 
-	pkg_dependency_free(&pkg->requires);
-	pkg_dependency_free(&pkg->requires_private);
-	pkg_dependency_free(&pkg->conflicts);
+	pkgconf_dependency_free(&pkg->requires);
+	pkgconf_dependency_free(&pkg->requires_private);
+	pkgconf_dependency_free(&pkg->conflicts);
 
 	pkg_fragment_free(&pkg->cflags);
 	pkg_fragment_free(&pkg->cflags_private);
@@ -645,7 +645,7 @@ static pkg_t pkg_config_virtual = {
 	},
 };
 
-typedef bool (*pkg_vercmp_res_func_t)(pkg_t *pkg, pkg_dependency_t *pkgdep);
+typedef bool (*pkg_vercmp_res_func_t)(pkg_t *pkg, pkgconf_dependency_t *pkgdep);
 
 typedef struct {
 	const char *name;
@@ -663,37 +663,37 @@ static pkg_comparator_name_t pkg_comparator_names[PKG_CMP_SIZE + 1] = {
 	{"???",		PKG_CMP_SIZE},
 };
 
-static bool pkg_comparator_lt(pkg_t *pkg, pkg_dependency_t *pkgdep)
+static bool pkg_comparator_lt(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) < 0);
 }
 
-static bool pkg_comparator_gt(pkg_t *pkg, pkg_dependency_t *pkgdep)
+static bool pkg_comparator_gt(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) > 0);
 }
 
-static bool pkg_comparator_lte(pkg_t *pkg, pkg_dependency_t *pkgdep)
+static bool pkg_comparator_lte(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) <= 0);
 }
 
-static bool pkg_comparator_gte(pkg_t *pkg, pkg_dependency_t *pkgdep)
+static bool pkg_comparator_gte(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) >= 0);
 }
 
-static bool pkg_comparator_eq(pkg_t *pkg, pkg_dependency_t *pkgdep)
+static bool pkg_comparator_eq(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) == 0);
 }
 
-static bool pkg_comparator_ne(pkg_t *pkg, pkg_dependency_t *pkgdep)
+static bool pkg_comparator_ne(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	return (pkg_compare_version(pkg->version, pkgdep->version) != 0);
 }
 
-static bool pkg_comparator_any(pkg_t *pkg, pkg_dependency_t *pkgdep)
+static bool pkg_comparator_any(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	(void) pkg;
 	(void) pkgdep;
@@ -701,7 +701,7 @@ static bool pkg_comparator_any(pkg_t *pkg, pkg_dependency_t *pkgdep)
 	return true;
 }
 
-static bool pkg_comparator_unimplemented(pkg_t *pkg, pkg_dependency_t *pkgdep)
+static bool pkg_comparator_unimplemented(pkg_t *pkg, pkgconf_dependency_t *pkgdep)
 {
 	(void) pkg;
 	(void) pkgdep;
@@ -726,7 +726,7 @@ static pkg_vercmp_res_func_t pkg_comparator_impls[PKG_CMP_SIZE + 1] = {
  * returns the comparator used in a depgraph dependency node as a string.
  */
 const char *
-pkg_get_comparator(pkg_dependency_t *pkgdep)
+pkg_get_comparator(pkgconf_dependency_t *pkgdep)
 {
 	const pkg_comparator_name_t *i;
 
@@ -765,11 +765,11 @@ pkg_comparator_lookup_by_name(const char *name)
 /*
  * pkg_verify_dependency(pkgdep, flags)
  *
- * verify a pkg_dependency_t node in the depgraph.  if the dependency is solvable,
+ * verify a pkgconf_dependency_t node in the depgraph.  if the dependency is solvable,
  * return the appropriate pkg_t object, else NULL.
  */
 pkg_t *
-pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
+pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
 {
 	pkg_t *pkg = &pkg_config_virtual;
 
@@ -814,7 +814,7 @@ pkg_verify_graph(pkg_t *root, int depth, unsigned int flags)
 }
 
 static unsigned int
-pkg_report_graph_error(pkg_t *parent, pkg_t *pkg, pkg_dependency_t *node, unsigned int eflags)
+pkg_report_graph_error(pkg_t *parent, pkg_t *pkg, pkgconf_dependency_t *node, unsigned int eflags)
 {
 	static bool already_sent_notice = false;
 
@@ -860,7 +860,7 @@ pkg_walk_list(pkg_t *parent,
 	PKGCONF_FOREACH_LIST_ENTRY(deplist->head, node)
 	{
 		unsigned int eflags_local = PKG_ERRF_OK;
-		pkg_dependency_t *depnode = node->data;
+		pkgconf_dependency_t *depnode = node->data;
 		pkg_t *pkgdep;
 
 		if (*depnode->package == '\0')
@@ -900,7 +900,7 @@ pkg_walk_conflicts_list(pkg_t *root, pkgconf_list_t *deplist, unsigned int flags
 
 	PKGCONF_FOREACH_LIST_ENTRY(deplist->head, node)
 	{
-		pkg_dependency_t *parentnode = node->data;
+		pkgconf_dependency_t *parentnode = node->data;
 
 		if (*parentnode->package == '\0')
 			continue;
@@ -908,7 +908,7 @@ pkg_walk_conflicts_list(pkg_t *root, pkgconf_list_t *deplist, unsigned int flags
 		PKGCONF_FOREACH_LIST_ENTRY(root->requires.head, childnode)
 		{
 			pkg_t *pkgdep;
-			pkg_dependency_t *depnode = childnode->data;
+			pkgconf_dependency_t *depnode = childnode->data;
 
 			if (*depnode->package == '\0' || strcmp(depnode->package, parentnode->package))
 				continue;

@@ -36,7 +36,7 @@ typedef enum {
 } pkg_comparator_t;
 
 typedef struct pkg_ pkg_t;
-typedef struct pkg_dependency_ pkg_dependency_t;
+typedef struct pkgconf_dependency_ pkgconf_dependency_t;
 typedef struct pkg_tuple_ pkg_tuple_t;
 typedef struct pkg_fragment_ pkg_fragment_t;
 
@@ -59,7 +59,7 @@ struct pkg_fragment_ {
 	char *data;
 };
 
-struct pkg_dependency_ {
+struct pkgconf_dependency_ {
 	pkgconf_node_t iter;
 
 	char *package;
@@ -141,18 +141,18 @@ void pkg_scan_all(pkg_iteration_func_t func);
 unsigned int pkg_traverse(pkg_t *root, pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags);
 unsigned int pkg_verify_graph(pkg_t *root, int depth, unsigned int flags);
 int pkg_compare_version(const char *a, const char *b);
-pkg_t *pkg_verify_dependency(pkg_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
-const char *pkg_get_comparator(pkg_dependency_t *pkgdep);
+pkg_t *pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
+const char *pkg_get_comparator(pkgconf_dependency_t *pkgdep);
 int pkg_cflags(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 int pkg_libs(pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 pkg_comparator_t pkg_comparator_lookup_by_name(const char *name);
 
 /* parse.c */
 pkg_t *pkg_new_from_file(const char *path, FILE *f, unsigned int flags);
-void pkg_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends);
-void pkg_dependency_parse(pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
-void pkg_dependency_append(pkgconf_list_t *list, pkg_dependency_t *tail);
-void pkg_dependency_free(pkgconf_list_t *list);
+void pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends);
+void pkgconf_dependency_parse(pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
+void pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail);
+void pkgconf_dependency_free(pkgconf_list_t *list);
 
 /* argvsplit.c */
 int pkg_argv_split(const char *src, int *argc, char ***argv);

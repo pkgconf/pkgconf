@@ -202,7 +202,7 @@ print_requires(pkg_t *pkg)
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires.head, node)
 	{
-		pkg_dependency_t *dep = node->data;
+		pkgconf_dependency_t *dep = node->data;
 
 		printf("%s", dep->package);
 
@@ -220,7 +220,7 @@ print_requires_private(pkg_t *pkg)
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
 	{
-		pkg_dependency_t *dep = node->data;
+		pkgconf_dependency_t *dep = node->data;
 
 		printf("%s", dep->package);
 
@@ -242,7 +242,7 @@ print_digraph_node(pkg_t *pkg, void *unused, unsigned int flags)
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires.head, node)
 	{
-		pkg_dependency_t *dep = node->data;
+		pkgconf_dependency_t *dep = node->data;
 
 		printf("\"%s\" -- \"%s\" [fontname=Sans fontsize=8]\n", dep->package, pkg->id);
 	}
@@ -398,7 +398,7 @@ apply_requires(pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
 		pkg_t *pkg;
-		pkg_dependency_t *dep = iter->data;
+		pkgconf_dependency_t *dep = iter->data;
 
 		pkg = pkg_verify_dependency(dep, flags, NULL);
 		print_requires(pkg);
@@ -419,7 +419,7 @@ apply_requires_private(pkg_t *world, void *unused, int maxdepth, unsigned int fl
 	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
 		pkg_t *pkg;
-		pkg_dependency_t *dep = iter->data;
+		pkgconf_dependency_t *dep = iter->data;
 
 		pkg = pkg_verify_dependency(dep, flags | PKGF_SEARCH_PRIVATE, NULL);
 		print_requires_private(pkg);
@@ -467,7 +467,7 @@ print_graph_node(pkg_t *pkg, void *data, unsigned int flags)
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires.head, n)
 	{
-		pkg_dependency_t *dep = n->data;
+		pkgconf_dependency_t *dep = n->data;
 		printf("    dependency '%s'", dep->package);
 		if (dep->compare != PKG_ANY)
 		{
@@ -759,13 +759,13 @@ main(int argc, char *argv[])
 
 		while (argv[pkg_optind])
 		{
-			pkg_dependency_parse_str(&deplist, argv[pkg_optind]);
+			pkgconf_dependency_parse_str(&deplist, argv[pkg_optind]);
 			pkg_optind++;
 		}
 
 		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
-			pkg_dependency_t *pkgiter = node->data;
+			pkgconf_dependency_t *pkgiter = node->data;
 
 			pkg = pkg_find(pkgiter->package, global_traverse_flags);
 			if (pkg == NULL)
@@ -786,13 +786,13 @@ main(int argc, char *argv[])
 
 		while (argv[pkg_optind])
 		{
-			pkg_dependency_parse_str(&deplist, argv[pkg_optind]);
+			pkgconf_dependency_parse_str(&deplist, argv[pkg_optind]);
 			pkg_optind++;
 		}
 
 		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
-			pkg_dependency_t *pkgiter = node->data;
+			pkgconf_dependency_t *pkgiter = node->data;
 
 			pkg = pkg_find(pkgiter->package, global_traverse_flags);
 			if (pkg == NULL)
@@ -813,13 +813,13 @@ main(int argc, char *argv[])
 
 		while (argv[pkg_optind])
 		{
-			pkg_dependency_parse_str(&deplist, argv[pkg_optind]);
+			pkgconf_dependency_parse_str(&deplist, argv[pkg_optind]);
 			pkg_optind++;
 		}
 
 		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
-			pkg_dependency_t *pkgiter = node->data;
+			pkgconf_dependency_t *pkgiter = node->data;
 
 			pkg = pkg_find(pkgiter->package, global_traverse_flags);
 			if (pkg == NULL)

@@ -16,7 +16,7 @@
 #include <libpkgconf/libpkgconf.h>
 
 /*
- * pkg_dependency_parse(pkg, depends)
+ * pkgconf_dependency_parse(pkg, depends)
  *
  * Add requirements to a .pc file.
  * Commas are counted as whitespace, as to allow:
@@ -35,12 +35,12 @@ typedef enum {
 
 #define DEBUG_PARSE 0
 
-static inline pkg_dependency_t *
-pkg_dependency_add(pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkg_comparator_t compare)
+static inline pkgconf_dependency_t *
+pkgconf_dependency_add(pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkg_comparator_t compare)
 {
-	pkg_dependency_t *dep;
+	pkgconf_dependency_t *dep;
 
-	dep = calloc(sizeof(pkg_dependency_t), 1);
+	dep = calloc(sizeof(pkgconf_dependency_t), 1);
 	dep->package = strndup(package, package_sz);
 
 	if (version_sz != 0)
@@ -58,19 +58,19 @@ pkg_dependency_add(pkgconf_list_t *list, const char *package, size_t package_sz,
 }
 
 void
-pkg_dependency_append(pkgconf_list_t *list, pkg_dependency_t *tail)
+pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail)
 {
 	pkgconf_node_insert_tail(&tail->iter, tail, list);
 }
 
 void
-pkg_dependency_free(pkgconf_list_t *list)
+pkgconf_dependency_free(pkgconf_list_t *list)
 {
 	pkgconf_node_t *node, *next;
 
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
 	{
-		pkg_dependency_t *dep = node->data;
+		pkgconf_dependency_t *dep = node->data;
 
 		if (dep->package != NULL)
 			free(dep->package);
@@ -83,7 +83,7 @@ pkg_dependency_free(pkgconf_list_t *list)
 }
 
 void
-pkg_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
+pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 {
 	parse_state_t state = OUTSIDE_MODULE;
 	pkg_comparator_t compare = PKG_ANY;
@@ -153,7 +153,7 @@ pkg_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 
 			if (state == OUTSIDE_MODULE)
 			{
-				pkg_dependency_add(deplist_head, package, package_sz, NULL, 0, compare);
+				pkgconf_dependency_add(deplist_head, package, package_sz, NULL, 0, compare);
 
 				compare = PKG_ANY;
 				package_sz = 0;
@@ -204,7 +204,7 @@ pkg_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 #if DEBUG_PARSE
 				fprintf(error_msgout, "Found version: %s\n", version);
 #endif
-				pkg_dependency_add(deplist_head, package, package_sz, version, version_sz, compare);
+				pkgconf_dependency_add(deplist_head, package, package_sz, version, version_sz, compare);
 
 				compare = PKG_ANY;
 				cnameptr = cmpname;
@@ -223,10 +223,10 @@ pkg_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 }
 
 void
-pkg_dependency_parse(pkg_t *pkg, pkgconf_list_t *deplist, const char *depends)
+pkgconf_dependency_parse(pkg_t *pkg, pkgconf_list_t *deplist, const char *depends)
 {
 	char *kvdepends = pkg_tuple_parse(&pkg->vars, depends);
 
-	pkg_dependency_parse_str(deplist, kvdepends);
+	pkgconf_dependency_parse_str(deplist, kvdepends);
 	free(kvdepends);
 }

@@ -39,7 +39,7 @@ pkg_queue_compile(pkg_t *world, pkgconf_list_t *list)
 		pkg_queue_t *pkgq;
 
 		pkgq = iter->data;
-		pkg_dependency_parse(world, &world->requires, pkgq->package);
+		pkgconf_dependency_parse(world, &world->requires, pkgq->package);
 	}
 
 	return (world->requires.head != NULL);
