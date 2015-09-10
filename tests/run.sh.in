@@ -220,6 +220,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --list-all | grep -q 'multiline
 # test quoted #35
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags quotes" \
 	"-DQUOTED=\\\"bla\\\""
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs quotes" \
+	'-lfoo\ bar'
 
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs nolib; echo \$?" \
 	'0'
