@@ -72,5 +72,10 @@ noinst_HEADERS   = getopt_long.h
 
 dist_doc_DATA = README.md AUTHORS
 
-check: pkgconf
+EXTRA_PROGRAMS = unit_tests
+unit_tests_SOURCES = libpkgconf/tests/argvsplit-test.c
+unit_tests_LDADD   = libpkgconf.la
+
+check: pkgconf unit_tests
+	./unit_tests
 	$(SHELL) tests/run.sh ./pkgconf
