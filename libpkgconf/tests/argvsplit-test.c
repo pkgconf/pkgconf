@@ -26,9 +26,21 @@ void test_escaped()
 	pkgconf_argv_free(argv);
 }
 
+void test_quoted()
+{
+	int argc;
+	char **argv;
+
+	pkgconf_argv_split("\"A B\"", &argc, &argv);
+	assert(argc == 1);
+	assert(!strcmp(argv[0], "\"A B\""));
+	pkgconf_argv_free(argv);
+}
+
 int main(int argc, char **argv)
 {
 	(void) argc; (void) argv;
 	test_simple();
 	test_escaped();
+	test_quoted();
 }
