@@ -6,5 +6,5 @@ includedir=${prefix}/include
 Name: quotes
 Description: A testing pkg-config file
 Version: 1.2.3
-Libs: -L${libdir} -lfoo
+Libs: -L${libdir} -lfoo\ bar "-lfoobie bletch"
 Cflags: -DQUOTED=\"bla\"

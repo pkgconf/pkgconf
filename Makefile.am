@@ -23,6 +23,7 @@ EXTRA_DIST =	\
 		tests/lib1/prefix-foo2.pc \
 		tests/lib1/bar.pc \
 		tests/lib1/framework-2.pc \
+		tests/lib1/framework-3.pc \
 		tests/lib1/private-libs-duplication.pc \
 		tests/lib1/baz.pc \
 		tests/lib1/incomplete.pc \
@@ -72,5 +73,12 @@ noinst_HEADERS   = getopt_long.h
 
 dist_doc_DATA = README.md AUTHORS
 
-check: pkgconf
+EXTRA_PROGRAMS = unit_tests
+unit_tests_SOURCES = libpkgconf/tests/argvsplit-test.c
+unit_tests_LDADD   = libpkgconf.la
+
+CLEANFILES = $(EXTRA_PROGRAMS)
+
+check: pkgconf unit_tests
+	./unit_tests
 	$(SHELL) tests/run.sh ./pkgconf
