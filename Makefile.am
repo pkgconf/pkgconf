@@ -12,6 +12,7 @@ bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	\
+		pkg.m4 \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/dos-lineendings.pc \
 		tests/lib1/paren-quoting.pc \
@@ -72,6 +73,9 @@ pkgconf_SOURCES  = main.c getopt_long.c
 noinst_HEADERS   = getopt_long.h
 
 dist_doc_DATA = README.md AUTHORS
+
+m4datadir              = $(datadir)/aclocal
+m4data_DATA            = pkg.m4
 
 EXTRA_PROGRAMS = unit_tests
 unit_tests_SOURCES = libpkgconf/tests/argvsplit-test.c
