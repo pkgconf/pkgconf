@@ -67,7 +67,7 @@ libpkgconf_la_SOURCES  =	\
 libpkgconf_la_LDFLAGS = -version-info 1:0:0
 # -export-symbols-regex '^pkgconf_'
 
-pkgconf_MANS     = pkgconf.1
+dist_man_MANS    = pkgconf.1
 pkgconf_LDADD    = libpkgconf.la
 pkgconf_SOURCES  = main.c getopt_long.c
 noinst_HEADERS   = getopt_long.h
