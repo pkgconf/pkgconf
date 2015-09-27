@@ -42,10 +42,8 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 
 	while (*src_iter)
 	{
-		if (quote == *src_iter) {
+		if (quote == *src_iter)
 			quote = 0;
-			*dst_iter++ = *src_iter;
-		}
 		else if (quote)
 		{
 			if (*src_iter == '\\')
@@ -83,7 +81,6 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 			case '"':
 			case '\'':
 				quote = *src_iter;
-				*dst_iter++ = *src_iter;
 				break;
 
 			case '\\':

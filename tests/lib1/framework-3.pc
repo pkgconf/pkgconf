@@ -1,9 +1,0 @@
-prefix=/test
-exec_prefix=${prefix}
-libdir=${prefix}/lib
-includedir=${prefix}/include
-
-Name: framework-3
-Description: pkg-config with space in framework name
-Version: 1.3
-Libs: -F${libdir} -framework "Spacey Framework"
