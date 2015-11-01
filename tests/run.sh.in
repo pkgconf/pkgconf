@@ -34,7 +34,7 @@ run_test() {
 	done
 
 	if [ ${t_ret} -eq 0 ]; then
-		echo -n "."
+		printf "."
 	else
 		failed=$(( failed + 1 ))
 	fi
