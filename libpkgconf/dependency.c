@@ -108,11 +108,11 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 			break;
 
 		case INSIDE_MODULE_NAME:
-			if (isspace(*ptr))
+			if (isspace((unsigned int)*ptr))
 			{
 				const char *sptr = ptr;
 
-				while (*sptr && isspace(*sptr))
+				while (*sptr && isspace((unsigned int)*sptr))
 					sptr++;
 
 				if (*sptr == '\0')
@@ -176,7 +176,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 			break;
 
 		case AFTER_OPERATOR:
-			if (!isspace(*ptr))
+			if (!isspace((unsigned int)*ptr))
 			{
 				vstart = ptr;
 				state = INSIDE_VERSION;

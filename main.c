@@ -848,7 +848,7 @@ main(int argc, char *argv[])
 		if (package == NULL)
 			break;
 
-		while (isspace(package[0]))
+		while (isspace((unsigned int)package[0]))
 			package++;
 
 		/* skip empty packages */
