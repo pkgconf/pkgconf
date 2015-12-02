@@ -61,7 +61,7 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 			}
 			*dst_iter++ = *src_iter;
 		}
-		else if (isspace(*src_iter))
+		else if (isspace((unsigned int)*src_iter))
 		{
 			if ((*argv)[argc_count] != NULL)
 			{

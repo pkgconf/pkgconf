@@ -226,14 +226,14 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 		char op, *p, *key, *value;
 
 		p = readbuf;
-		while (*p && (isalpha(*p) || isdigit(*p) || *p == '_' || *p == '.'))
+		while (*p && (isalpha((unsigned int)*p) || isdigit((unsigned int)*p) || *p == '_' || *p == '.'))
 			p++;
 
 		key = readbuf;
-		if (!isalpha(*key) && !isdigit(*p))
+		if (!isalpha((unsigned int)*key) && !isdigit((unsigned int)*p))
 			continue;
 
-		while (*p && isspace(*p)) {
+		while (*p && isspace((unsigned int)*p)) {
 			/* set to null to avoid trailing spaces in key */
 			*p = '\0';
 			p++;
@@ -243,7 +243,7 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 		*p = '\0';
 		p++;
 
-		while (*p && isspace(*p))
+		while (*p && isspace((unsigned int)*p))
 			p++;
 
 		value = p;
@@ -539,9 +539,9 @@ pkgconf_compare_version(const char *a, const char *b)
 
 	while (*one || *two)
 	{
-		while (*one && !isalnum(*one) && *one != '~')
+		while (*one && !isalnum((unsigned int)*one) && *one != '~')
 			one++;
-		while (*two && !isalnum(*two) && *two != '~')
+		while (*two && !isalnum((unsigned int)*two) && *two != '~')
 			two++;
 
 		if (*one == '~' || *two == '~')
@@ -562,22 +562,22 @@ pkgconf_compare_version(const char *a, const char *b)
 		str1 = one;
 		str2 = two;
 
-		if (isdigit(*str1))
+		if (isdigit((unsigned int)*str1))
 		{
-			while (*str1 && isdigit(*str1))
+			while (*str1 && isdigit((unsigned int)*str1))
 				str1++;
 
-			while (*str2 && isdigit(*str2))
+			while (*str2 && isdigit((unsigned int)*str2))
 				str2++;
 
 			isnum = true;
 		}
 		else
 		{
-			while (*str1 && isalpha(*str1))
+			while (*str1 && isalpha((unsigned int)*str1))
 				str1++;
 
-			while (*str2 && isalpha(*str2))
+			while (*str2 && isalpha((unsigned int)*str2))
 				str2++;
 
 			isnum = false;
