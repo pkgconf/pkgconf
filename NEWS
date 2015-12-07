@@ -4,7 +4,7 @@ Changes from previous version of pkgconf
 Changes from 0.9.12:
 --------------------
 
-* features:
+* Features:
   - new library: libpkgconf
 
 * Enhancements:
