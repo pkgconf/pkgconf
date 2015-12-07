@@ -208,7 +208,7 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 
 	pkg = calloc(sizeof(pkgconf_pkg_t), 1);
 	pkg->filename = strdup(filename);
-	pkgconf_tuple_add(&pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg));
+	pkgconf_tuple_add(&pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg), true);
 
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
@@ -273,7 +273,7 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 				pkgconf_dependency_parse(pkg, &pkg->conflicts, value);
 			break;
 		case '=':
-			pkgconf_tuple_add(&pkg->vars, key, value);
+			pkgconf_tuple_add(&pkg->vars, key, value, true);
 			break;
 		default:
 			break;

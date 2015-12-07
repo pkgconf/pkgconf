@@ -182,7 +182,7 @@ void pkgconf_fragment_free(pkgconf_list_t *list);
 char *pkgconf_fgetline(char *line, size_t size, FILE *stream);
 
 /* tuple.c */
-pkgconf_tuple_t *pkgconf_tuple_add(pkgconf_list_t *parent, const char *key, const char *value);
+pkgconf_tuple_t *pkgconf_tuple_add(pkgconf_list_t *parent, const char *key, const char *value, bool parse);
 char *pkgconf_tuple_find(pkgconf_list_t *list, const char *key);
 char *pkgconf_tuple_parse(pkgconf_list_t *list, const char *value);
 void pkgconf_tuple_free(pkgconf_list_t *list);

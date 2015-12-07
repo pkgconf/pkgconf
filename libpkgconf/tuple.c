@@ -20,7 +20,7 @@ static pkgconf_list_t pkg_global_var = PKGCONF_LIST_INITIALIZER;
 void
 pkgconf_tuple_add_global(const char *key, const char *value)
 {
-	pkgconf_tuple_add(&pkg_global_var, key, value);
+	pkgconf_tuple_add(&pkg_global_var, key, value, false);
 }
 
 char *
@@ -62,12 +62,15 @@ out:
 }
 
 pkgconf_tuple_t *
-pkgconf_tuple_add(pkgconf_list_t *list, const char *key, const char *value)
+pkgconf_tuple_add(pkgconf_list_t *list, const char *key, const char *value, bool parse)
 {
 	pkgconf_tuple_t *tuple = calloc(sizeof(pkgconf_tuple_t), 1);
 
 	tuple->key = strdup(key);
-	tuple->value = pkgconf_tuple_parse(list, value);
+	if (parse)
+		tuple->value = pkgconf_tuple_parse(list, value);
+	else
+		tuple->value = strdup(value);
 
 	pkgconf_node_insert(&tuple->iter, tuple, list);
 
@@ -126,16 +129,25 @@ pkgconf_tuple_parse(pkgconf_list_t *vars, const char *value)
 			}
 
 			ptr += (pptr - ptr);
-			kv = pkgconf_tuple_find(vars, varname);
-
+			kv = pkgconf_tuple_find_global(varname);
 			if (kv != NULL)
 			{
-				parsekv = pkgconf_tuple_parse(vars, kv);
+				strncpy(bptr, kv, PKGCONF_BUFSIZE - (bptr - buf));
+				bptr += strlen(kv);
+			}
+			else
+			{
+				kv = pkgconf_tuple_find(vars, varname);
 
-				strncpy(bptr, parsekv, PKGCONF_BUFSIZE - (bptr - buf));
-				bptr += strlen(parsekv);
+				if (kv != NULL)
+				{
+					parsekv = pkgconf_tuple_parse(vars, kv);
 
-				free(parsekv);
+					strncpy(bptr, parsekv, PKGCONF_BUFSIZE - (bptr - buf));
+					bptr += strlen(parsekv);
+
+					free(parsekv);
+				}
 			}
 		}
 	}
