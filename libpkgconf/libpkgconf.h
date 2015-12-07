@@ -104,7 +104,7 @@ struct pkgconf_pkg_ {
 	unsigned int flags;
 };
 
-#define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((c)))
+#define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((unsigned int)(c)))
 #define PKGCONF_IS_OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
 
 #define PKGCONF_PKG_PKGF_NONE				0x000
