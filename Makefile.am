@@ -45,6 +45,7 @@ EXTRA_DIST =	\
 		tests/lib1/tilde.pc \
 		tests/lib1/comments-in-fields.pc \
 		tests/lib1/nocflag.pc \
+		tests/lib1/typelibdir.pc \
 		tests/lib2/foo.pc \
 		tests/lib1/comments.pc \
 		tests/lib1/nolib.pc \
