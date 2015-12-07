@@ -1,0 +1,15 @@
+Changes from previous version of pkgconf
+========================================
+
+Changes from 0.9.12:
+--------------------
+
+* features:
+  - new library: libpkgconf
+
+* Enhancements:
+  - testsuite: use an explicit prefix on all tests
+  - build: switch to automake
+
+* Bug fixes:
+  - cast all usage of ctype(3) functions
