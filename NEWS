@@ -13,3 +13,152 @@ Changes from 0.9.12:
 
 * Bug fixes:
   - cast all usage of ctype(3) functions
+
+Changes from 0.9.11 to 0.9.12:
+------------------------------
+
+* Features:
+  - add --list-package-names
+
+* Enhancements:
+  - ensure -I and -L are never pushed back
+
+* Bug fixes:
+  - fix implicit conversion warnings with variables over 31bits
+
+Changes from 0.9.10 to 0.9.11:
+------------------------------
+
+* Features:
+  - add --validate
+
+* Enhancements:
+  - add large file support checks in autoconf
+
+* Bug fixes:
+  - fix private lib deduplication
+  - handle --static correctly in some more esoteric scenarios
+
+Changes from 0.9.9 to 0.9.10:
+-----------------------------
+
+* Features:
+
+* Enhancements:
+
+* Bug fixes:
+  - Fix parser when dealing with commented lines
+
+Changes from 0.9.8 to 0.9.9:
+----------------------------
+
+* Features:
+  - add a sub out --print-provides
+
+* Enhancements:
+
+* Bug fixes:
+  - Fix parser when dealing with comments in fields
+
+Changes from 0.9.7 to 0.9.8:
+----------------------------
+
+* Features:
+
+* Enhancements:
+  - Convert manpages to mdoc(7)
+
+* Bug fixes:
+  - Fix parsing multiline fields
+
+Changes from 0.9.6 to 0.9.7:
+----------------------------
+
+* Features:
+
+* Enhancements:
+  - Convert manpages to mdoc(7)
+
+* Bug fixes:
+  - Fix parsing multiline fields
+
+Changes from 0.9.5 to 0.9.6:
+----------------------------
+
+* Features:
+  - add a sub --debug
+
+* Enhancements:
+  - Do not hardcode non-posix install(1)
+
+* Bug fixes:
+  - fix --with-system-includedir and --with-system-libdir behaviour
+
+Changes from 0.9.4 to 0.9.5:
+----------------------------
+
+* Features:
+
+* Enhancements:
+  - Make all variables but CFLAGS and LIBS case sensitive
+
+* Bug fixes:
+
+Changes from 0.9.3 to 0.9.4:
+----------------------------
+
+* Features:
+  - Add a pkgconf(1) manpage
+
+* Enhancements:
+  - Improve support for MacOS -framework
+
+* Bug fixes:
+
+Changes from 0.9.2 to 0.9.3:
+----------------------------
+
+* Features:
+  - Add support for CFLAGS.private
+
+* Enhancements:
+  - Support out of source build
+  - Improved private libs deduplication
+
+* Bug fixes:
+
+Changes from 0.9.1 to 0.9.2:
+----------------------------
+
+* Features:
+
+* Enhancements:
+
+* Bug fixes:
+  - Fix PKG_CONFIG_PATH being ignored when a .pc is directly supplied from
+    command line
+
+Changes from 0.9.0 to 0.9.1:
+----------------------------
+
+* Features:
+
+* Enhancements:
+  - --simulate: print depgraph operations
+  - --simulate: print bytecode program as a human-readable AST
+
+* Bug fixes:
+  - reset parser state on new package atom
+
+Changes from 0.8.12 to 0.9.0:
+----------------------------
+
+* Features:
+
+* Enhancements:
+  - Rework the internal cache API
+  - Rework the internal code to use the new pkg_list_t framework
+  - Rework PKG_CONFIG_PATH handling code
+
+* Bug fixes:
+  - fix multi-recursion with -framework
