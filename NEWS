@@ -13,6 +13,7 @@ Changes from 0.9.12:
 
 * Bug fixes:
   - cast all usage of ctype(3) functions
+  - do not expand variables passed via --define-variable for compatibility with pkg-config 0.29
 
 Changes from 0.9.11 to 0.9.12:
 ------------------------------
