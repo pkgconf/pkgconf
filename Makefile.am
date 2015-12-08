@@ -6,7 +6,7 @@ system_includedir      = @SYSTEM_INCLUDEDIR@
 system_libdir          = @SYSTEM_LIBDIR@
 pkgconfigdir           = @PKGCONFIGDIR@
 
-CFLAGS = -Wall -Wextra -Wformat=2 -std=gnu99
+AM_CFLAGS = -Wall -Wextra -Wformat=2 -std=gnu99
 
 bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la
