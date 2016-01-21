@@ -528,6 +528,12 @@ pkgconf_compare_version(const char *a, const char *b)
 	bool isnum;
 
 	/* optimization: if version matches then it's the same version. */
+	if (a == NULL)
+		return 1;
+
+	if (b == NULL)
+		return -1;
+
 	if (!strcasecmp(a, b))
 		return 0;
 
