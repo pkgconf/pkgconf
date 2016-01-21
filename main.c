@@ -65,6 +65,17 @@ error_handler(const char *msg)
 	return true;
 }
 
+static char *
+fallback_getenv(const char *envname, const char *fallback)
+{
+	const char *data = getenv(envname);
+
+	if (data == NULL)
+		data = fallback;
+
+	return strdup(data);
+}
+
 static bool
 fragment_has_system_dir(pkgconf_fragment_t *frag)
 {
@@ -77,11 +88,11 @@ fragment_has_system_dir(pkgconf_fragment_t *frag)
 	{
 	case 'L':
 		check_flags = PKG_KEEP_SYSTEM_LIBS;
-		check_paths = strdup(SYSTEM_LIBDIR);
+		check_paths = fallback_getenv("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR);
 		break;
 	case 'I':
 		check_flags = PKG_KEEP_SYSTEM_CFLAGS;
-		check_paths = strdup(SYSTEM_INCLUDEDIR);
+		check_paths = fallback_getenv("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR);
 		break;
 	default:
 		return false;
