@@ -15,6 +15,41 @@
 
 #include <libpkgconf/libpkgconf.h>
 
+struct pkgconf_fragment_check {
+	char *token;
+	size_t len;
+};
+
+static inline bool
+pkgconf_fragment_is_unmergeable(const char *string)
+{
+	static struct pkgconf_fragment_check check_fragments[] = {
+		{"-framework", 10},
+		{"-isystem", 8},
+	};
+
+	if (*string != '-')
+		return true;
+
+	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(check_fragments); i++)
+		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
+			return true;
+
+	return false;
+}
+
+static inline bool
+pkgconf_fragment_is_special(const char *string)
+{
+	if (*string != '-')
+		return true;
+
+	if (!strncmp(string, "-lib:", 5))
+		return true;
+
+	return pkgconf_fragment_is_unmergeable(string);
+}
+
 static inline char *
 pkgconf_fragment_copy_munged(const char *source, unsigned int flags)
 {
@@ -41,7 +76,7 @@ pkgconf_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flag
 {
 	pkgconf_fragment_t *frag;
 
-	if (*string == '-' && strncmp(string, "-lib:", 5) && strncmp(string, "-framework", 10))
+	if (!pkgconf_fragment_is_special(string))
 	{
 		frag = calloc(sizeof(pkgconf_fragment_t), 1);
 
@@ -54,7 +89,7 @@ pkgconf_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flag
 		{
 			pkgconf_fragment_t *parent = list->tail->data;
 
-			if (!strncmp(parent->data, "-framework", 10))
+			if (pkgconf_fragment_is_unmergeable(parent->data))
 			{
 				size_t len = strlen(parent->data) + strlen(string) + 2;
 				char *newdata;
@@ -130,10 +165,7 @@ pkgconf_fragment_can_merge(pkgconf_fragment_t *base, unsigned int flags, bool is
 	if (is_private)
 		return false;
 
-	if (!strncmp(base->data, "-framework", 10))
-		return false;
-
-	return true;
+	return pkgconf_fragment_is_unmergeable(base->data);
 }
 
 static inline pkgconf_fragment_t *
