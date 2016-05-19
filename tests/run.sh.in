@@ -236,9 +236,9 @@ run_test "cp ${selfdir}/lib1/foo.pc . && ${1} --libs foo.pc; rm -f foo.pc" \
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-1" \
 	"-F/test/lib -framework framework-1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-2" \
-	"-F/test/lib -framework framework-2 -framework framework-1"
+	"-F/test/lib -framework framework-2 -F/test/lib -framework framework-1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-1 framework-2" \
-	"-F/test/lib -framework framework-1 -framework framework-2"
+	"-F/test/lib -framework framework-1 -F/test/lib -framework framework-2"
 
 # test 87 - -isystem munging
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags isystem" \
