@@ -40,6 +40,8 @@ typedef struct pkgconf_dependency_ pkgconf_dependency_t;
 typedef struct pkgconf_tuple_ pkgconf_tuple_t;
 typedef struct pkgconf_fragment_ pkgconf_fragment_t;
 
+#define PKGCONF_ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
+
 #define PKGCONF_FOREACH_LIST_ENTRY(head, value) \
 	for ((value) = (head); (value) != NULL; (value) = (value)->next)
 
