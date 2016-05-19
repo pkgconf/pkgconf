@@ -250,6 +250,9 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'foo > 
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'nonexisting foo <= 3'; echo \$?" \
 	'1'
 
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'depgraph-break'; echo \$?" \
+	'1'
+
 run_test "PKG_CONFIG_PATH='${selfdir}/lib2' ${1} ${selfdir}/lib3/bar.pc --cflags" \
 	'-fPIC -I/test/include/foo'
 

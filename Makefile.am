@@ -52,7 +52,8 @@ EXTRA_DIST =	\
 		tests/lib3/bar.pc \
 		tests/lib1/conflicts.pc \
 		tests/lib1/omg-uninstalled.pc \
-		tests/lib1/isystem.pc
+		tests/lib1/isystem.pc \
+		tests/lib1/depgraph-break.pc
 
 pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h
 libpkgconf_la_SOURCES  =	\
