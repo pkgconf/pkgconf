@@ -240,6 +240,10 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-2" \
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs framework-1 framework-2" \
 	"-F/test/lib -framework framework-1 -framework framework-2"
 
+# test 87 - -isystem munging
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags isystem" \
+	"-isystem /opt/bad/include -isystem /opt/bad2/include"
+
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists --print-errors 'foo > 0.6.0 foo < 0.8.0'; echo \$?" \
 	'1'
 
