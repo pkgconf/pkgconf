@@ -72,7 +72,7 @@ bool
 pkgconf_queue_apply(pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
 {
 	pkgconf_pkg_t world = {
-		.id = "world",
+		.id = "virtual:world",
 		.realname = "virtual world package",
 		.flags = PKGCONF_PKG_PROPF_VIRTUAL,
 	};
@@ -100,7 +100,7 @@ pkgconf_queue_validate(pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	bool retval = true;
 	pkgconf_pkg_t world = {
-		.id = "world",
+		.id = "virtual:world",
 		.realname = "virtual world package",
 		.flags = PKGCONF_PKG_PROPF_VIRTUAL,
 	};
