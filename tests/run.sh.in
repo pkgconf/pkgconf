@@ -60,6 +60,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags --libs 'foo > 1.2'" \
 	'-lfoo' '-I/test/include/foo' '-fPIC'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags --libs 'foo > 1.2 bar >= 1.3'" \
 	'-lfoo' '-I/test/include/foo' '-fPIC'
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags --libs 'foo > 1.2,bar >= 1.3'" \
+	'-lbar' '-I/test/include/foo' '-fPIC'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags --libs 'foo' '>' '1.2'" \
 	'-lfoo' '-I/test/include/foo' '-fPIC'
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --exists nonexistant; echo \$?" \
