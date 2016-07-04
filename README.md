@@ -54,7 +54,7 @@ pkgconf also does not bundle any third-party libraries or depend on any third-pa
 libraries, making it a great tool for embedded systems and distributions with
 security concerns.
 
-## other differences verses pkg-config
+## other differences versus pkg-config
 
 As previously mentioned, pkgconf makes optimizations to the linker flags in both the
 case of static and shared linking in order to avoid overlinking binaries and also
