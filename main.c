@@ -2,7 +2,7 @@
  * main.c
  * main() routine, printer functions
  *
- * Copyright (c) 2011, 2012, 2013 pkgconf authors (see AUTHORS).
+ * Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -57,6 +57,7 @@ static char *want_variable = NULL;
 static char *sysroot_dir = NULL;
 
 FILE *error_msgout = NULL;
+FILE *logfile_out = NULL;
 
 static bool
 error_handler(const char *msg)
@@ -553,6 +554,7 @@ usage(void)
 	printf("  --simulate                        simulate walking the calculated dependency graph\n");
 	printf("  --no-cache                        do not cache already seen packages when\n");
 	printf("                                    walking the dependency graph\n");
+	printf("  --log-file=filename               write an audit log to a specified file\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -601,6 +603,7 @@ main(int argc, char *argv[])
 	char *required_exact_module_version = NULL;
 	char *required_max_module_version = NULL;
 	char *required_module_version = NULL;
+	char *logfile_arg = NULL;
 
 	want_flags = 0;
 
@@ -646,6 +649,7 @@ main(int argc, char *argv[])
 		{ "print-provides", no_argument, &want_flags, PKG_PROVIDES, },
 		{ "debug", no_argument, &want_flags, 0, },
 		{ "validate", no_argument, NULL, 0 },
+		{ "log-file", required_argument, NULL, 40 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -673,6 +677,9 @@ main(int argc, char *argv[])
 			break;
 		case 29:
 			required_max_module_version = pkg_optarg;
+			break;
+		case 40:
+			logfile_arg = pkg_optarg;
 			break;
 		case '?':
 		case ':':
@@ -770,6 +777,12 @@ main(int argc, char *argv[])
 		pkgconf_scan_all(print_package_entry);
 		return EXIT_SUCCESS;
 	}
+
+	if (logfile_arg == NULL)
+		logfile_arg = getenv("PKG_CONFIG_LOG");
+
+	if (logfile_arg != NULL)
+		logfile_out = fopen(logfile_arg, "w");
 
 	if (required_module_version != NULL)
 	{
@@ -1024,6 +1037,9 @@ out_println:
 out:
 	pkgconf_tuple_free_global();
 	pkgconf_cache_free();
+
+	if (logfile_out != NULL)
+		fclose(logfile_out);
 
 	return ret;
 }
