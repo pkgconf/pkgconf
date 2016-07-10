@@ -741,7 +741,7 @@ static pkgconf_vercmp_res_func_t pkgconf_pkg_comparator_impls[PKGCONF_CMP_SIZE +
  * returns the comparator used in a depgraph dependency node as a string.
  */
 const char *
-pkgconf_pkg_get_comparator(pkgconf_dependency_t *pkgdep)
+pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep)
 {
 	const pkgconf_pkg_comparator_name_t *i;
 
@@ -844,6 +844,7 @@ pkgconf_pkg_report_graph_error(pkgconf_pkg_t *parent, pkgconf_pkg_t *pkg, pkgcon
 		}
 
 		pkgconf_error("Package '%s', required by '%s', not found\n", node->package, parent->id);
+		pkgconf_audit_log("%s NOT-FOUND\n", node->package);
 	}
 	else if (eflags & PKGCONF_PKG_ERRF_PACKAGE_VER_MISMATCH)
 	{
@@ -897,6 +898,8 @@ pkgconf_pkg_walk_list(pkgconf_pkg_t *parent,
 			pkgconf_pkg_unref(pkgdep);
 			continue;
 		}
+
+		pkgconf_audit_log_dependency(pkgdep, depnode);
 
 		pkgdep->flags |= PKGCONF_PKG_PROPF_SEEN;
 		eflags |= pkgconf_pkg_traverse(pkgdep, func, data, depth - 1, flags);

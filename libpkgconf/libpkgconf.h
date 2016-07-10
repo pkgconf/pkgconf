@@ -154,7 +154,7 @@ pkgconf_pkg_t *pkgconf_pkg_find(const char *name, unsigned int flags);
 unsigned int pkgconf_pkg_traverse(pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags);
 unsigned int pkgconf_pkg_verify_graph(pkgconf_pkg_t *root, int depth, unsigned int flags);
 pkgconf_pkg_t *pkgconf_pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
-const char *pkgconf_pkg_get_comparator(pkgconf_dependency_t *pkgdep);
+const char *pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep);
 int pkgconf_pkg_cflags(pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 int pkgconf_pkg_libs(pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 pkgconf_pkg_comparator_t pkgconf_pkg_comparator_lookup_by_name(const char *name);
@@ -209,5 +209,6 @@ void pkgconf_cache_free(void);
 /* audit.c */
 void pkgconf_audit_open_log(FILE *auditf);
 void pkgconf_audit_log(const char *format, ...) PRINTFLIKE(1, 2);
+void pkgconf_audit_log_dependency(const pkgconf_pkg_t *dep, const pkgconf_dependency_t *depnode);
 
 #endif

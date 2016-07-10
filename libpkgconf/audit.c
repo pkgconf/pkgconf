@@ -28,7 +28,25 @@ pkgconf_audit_log(const char *format, ...)
 {
 	va_list va;
 
+	if (pkgconf_auditf == NULL)
+		return;
+
 	va_start(va, format);
 	vfprintf(pkgconf_auditf, format, va);
 	va_end(va);
+}
+
+void
+pkgconf_audit_log_dependency(const pkgconf_pkg_t *dep, const pkgconf_dependency_t *depnode)
+{
+	if (pkgconf_auditf == NULL)
+		return;
+
+	fprintf(pkgconf_auditf, "%s ", dep->id);
+	if (depnode->version != NULL && depnode->compare != PKGCONF_CMP_ANY)
+	{
+		fprintf(pkgconf_auditf, "%s %s ", pkgconf_pkg_get_comparator(depnode), depnode->version);
+	}
+
+	fprintf(pkgconf_auditf, "[%s]\n", dep->version);
 }
