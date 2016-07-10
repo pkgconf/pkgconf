@@ -57,6 +57,7 @@ EXTRA_DIST =	\
 
 pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h
 libpkgconf_la_SOURCES  =	\
+		libpkgconf/audit.c		\
 		libpkgconf/cache.c		\
 		libpkgconf/pkg.c		\
 		libpkgconf/bsdstubs.c		\

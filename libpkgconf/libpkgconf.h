@@ -206,4 +206,8 @@ void pkgconf_cache_add(pkgconf_pkg_t *pkg);
 void pkgconf_cache_remove(pkgconf_pkg_t *pkg);
 void pkgconf_cache_free(void);
 
+/* audit.c */
+void pkgconf_audit_open_log(FILE *auditf);
+void pkgconf_audit_log(const char *format, ...) PRINTFLIKE(1, 2);
+
 #endif

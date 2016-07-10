@@ -782,7 +782,10 @@ main(int argc, char *argv[])
 		logfile_arg = getenv("PKG_CONFIG_LOG");
 
 	if (logfile_arg != NULL)
+	{
 		logfile_out = fopen(logfile_arg, "w");
+		pkgconf_audit_open_log(logfile_out);
+	}
 
 	if (required_module_version != NULL)
 	{
