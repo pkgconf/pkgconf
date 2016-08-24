@@ -70,6 +70,20 @@ pkgconf_fragment_is_special(const char *string)
 	return pkgconf_fragment_is_unmergeable(string);
 }
 
+static inline void
+pkgconf_fragment_munge(char *buf, size_t buflen, const char *source, const char *sysroot_dir)
+{
+	*buf = '\0';
+
+	if (sysroot_dir == NULL)
+		sysroot_dir = pkgconf_tuple_find_global("pc_sysrootdir");
+
+	if (pkgconf_fragment_should_munge(source, sysroot_dir))
+		strlcat(buf, sysroot_dir, buflen);
+
+	strlcat(buf, source, buflen);
+}
+
 static inline char *
 pkgconf_fragment_copy_munged(const char *source, unsigned int flags)
 {
@@ -81,11 +95,7 @@ pkgconf_fragment_copy_munged(const char *source, unsigned int flags)
 
 	sysroot_dir = pkgconf_tuple_find_global("pc_sysrootdir");
 
-	if (!pkgconf_fragment_should_munge(source, sysroot_dir))
-		return strdup(source);
-
-	strlcpy(mungebuf, sysroot_dir, sizeof mungebuf);
-	strlcat(mungebuf, source, sizeof mungebuf);
+	pkgconf_fragment_munge(mungebuf, sizeof mungebuf, source, sysroot_dir);
 
 	return strdup(mungebuf);
 }
@@ -104,19 +114,25 @@ pkgconf_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flag
 	}
 	else
 	{
+		char mungebuf[PKGCONF_BUFSIZE];
+
 		if (list->tail != NULL && list->tail->data != NULL)
 		{
 			pkgconf_fragment_t *parent = list->tail->data;
 
 			if (pkgconf_fragment_is_unmergeable(parent->data))
 			{
-				size_t len = strlen(parent->data) + strlen(string) + 2;
+				size_t len;
 				char *newdata;
 
+				pkgconf_fragment_munge(mungebuf, sizeof mungebuf, string, NULL);
+
+				len = strlen(parent->data) + strlen(mungebuf) + 2;
 				newdata = malloc(len);
+
 				strlcpy(newdata, parent->data, len);
 				strlcat(newdata, " ", len);
-				strlcat(newdata, string, len);
+				strlcat(newdata, mungebuf, len);
 
 				free(parent->data);
 				parent->data = newdata;
