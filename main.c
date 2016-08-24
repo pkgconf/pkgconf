@@ -251,6 +251,49 @@ print_requires_private(pkgconf_pkg_t *pkg)
 }
 
 static void
+print_provides(pkgconf_pkg_t *pkg)
+{
+#ifdef NOTYET
+	pkgconf_node_t *node;
+
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->provides.head, node)
+	{
+		pkgconf_dependency_t *dep = node->data;
+
+		printf("%s", dep->package);
+
+		if (dep->version != NULL)
+			printf(" %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
+
+		printf("\n");
+	}
+#endif
+
+	printf("%s = %s\n", pkg->id, pkg->version);
+}
+
+static bool
+apply_provides(pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+{
+	pkgconf_node_t *iter;
+	(void) unused;
+	(void) maxdepth;
+
+	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	{
+		pkgconf_pkg_t *pkg;
+		pkgconf_dependency_t *dep = iter->data;
+
+		pkg = pkgconf_pkg_verify_dependency(dep, flags, NULL);
+		print_provides(pkg);
+
+		pkgconf_pkg_free(pkg);
+	}
+
+	return true;
+}
+
+static void
 print_digraph_node(pkgconf_pkg_t *pkg, void *unused, unsigned int flags)
 {
 	pkgconf_node_t *node;
@@ -937,10 +980,13 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_PROVIDES) == PKG_PROVIDES)
 	{
-		fprintf(stderr, "pkgconf: warning: --print-provides requested which is intentionally unimplemented, along with\n");
-		fprintf(stderr, "  the rest of the Provides system.  The Provides system is broken by design and requires loading every\n");
-		fprintf(stderr, "  package module to calculate the dependency graph.  In practice, there are no consumers of this system\n");
-		fprintf(stderr, "  so it will remain unimplemented until such time that something actually uses it.\n");
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
+
+		if (!pkgconf_queue_apply(&pkgq, apply_provides, maximum_traverse_depth, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	if ((want_flags & PKG_DIGRAPH) == PKG_DIGRAPH)
