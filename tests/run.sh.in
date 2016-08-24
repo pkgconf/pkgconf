@@ -289,6 +289,9 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=typelibdir --define-
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --print-provides foo" \
 	"foo = 1.2.3"
 
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='/test' ${1} --cflags isystem" \
+	"-isystem /test/opt/bad/include"
+
 # 10) tests for internal getopt implementation with options at the end
 if [ "x@STRICT_MODE@" = "xno" ]; then
 	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} foo --libs" \
