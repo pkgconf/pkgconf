@@ -1,8 +1,17 @@
 Changes from previous version of pkgconf
 ========================================
 
-Changes from 0.9.12:
---------------------
+Changes from 1.0.0 to 1.0.1:
+----------------------------
+
+* Enhancements:
+  - new stub implementation of --print-provides (#95)
+
+* Bug fixes:
+  - fragments: fix an edge case involving path-only fragments and PKG_CONFIG_SYSROOT_DIR (#94)
+
+Changes from 0.9.12 to 1.0.0:
+-----------------------------
 
 * Features:
   - new library: libpkgconf
