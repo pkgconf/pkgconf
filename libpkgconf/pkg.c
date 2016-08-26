@@ -766,7 +766,7 @@ typedef struct {
 	pkgconf_pkg_comparator_t compare;
 } pkgconf_pkg_comparator_name_t;
 
-static pkgconf_pkg_comparator_name_t pkgconf_pkg_comparator_names[PKGCONF_CMP_SIZE + 1] = {
+static const pkgconf_pkg_comparator_name_t pkgconf_pkg_comparator_names[PKGCONF_CMP_SIZE + 1] = {
 	{"<",		PKGCONF_CMP_LESS_THAN},
 	{">",		PKGCONF_CMP_GREATER_THAN},
 	{"<=",		PKGCONF_CMP_LESS_THAN_EQUAL},
@@ -823,7 +823,7 @@ static bool pkgconf_pkg_comparator_unimplemented(pkgconf_pkg_t *pkg, pkgconf_dep
 	return false;
 }
 
-static pkgconf_vercmp_res_func_t pkgconf_pkg_comparator_impls[PKGCONF_CMP_SIZE + 1] = {
+static const pkgconf_vercmp_res_func_t pkgconf_pkg_comparator_impls[PKGCONF_CMP_SIZE + 1] = {
 	[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_any,
 	[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_lt,
 	[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_gt,
