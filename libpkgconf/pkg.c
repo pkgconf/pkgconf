@@ -480,6 +480,10 @@ pkgconf_pkg_find(const char *name, unsigned int flags)
 		}
 	}
 
+	/* check builtins */
+	if ((pkg = pkgconf_builtin_pkg_get(name)) != NULL)
+		return pkg;
+
 	/* check cache */
 	if (!(flags & PKGCONF_PKG_PKGF_NO_CACHE))
 	{
@@ -660,6 +664,52 @@ static pkgconf_pkg_t pkg_config_virtual = {
 	},
 };
 
+static pkgconf_pkg_t pkgconf_virtual = {
+	.id = "pkgconf",
+	.realname = "pkgconf",
+	.description = "virtual package defining pkgconf API version supported",
+	.url = PACKAGE_BUGREPORT,
+	.version = PACKAGE_VERSION,
+	.flags = PKGCONF_PKG_PROPF_VIRTUAL,
+	.vars = {
+		.head = &(pkgconf_node_t){
+			.prev = NULL,
+			.next = NULL,
+			.data = &(pkgconf_tuple_t){
+				.key = "pc_path",
+				.value = PKG_DEFAULT_PATH,
+			},
+		},
+		.tail = NULL,
+	},
+};
+
+typedef struct {
+	const char *name;
+	pkgconf_pkg_t *pkg;
+} pkgconf_builtin_pkg_pair_t;
+
+/* keep these in alphabetical order */
+static const pkgconf_builtin_pkg_pair_t pkgconf_builtin_pkg_pair_set[] = {
+	{"pkg-config", &pkg_config_virtual},
+	{"pkgconf", &pkgconf_virtual},
+};
+
+static int pkgconf_builtin_pkg_pair_cmp(const void *key, const void *ptr)
+{
+	const pkgconf_builtin_pkg_pair_t *pair = ptr;
+	return strcasecmp(key, pair->name);
+}
+
+pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name)
+{
+	const pkgconf_builtin_pkg_pair_t *pair = bsearch(name, pkgconf_builtin_pkg_pair_set,
+		PKGCONF_ARRAY_SIZE(pkgconf_builtin_pkg_pair_set), sizeof(pkgconf_builtin_pkg_pair_t),
+		pkgconf_builtin_pkg_pair_cmp);
+
+	return (pair != NULL) ? pair->pkg : NULL;
+}
+
 typedef bool (*pkgconf_vercmp_res_func_t)(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep);
 
 typedef struct {
@@ -786,22 +836,18 @@ pkgconf_pkg_comparator_lookup_by_name(const char *name)
 pkgconf_pkg_t *
 pkgconf_pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
 {
-	pkgconf_pkg_t *pkg = &pkg_config_virtual;
+	pkgconf_pkg_t *pkg = NULL;
 
 	if (eflags != NULL)
 		*eflags = PKGCONF_PKG_ERRF_OK;
 
-	/* pkg-config package name is special cased. */
-	if (strcasecmp(pkgdep->package, "pkg-config"))
+	pkg = pkgconf_pkg_find(pkgdep->package, flags);
+	if (pkg == NULL)
 	{
-		pkg = pkgconf_pkg_find(pkgdep->package, flags);
-		if (pkg == NULL)
-		{
-			if (eflags != NULL)
-				*eflags |= PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND;
+		if (eflags != NULL)
+			*eflags |= PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND;
 
-			return NULL;
-		}
+		return NULL;
 	}
 
 	if (pkg->id == NULL)

@@ -158,6 +158,7 @@ const char *pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep);
 int pkgconf_pkg_cflags(pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 int pkgconf_pkg_libs(pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 pkgconf_pkg_comparator_t pkgconf_pkg_comparator_lookup_by_name(const char *name);
+pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name);
 
 int pkgconf_compare_version(const char *a, const char *b);
 void pkgconf_scan_all(pkgconf_pkg_iteration_func_t func);
