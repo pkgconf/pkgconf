@@ -253,7 +253,6 @@ print_requires_private(pkgconf_pkg_t *pkg)
 static void
 print_provides(pkgconf_pkg_t *pkg)
 {
-#ifdef NOTYET
 	pkgconf_node_t *node;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->provides.head, node)
@@ -267,7 +266,6 @@ print_provides(pkgconf_pkg_t *pkg)
 
 		printf("\n");
 	}
-#endif
 
 	printf("%s = %s\n", pkg->id, pkg->version);
 }

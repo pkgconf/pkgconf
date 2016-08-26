@@ -98,6 +98,7 @@ struct pkgconf_pkg_ {
 	pkgconf_list_t requires;
 	pkgconf_list_t requires_private;
 	pkgconf_list_t conflicts;
+	pkgconf_list_t provides;
 
 	pkgconf_list_t vars;
 
