@@ -194,6 +194,72 @@ pkgconf_pkg_dir_list_build(unsigned int flags)
 	}
 }
 
+typedef void (*pkgconf_pkg_parser_keyword_func_t)(pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags);
+typedef struct {
+	const char *keyword;
+	const pkgconf_pkg_parser_keyword_func_t func;
+	const ptrdiff_t offset;
+} pkgconf_pkg_parser_keyword_pair_t;
+
+static int pkgconf_pkg_parser_keyword_pair_cmp(const void *key, const void *ptr)
+{
+	const pkgconf_pkg_parser_keyword_pair_t *pair = ptr;
+	return strcasecmp(key, pair->keyword);
+}
+
+static void
+pkgconf_pkg_parser_tuple_func(pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
+{
+	char **dest = ((void *) pkg + offset);
+	(void) flags;
+
+	*dest = pkgconf_tuple_parse(&pkg->vars, value);
+}
+
+static void
+pkgconf_pkg_parser_fragment_func(pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
+{
+	pkgconf_list_t *dest = ((void *) pkg + offset);
+	pkgconf_fragment_parse(dest, &pkg->vars, value, flags);
+}
+
+static void
+pkgconf_pkg_parser_dependency_func(pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
+{
+	pkgconf_list_t *dest = ((void *) pkg + offset);
+	(void) flags;
+
+	pkgconf_dependency_parse(pkg, dest, value);
+}
+
+/* keep this in alphabetical order */
+static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[] = {
+	{"CFLAGS", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, cflags)},
+	{"CFLAGS.private", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, cflags_private)},
+	{"Conflicts", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, conflicts)},
+	{"Description", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, description)},
+	{"LIBS", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs)},
+	{"LIBS.private", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs_private)},
+	{"Name", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, realname)},
+	{"Requires", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, requires)},
+	{"Requires.private", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
+	{"Version", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, version)},
+};
+
+static bool
+pkgconf_pkg_parser_keyword_set(pkgconf_pkg_t *pkg, const char *keyword, char *value, unsigned int flags)
+{
+	const pkgconf_pkg_parser_keyword_pair_t *pair = bsearch(keyword,
+		pkgconf_pkg_parser_keyword_funcs, PKGCONF_ARRAY_SIZE(pkgconf_pkg_parser_keyword_funcs),
+		sizeof(pkgconf_pkg_parser_keyword_pair_t), pkgconf_pkg_parser_keyword_pair_cmp);
+
+	if (pair == NULL || pair->func == NULL)
+		return false;
+
+	pair->func(pkg, pair->offset, value, flags);
+	return true;
+}
+
 /*
  * pkgconf_pkg_new_from_file(filename, file, flags)
  *
@@ -251,26 +317,9 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 		switch (op)
 		{
 		case ':':
-			if (!strcmp(key, "Name"))
-				pkg->realname = pkgconf_tuple_parse(&pkg->vars, value);
-			else if (!strcmp(key, "Description"))
-				pkg->description = pkgconf_tuple_parse(&pkg->vars, value);
-			else if (!strcmp(key, "Version"))
-				pkg->version = pkgconf_tuple_parse(&pkg->vars, value);
-			else if (!strcasecmp(key, "CFLAGS"))
-				pkgconf_fragment_parse(&pkg->cflags, &pkg->vars, value, flags);
-			else if (!strcasecmp(key, "CFLAGS.private"))
-				pkgconf_fragment_parse(&pkg->cflags_private, &pkg->vars, value, flags);
-			else if (!strcasecmp(key, "LIBS"))
-				pkgconf_fragment_parse(&pkg->libs, &pkg->vars, value, flags);
-			else if (!strcasecmp(key, "LIBS.private"))
-				pkgconf_fragment_parse(&pkg->libs_private, &pkg->vars, value, flags);
-			else if (!strcmp(key, "Requires"))
-				pkgconf_dependency_parse(pkg, &pkg->requires, value);
-			else if (!strcmp(key, "Requires.private"))
-				pkgconf_dependency_parse(pkg, &pkg->requires_private, value);
-			else if (!strcmp(key, "Conflicts"))
-				pkgconf_dependency_parse(pkg, &pkg->conflicts, value);
+			if (!pkgconf_pkg_parser_keyword_set(pkg, key, value, flags))
+				/* XXX: warning? */
+				;
 			break;
 		case '=':
 			pkgconf_tuple_add(&pkg->vars, key, value, true);
