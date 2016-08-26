@@ -626,6 +626,7 @@ usage(void)
 	printf("  --print-requires                  print required dependency frameworks to stdout\n");
 	printf("  --print-requires-private          print required dependency frameworks for static\n");
 	printf("                                    linking to stdout\n");
+	printf("  --print-provides                  print provided dependencies to stdout\n");
 	printf("  --print-variables                 print all known variables in module to stdout\n");
 	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
 	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", SYSTEM_INCLUDEDIR);
