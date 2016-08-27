@@ -331,6 +331,9 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 	}
 
 	fclose(f);
+
+	pkgconf_dependency_add(&pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL);
+
 	return pkgconf_pkg_ref(pkg);
 }
 

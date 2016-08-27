@@ -266,8 +266,6 @@ print_provides(pkgconf_pkg_t *pkg)
 
 		printf("\n");
 	}
-
-	printf("%s = %s\n", pkg->id, pkg->version);
 }
 
 static bool
