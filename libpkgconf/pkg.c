@@ -417,15 +417,16 @@ pkgconf_pkg_try_specific_path(const char *path, const char *name, unsigned int f
 	return pkg;
 }
 
-static void
-pkgconf_pkg_scan_dir(const char *path, pkgconf_pkg_iteration_func_t func)
+static pkgconf_pkg_t *
+pkgconf_pkg_scan_dir(const char *path, void *data, pkgconf_pkg_iteration_func_t func)
 {
 	DIR *dir;
 	struct dirent *dirent;
+	pkgconf_pkg_t *outpkg = NULL;
 
 	dir = opendir(path);
 	if (dir == NULL)
-		return;
+		return NULL;
 
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
 	{
@@ -449,18 +450,26 @@ pkgconf_pkg_scan_dir(const char *path, pkgconf_pkg_iteration_func_t func)
 		pkg = pkgconf_pkg_new_from_file(filebuf, f, 0);
 		if (pkg != NULL)
 		{
-			func(pkg);
+			if (func(pkg, data))
+			{
+				outpkg = pkg;
+				goto out;
+			}
+
 			pkgconf_pkg_unref(pkg);
 		}
 	}
 
+out:
 	closedir(dir);
+	return outpkg;
 }
 
-void
-pkgconf_scan_all(pkgconf_pkg_iteration_func_t func)
+pkgconf_pkg_t *
+pkgconf_scan_all(void *data, pkgconf_pkg_iteration_func_t func)
 {
 	pkgconf_node_t *n;
+	pkgconf_pkg_t *pkg;
 
 	pkgconf_pkg_dir_list_build(0);
 
@@ -468,8 +477,11 @@ pkgconf_scan_all(pkgconf_pkg_iteration_func_t func)
 	{
 		pkg_path_t *pkg_path = n->data;
 
-		pkgconf_pkg_scan_dir(pkg_path->path, func);
+		if ((pkg = pkgconf_pkg_scan_dir(pkg_path->path, data, func)) != NULL)
+			return pkg;
 	}
+
+	return NULL;
 }
 
 #ifdef _WIN32

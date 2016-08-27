@@ -125,22 +125,30 @@ print_fragment(pkgconf_fragment_t *frag)
 		printf("%s ", frag->data);
 }
 
-static void
-print_list_entry(const pkgconf_pkg_t *entry)
+static bool
+print_list_entry(const pkgconf_pkg_t *entry, void *data)
 {
+	(void) data;
+
 	if (entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED)
-		return;
+		return false;
 
 	printf("%-30s %s - %s\n", entry->id, entry->realname, entry->description);
+
+	return false;
 }
 
-static void
-print_package_entry(const pkgconf_pkg_t *entry)
+static bool
+print_package_entry(const pkgconf_pkg_t *entry, void *data)
 {
+	(void) data;
+
 	if (entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED)
-		return;
+		return false;
 
 	printf("%s\n", entry->id);
+
+	return false;
 }
 
 static void
@@ -818,13 +826,13 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_LIST) == PKG_LIST)
 	{
-		pkgconf_scan_all(print_list_entry);
+		pkgconf_scan_all(NULL, print_list_entry);
 		return EXIT_SUCCESS;
 	}
 
 	if ((want_flags & PKG_LIST_PACKAGE_NAMES) == PKG_LIST_PACKAGE_NAMES)
 	{
-		pkgconf_scan_all(print_package_entry);
+		pkgconf_scan_all(NULL, print_package_entry);
 		return EXIT_SUCCESS;
 	}
 

@@ -126,7 +126,7 @@ struct pkgconf_pkg_ {
 #define PKGCONF_PKG_ERRF_PACKAGE_CONFLICT	0x4
 #define PKGCONF_PKG_ERRF_DEPGRAPH_BREAK		0x8
 
-typedef void (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg);
+typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
 typedef void (*pkgconf_pkg_traverse_func_t)(pkgconf_pkg_t *pkg, void *data, unsigned int flags);
 typedef bool (*pkgconf_queue_apply_func_t)(pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags);
 typedef bool (*pkgconf_error_handler_func_t)(const char *msg);
@@ -160,7 +160,7 @@ pkgconf_pkg_comparator_t pkgconf_pkg_comparator_lookup_by_name(const char *name)
 pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name);
 
 int pkgconf_compare_version(const char *a, const char *b);
-void pkgconf_scan_all(pkgconf_pkg_iteration_func_t func);
+pkgconf_pkg_t *pkgconf_scan_all(void *ptr, pkgconf_pkg_iteration_func_t func);
 
 /* parse.c */
 pkgconf_pkg_t *pkgconf_pkg_new_from_file(const char *path, FILE *f, unsigned int flags);
