@@ -36,7 +36,7 @@ typedef enum {
 #define DEBUG_PARSE 0
 
 static inline pkgconf_dependency_t *
-pkgconf_dependency_add(pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare)
+pkgconf_dependency_addraw(pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare)
 {
 	pkgconf_dependency_t *dep;
 
@@ -51,6 +51,15 @@ pkgconf_dependency_add(pkgconf_list_t *list, const char *package, size_t package
 	pkgconf_node_insert_tail(&dep->iter, dep, list);
 
 	return dep;
+}
+
+pkgconf_dependency_t *
+pkgconf_dependency_add(pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare)
+{
+	if (version != NULL)
+		return pkgconf_dependency_addraw(list, package, strlen(package), version, strlen(version), compare);
+
+	return pkgconf_dependency_addraw(list, package, strlen(package), NULL, 0, compare);
 }
 
 void
@@ -146,7 +155,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 
 			if (state == OUTSIDE_MODULE)
 			{
-				pkgconf_dependency_add(deplist_head, package, package_sz, NULL, 0, compare);
+				pkgconf_dependency_addraw(deplist_head, package, package_sz, NULL, 0, compare);
 
 				compare = PKGCONF_CMP_ANY;
 				package_sz = 0;
@@ -190,7 +199,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 				version_sz = ptr - vstart;
 				state = OUTSIDE_MODULE;
 
-				pkgconf_dependency_add(deplist_head, package, package_sz, version, version_sz, compare);
+				pkgconf_dependency_addraw(deplist_head, package, package_sz, version, version_sz, compare);
 
 				compare = PKGCONF_CMP_ANY;
 				cnameptr = cmpname;

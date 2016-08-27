@@ -168,6 +168,7 @@ void pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depe
 void pkgconf_dependency_parse(pkgconf_pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
 void pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail);
 void pkgconf_dependency_free(pkgconf_list_t *list);
+pkgconf_dependency_t *pkgconf_dependency_add(pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare);
 
 /* argvsplit.c */
 int pkgconf_argv_split(const char *src, int *argc, char ***argv);
