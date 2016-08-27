@@ -54,7 +54,8 @@ EXTRA_DIST =	\
 		tests/lib1/omg-uninstalled.pc \
 		tests/lib1/isystem.pc \
 		tests/lib1/depgraph-break.pc \
-		tests/lib1/cflags-whitespace.pc
+		tests/lib1/cflags-whitespace.pc \
+		tests/lib1/provides.pc
 
 pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h
 libpkgconf_la_SOURCES  =	\

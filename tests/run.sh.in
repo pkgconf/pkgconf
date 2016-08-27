@@ -286,8 +286,8 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags prefix-foo1 prefix-foo
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=typelibdir --define-variable='libdir=\${libdir}' typelibdir" \
 	"\${libdir}/typelibdir"
 
-run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --print-provides foo" \
-	"foo = 1.2.3"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --print-provides provides" \
+	"provides = 1.2.3" "provides-test-foo = 1.0.0" "provides-test-baz >= 1.1.0" "provides-test-moo <= 1.2.0"
 
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='/test' ${1} --cflags isystem" \
 	"-isystem /test/opt/bad/include"
