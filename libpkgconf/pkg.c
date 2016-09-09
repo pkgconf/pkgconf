@@ -775,7 +775,7 @@ pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name)
 	return (pair != NULL) ? pair->pkg : NULL;
 }
 
-typedef bool (*pkgconf_vercmp_res_func_t)(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep);
+typedef bool (*pkgconf_vercmp_res_func_t)(const char *a, const char *b);
 
 typedef struct {
 	const char *name;
@@ -798,40 +798,40 @@ static int pkgconf_pkg_comparator_pair_namecmp(const void *key, const void *ptr)
 	return strcmp(key, pair->name);
 }
 
-static bool pkgconf_pkg_comparator_lt(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_lt(const char *a, const char *b)
 {
-	return (pkgconf_compare_version(pkg->version, pkgdep->version) < 0);
+	return (pkgconf_compare_version(a, b) < 0);
 }
 
-static bool pkgconf_pkg_comparator_gt(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_gt(const char *a, const char *b)
 {
-	return (pkgconf_compare_version(pkg->version, pkgdep->version) > 0);
+	return (pkgconf_compare_version(a, b) > 0);
 }
 
-static bool pkgconf_pkg_comparator_lte(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_lte(const char *a, const char *b)
 {
-	return (pkgconf_compare_version(pkg->version, pkgdep->version) <= 0);
+	return (pkgconf_compare_version(a, b) <= 0);
 }
 
-static bool pkgconf_pkg_comparator_gte(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_gte(const char *a, const char *b)
 {
-	return (pkgconf_compare_version(pkg->version, pkgdep->version) >= 0);
+	return (pkgconf_compare_version(a, b) >= 0);
 }
 
-static bool pkgconf_pkg_comparator_eq(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_eq(const char *a, const char *b)
 {
-	return (pkgconf_compare_version(pkg->version, pkgdep->version) == 0);
+	return (pkgconf_compare_version(a, b) == 0);
 }
 
-static bool pkgconf_pkg_comparator_ne(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_ne(const char *a, const char *b)
 {
-	return (pkgconf_compare_version(pkg->version, pkgdep->version) != 0);
+	return (pkgconf_compare_version(a, b) != 0);
 }
 
-static bool pkgconf_pkg_comparator_any(pkgconf_pkg_t *pkg, pkgconf_dependency_t *pkgdep)
+static bool pkgconf_pkg_comparator_any(const char *a, const char *b)
 {
-	(void) pkg;
-	(void) pkgdep;
+	(void) a;
+	(void) b;
 
 	return true;
 }
@@ -966,7 +966,7 @@ pkgconf_pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, 
 	if (pkg->id == NULL)
 		pkg->id = strdup(pkgdep->package);
 
-	if (pkgconf_pkg_comparator_impls[pkgdep->compare](pkg, pkgdep) == true)
+	if (pkgconf_pkg_comparator_impls[pkgdep->compare](pkg->version, pkgdep->version) == true)
 		return pkg;
 
 	if (eflags != NULL)
