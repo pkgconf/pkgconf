@@ -316,6 +316,105 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-foo > 1.0
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-foo < 1.0.0'; echo \$?" \
 	"1"
 
+# provides-test-bar > 1.1.0
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar = 1.1.1'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar >= 1.1.1'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar <= 1.1.1'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar != 1.1.0'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar != 1.1.1'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar > 1.1.1'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar <= 1.1.0'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar < 1.2.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar > 1.2.0'; echo \$?" \
+	"0"
+
+# provides-test-baz >= 1.1.0
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-baz'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-baz = 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-baz >= 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-baz <= 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-baz != 1.1.0'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-baz != 1.0.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-baz > 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-baz < 1.1.0'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-baz < 1.2.0'; echo \$?" \
+	"0"
+
+# provides-test-quux < 1.2.0
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux = 1.1.9'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux >= 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux >= 1.1.9'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux >= 1.2.0'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux <= 1.2.0'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux <= 1.1.9'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux != 1.2.0'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux != 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux != 1.0.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux > 1.1.9'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux > 1.2.0'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux < 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux < 1.2.0'; echo \$?" \
+	"1"
+
+# provides-test-moo <= 1.2.0
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo = 1.2.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo >= 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo >= 1.2.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo >= 1.2.1'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo <= 1.2.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo != 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo != 1.0.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo > 1.1.9'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo > 1.2.0'; echo \$?" \
+	"1"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo < 1.1.0'; echo \$?" \
+	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo < 1.2.0'; echo \$?" \
+	"0"
+
+
 # 11) tests for internal getopt implementation with options at the end
 if [ "x@STRICT_MODE@" = "xno" ]; then
 	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} foo --libs" \
