@@ -33,6 +33,8 @@ typedef enum {
 	PKGCONF_CMP_GREATER_THAN_EQUAL
 } pkgconf_pkg_comparator_t;
 
+#define PKGCONF_CMP_COUNT 7
+
 typedef struct pkgconf_pkg_ pkgconf_pkg_t;
 typedef struct pkgconf_dependency_ pkgconf_dependency_t;
 typedef struct pkgconf_tuple_ pkgconf_tuple_t;

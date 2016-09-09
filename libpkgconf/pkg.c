@@ -881,14 +881,55 @@ typedef struct {
 	unsigned int flags;
 } pkgconf_pkg_scan_providers_ctx_t;
 
+typedef struct {
+	const pkgconf_vercmp_res_func_t depcmp;
+	const pkgconf_vercmp_res_func_t rulecmp[PKGCONF_CMP_COUNT];
+} pkgconf_pkg_provides_vermatch_rule_t;
+
+static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_rules[] = {
+	[PKGCONF_CMP_ANY] = {
+		.depcmp = pkgconf_pkg_comparator_any,
+		.rulecmp = {
+			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_any,
+			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_any,
+			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_any,
+			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_any,
+			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_any,
+			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_any,
+			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_any,
+		}
+	},
+};
+
+/*
+ * pkgconf_pkg_scan_provides_vercmp(pkgdep, provider)
+ *
+ * compare a provides node against the requested dependency node.
+ *
+ * XXX: handle PKGCONF_CMP_ANY in a versioned comparison
+ */
+static bool
+pkgconf_pkg_scan_provides_vercmp(const pkgconf_dependency_t *pkgdep, const pkgconf_dependency_t *provider)
+{
+	const pkgconf_pkg_provides_vermatch_rule_t *rule = &pkgconf_pkg_provides_vermatch_rules[pkgdep->compare];
+
+	if (rule == NULL)
+		return false;
+
+	if (!rule->depcmp(pkgdep->version, provider->version))
+		return false;
+
+	if (rule->rulecmp[provider->compare] != NULL &&
+	    !rule->rulecmp[provider->compare](provider->version, pkgdep->version))
+		return false;
+
+	return true;
+}
+
 /*
  * pkgconf_pkg_scan_provides_entry(pkg, ctx)
  *
  * attempt to match a single package's Provides rules against the requested dependency node.
- *
- * XXX: implement support for version comparisons using backwards dependency version checks,
- *      right now, we only support Provides rules that are PKGCONF_CMP_ANY as this is still
- *      proof-of-concept.
  */
 static bool
 pkgconf_pkg_scan_provides_entry(const pkgconf_pkg_t *pkg, const pkgconf_pkg_scan_providers_ctx_t *ctx)
@@ -896,16 +937,11 @@ pkgconf_pkg_scan_provides_entry(const pkgconf_pkg_t *pkg, const pkgconf_pkg_scan
 	const pkgconf_dependency_t *pkgdep = ctx->pkgdep;
 	pkgconf_node_t *node;
 
-	switch (pkgdep->compare)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->provides.head, node)
 	{
-	case PKGCONF_CMP_ANY:
-		PKGCONF_FOREACH_LIST_ENTRY(pkg->provides.head, node)
-		{
-			const pkgconf_dependency_t *provider = node->data;
-			if (!strcmp(provider->package, pkgdep->package))
-				return true;
-		}
-		break;
+		const pkgconf_dependency_t *provider = node->data;
+		if (!strcmp(provider->package, pkgdep->package))
+			return pkgconf_pkg_scan_provides_vercmp(pkgdep, provider);
 	}
 
 	return false;
