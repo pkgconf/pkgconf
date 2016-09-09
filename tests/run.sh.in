@@ -326,9 +326,9 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar >= 1.
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar <= 1.1.1'; echo \$?" \
 	"0"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar != 1.1.0'; echo \$?" \
-	"1"
-run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar != 1.1.1'; echo \$?" \
 	"0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar != 1.1.1'; echo \$?" \
+	"1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar > 1.1.1'; echo \$?" \
 	"0"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-bar <= 1.1.0'; echo \$?" \
@@ -374,11 +374,11 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux <= 1
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux <= 1.1.9'; echo \$?" \
 	"0"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux != 1.2.0'; echo \$?" \
-	"1"
+	"0"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux != 1.1.0'; echo \$?" \
-	"0"
+	"1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux != 1.0.0'; echo \$?" \
-	"0"
+	"1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux > 1.1.9'; echo \$?" \
 	"0"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-quux > 1.2.0'; echo \$?" \
@@ -402,9 +402,9 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo >= 1.
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo <= 1.2.0'; echo \$?" \
 	"0"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo != 1.1.0'; echo \$?" \
-	"0"
+	"1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo != 1.0.0'; echo \$?" \
-	"0"
+	"1"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo > 1.1.9'; echo \$?" \
 	"0"
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-moo > 1.2.0'; echo \$?" \

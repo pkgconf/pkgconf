@@ -988,10 +988,10 @@ static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_
 		.depcmp = pkgconf_pkg_comparator_ne,
 		.rulecmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
-			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_ne,
-			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_ne,
-			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_ne,
-			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_ne,
+			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_gte,
+			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_lte,
+			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_gt,
+			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_lt,
 			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_ne,
 			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_eq
 		}
