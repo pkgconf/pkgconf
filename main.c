@@ -16,37 +16,38 @@
 #include <libpkgconf/libpkgconf.h>
 #include "getopt_long.h"
 
-#define PKG_CFLAGS_ONLY_I		(uint64_t)(1<<2)
-#define PKG_CFLAGS_ONLY_OTHER		(uint64_t)(1<<3)
-#define PKG_CFLAGS			(uint64_t)(PKG_CFLAGS_ONLY_I|PKG_CFLAGS_ONLY_OTHER)
-#define PKG_LIBS_ONLY_LDPATH		(uint64_t)(1<<5)
-#define PKG_LIBS_ONLY_LIBNAME		(uint64_t)(1<<6)
-#define PKG_LIBS_ONLY_OTHER		(uint64_t)(1<<7)
-#define PKG_LIBS			(uint64_t)(PKG_LIBS_ONLY_LDPATH|PKG_LIBS_ONLY_LIBNAME|PKG_LIBS_ONLY_OTHER)
-#define PKG_MODVERSION			(uint64_t)(1<<8)
-#define PKG_REQUIRES			(uint64_t)(1<<9)
-#define PKG_REQUIRES_PRIVATE		(uint64_t)(1<<10)
-#define PKG_VARIABLES			(uint64_t)(1<<11)
-#define PKG_DIGRAPH			(uint64_t)(1<<12)
-#define PKG_KEEP_SYSTEM_CFLAGS		(uint64_t)(1<<13)
-#define PKG_KEEP_SYSTEM_LIBS		(uint64_t)(1<<14)
-#define PKG_VERSION			(uint64_t)(1<<15)
-#define PKG_ABOUT			(uint64_t)(1<<16)
-#define PKG_ENV_ONLY			(uint64_t)(1<<17)
-#define PKG_ERRORS_ON_STDOUT		(uint64_t)(1<<18)
-#define PKG_SILENCE_ERRORS		(uint64_t)(1<<19)
-#define PKG_IGNORE_CONFLICTS		(uint64_t)(1<<20)
-#define PKG_STATIC			(uint64_t)(1<<21)
-#define PKG_NO_UNINSTALLED		(uint64_t)(1<<22)
-#define PKG_UNINSTALLED			(uint64_t)(1<<23)
-#define PKG_LIST			(uint64_t)(1<<24)
-#define PKG_HELP			(uint64_t)(1<<25)
-#define PKG_PRINT_ERRORS		(uint64_t)(1<<26)
-#define PKG_SIMULATE			(uint64_t)(1<<27)
-#define PKG_NO_CACHE			(uint64_t)(1<<28)
-#define PKG_PROVIDES			(uint64_t)(1<<29)
-#define PKG_VALIDATE			(uint64_t)(1<<30)
-#define PKG_LIST_PACKAGE_NAMES		(uint64_t)(1<<31)
+#define PKG_CFLAGS_ONLY_I		(((uint64_t) 1) << 2)
+#define PKG_CFLAGS_ONLY_OTHER		(((uint64_t) 1) << 3)
+#define PKG_CFLAGS			(PKG_CFLAGS_ONLY_I|PKG_CFLAGS_ONLY_OTHER)
+#define PKG_LIBS_ONLY_LDPATH		(((uint64_t) 1) << 5)
+#define PKG_LIBS_ONLY_LIBNAME		(((uint64_t) 1) << 6)
+#define PKG_LIBS_ONLY_OTHER		(((uint64_t) 1) << 7)
+#define PKG_LIBS			(PKG_LIBS_ONLY_LDPATH|PKG_LIBS_ONLY_LIBNAME|PKG_LIBS_ONLY_OTHER)
+#define PKG_MODVERSION			(((uint64_t) 1) << 8)
+#define PKG_REQUIRES			(((uint64_t) 1) << 9)
+#define PKG_REQUIRES_PRIVATE		(((uint64_t) 1) << 10)
+#define PKG_VARIABLES			(((uint64_t) 1) << 11)
+#define PKG_DIGRAPH			(((uint64_t) 1) << 12)
+#define PKG_KEEP_SYSTEM_CFLAGS		(((uint64_t) 1) << 13)
+#define PKG_KEEP_SYSTEM_LIBS		(((uint64_t) 1) << 14)
+#define PKG_VERSION			(((uint64_t) 1) << 15)
+#define PKG_ABOUT			(((uint64_t) 1) << 16)
+#define PKG_ENV_ONLY			(((uint64_t) 1) << 17)
+#define PKG_ERRORS_ON_STDOUT		(((uint64_t) 1) << 18)
+#define PKG_SILENCE_ERRORS		(((uint64_t) 1) << 19)
+#define PKG_IGNORE_CONFLICTS		(((uint64_t) 1) << 20)
+#define PKG_STATIC			(((uint64_t) 1) << 21)
+#define PKG_NO_UNINSTALLED		(((uint64_t) 1) << 22)
+#define PKG_UNINSTALLED			(((uint64_t) 1) << 23)
+#define PKG_LIST			(((uint64_t) 1) << 24)
+#define PKG_HELP			(((uint64_t) 1) << 25)
+#define PKG_PRINT_ERRORS		(((uint64_t) 1) << 26)
+#define PKG_SIMULATE			(((uint64_t) 1) << 27)
+#define PKG_NO_CACHE			(((uint64_t) 1) << 28)
+#define PKG_PROVIDES			(((uint64_t) 1) << 29)
+#define PKG_VALIDATE			(((uint64_t) 1) << 30)
+#define PKG_LIST_PACKAGE_NAMES		(((uint64_t) 1) << 31)
+#define PKG_NO_PROVIDES			(((uint64_t) 1) << 32)
 
 static unsigned int global_traverse_flags = PKGCONF_PKG_PKGF_NONE;
 
@@ -611,6 +612,7 @@ usage(void)
 	printf("  --exists                          check whether or not a module exists\n");
 	printf("  --uninstalled                     check whether or not an uninstalled module will be used\n");
 	printf("  --no-uninstalled                  never use uninstalled modules when satisfying dependencies\n");
+	printf("  --no-provides                     do not use 'provides' rules to resolve dependencies\n");
 	printf("  --maximum-traverse-depth          maximum allowed depth for dependency graph\n");
 	printf("  --static                          be more aggressive when computing dependency graph\n");
 	printf("                                    (for static linking)\n");
@@ -695,6 +697,7 @@ main(int argc, char *argv[])
 		{ "simulate", no_argument, &want_flags, PKG_SIMULATE, },
 		{ "no-cache", no_argument, &want_flags, PKG_NO_CACHE, },
 		{ "print-provides", no_argument, &want_flags, PKG_PROVIDES, },
+		{ "no-provides", no_argument, &want_flags, PKG_NO_PROVIDES, },
 		{ "debug", no_argument, &want_flags, 0, },
 		{ "validate", no_argument, NULL, 0 },
 		{ "log-file", required_argument, NULL, 40 },
@@ -796,6 +799,9 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_NO_UNINSTALLED) == PKG_NO_UNINSTALLED || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
 		global_traverse_flags |= PKGCONF_PKG_PKGF_NO_UNINSTALLED;
+
+	if ((want_flags & PKG_NO_PROVIDES) == PKG_NO_PROVIDES)
+		global_traverse_flags |= PKGCONF_PKG_PKGF_SKIP_PROVIDES;
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
 		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
