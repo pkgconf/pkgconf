@@ -55,7 +55,8 @@ EXTRA_DIST =	\
 		tests/lib1/isystem.pc \
 		tests/lib1/depgraph-break.pc \
 		tests/lib1/cflags-whitespace.pc \
-		tests/lib1/provides.pc
+		tests/lib1/provides.pc \
+		tests/lib1/provides-request-simple.pc
 
 pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h
 libpkgconf_la_SOURCES  =	\

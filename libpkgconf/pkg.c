@@ -876,6 +876,65 @@ pkgconf_pkg_comparator_lookup_by_name(const char *name)
 	return (p != NULL) ? p->compare : PKGCONF_CMP_ANY;
 }
 
+typedef struct {
+	pkgconf_dependency_t *pkgdep;
+	unsigned int flags;
+} pkgconf_pkg_scan_providers_ctx_t;
+
+/*
+ * pkgconf_pkg_scan_provides_entry(pkg, ctx)
+ *
+ * attempt to match a single package's Provides rules against the requested dependency node.
+ *
+ * XXX: implement support for version comparisons using backwards dependency version checks,
+ *      right now, we only support Provides rules that are PKGCONF_CMP_ANY as this is still
+ *      proof-of-concept.
+ */
+static bool
+pkgconf_pkg_scan_provides_entry(const pkgconf_pkg_t *pkg, const pkgconf_pkg_scan_providers_ctx_t *ctx)
+{
+	const pkgconf_dependency_t *pkgdep = ctx->pkgdep;
+	pkgconf_node_t *node;
+
+	switch (pkgdep->compare)
+	{
+	case PKGCONF_CMP_ANY:
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->provides.head, node)
+		{
+			const pkgconf_dependency_t *provider = node->data;
+			if (!strcmp(provider->package, pkgdep->package))
+				return true;
+		}
+		break;
+	}
+
+	return false;
+}
+
+/*
+ * pkgconf_pkg_scan_providers(pkgdep, flags, eflags)
+ *
+ * scan all available packages to see if a Provides rule matches the pkgdep.
+ */
+static pkgconf_pkg_t *
+pkgconf_pkg_scan_providers(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
+{
+	pkgconf_pkg_t *pkg;
+	pkgconf_pkg_scan_providers_ctx_t ctx = {
+		.pkgdep = pkgdep,
+		.flags = flags
+	};
+
+	pkg = pkgconf_scan_all(&ctx, (pkgconf_pkg_iteration_func_t) pkgconf_pkg_scan_provides_entry);
+	if (pkg != NULL)
+		return pkg;
+
+	if (eflags != NULL)
+		*eflags |= PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND;
+
+	return NULL;
+}
+
 /*
  * pkg_verify_dependency(pkgdep, flags)
  *
@@ -893,10 +952,15 @@ pkgconf_pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, 
 	pkg = pkgconf_pkg_find(pkgdep->package, flags);
 	if (pkg == NULL)
 	{
-		if (eflags != NULL)
-			*eflags |= PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND;
+		if (flags & PKGCONF_PKG_PKGF_SKIP_PROVIDES)
+		{
+			if (eflags != NULL)
+				*eflags |= PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND;
 
-		return NULL;
+			return NULL;
+		}
+
+		return pkgconf_pkg_scan_providers(pkgdep, flags, eflags);
 	}
 
 	if (pkg->id == NULL)

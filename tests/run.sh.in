@@ -286,16 +286,19 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags prefix-foo1 prefix-foo
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --variable=typelibdir --define-variable='libdir=\${libdir}' typelibdir" \
 	"\${libdir}/typelibdir"
 
-run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --print-provides provides" \
-	"provides = 1.2.3" "provides-test-foo = 1.0.0" "provides-test-baz >= 1.1.0" "provides-test-moo <= 1.2.0"
-
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='/test' ${1} --cflags isystem" \
 	"-isystem /test/opt/bad/include"
 
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' PKG_CONFIG_SYSROOT_DIR='/test' ${1} --cflags cflags-whitespace" \
 	"-I /test/opt/bad/include"
 
-# 10) tests for internal getopt implementation with options at the end
+# 10) tests for Provides system
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --print-provides provides" \
+	"provides = 1.2.3" "provides-test-foo = 1.0.0" "provides-test-baz >= 1.1.0" "provides-test-moo <= 1.2.0"
+run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs provides-request-simple" \
+	"-lfoo"
+
+# 11) tests for internal getopt implementation with options at the end
 if [ "x@STRICT_MODE@" = "xno" ]; then
 	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} foo --libs" \
 		'-lfoo'
