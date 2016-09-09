@@ -4,6 +4,9 @@ Changes from previous version of pkgconf
 Changes from 1.0.x to 1.1:
 --------------------------
 
+* Features:
+  - new Provides system allows alternate .pc files to provide a dependency
+
 * Enhancements:
   - make it possible to programmatically declare dependencies instead of just using the parser
 
