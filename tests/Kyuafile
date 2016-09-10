@@ -1,3 +1,5 @@
 syntax(2)
 
+test_suite('pkgconf')
+
 plain_test_program{name='run.sh'}
