@@ -11,7 +11,8 @@ AM_CFLAGS = -Wall -Wextra -Wformat=2 -std=gnu99 -DPKG_DEFAULT_PATH=\"$(pkgconfig
 bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la
 
-EXTRA_DIST =	\
+EXTRA_DIST =	Kyuafile \
+		tests/Kyuafile \
 		pkg.m4 \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/dos-lineendings.pc \
