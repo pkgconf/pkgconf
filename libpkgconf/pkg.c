@@ -890,102 +890,88 @@ typedef struct {
 } pkgconf_pkg_scan_providers_ctx_t;
 
 typedef struct {
-	const pkgconf_vercmp_res_func_t depcmp;
 	const pkgconf_vercmp_res_func_t rulecmp[PKGCONF_CMP_COUNT];
-	const bool check_a[PKGCONF_CMP_COUNT];
+	const pkgconf_vercmp_res_func_t depcmp[PKGCONF_CMP_COUNT];
 } pkgconf_pkg_provides_vermatch_rule_t;
 
 static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_rules[] = {
 	[PKGCONF_CMP_ANY] = {
-		.depcmp = pkgconf_pkg_comparator_any,
 		.rulecmp = {},
+		.depcmp = {},
 	},
 	[PKGCONF_CMP_LESS_THAN] = {
-		.depcmp = pkgconf_pkg_comparator_lt,
 		.rulecmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
 			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_lt,
 			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_gt,
 			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_lte,
 			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_gte,
-			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_any,
-			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_ne
 		},
-		.check_a = {
-			[PKGCONF_CMP_GREATER_THAN]		= true,
-			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= true,
-			[PKGCONF_CMP_EQUAL]			= true,
-			[PKGCONF_CMP_NOT_EQUAL]			= true,
+		.depcmp = {
+			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_lt,
+			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_lt,
+			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_lt,
+			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_gte,
 		},
 	},
 	[PKGCONF_CMP_GREATER_THAN] = {
-		.depcmp = pkgconf_pkg_comparator_gt,
 		.rulecmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
 			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_lt,
 			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_gt,
 			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_lte,
 			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_gte,
-			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_any,
-			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_ne
 		},
-		.check_a = {
-			[PKGCONF_CMP_LESS_THAN]			= true,
-			[PKGCONF_CMP_LESS_THAN_EQUAL]		= true,
-			[PKGCONF_CMP_EQUAL]			= true,
-			[PKGCONF_CMP_NOT_EQUAL]			= true,
+		.depcmp = {
+			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_gt,
+			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_gt,
+			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_gt,
+			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_lte,
 		},
 	},
 	[PKGCONF_CMP_LESS_THAN_EQUAL] = {
-		.depcmp = pkgconf_pkg_comparator_lte,
 		.rulecmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
 			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_lt,
 			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_gt,
 			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_lte,
 			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_gte,
-			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_any,
-			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_ne
 		},
-		.check_a = {
-			[PKGCONF_CMP_GREATER_THAN]		= true,
-			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= true,
-			[PKGCONF_CMP_EQUAL]			= true,
-			[PKGCONF_CMP_NOT_EQUAL]			= true,
+		.depcmp = {
+			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_lte,
+			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_lte,
+			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_lte,
+			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_gt,
 		},
 	},
 	[PKGCONF_CMP_GREATER_THAN_EQUAL] = {
-		.depcmp = pkgconf_pkg_comparator_gte,
 		.rulecmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
 			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_lt,
 			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_gt,
 			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_lte,
 			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_gte,
-			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_any,
-			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_ne
 		},
-		.check_a = {
-			[PKGCONF_CMP_LESS_THAN]			= true,
-			[PKGCONF_CMP_LESS_THAN_EQUAL]		= true,
-			[PKGCONF_CMP_EQUAL]			= true,
-			[PKGCONF_CMP_NOT_EQUAL]			= true,
+		.depcmp = {
+			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_gte,
+			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_gte,
+			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_gte,
+			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_lt,
 		},
 	},
 	[PKGCONF_CMP_EQUAL] = {
-		.depcmp = pkgconf_pkg_comparator_eq,
 		.rulecmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
 			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_lt,
 			[PKGCONF_CMP_GREATER_THAN]		= pkgconf_pkg_comparator_gt,
 			[PKGCONF_CMP_LESS_THAN_EQUAL]		= pkgconf_pkg_comparator_lte,
 			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_gte,
-			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_any,
+			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_eq,
 			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_ne
-		}
+		},
+		.depcmp = {},
 	},
 	[PKGCONF_CMP_NOT_EQUAL] = {
-		.depcmp = pkgconf_pkg_comparator_ne,
 		.rulecmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
 			[PKGCONF_CMP_LESS_THAN]			= pkgconf_pkg_comparator_gte,
@@ -994,7 +980,8 @@ static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_
 			[PKGCONF_CMP_GREATER_THAN_EQUAL]	= pkgconf_pkg_comparator_lt,
 			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_ne,
 			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_eq
-		}
+		},
+		.depcmp = {},
 	},
 };
 
@@ -1013,7 +1000,8 @@ pkgconf_pkg_scan_provides_vercmp(const pkgconf_dependency_t *pkgdep, const pkgco
 	if (rule == NULL)
 		return false;
 
-	if (rule->check_a[provider->compare] && !rule->depcmp(provider->version, pkgdep->version))
+	if (rule->depcmp[provider->compare] != NULL &&
+	    !rule->depcmp[provider->compare](provider->version, pkgdep->version))
 		return false;
 
 	if (rule->rulecmp[provider->compare] != NULL &&
