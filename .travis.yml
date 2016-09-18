@@ -4,6 +4,16 @@ compiler:
   - clang
   - gcc
 
+addons:
+  apt:
+    packages:
+      - liblua5.2-dev
+
+sudo: required
+
+before_install:
+  scripts/install_deps.sh
+
 script:
   - sh ./autogen.sh
   - ./configure
