@@ -105,6 +105,9 @@ pkgconf_fragment_add(pkgconf_list_t *list, const char *string, unsigned int flag
 {
 	pkgconf_fragment_t *frag;
 
+	if (*string == '\0')
+		return;
+
 	if (!pkgconf_fragment_is_special(string))
 	{
 		frag = calloc(sizeof(pkgconf_fragment_t), 1);
