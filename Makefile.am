@@ -54,6 +54,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/isystem.pc \
 		tests/lib1/depgraph-break.pc \
 		tests/lib1/cflags-whitespace.pc \
+		tests/lib1/cflags-whitespace-trailing.pc \
 		tests/lib1/provides.pc \
 		tests/lib1/provides-request-simple.pc \
 		tests/test_env.sh \
