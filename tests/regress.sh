@@ -7,16 +7,20 @@ tests_init \
 	depgraph_break_1 \
 	depgraph_break_2 \
 	depgraph_break_3 \
+	define_variable \
 	variable \
 	keep_system_libs \
 	libs \
 	libs_only \
+	libs_never_mergeback \
 	cflags_only \
+	cflags_never_mergeback \
 	incomplete_libs \
 	incomplete_cflags \
 	isystem_munge_order \
 	isystem_munge_sysroot \
-	pcpath
+	pcpath \
+	sysroot_munge
 
 case_sensitivity_body()
 {
@@ -48,6 +52,13 @@ depgraph_break_3_body()
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check -s exit:1 -e ignore \
 		pkgconf --exists --print-errors 'depgraph-break'
+}
+
+define_variable_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check -o inline:"\\\${libdir}/typelibdir\n" \
+		pkgconf --variable=typelibdir --define-variable='libdir=\${libdir}' typelibdir
 }
 
 variable_body()
@@ -82,12 +93,31 @@ libs_only_body()
 		pkgconf --libs-only-L --libs-only-l cflags-libs-only
 }
 
+libs_never_mergeback_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-L/test/bar/lib -lfoo1  \n" \
+		pkgconf --libs prefix-foo1	
+	atf_check \
+		-o inline:"-L/test/bar/lib -lfoo1 -lfoo2  \n" \
+		pkgconf --libs prefix-foo1 prefix-foo2
+}
+
 cflags_only_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
 		-o inline:"-I/test/local/include/foo  \n" \
 		pkgconf --cflags-only-I --cflags-only-other cflags-libs-only
+}
+
+cflags_never_mergeback_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-I/test/bar/include/foo -DBAR -fPIC -DFOO  \n" \
+		pkgconf --cflags prefix-foo1 prefix-foo2
 }
 
 incomplete_libs_body()
@@ -128,4 +158,17 @@ pcpath_body()
 	atf_check \
 		-o inline:"-fPIC -I/test/include/foo  \n" \
 		pkgconf --cflags ${selfdir}/lib3/bar.pc	
+}
+
+sysroot_munge_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="/sysroot"
+	atf_check \
+		-o inline:"-L/sysroot/lib -lfoo  \n" \
+		pkgconf --libs sysroot-dir
+
+	export PKG_CONFIG_SYSROOT_DIR="/sysroot2"
+	atf_check \
+		-o inline:"-L/sysroot2/sysroot/lib -lfoo  \n" \
+		pkgconf --libs sysroot-dir
 }
