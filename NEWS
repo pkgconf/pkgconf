@@ -9,6 +9,7 @@ Changes from 1.0.x to 1.1:
 
 * Enhancements:
   - make it possible to programmatically declare dependencies instead of just using the parser
+  - testsuite migrated to run under kyua
 
 * Bug fixes:
   - TODO
