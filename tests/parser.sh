@@ -3,6 +3,8 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
+	comments \
+	comments_in_fields \
 	dos \
 	no_trailing_newline \
 	argv_parse \
@@ -12,6 +14,22 @@ tests_init \
 	paren_quoting \
 	multiline_field \
 	quoted
+
+comments_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-lfoo  \n" \
+		pkgconf --libs comments
+}
+
+comments_in_fields_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-lfoo  \n" \
+		pkgconf --libs comments-in-fields
+}
 
 dos_body()
 {
