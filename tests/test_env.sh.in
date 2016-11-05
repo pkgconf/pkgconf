@@ -2,7 +2,7 @@ export PATH="$(atf_get_srcdir)/../:${PATH}"
 selfdir="@abs_top_srcdir@/tests"
 PATH_SEP=":"
 SYSROOT_DIR="${selfdir}/test"
-if [ "$(uname -o)" = "Msys" ]; then
+if [ "$(uname -s)" = "Msys" ]; then
 	PATH_SEP=";"
 fi
 
