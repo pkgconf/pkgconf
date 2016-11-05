@@ -22,23 +22,6 @@ LT_INIT
 
 AC_SYS_LARGEFILE
 
-AC_ARG_ENABLE([strict],
-	      [AC_HELP_STRING([--enable-strict],
-			     [enable POSIX-strict argument checking and disable some workarounds])],
-	      [ac_cv_use_strict=$enableval], [ac_cv_use_strict=no])
-AC_CACHE_CHECK([whether to enable strict mode],
-	       [ac_cv_use_strict], [ac_cv_use_strict=no])
-
-if test "x$ac_cv_use_strict" = "xyes"; then
-	AC_DEFINE([HAVE_STRICT_MODE], [1], [Define if strict mode is requested.])
-	STRICT_MODE=yes
-else
-	AC_DEFINE([HAVE_STRICT_MODE], [0], [Define if strict mode is requested.])
-	STRICT_MODE=no
-fi
-
-AC_SUBST([STRICT_MODE])
-
 AC_ARG_WITH([pkg-config-dir],[AC_HELP_STRING([--with-pkg-config-dir],[specify
 	     the place where pc files will be found])],PKGCONFIGDIR="$withval",
 	     PKGCONFIGDIR="${libdir}/pkgconfig:${datadir}/pkgconfig")

@@ -440,16 +440,6 @@ run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-meow <= 1
 run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --libs 'provides-test-meow <= 1.2.9'; echo \$?" \
 	"0"
 
-# 11) tests for internal getopt implementation with options at the end
-if [ "x@STRICT_MODE@" = "xno" ]; then
-	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} foo --libs" \
-		'-lfoo'
-	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} foo --cflags --libs" \
-		'-lfoo' '-I/test/include/foo' '-fPIC'
-	run_test "PKG_CONFIG_PATH='${selfdir}/lib1' ${1} --cflags foo --libs" \
-		'-lfoo' '-I/test/include/foo' '-fPIC'
-fi
-
 run_test "${1} --blah; echo \$?" \
 	'1'
 
