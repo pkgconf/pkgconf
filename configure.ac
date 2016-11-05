@@ -16,7 +16,7 @@ AC_INIT([pkgconf], [1.0.1], [http://github.com/pkgconf/pkgconf/issues])
 AC_CONFIG_SRCDIR([main.c])
 AC_CONFIG_HEADERS([libpkgconf/config.h])
 AC_CHECK_FUNCS([strlcpy strlcat strndup strtok_r])
-AM_INIT_AUTOMAKE([foreign dist-xz subdir-objects])
+AM_INIT_AUTOMAKE([foreign no-dist-gzip dist-xz subdir-objects])
 AM_SILENT_RULES([yes])
 LT_INIT
 
@@ -45,5 +45,5 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
-AC_CONFIG_FILES([Makefile tests/run.sh])
+AC_CONFIG_FILES([Makefile Kyuafile tests/Kyuafile tests/test_env.sh])
 AC_OUTPUT

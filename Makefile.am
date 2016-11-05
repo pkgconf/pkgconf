@@ -11,9 +11,7 @@ AM_CFLAGS = -Wall -Wextra -Wformat=2 -std=gnu99 -DPKG_DEFAULT_PATH=\"$(pkgconfig
 bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la
 
-EXTRA_DIST =	Kyuafile \
-		tests/Kyuafile \
-		pkg.m4 \
+EXTRA_DIST =	pkg.m4 \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/dos-lineendings.pc \
 		tests/lib1/paren-quoting.pc \
@@ -58,7 +56,25 @@ EXTRA_DIST =	Kyuafile \
 		tests/lib1/cflags-whitespace.pc \
 		tests/lib1/cflags-whitespace-trailing.pc \
 		tests/lib1/provides.pc \
-		tests/lib1/provides-request-simple.pc
+		tests/lib1/provides-request-simple.pc \
+		tests/test_env.sh \
+		$(test_scripts)
+
+test_scripts=	\
+		tests/basic.sh \
+		tests/builtins.sh \
+		tests/conflicts.sh \
+		tests/framework.sh \
+		tests/parser.sh \
+		tests/provides.sh \
+		tests/regress.sh \
+		tests/requires.sh \
+		tests/sysroot.sh \
+		tests/version.sh
+
+check_SCRIPTS=	$(test_scripts:.sh=)
+
+SUFFIXES=	.sh
 
 pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h
 libpkgconf_la_SOURCES  =	\
@@ -85,7 +101,12 @@ dist_doc_DATA = README.md AUTHORS
 m4datadir              = $(datadir)/aclocal
 m4data_DATA            = pkg.m4
 
-CLEANFILES = $(EXTRA_PROGRAMS)
+CLEANFILES =	$(EXTRA_PROGRAMS) \
+		$(check_SCRIPTS)
 
-check: pkgconf
-	$(SHELL) tests/run.sh ./pkgconf
+check: pkgconf $(check_SCRIPTS)
+	kyua --config=none test --kyuafile='$(top_builddir)/Kyuafile' \
+		--build-root='$(top_builddir)'
+
+.sh:
+	install -m 755 $< $@
