@@ -66,10 +66,6 @@
 
 #define PKGCONF_HACK_LOGICAL_OR_ALL_VALUES
 
-#if HAVE_STRICT_MODE > 0
-# define GNU_COMPATIBLE		/* Be more compatible, configure's use us! */
-#endif
-
 int	pkg_opterr = 1;		/* if error message should be printed */
 int	pkg_optind = 1;		/* index into parent argv vector */
 int	pkg_optopt = '?';		/* character checked for validity */
@@ -395,9 +391,7 @@ getopt_internal(int nargc, char * const *nargv, const char *options,
 	else if (*options == '-')
 		flags |= FLAG_ALLARGS;
 #endif
-#if HAVE_STRICT_MODE >= 1
-	flags &= ~FLAG_PERMUTE;
-#endif
+
 	if (*options == '+' || *options == '-')
 		options++;
 
