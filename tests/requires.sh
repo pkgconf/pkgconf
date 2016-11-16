@@ -6,6 +6,7 @@ tests_init \
 	libs \
 	libs_cflags \
 	libs_static \
+	libs_static_pure \
 	argv_parse2 \
 	static_cflags \
 	private_duplication \
@@ -34,6 +35,14 @@ libs_static_body()
 	atf_check \
 		-o inline:"-L/test/lib -lbaz -L/test/lib -lzee -L/test/lib -lfoo  \n" \
 		pkgconf --static --libs baz
+}
+
+libs_static_pure_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-L/test/lib -lbaz -L/test/lib -lfoo  \n" \
+		pkgconf --static --pure --libs baz
 }
 
 argv_parse2_body()
