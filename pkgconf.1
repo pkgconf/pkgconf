@@ -1,4 +1,4 @@
-.\" Copyright (c) 2011, 2012, 2013, 2014 pkgconf authors (see AUTHORS).
+.\" Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016 pkgconf authors (see AUTHORS).
 .\"
 .\" Permission to use, copy, modify, and/or distribute this software for any
 .\" purpose with or without fee is hereby granted, provided that the above
@@ -7,7 +7,7 @@
 .\" This software is provided 'as is' and without any warranty, express or
 .\" implied.  In no event shall the authors be liable for any damages arising
 .\" from the use of this software.
-.Dd February 2, 2015
+.Dd November 15, 2016
 .Dt PKGCONF 1
 .Os
 .Sh NAME
@@ -56,6 +56,15 @@ modules added to the resolver's solution.
 .It Fl -static
 Compute a deeper dependency graph and use compiler/linker flags intended for
 static linking.
+.It Fl -pure
+Treats the computed dependency graph as if it were pure. This is mainly intended
+for use with the
+.Fl -static
+flag.
+.It Fl -no-provides
+Ignore
+.Sq Provides
+rules in modules when resolving dependencies.
 .El
 .Sh MODULE-SPECIFIC OPTIONS
 .Bl -tag -width indent
@@ -104,6 +113,10 @@ Variables are used in query output, and some modules' results may change based
 on the presence of a variable definition.
 .It Fl -print-variables
 Print all seen variables for a module to the output channel.
+.It Fl -print-provides
+Print all relevant
+.Sq Provides
+entries for a module to the output channel.
 .It Fl -variable Ns = Ns Ar VARNAME
 Print the value of
 .Va VARNAME .
@@ -121,7 +134,11 @@ file. This can be used with graphviz to visualize module interdependencies.
 .Sh ENVIRONMENT
 .Bl -tag -width indent
 .It Va PKG_CONFIG_PATH
-List of directories where
+List of secondary directories where
+.Sq .pc
+files are looked up.
+.It Va PKG_CONFIG_LIBDIR
+List of primary directories where
 .Sq .pc
 files are looked up.
 .It Va PKG_CONFIG_SYSROOT_DIR
@@ -129,6 +146,30 @@ files are looked up.
 directory, will be prepended to every path defined in
 .Va PKG_CONFIG_PATH .
 Useful for cross compilation.
+.It Va PKG_CONFIG_TOP_BUILD_DIR
+Provides an alternative setting for the
+.Sq pc_top_builddir
+global variable.
+.It Va PKG_CONFIG_PURE_DEPGRAPH
+If set, enables the same behaviour as the
+.Fl -pure
+flag.
+.It Va PKG_CONFIG_SYSTEM_INCLUDE_PATH
+List of paths that are considered system include paths by the toolchain.
+This is a pkgconf-specific extension.
+.It Va PKG_CONFIG_SYSTEM_LIBRARY_PATH
+List of paths that are considered system library paths by the toolchain.
+This is a pkgconf-specific extension.
+.It Va PKG_CONFIG_DISABLE_UNINSTALLED
+If set, enables the same behaviour as the
+.Fl -no-uninstalled
+flag.
+.It Va PKG_CONFIG_LOG
+.Sq logfile
+which is used for dumping audit information concerning installed module versions.
+.It Va PKG_CONFIG_DEBUG_SPEW
+If set, enables additional debug logging. The format of the debug log messages is
+implementation-specific.
 .El
 .Sh EXAMPLES
 Displaying the CFLAGS of a package:
