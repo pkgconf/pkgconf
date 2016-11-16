@@ -799,7 +799,7 @@ main(int argc, char *argv[])
 	 * this allows for a --static which searches private modules, but has the same fragment behaviour as if
 	 * --static were disabled.  see <https://github.com/pkgconf/pkgconf/issues/83> for rationale.
 	 */
-	if ((want_flags & PKG_PURE) == PKG_PURE)
+	if ((want_flags & PKG_PURE) == PKG_PURE || getenv("PKG_CONFIG_PURE_DEPGRAPH") != NULL)
 		global_traverse_flags &= ~PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS;
 
 	if ((want_flags & PKG_ENV_ONLY) == PKG_ENV_ONLY)
