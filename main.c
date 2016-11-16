@@ -48,6 +48,7 @@
 #define PKG_VALIDATE			(((uint64_t) 1) << 30)
 #define PKG_LIST_PACKAGE_NAMES		(((uint64_t) 1) << 31)
 #define PKG_NO_PROVIDES			(((uint64_t) 1) << 32)
+#define PKG_PURE			(((uint64_t) 1) << 33)
 
 static unsigned int global_traverse_flags = PKGCONF_PKG_PKGF_NONE;
 
@@ -616,6 +617,8 @@ usage(void)
 	printf("  --maximum-traverse-depth          maximum allowed depth for dependency graph\n");
 	printf("  --static                          be more aggressive when computing dependency graph\n");
 	printf("                                    (for static linking)\n");
+	printf("  --pure                            optimize a static dependency graph as if it were a normal\n");
+	printf("                                    dependency graph\n");
 	printf("  --env-only                        look only for package entries in PKG_CONFIG_PATH\n");
 	printf("  --ignore-conflicts                ignore 'conflicts' rules in modules\n");
 	printf("  --validate                        validate specific .pc files for correctness\n");
@@ -671,6 +674,7 @@ main(int argc, char *argv[])
 		{ "short-errors", no_argument, NULL, 10, },
 		{ "maximum-traverse-depth", required_argument, NULL, 11, },
 		{ "static", no_argument, &want_flags, PKG_STATIC, },
+		{ "pure", no_argument, &want_flags, PKG_PURE, },
 		{ "print-requires", no_argument, &want_flags, PKG_REQUIRES, },
 		{ "print-variables", no_argument, &want_flags, PKG_VARIABLES|PKG_PRINT_ERRORS, },
 		{ "digraph", no_argument, &want_flags, PKG_DIGRAPH, },
@@ -790,6 +794,13 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_STATIC) == PKG_STATIC)
 		global_traverse_flags |= (PKGCONF_PKG_PKGF_SEARCH_PRIVATE | PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS);
+
+	/* if --static and --pure are both specified, then disable merge-back.
+	 * this allows for a --static which searches private modules, but has the same fragment behaviour as if
+	 * --static were disabled.  see <https://github.com/pkgconf/pkgconf/issues/83> for rationale.
+	 */
+	if ((want_flags & PKG_PURE) == PKG_PURE)
+		global_traverse_flags &= ~PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS;
 
 	if ((want_flags & PKG_ENV_ONLY) == PKG_ENV_ONLY)
 		global_traverse_flags |= PKGCONF_PKG_PKGF_ENV_ONLY;
