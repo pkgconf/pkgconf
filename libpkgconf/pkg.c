@@ -66,20 +66,13 @@ str_has_suffix(const char *str, const char *suffix)
 }
 
 static inline const char *
-get_pkgconfig_path(void)
+get_default_pkgconfig_path(void)
 {
-	const char *env_path;
 #ifdef _WIN32
 	static char outbuf[MAX_PATH];
 	char namebuf[MAX_PATH];
 	char *p;
-#endif
 
-	env_path = getenv("PKG_CONFIG_LIBDIR");
-	if (env_path != NULL)
-		return env_path;
-
-#ifdef _WIN32
 	int sizepath = GetModuleFileName(NULL, namebuf, sizeof namebuf);
 	char * winslash;
 	namebuf[sizepath] = '\0';
@@ -127,21 +120,13 @@ static pkgconf_list_t pkg_dir_list = PKGCONF_LIST_INITIALIZER;
 static void
 pkgconf_pkg_dir_list_build(unsigned int flags)
 {
-	const char *env_path;
-
 	if (pkg_dir_list.head != NULL || pkg_dir_list.tail != NULL)
 		return;
 
-	/* PKG_CONFIG_PATH has to take precedence */
-	env_path = getenv("PKG_CONFIG_PATH");
-	if (env_path)
-		pkgconf_path_split(env_path, &pkg_dir_list);
+	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &pkg_dir_list);
 
 	if (!(flags & PKGCONF_PKG_PKGF_ENV_ONLY))
-	{
-		env_path = get_pkgconfig_path();
-		pkgconf_path_split(env_path, &pkg_dir_list);
-	}
+		pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", get_default_pkgconfig_path(), &pkg_dir_list);
 }
 
 typedef void (*pkgconf_pkg_parser_keyword_func_t)(pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags);

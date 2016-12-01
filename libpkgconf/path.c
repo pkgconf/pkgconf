@@ -47,3 +47,34 @@ pkgconf_path_split(const char *text, pkgconf_list_t *dirlist)
 	return count;
 }
 
+size_t
+pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist)
+{
+	const char *data;
+
+	data = getenv(environ);
+	if (data != NULL)
+		return pkgconf_path_split(data, dirlist);
+
+	if (fallback != NULL)
+		return pkgconf_path_split(fallback, dirlist);
+
+	/* no fallback and no environment variable, thusly no nodes added */
+	return 0;
+}
+
+bool
+pkgconf_path_match_list(const char *path, pkgconf_list_t *dirlist)
+{
+	pkgconf_node_t *n = NULL;
+
+	PKGCONF_FOREACH_LIST_ENTRY(dirlist->head, n)
+	{
+		pkgconf_path_t *pnode = n->data;
+
+		if (!strcmp(pnode->path, path))
+			return true;
+	}
+
+	return false;
+}

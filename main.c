@@ -52,6 +52,9 @@
 
 static unsigned int global_traverse_flags = PKGCONF_PKG_PKGF_NONE;
 
+static pkgconf_list_t filter_libdirs = PKGCONF_LIST_INITIALIZER;
+static pkgconf_list_t filter_includedirs = PKGCONF_LIST_INITIALIZER;
+
 static uint64_t want_flags;
 static int maximum_traverse_depth = 2000;
 
@@ -68,51 +71,30 @@ error_handler(const char *msg)
 	return true;
 }
 
-static char *
-fallback_getenv(const char *envname, const char *fallback)
-{
-	const char *data = getenv(envname);
-
-	if (data == NULL)
-		data = fallback;
-
-	return strdup(data);
-}
-
 static bool
 fragment_has_system_dir(pkgconf_fragment_t *frag)
 {
 	int check_flags = 0;
-	char *check_paths = NULL;
-	char *save, *chunk;
-	bool ret = false;
+	pkgconf_list_t *check_paths = NULL;
 
 	switch (frag->type)
 	{
 	case 'L':
 		check_flags = PKG_KEEP_SYSTEM_LIBS;
-		check_paths = fallback_getenv("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR);
+		check_paths = &filter_libdirs;
 		break;
 	case 'I':
 		check_flags = PKG_KEEP_SYSTEM_CFLAGS;
-		check_paths = fallback_getenv("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR);
+		check_paths = &filter_includedirs;
 		break;
 	default:
 		return false;
 	}
 
-	for (chunk = strtok_r(check_paths, ":", &save); chunk != NULL; chunk = strtok_r(NULL, ":", &save))
-	{
-		if ((want_flags & check_flags) == 0 && !strcmp(chunk, frag->data))
-		{
-			ret = true;
-			break;
-		}
-	}
+	if ((want_flags & check_flags) == 0)
+		return false;
 
-	free(check_paths);
-
-	return ret;
+	return pkgconf_path_match_list(frag->data, check_paths);
 }
 
 static void
@@ -707,6 +689,9 @@ main(int argc, char *argv[])
 		{ "log-file", required_argument, NULL, 40 },
 		{ NULL, 0, NULL, 0 }
 	};
+
+	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &filter_libdirs);
+	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &filter_includedirs);
 
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
