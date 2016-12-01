@@ -15,20 +15,18 @@
 
 #include <libpkgconf/libpkgconf.h>
 
-static pkgconf_list_t pkg_global_var = PKGCONF_LIST_INITIALIZER;
-
 void
-pkgconf_tuple_add_global(const char *key, const char *value)
+pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *value)
 {
-	pkgconf_tuple_add(&pkg_global_var, key, value, false);
+	pkgconf_tuple_add(client, &client->global_vars, key, value, false);
 }
 
 char *
-pkgconf_tuple_find_global(const char *key)
+pkgconf_tuple_find_global(const pkgconf_client_t *client, const char *key)
 {
 	pkgconf_node_t *node;
 
-	PKGCONF_FOREACH_LIST_ENTRY(pkg_global_var.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(client->global_vars.head, node)
 	{
 		pkgconf_tuple_t *tuple = node->data;
 
@@ -40,13 +38,13 @@ pkgconf_tuple_find_global(const char *key)
 }
 
 void
-pkgconf_tuple_free_global(void)
+pkgconf_tuple_free_global(pkgconf_client_t *client)
 {
-	pkgconf_tuple_free(&pkg_global_var);
+	pkgconf_tuple_free(&client->global_vars);
 }
 
 void
-pkgconf_tuple_define_global(const char *kv)
+pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv)
 {
 	char *workbuf = strdup(kv);
 	char *value;
@@ -56,19 +54,19 @@ pkgconf_tuple_define_global(const char *kv)
 		goto out;
 
 	*value++ = '\0';
-	pkgconf_tuple_add_global(workbuf, value);
+	pkgconf_tuple_add_global(client, workbuf, value);
 out:
 	free(workbuf);
 }
 
 pkgconf_tuple_t *
-pkgconf_tuple_add(pkgconf_list_t *list, const char *key, const char *value, bool parse)
+pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key, const char *value, bool parse)
 {
 	pkgconf_tuple_t *tuple = calloc(sizeof(pkgconf_tuple_t), 1);
 
 	tuple->key = strdup(key);
 	if (parse)
-		tuple->value = pkgconf_tuple_parse(list, value);
+		tuple->value = pkgconf_tuple_parse(client, list, value);
 	else
 		tuple->value = strdup(value);
 
@@ -78,12 +76,12 @@ pkgconf_tuple_add(pkgconf_list_t *list, const char *key, const char *value, bool
 }
 
 char *
-pkgconf_tuple_find(pkgconf_list_t *list, const char *key)
+pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key)
 {
 	pkgconf_node_t *node;
 	char *res;
 
-	if ((res = pkgconf_tuple_find_global(key)) != NULL)
+	if ((res = pkgconf_tuple_find_global(client, key)) != NULL)
 		return res;
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
@@ -98,7 +96,7 @@ pkgconf_tuple_find(pkgconf_list_t *list, const char *key)
 }
 
 char *
-pkgconf_tuple_parse(pkgconf_list_t *vars, const char *value)
+pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const char *value)
 {
 	char buf[PKGCONF_BUFSIZE];
 	const char *ptr;
@@ -129,7 +127,7 @@ pkgconf_tuple_parse(pkgconf_list_t *vars, const char *value)
 			}
 
 			ptr += (pptr - ptr);
-			kv = pkgconf_tuple_find_global(varname);
+			kv = pkgconf_tuple_find_global(client, varname);
 			if (kv != NULL)
 			{
 				strncpy(bptr, kv, PKGCONF_BUFSIZE - (bptr - buf));
@@ -137,11 +135,11 @@ pkgconf_tuple_parse(pkgconf_list_t *vars, const char *value)
 			}
 			else
 			{
-				kv = pkgconf_tuple_find(vars, varname);
+				kv = pkgconf_tuple_find(client, vars, varname);
 
 				if (kv != NULL)
 				{
-					parsekv = pkgconf_tuple_parse(vars, kv);
+					parsekv = pkgconf_tuple_parse(client, vars, kv);
 
 					strncpy(bptr, parsekv, PKGCONF_BUFSIZE - (bptr - buf));
 					bptr += strlen(parsekv);

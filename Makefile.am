@@ -80,6 +80,7 @@ pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgco
 libpkgconf_la_SOURCES  =	\
 		libpkgconf/audit.c		\
 		libpkgconf/cache.c		\
+		libpkgconf/client.c		\
 		libpkgconf/pkg.c		\
 		libpkgconf/bsdstubs.c		\
 		libpkgconf/fragment.c		\

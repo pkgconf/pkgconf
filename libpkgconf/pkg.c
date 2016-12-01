@@ -115,21 +115,19 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	return buf;
 }
 
-static pkgconf_list_t pkg_dir_list = PKGCONF_LIST_INITIALIZER;
-
 static void
-pkgconf_pkg_dir_list_build(unsigned int flags)
+pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags)
 {
-	if (pkg_dir_list.head != NULL || pkg_dir_list.tail != NULL)
+	if (client->dir_list.head != NULL || client->dir_list.tail != NULL)
 		return;
 
-	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &pkg_dir_list);
+	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &client->dir_list);
 
 	if (!(flags & PKGCONF_PKG_PKGF_ENV_ONLY))
-		pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", get_default_pkgconfig_path(), &pkg_dir_list);
+		pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", get_default_pkgconfig_path(), &client->dir_list);
 }
 
-typedef void (*pkgconf_pkg_parser_keyword_func_t)(pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags);
+typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags);
 typedef struct {
 	const char *keyword;
 	const pkgconf_pkg_parser_keyword_func_t func;
@@ -143,28 +141,28 @@ static int pkgconf_pkg_parser_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-pkgconf_pkg_parser_tuple_func(pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
+pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
 {
 	char **dest = ((void *) pkg + offset);
 	(void) flags;
 
-	*dest = pkgconf_tuple_parse(&pkg->vars, value);
+	*dest = pkgconf_tuple_parse(client, &pkg->vars, value);
 }
 
 static void
-pkgconf_pkg_parser_fragment_func(pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
+pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
 {
 	pkgconf_list_t *dest = ((void *) pkg + offset);
-	pkgconf_fragment_parse(dest, &pkg->vars, value, flags);
+	pkgconf_fragment_parse(client, dest, &pkg->vars, value, flags);
 }
 
 static void
-pkgconf_pkg_parser_dependency_func(pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
+pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
 {
 	pkgconf_list_t *dest = ((void *) pkg + offset);
 	(void) flags;
 
-	pkgconf_dependency_parse(pkg, dest, value);
+	pkgconf_dependency_parse(client, pkg, dest, value);
 }
 
 /* keep this in alphabetical order */
@@ -183,7 +181,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 };
 
 static bool
-pkgconf_pkg_parser_keyword_set(pkgconf_pkg_t *pkg, const char *keyword, char *value, unsigned int flags)
+pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, char *value, unsigned int flags)
 {
 	const pkgconf_pkg_parser_keyword_pair_t *pair = bsearch(keyword,
 		pkgconf_pkg_parser_keyword_funcs, PKGCONF_ARRAY_SIZE(pkgconf_pkg_parser_keyword_funcs),
@@ -192,7 +190,7 @@ pkgconf_pkg_parser_keyword_set(pkgconf_pkg_t *pkg, const char *keyword, char *va
 	if (pair == NULL || pair->func == NULL)
 		return false;
 
-	pair->func(pkg, pair->offset, value, flags);
+	pair->func(client, pkg, pair->offset, value, flags);
 	return true;
 }
 
@@ -202,7 +200,7 @@ pkgconf_pkg_parser_keyword_set(pkgconf_pkg_t *pkg, const char *keyword, char *va
  * Parse a .pc file into a pkgconf_pkg_t object structure.
  */
 pkgconf_pkg_t *
-pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
+pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f, unsigned int flags)
 {
 	pkgconf_pkg_t *pkg;
 	char readbuf[PKGCONF_BUFSIZE];
@@ -210,7 +208,7 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 
 	pkg = calloc(sizeof(pkgconf_pkg_t), 1);
 	pkg->filename = strdup(filename);
-	pkgconf_tuple_add(&pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg), true);
+	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg), true);
 
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
@@ -253,12 +251,12 @@ pkgconf_pkg_new_from_file(const char *filename, FILE *f, unsigned int flags)
 		switch (op)
 		{
 		case ':':
-			if (!pkgconf_pkg_parser_keyword_set(pkg, key, value, flags))
+			if (!pkgconf_pkg_parser_keyword_set(client, pkg, key, value, flags))
 				/* XXX: warning? */
 				;
 			break;
 		case '=':
-			pkgconf_tuple_add(&pkg->vars, key, value, true);
+			pkgconf_tuple_add(client, &pkg->vars, key, value, true);
 			break;
 		default:
 			break;
@@ -332,7 +330,7 @@ pkgconf_pkg_unref(pkgconf_pkg_t *pkg)
 }
 
 static inline pkgconf_pkg_t *
-pkgconf_pkg_try_specific_path(const char *path, const char *name, unsigned int flags)
+pkgconf_pkg_try_specific_path(const pkgconf_client_t *client, const char *path, const char *name, unsigned int flags)
 {
 	pkgconf_pkg_t *pkg = NULL;
 	FILE *f;
@@ -344,17 +342,17 @@ pkgconf_pkg_try_specific_path(const char *path, const char *name, unsigned int f
 
 	if (!(flags & PKGCONF_PKG_PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 	{
-		pkg = pkgconf_pkg_new_from_file(uninst_locbuf, f, flags);
+		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f, flags);
 		pkg->flags |= PKGCONF_PKG_PROPF_UNINSTALLED;
 	}
 	else if ((f = fopen(locbuf, "r")) != NULL)
-		pkg = pkgconf_pkg_new_from_file(locbuf, f, flags);
+		pkg = pkgconf_pkg_new_from_file(client, locbuf, f, flags);
 
 	return pkg;
 }
 
 static pkgconf_pkg_t *
-pkgconf_pkg_scan_dir(const char *path, void *data, pkgconf_pkg_iteration_func_t func)
+pkgconf_pkg_scan_dir(const pkgconf_client_t *client, const char *path, void *data, pkgconf_pkg_iteration_func_t func)
 {
 	DIR *dir;
 	struct dirent *dirent;
@@ -383,7 +381,7 @@ pkgconf_pkg_scan_dir(const char *path, void *data, pkgconf_pkg_iteration_func_t 
 		if (f == NULL)
 			continue;
 
-		pkg = pkgconf_pkg_new_from_file(filebuf, f, 0);
+		pkg = pkgconf_pkg_new_from_file(client, filebuf, f, 0);
 		if (pkg != NULL)
 		{
 			if (func(pkg, data))
@@ -402,18 +400,18 @@ out:
 }
 
 pkgconf_pkg_t *
-pkgconf_scan_all(void *data, pkgconf_pkg_iteration_func_t func)
+pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_func_t func)
 {
 	pkgconf_node_t *n;
 	pkgconf_pkg_t *pkg;
 
-	pkgconf_pkg_dir_list_build(0);
+	pkgconf_pkg_dir_list_build(client, 0);
 
-	PKGCONF_FOREACH_LIST_ENTRY(pkg_dir_list.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(client->dir_list.head, n)
 	{
 		pkgconf_path_t *pnode = n->data;
 
-		if ((pkg = pkgconf_pkg_scan_dir(pnode->path, data, func)) != NULL)
+		if ((pkg = pkgconf_pkg_scan_dir(client, pnode->path, data, func)) != NULL)
 			return pkg;
 	}
 
@@ -459,13 +457,13 @@ pkgconf_pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags
 #endif
 
 pkgconf_pkg_t *
-pkgconf_pkg_find(const char *name, unsigned int flags)
+pkgconf_pkg_find(pkgconf_client_t *client, const char *name, unsigned int flags)
 {
 	pkgconf_pkg_t *pkg = NULL;
 	pkgconf_node_t *n;
 	FILE *f;
 
-	pkgconf_pkg_dir_list_build(flags);
+	pkgconf_pkg_dir_list_build(client, flags);
 
 	/* name might actually be a filename. */
 	if (str_has_suffix(name, PKG_CONFIG_EXT))
@@ -474,8 +472,8 @@ pkgconf_pkg_find(const char *name, unsigned int flags)
 		{
 			pkgconf_pkg_t *pkg;
 
-			pkg = pkgconf_pkg_new_from_file(name, f, flags);
-			pkgconf_path_add(pkg_get_parent_dir(pkg), &pkg_dir_list);
+			pkg = pkgconf_pkg_new_from_file(client, name, f, flags);
+			pkgconf_path_add(pkg_get_parent_dir(pkg), &client->dir_list);
 
 			return pkg;
 		}
@@ -495,11 +493,11 @@ pkgconf_pkg_find(const char *name, unsigned int flags)
 		}
 	}
 
-	PKGCONF_FOREACH_LIST_ENTRY(pkg_dir_list.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(client->dir_list.head, n)
 	{
 		pkgconf_path_t *pnode = n->data;
 
-		pkg = pkgconf_pkg_try_specific_path(pnode->path, name, flags);
+		pkg = pkgconf_pkg_try_specific_path(client, pnode->path, name, flags);
 		if (pkg != NULL)
 			goto out;
 	}
@@ -974,7 +972,7 @@ pkgconf_pkg_scan_provides_entry(const pkgconf_pkg_t *pkg, const pkgconf_pkg_scan
  * scan all available packages to see if a Provides rule matches the pkgdep.
  */
 static pkgconf_pkg_t *
-pkgconf_pkg_scan_providers(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
+pkgconf_pkg_scan_providers(const pkgconf_client_t *client, pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
 {
 	pkgconf_pkg_t *pkg;
 	pkgconf_pkg_scan_providers_ctx_t ctx = {
@@ -982,7 +980,7 @@ pkgconf_pkg_scan_providers(pkgconf_dependency_t *pkgdep, unsigned int flags, uns
 		.flags = flags
 	};
 
-	pkg = pkgconf_scan_all(&ctx, (pkgconf_pkg_iteration_func_t) pkgconf_pkg_scan_provides_entry);
+	pkg = pkgconf_scan_all(client, &ctx, (pkgconf_pkg_iteration_func_t) pkgconf_pkg_scan_provides_entry);
 	if (pkg != NULL)
 		return pkg;
 
@@ -999,14 +997,14 @@ pkgconf_pkg_scan_providers(pkgconf_dependency_t *pkgdep, unsigned int flags, uns
  * return the appropriate pkgconf_pkg_t object, else NULL.
  */
 pkgconf_pkg_t *
-pkgconf_pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
+pkgconf_pkg_verify_dependency(const pkgconf_client_t *client, pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
 {
 	pkgconf_pkg_t *pkg = NULL;
 
 	if (eflags != NULL)
 		*eflags = PKGCONF_PKG_ERRF_OK;
 
-	pkg = pkgconf_pkg_find(pkgdep->package, flags);
+	pkg = pkgconf_pkg_find(client, pkgdep->package, flags);
 	if (pkg == NULL)
 	{
 		if (flags & PKGCONF_PKG_PKGF_SKIP_PROVIDES)
@@ -1017,7 +1015,7 @@ pkgconf_pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, 
 			return NULL;
 		}
 
-		return pkgconf_pkg_scan_providers(pkgdep, flags, eflags);
+		return pkgconf_pkg_scan_providers(client, pkgdep, flags, eflags);
 	}
 
 	if (pkg->id == NULL)
@@ -1039,9 +1037,9 @@ pkgconf_pkg_verify_dependency(pkgconf_dependency_t *pkgdep, unsigned int flags, 
  * pkgconf_pkg_traverse().
  */
 unsigned int
-pkgconf_pkg_verify_graph(pkgconf_pkg_t *root, int depth, unsigned int flags)
+pkgconf_pkg_verify_graph(const pkgconf_client_t *client, pkgconf_pkg_t *root, int depth, unsigned int flags)
 {
-	return pkgconf_pkg_traverse(root, NULL, NULL, depth, flags);
+	return pkgconf_pkg_traverse(client, root, NULL, NULL, depth, flags);
 }
 
 static unsigned int
@@ -1079,7 +1077,8 @@ pkgconf_pkg_report_graph_error(pkgconf_pkg_t *parent, pkgconf_pkg_t *pkg, pkgcon
 }
 
 static inline unsigned int
-pkgconf_pkg_walk_list(pkgconf_pkg_t *parent,
+pkgconf_pkg_walk_list(const pkgconf_client_t *client,
+	pkgconf_pkg_t *parent,
 	pkgconf_list_t *deplist,
 	pkgconf_pkg_traverse_func_t func,
 	void *data,
@@ -1098,7 +1097,7 @@ pkgconf_pkg_walk_list(pkgconf_pkg_t *parent,
 		if (*depnode->package == '\0')
 			continue;
 
-		pkgdep = pkgconf_pkg_verify_dependency(depnode, flags, &eflags_local);
+		pkgdep = pkgconf_pkg_verify_dependency(client, depnode, flags, &eflags_local);
 
 		eflags |= eflags_local;
 		if (eflags_local != PKGCONF_PKG_ERRF_OK && !(flags & PKGCONF_PKG_PKGF_SKIP_ERRORS))
@@ -1118,7 +1117,7 @@ pkgconf_pkg_walk_list(pkgconf_pkg_t *parent,
 		pkgconf_audit_log_dependency(pkgdep, depnode);
 
 		pkgdep->flags |= PKGCONF_PKG_PROPF_SEEN;
-		eflags |= pkgconf_pkg_traverse(pkgdep, func, data, depth - 1, flags);
+		eflags |= pkgconf_pkg_traverse(client, pkgdep, func, data, depth - 1, flags);
 		pkgdep->flags &= ~PKGCONF_PKG_PROPF_SEEN;
 		pkgconf_pkg_unref(pkgdep);
 	}
@@ -1127,7 +1126,8 @@ pkgconf_pkg_walk_list(pkgconf_pkg_t *parent,
 }
 
 static inline unsigned int
-pkgconf_pkg_walk_conflicts_list(pkgconf_pkg_t *root, pkgconf_list_t *deplist, unsigned int flags)
+pkgconf_pkg_walk_conflicts_list(const pkgconf_client_t *client,
+	pkgconf_pkg_t *root, pkgconf_list_t *deplist, unsigned int flags)
 {
 	unsigned int eflags;
 	pkgconf_node_t *node, *childnode;
@@ -1147,7 +1147,7 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_pkg_t *root, pkgconf_list_t *deplist, un
 			if (*depnode->package == '\0' || strcmp(depnode->package, parentnode->package))
 				continue;
 
-			pkgdep = pkgconf_pkg_verify_dependency(parentnode, flags, &eflags);
+			pkgdep = pkgconf_pkg_verify_dependency(client, parentnode, flags, &eflags);
 			if (eflags == PKGCONF_PKG_ERRF_OK)
 			{
 				pkgconf_error("Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
@@ -1174,7 +1174,8 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_pkg_t *root, pkgconf_list_t *deplist, un
  * walk the dependency graph up to maxdepth levels.  -1 means infinite recursion.
  */
 unsigned int
-pkgconf_pkg_traverse(pkgconf_pkg_t *root,
+pkgconf_pkg_traverse(const pkgconf_client_t *client,
+	pkgconf_pkg_t *root,
 	pkgconf_pkg_traverse_func_t func,
 	void *data,
 	int maxdepth,
@@ -1189,23 +1190,23 @@ pkgconf_pkg_traverse(pkgconf_pkg_t *root,
 	if ((root->flags & PKGCONF_PKG_PROPF_VIRTUAL) != PKGCONF_PKG_PROPF_VIRTUAL || (flags & PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL) != PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL)
 	{
 		if (func != NULL)
-			func(root, data, flags);
+			func(client, root, data, flags);
 	}
 
 	if (!(flags & PKGCONF_PKG_PKGF_SKIP_CONFLICTS))
 	{
-		eflags = pkgconf_pkg_walk_conflicts_list(root, &root->conflicts, rflags);
+		eflags = pkgconf_pkg_walk_conflicts_list(client, root, &root->conflicts, rflags);
 		if (eflags != PKGCONF_PKG_ERRF_OK)
 			return eflags;
 	}
 
-	eflags = pkgconf_pkg_walk_list(root, &root->requires, func, data, maxdepth, rflags);
+	eflags = pkgconf_pkg_walk_list(client, root, &root->requires, func, data, maxdepth, rflags);
 	if (eflags != PKGCONF_PKG_ERRF_OK)
 		return eflags;
 
 	if (flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE)
 	{
-		eflags = pkgconf_pkg_walk_list(root, &root->requires_private, func, data, maxdepth, rflags | PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE);
+		eflags = pkgconf_pkg_walk_list(client, root, &root->requires_private, func, data, maxdepth, rflags | PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE);
 		if (eflags != PKGCONF_PKG_ERRF_OK)
 			return eflags;
 	}
@@ -1214,11 +1215,12 @@ pkgconf_pkg_traverse(pkgconf_pkg_t *root,
 }
 
 static void
-pkgconf_pkg_cflags_collect(pkgconf_pkg_t *pkg, void *data, unsigned int flags)
+pkgconf_pkg_cflags_collect(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 {
 	pkgconf_list_t *list = data;
 	pkgconf_node_t *node;
 	(void) flags;
+	(void) client;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags.head, node)
 	{
@@ -1228,11 +1230,12 @@ pkgconf_pkg_cflags_collect(pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 }
 
 static void
-pkgconf_pkg_cflags_private_collect(pkgconf_pkg_t *pkg, void *data, unsigned int flags)
+pkgconf_pkg_cflags_private_collect(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 {
 	pkgconf_list_t *list = data;
 	pkgconf_node_t *node;
 	(void) flags;
+	(void) client;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags_private.head, node)
 	{
@@ -1243,17 +1246,17 @@ pkgconf_pkg_cflags_private_collect(pkgconf_pkg_t *pkg, void *data, unsigned int 
 }
 
 int
-pkgconf_pkg_cflags(pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+pkgconf_pkg_cflags(const pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	int eflag;
 
-	eflag = pkgconf_pkg_traverse(root, pkgconf_pkg_cflags_collect, list, maxdepth, flags);
+	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_collect, list, maxdepth, flags);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		pkgconf_fragment_free(list);
 
 	if (flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
 	{
-		eflag = pkgconf_pkg_traverse(root, pkgconf_pkg_cflags_private_collect, list, maxdepth, flags);
+		eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_private_collect, list, maxdepth, flags);
 		if (eflag != PKGCONF_PKG_ERRF_OK)
 			pkgconf_fragment_free(list);
 	}
@@ -1262,11 +1265,12 @@ pkgconf_pkg_cflags(pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsi
 }
 
 static void
-pkgconf_pkg_libs_collect(pkgconf_pkg_t *pkg, void *data, unsigned int flags)
+pkgconf_pkg_libs_collect(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 {
 	pkgconf_list_t *list = data;
 	pkgconf_node_t *node;
 	(void) flags;
+	(void) client;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->libs.head, node)
 	{
@@ -1285,11 +1289,11 @@ pkgconf_pkg_libs_collect(pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 }
 
 int
-pkgconf_pkg_libs(pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+pkgconf_pkg_libs(const pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	int eflag;
 
-	eflag = pkgconf_pkg_traverse(root, pkgconf_pkg_libs_collect, list, maxdepth, flags);
+	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_libs_collect, list, maxdepth, flags);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 	{
