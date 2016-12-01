@@ -15,10 +15,8 @@
 
 #include <libpkgconf/libpkgconf.h>
 
-static pkgconf_error_handler_func_t pkgconf_error_handler = pkgconf_default_error_handler;
-
 bool
-pkgconf_error(const char *format, ...)
+pkgconf_error(const pkgconf_client_t *client, const char *format, ...)
 {
 	char errbuf[PKGCONF_BUFSIZE];
 	va_list va;
@@ -27,7 +25,7 @@ pkgconf_error(const char *format, ...)
 	vsnprintf(errbuf, sizeof errbuf, format, va);
 	va_end(va);
 
-	return pkgconf_error_handler(errbuf);
+	return client->error_handler(errbuf);
 }
 
 bool
@@ -36,12 +34,6 @@ pkgconf_default_error_handler(const char *msg)
 	(void) msg;
 
 	return true;
-}
-
-void
-pkgconf_set_error_handler(pkgconf_error_handler_func_t func)
-{
-	pkgconf_error_handler = func;
 }
 
 #ifdef _WIN32
@@ -1043,7 +1035,7 @@ pkgconf_pkg_verify_graph(const pkgconf_client_t *client, pkgconf_pkg_t *root, in
 }
 
 static unsigned int
-pkgconf_pkg_report_graph_error(pkgconf_pkg_t *parent, pkgconf_pkg_t *pkg, pkgconf_dependency_t *node, unsigned int eflags)
+pkgconf_pkg_report_graph_error(const pkgconf_client_t *client, pkgconf_pkg_t *parent, pkgconf_pkg_t *pkg, pkgconf_dependency_t *node, unsigned int eflags)
 {
 	static bool already_sent_notice = false;
 
@@ -1051,22 +1043,22 @@ pkgconf_pkg_report_graph_error(pkgconf_pkg_t *parent, pkgconf_pkg_t *pkg, pkgcon
 	{
 		if (!already_sent_notice)
 		{
-			pkgconf_error("Package %s was not found in the pkg-config search path.\n", node->package);
-			pkgconf_error("Perhaps you should add the directory containing `%s.pc'\n", node->package);
-			pkgconf_error("to the PKG_CONFIG_PATH environment variable\n");
+			pkgconf_error(client, "Package %s was not found in the pkg-config search path.\n", node->package);
+			pkgconf_error(client, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
+			pkgconf_error(client, "to the PKG_CONFIG_PATH environment variable\n");
 			already_sent_notice = true;
 		}
 
-		pkgconf_error("Package '%s', required by '%s', not found\n", node->package, parent->id);
+		pkgconf_error(client, "Package '%s', required by '%s', not found\n", node->package, parent->id);
 		pkgconf_audit_log("%s NOT-FOUND\n", node->package);
 	}
 	else if (eflags & PKGCONF_PKG_ERRF_PACKAGE_VER_MISMATCH)
 	{
-		pkgconf_error("Package dependency requirement '%s %s %s' could not be satisfied.\n",
+		pkgconf_error(client, "Package dependency requirement '%s %s %s' could not be satisfied.\n",
 			node->package, pkgconf_pkg_get_comparator(node), node->version);
 
 		if (pkg != NULL)
-			pkgconf_error("Package '%s' has version '%s', required version is '%s %s'\n",
+			pkgconf_error(client, "Package '%s' has version '%s', required version is '%s %s'\n",
 				node->package, pkg->version, pkgconf_pkg_get_comparator(node), node->version);
 	}
 
@@ -1102,7 +1094,7 @@ pkgconf_pkg_walk_list(const pkgconf_client_t *client,
 		eflags |= eflags_local;
 		if (eflags_local != PKGCONF_PKG_ERRF_OK && !(flags & PKGCONF_PKG_PKGF_SKIP_ERRORS))
 		{
-			pkgconf_pkg_report_graph_error(parent, pkgdep, depnode, eflags_local);
+			pkgconf_pkg_report_graph_error(client, parent, pkgdep, depnode, eflags_local);
 			continue;
 		}
 		if (pkgdep == NULL)
@@ -1150,11 +1142,11 @@ pkgconf_pkg_walk_conflicts_list(const pkgconf_client_t *client,
 			pkgdep = pkgconf_pkg_verify_dependency(client, parentnode, flags, &eflags);
 			if (eflags == PKGCONF_PKG_ERRF_OK)
 			{
-				pkgconf_error("Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
+				pkgconf_error(client, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
 					pkgdep->version, pkgdep->realname, root->realname, parentnode->package, pkgconf_pkg_get_comparator(parentnode),
 					parentnode->version != NULL ? " " : "", parentnode->version != NULL ? parentnode->version : "");
-				pkgconf_error("It may be possible to ignore this conflict and continue, try the\n");
-				pkgconf_error("PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
+				pkgconf_error(client, "It may be possible to ignore this conflict and continue, try the\n");
+				pkgconf_error(client, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
 
 				pkgconf_pkg_unref(pkgdep);
 

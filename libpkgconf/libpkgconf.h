@@ -185,9 +185,8 @@ void pkgconf_client_free(pkgconf_client_t *client);
 #define DEPRECATED
 #endif /* defined(__INTEL_COMPILER) || defined(__GNUC__) */
 
-bool pkgconf_error(const char *format, ...) PRINTFLIKE(1, 2);
+bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 bool pkgconf_default_error_handler(const char *msg);
-void pkgconf_set_error_handler(pkgconf_error_handler_func_t func);
 
 pkgconf_pkg_t *pkgconf_pkg_ref(pkgconf_pkg_t *pkg);
 void pkgconf_pkg_unref(pkgconf_pkg_t *pkg);
