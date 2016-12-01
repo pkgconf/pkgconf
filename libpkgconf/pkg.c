@@ -392,12 +392,10 @@ out:
 }
 
 pkgconf_pkg_t *
-pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_func_t func)
+pkgconf_scan_all(const pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_func_t func)
 {
 	pkgconf_node_t *n;
 	pkgconf_pkg_t *pkg;
-
-	pkgconf_pkg_dir_list_build(client, 0);
 
 	PKGCONF_FOREACH_LIST_ENTRY(client->dir_list.head, n)
 	{
@@ -454,8 +452,6 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name, unsigned int flags)
 	pkgconf_pkg_t *pkg = NULL;
 	pkgconf_node_t *n;
 	FILE *f;
-
-	pkgconf_pkg_dir_list_build(client, flags);
 
 	/* name might actually be a filename. */
 	if (str_has_suffix(name, PKG_CONFIG_EXT))

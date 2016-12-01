@@ -824,6 +824,9 @@ main(int argc, char *argv[])
 	else
 		pkgconf_tuple_add_global(&pkg_client, "pc_sysrootdir", "/");
 
+	/* at this point, global_traverse_flags should be set, so build the dir list */
+	pkgconf_pkg_dir_list_build(&pkg_client, global_traverse_flags);
+
 	if (required_pkgconfig_version != NULL)
 	{
 		if (pkgconf_compare_version(PACKAGE_VERSION, required_pkgconfig_version) >= 0)
