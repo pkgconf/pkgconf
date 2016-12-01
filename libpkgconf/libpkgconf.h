@@ -203,6 +203,7 @@ pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name);
 
 int pkgconf_compare_version(const char *a, const char *b);
 pkgconf_pkg_t *pkgconf_scan_all(pkgconf_client_t *client, void *ptr, pkgconf_pkg_iteration_func_t func);
+void pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags);
 
 /* parse.c */
 pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *path, FILE *f, unsigned int flags);

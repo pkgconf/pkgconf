@@ -107,7 +107,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	return buf;
 }
 
-static void
+void
 pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags)
 {
 	if (client->dir_list.head != NULL || client->dir_list.tail != NULL)
