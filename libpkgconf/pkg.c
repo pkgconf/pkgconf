@@ -53,56 +53,6 @@ pkgconf_set_error_handler(pkgconf_error_handler_func_t func)
 #define PKG_CONFIG_EXT		".pc"
 #define PKG_CONFIG_PATH_SZ	(65535)
 
-/* pkg-config uses ';' on win32 as ':' is part of path */
-#ifdef _WIN32
-#define PKG_CONFIG_PATH_SEP_S	";"
-#else
-#define PKG_CONFIG_PATH_SEP_S	":"
-#endif
-
-#ifdef _WIN32
-#define PKG_DIR_SEP_S	'\\'
-#else
-#define PKG_DIR_SEP_S	'/'
-#endif
-
-typedef struct {
-	char *path;
-	pkgconf_node_t node;
-} pkg_path_t;
-
-static inline void
-path_add(const char *text, pkgconf_list_t *dirlist)
-{
-	pkg_path_t *pkg_path;
-
-	pkg_path = calloc(sizeof(pkg_path_t), 1);
-	pkg_path->path = strdup(text);
-
-	pkgconf_node_insert_tail(&pkg_path->node, pkg_path, dirlist);
-}
-
-static inline size_t
-path_split(const char *text, pkgconf_list_t *dirlist)
-{
-	size_t count = 0;
-	char *workbuf, *p, *iter;
-
-	if (text == NULL)
-		return 0;
-
-	iter = workbuf = strdup(text);
-	while ((p = strtok(iter, PKG_CONFIG_PATH_SEP_S)) != NULL)
-	{
-		path_add(p, dirlist);
-
-		count++, iter = NULL;
-	}
-	free(workbuf);
-
-	return count;
-}
-
 static inline bool
 str_has_suffix(const char *str, const char *suffix)
 {
@@ -185,12 +135,12 @@ pkgconf_pkg_dir_list_build(unsigned int flags)
 	/* PKG_CONFIG_PATH has to take precedence */
 	env_path = getenv("PKG_CONFIG_PATH");
 	if (env_path)
-		path_split(env_path, &pkg_dir_list);
+		pkgconf_path_split(env_path, &pkg_dir_list);
 
 	if (!(flags & PKGCONF_PKG_PKGF_ENV_ONLY))
 	{
 		env_path = get_pkgconfig_path();
-		path_split(env_path, &pkg_dir_list);
+		pkgconf_path_split(env_path, &pkg_dir_list);
 	}
 }
 
@@ -476,9 +426,9 @@ pkgconf_scan_all(void *data, pkgconf_pkg_iteration_func_t func)
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg_dir_list.head, n)
 	{
-		pkg_path_t *pkg_path = n->data;
+		pkgconf_path_t *pnode = n->data;
 
-		if ((pkg = pkgconf_pkg_scan_dir(pkg_path->path, data, func)) != NULL)
+		if ((pkg = pkgconf_pkg_scan_dir(pnode->path, data, func)) != NULL)
 			return pkg;
 	}
 
@@ -540,7 +490,7 @@ pkgconf_pkg_find(const char *name, unsigned int flags)
 			pkgconf_pkg_t *pkg;
 
 			pkg = pkgconf_pkg_new_from_file(name, f, flags);
-			path_add(pkg_get_parent_dir(pkg), &pkg_dir_list);
+			pkgconf_path_add(pkg_get_parent_dir(pkg), &pkg_dir_list);
 
 			return pkg;
 		}
@@ -562,9 +512,9 @@ pkgconf_pkg_find(const char *name, unsigned int flags)
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg_dir_list.head, n)
 	{
-		pkg_path_t *pkg_path = n->data;
+		pkgconf_path_t *pnode = n->data;
 
-		pkg = pkgconf_pkg_try_specific_path(pkg_path->path, name, flags);
+		pkg = pkgconf_pkg_try_specific_path(pnode->path, name, flags);
 		if (pkg != NULL)
 			goto out;
 	}

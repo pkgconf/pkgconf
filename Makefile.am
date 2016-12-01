@@ -87,7 +87,8 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/fileio.c		\
 		libpkgconf/tuple.c		\
 		libpkgconf/dependency.c		\
-		libpkgconf/queue.c
+		libpkgconf/queue.c		\
+		libpkgconf/path.c
 libpkgconf_la_LDFLAGS = -version-info 1:0:0
 # -export-symbols-regex '^pkgconf_'
 

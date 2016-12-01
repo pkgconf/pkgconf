@@ -21,6 +21,19 @@
 #include <libpkgconf/iter.h>
 #include <libpkgconf/bsdstubs.h>
 
+/* pkg-config uses ';' on win32 as ':' is part of path */
+#ifdef _WIN32
+#define PKG_CONFIG_PATH_SEP_S   ";"
+#else
+#define PKG_CONFIG_PATH_SEP_S   ":"
+#endif
+
+#ifdef _WIN32
+#define PKG_DIR_SEP_S   '\\'
+#else
+#define PKG_DIR_SEP_S   '/'
+#endif
+
 #define PKGCONF_BUFSIZE	(65535)
 
 typedef enum {
@@ -39,6 +52,7 @@ typedef struct pkgconf_pkg_ pkgconf_pkg_t;
 typedef struct pkgconf_dependency_ pkgconf_dependency_t;
 typedef struct pkgconf_tuple_ pkgconf_tuple_t;
 typedef struct pkgconf_fragment_ pkgconf_fragment_t;
+typedef struct pkgconf_path_ pkgconf_path_t;
 
 #define PKGCONF_ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
 
@@ -72,6 +86,12 @@ struct pkgconf_tuple_ {
 
 	char *key;
 	char *value;
+};
+
+struct pkgconf_path_ {
+	pkgconf_node_t lnode;
+
+	char *path;
 };
 
 #define PKGCONF_PKG_PROPF_NONE			0x0
@@ -214,5 +234,9 @@ void pkgconf_cache_free(void);
 void pkgconf_audit_open_log(FILE *auditf);
 void pkgconf_audit_log(const char *format, ...) PRINTFLIKE(1, 2);
 void pkgconf_audit_log_dependency(const pkgconf_pkg_t *dep, const pkgconf_dependency_t *depnode);
+
+/* path.c */
+void pkgconf_path_add(const char *text, pkgconf_list_t *dirlist);
+size_t pkgconf_path_split(const char *text, pkgconf_list_t *dirlist);
 
 #endif
