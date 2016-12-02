@@ -35,6 +35,7 @@ pkgconf_client_deinit(pkgconf_client_t *client)
 {
 	pkgconf_tuple_free_global(client);
 	pkgconf_path_free(&client->dir_list);
+	pkgconf_cache_free(client);
 }
 
 void
