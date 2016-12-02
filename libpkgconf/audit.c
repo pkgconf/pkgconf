@@ -15,38 +15,36 @@
 
 #include <libpkgconf/libpkgconf.h>
 
-static FILE *pkgconf_auditf = NULL;
-
 void
-pkgconf_audit_open_log(FILE *auditf)
+pkgconf_audit_set_log(pkgconf_client_t *client, FILE *auditf)
 {
-	pkgconf_auditf = auditf;
+	client->auditf = auditf;
 }
 
 void
-pkgconf_audit_log(const char *format, ...)
+pkgconf_audit_log(pkgconf_client_t *client, const char *format, ...)
 {
 	va_list va;
 
-	if (pkgconf_auditf == NULL)
+	if (client->auditf == NULL)
 		return;
 
 	va_start(va, format);
-	vfprintf(pkgconf_auditf, format, va);
+	vfprintf(client->auditf, format, va);
 	va_end(va);
 }
 
 void
-pkgconf_audit_log_dependency(const pkgconf_pkg_t *dep, const pkgconf_dependency_t *depnode)
+pkgconf_audit_log_dependency(pkgconf_client_t *client, const pkgconf_pkg_t *dep, const pkgconf_dependency_t *depnode)
 {
-	if (pkgconf_auditf == NULL)
+	if (client->auditf == NULL)
 		return;
 
-	fprintf(pkgconf_auditf, "%s ", dep->id);
+	fprintf(client->auditf, "%s ", dep->id);
 	if (depnode->version != NULL && depnode->compare != PKGCONF_CMP_ANY)
 	{
-		fprintf(pkgconf_auditf, "%s %s ", pkgconf_pkg_get_comparator(depnode), depnode->version);
+		fprintf(client->auditf, "%s %s ", pkgconf_pkg_get_comparator(depnode), depnode->version);
 	}
 
-	fprintf(pkgconf_auditf, "[%s]\n", dep->version);
+	fprintf(client->auditf, "[%s]\n", dep->version);
 }

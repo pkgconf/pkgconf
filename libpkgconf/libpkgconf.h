@@ -145,6 +145,8 @@ struct pkgconf_client_ {
 	pkgconf_list_t global_vars;
 
 	pkgconf_error_handler_func_t error_handler;
+
+	FILE *auditf;
 };
 
 /* client.c */
@@ -252,9 +254,9 @@ void pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 void pkgconf_cache_free(pkgconf_client_t *client);
 
 /* audit.c */
-void pkgconf_audit_open_log(FILE *auditf);
-void pkgconf_audit_log(const char *format, ...) PRINTFLIKE(1, 2);
-void pkgconf_audit_log_dependency(const pkgconf_pkg_t *dep, const pkgconf_dependency_t *depnode);
+void pkgconf_audit_set_log(pkgconf_client_t *client, FILE *auditf);
+void pkgconf_audit_log(pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
+void pkgconf_audit_log_dependency(pkgconf_client_t *client, const pkgconf_pkg_t *dep, const pkgconf_dependency_t *depnode);
 
 /* path.c */
 void pkgconf_path_add(const char *text, pkgconf_list_t *dirlist);

@@ -853,7 +853,7 @@ main(int argc, char *argv[])
 	if (logfile_arg != NULL)
 	{
 		logfile_out = fopen(logfile_arg, "w");
-		pkgconf_audit_open_log(logfile_out);
+		pkgconf_audit_set_log(&pkg_client, logfile_out);
 	}
 
 	if (required_module_version != NULL)

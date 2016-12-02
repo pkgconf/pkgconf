@@ -19,6 +19,7 @@ void
 pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
 {
 	client->error_handler = error_handler;
+	client->auditf = NULL;
 }
 
 pkgconf_client_t *

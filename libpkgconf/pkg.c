@@ -1048,7 +1048,7 @@ pkgconf_pkg_report_graph_error(pkgconf_client_t *client, pkgconf_pkg_t *parent, 
 		}
 
 		pkgconf_error(client, "Package '%s', required by '%s', not found\n", node->package, parent->id);
-		pkgconf_audit_log("%s NOT-FOUND\n", node->package);
+		pkgconf_audit_log(client, "%s NOT-FOUND\n", node->package);
 	}
 	else if (eflags & PKGCONF_PKG_ERRF_PACKAGE_VER_MISMATCH)
 	{
@@ -1104,7 +1104,7 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 			continue;
 		}
 
-		pkgconf_audit_log_dependency(pkgdep, depnode);
+		pkgconf_audit_log_dependency(client, pkgdep, depnode);
 
 		pkgdep->flags |= PKGCONF_PKG_PROPF_SEEN;
 		eflags |= pkgconf_pkg_traverse(client, pkgdep, func, data, depth - 1, flags);
