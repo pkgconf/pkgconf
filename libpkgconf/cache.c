@@ -15,8 +15,6 @@
 
 #include <libpkgconf/libpkgconf.h>
 
-static pkgconf_list_t pkg_cache = PKGCONF_LIST_INITIALIZER;
-
 /*
  * pkgconf_cache_lookup(id)
  *
@@ -25,16 +23,16 @@ static pkgconf_list_t pkg_cache = PKGCONF_LIST_INITIALIZER;
  * if present.
  */
 pkgconf_pkg_t *
-pkgconf_cache_lookup(const char *id)
+pkgconf_cache_lookup(const pkgconf_client_t *client, const char *id)
 {
 	pkgconf_node_t *node;
 
-	PKGCONF_FOREACH_LIST_ENTRY(pkg_cache.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(client->pkg_cache.head, node)
 	{
 		pkgconf_pkg_t *pkg = node->data;
 
 		if (!strcmp(pkg->id, id))
-			return pkgconf_pkg_ref(pkg);
+			return pkgconf_pkg_ref(client, pkg);
 	}
 
 	return NULL;
@@ -47,13 +45,13 @@ pkgconf_cache_lookup(const char *id)
  * the cache entry must be removed if the package is freed.
  */
 void
-pkgconf_cache_add(pkgconf_pkg_t *pkg)
+pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
 	if (pkg == NULL)
 		return;
 
-	pkgconf_pkg_ref(pkg);
-	pkgconf_node_insert(&pkg->cache_iter, pkg, &pkg_cache);
+	pkgconf_pkg_ref(client, pkg);
+	pkgconf_node_insert(&pkg->cache_iter, pkg, &client->pkg_cache);
 }
 
 /*
@@ -62,22 +60,24 @@ pkgconf_cache_add(pkgconf_pkg_t *pkg)
  * deletes a package from the cache entry.
  */
 void
-pkgconf_cache_remove(pkgconf_pkg_t *pkg)
+pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
 	if (pkg == NULL)
 		return;
 
-	pkgconf_node_delete(&pkg->cache_iter, &pkg_cache);
+	pkgconf_node_delete(&pkg->cache_iter, &client->pkg_cache);
 }
 
 void
-pkgconf_cache_free(void)
+pkgconf_cache_free(pkgconf_client_t *client)
 {
 	pkgconf_node_t *iter, *iter2;
 
-	PKGCONF_FOREACH_LIST_ENTRY_SAFE(pkg_cache.head, iter2, iter)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(client->pkg_cache.head, iter2, iter)
 	{
 		pkgconf_pkg_t *pkg = iter->data;
-		pkgconf_pkg_free(pkg);
+		pkgconf_pkg_free(client, pkg);
 	}
+
+	memset(&client->pkg_cache, 0, sizeof client->pkg_cache);
 }

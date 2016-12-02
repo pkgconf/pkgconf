@@ -129,12 +129,13 @@ struct pkgconf_pkg_ {
 };
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
-typedef void (*pkgconf_pkg_traverse_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags);
-typedef bool (*pkgconf_queue_apply_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags);
+typedef void (*pkgconf_pkg_traverse_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags);
+typedef bool (*pkgconf_queue_apply_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags);
 typedef bool (*pkgconf_error_handler_func_t)(const char *msg);
 
 struct pkgconf_client_ {
 	pkgconf_list_t dir_list;
+	pkgconf_list_t pkg_cache;
 
 #ifdef XXX_NOTYET
 	pkgconf_list_t filter_libdirs;
@@ -188,21 +189,21 @@ void pkgconf_client_free(pkgconf_client_t *client);
 bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 bool pkgconf_default_error_handler(const char *msg);
 
-pkgconf_pkg_t *pkgconf_pkg_ref(pkgconf_pkg_t *pkg);
-void pkgconf_pkg_unref(pkgconf_pkg_t *pkg);
-void pkgconf_pkg_free(pkgconf_pkg_t *pkg);
+pkgconf_pkg_t *pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg);
+void pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
+void pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 pkgconf_pkg_t *pkgconf_pkg_find(pkgconf_client_t *client, const char *name, unsigned int flags);
-unsigned int pkgconf_pkg_traverse(const pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags);
-unsigned int pkgconf_pkg_verify_graph(const pkgconf_client_t *client, pkgconf_pkg_t *root, int depth, unsigned int flags);
-pkgconf_pkg_t *pkgconf_pkg_verify_dependency(const pkgconf_client_t *client, pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
+unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags);
+unsigned int pkgconf_pkg_verify_graph(pkgconf_client_t *client, pkgconf_pkg_t *root, int depth, unsigned int flags);
+pkgconf_pkg_t *pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags);
 const char *pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep);
-int pkgconf_pkg_cflags(const pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
-int pkgconf_pkg_libs(const pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
+int pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
+int pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 pkgconf_pkg_comparator_t pkgconf_pkg_comparator_lookup_by_name(const char *name);
 pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name);
 
 int pkgconf_compare_version(const char *a, const char *b);
-pkgconf_pkg_t *pkgconf_scan_all(const pkgconf_client_t *client, void *ptr, pkgconf_pkg_iteration_func_t func);
+pkgconf_pkg_t *pkgconf_scan_all(pkgconf_client_t *client, void *ptr, pkgconf_pkg_iteration_func_t func);
 void pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags);
 
 /* parse.c */
@@ -239,16 +240,16 @@ void pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv);
 
 /* queue.c */
 void pkgconf_queue_push(pkgconf_list_t *list, const char *package);
-bool pkgconf_queue_compile(const pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list);
+bool pkgconf_queue_compile(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list);
 void pkgconf_queue_free(pkgconf_list_t *list);
-bool pkgconf_queue_apply(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
-bool pkgconf_queue_validate(const pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth, unsigned int flags);
+bool pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
+bool pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth, unsigned int flags);
 
 /* cache.c */
-pkgconf_pkg_t *pkgconf_cache_lookup(const char *id);
-void pkgconf_cache_add(pkgconf_pkg_t *pkg);
-void pkgconf_cache_remove(pkgconf_pkg_t *pkg);
-void pkgconf_cache_free(void);
+pkgconf_pkg_t *pkgconf_cache_lookup(const pkgconf_client_t *client, const char *id);
+void pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
+void pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
+void pkgconf_cache_free(pkgconf_client_t *client);
 
 /* audit.c */
 void pkgconf_audit_open_log(FILE *auditf);

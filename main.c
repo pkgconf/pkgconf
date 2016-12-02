@@ -184,7 +184,7 @@ print_libs(pkgconf_list_t *list)
 }
 
 static void
-print_modversion(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, unsigned int flags)
+print_modversion(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, unsigned int flags)
 {
 	(void) client;
 	(void) unused;
@@ -195,7 +195,7 @@ print_modversion(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unuse
 }
 
 static void
-print_variables(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, unsigned int flags)
+print_variables(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, unsigned int flags)
 {
 	pkgconf_node_t *node;
 	(void) client;
@@ -265,7 +265,7 @@ print_provides(pkgconf_pkg_t *pkg)
 }
 
 static bool
-apply_provides(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
 	pkgconf_node_t *iter;
 	(void) unused;
@@ -279,14 +279,14 @@ apply_provides(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unuse
 		pkg = pkgconf_pkg_verify_dependency(client, dep, flags, NULL);
 		print_provides(pkg);
 
-		pkgconf_pkg_free(pkg);
+		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 
 	return true;
 }
 
 static void
-print_digraph_node(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, unsigned int flags)
+print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, unsigned int flags)
 {
 	pkgconf_node_t *node;
 	(void) client;
@@ -304,7 +304,7 @@ print_digraph_node(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unu
 }
 
 static bool
-apply_digraph(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
 	int eflag;
 
@@ -322,7 +322,7 @@ apply_digraph(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused
 }
 
 static bool
-apply_modversion(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
 	int eflag;
 
@@ -335,7 +335,7 @@ apply_modversion(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unu
 }
 
 static bool
-apply_variables(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
 	int eflag;
 
@@ -353,7 +353,7 @@ typedef struct {
 } var_request_t;
 
 static void
-print_variable(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
+print_variable(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 {
 	var_request_t *req = data;
 	const char *var;
@@ -385,7 +385,7 @@ print_variable(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, u
 }
 
 static bool
-apply_variable(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, int maxdepth, unsigned int flags)
+apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, int maxdepth, unsigned int flags)
 {
 	int eflag;
 
@@ -404,7 +404,7 @@ apply_variable(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *varia
 }
 
 static bool
-apply_cflags(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
+apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
 	pkgconf_list_t *list = list_head;
 	int eflag;
@@ -424,7 +424,7 @@ apply_cflags(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *list_he
 }
 
 static bool
-apply_libs(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
+apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
 {
 	pkgconf_list_t *list = list_head;
 	int eflag;
@@ -444,7 +444,7 @@ apply_libs(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *list_head
 }
 
 static bool
-apply_requires(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_requires(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
 	pkgconf_node_t *iter;
 	(void) unused;
@@ -458,14 +458,14 @@ apply_requires(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unuse
 		pkg = pkgconf_pkg_verify_dependency(client, dep, flags, NULL);
 		print_requires(pkg);
 
-		pkgconf_pkg_free(pkg);
+		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 
 	return true;
 }
 
 static bool
-apply_requires_private(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_requires_private(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
 	pkgconf_node_t *iter;
 	(void) unused;
@@ -479,13 +479,13 @@ apply_requires_private(const pkgconf_client_t *client, pkgconf_pkg_t *world, voi
 		pkg = pkgconf_pkg_verify_dependency(client, dep, flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE, NULL);
 		print_requires_private(pkg);
 
-		pkgconf_pkg_free(pkg);
+		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 	return true;
 }
 
 static void
-check_uninstalled(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
+check_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 {
 	int *retval = data;
 	(void) client;
@@ -496,7 +496,7 @@ check_uninstalled(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data
 }
 
 static bool
-apply_uninstalled(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags)
+apply_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags)
 {
 	int eflag;
 
@@ -509,7 +509,7 @@ apply_uninstalled(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *da
 }
 
 static void
-print_graph_node(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
+print_graph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
 {
 	pkgconf_node_t *n;
 
@@ -541,7 +541,7 @@ print_graph_node(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data,
 }
 
 static bool
-apply_simulate(const pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags)
+apply_simulate(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags)
 {
 	int eflag;
 
@@ -1111,7 +1111,6 @@ out_println:
 
 out:
 	pkgconf_client_deinit(&pkg_client);
-	pkgconf_cache_free();
 
 	if (logfile_out != NULL)
 		fclose(logfile_out);

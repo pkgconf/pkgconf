@@ -30,7 +30,7 @@ pkgconf_queue_push(pkgconf_list_t *list, const char *package)
 }
 
 bool
-pkgconf_queue_compile(const pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list)
+pkgconf_queue_compile(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list)
 {
 	pkgconf_node_t *iter;
 
@@ -60,7 +60,7 @@ pkgconf_queue_free(pkgconf_list_t *list)
 }
 
 static inline unsigned int
-pkgconf_queue_verify(const pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	if (!pkgconf_queue_compile(client, world, list))
 		return PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
@@ -69,7 +69,7 @@ pkgconf_queue_verify(const pkgconf_client_t *client, pkgconf_pkg_t *world, pkgco
 }
 
 bool
-pkgconf_queue_apply(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
+pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
 {
 	pkgconf_pkg_t world = {
 		.id = "virtual:world",
@@ -86,17 +86,17 @@ pkgconf_queue_apply(const pkgconf_client_t *client, pkgconf_list_t *list, pkgcon
 
 	if (!func(client, &world, data, maxdepth, flags))
 	{
-		pkgconf_pkg_free(&world);
+		pkgconf_pkg_free(client, &world);
 		return false;
 	}
 
-	pkgconf_pkg_free(&world);
+	pkgconf_pkg_free(client, &world);
 
 	return true;
 }
 
 bool
-pkgconf_queue_validate(const pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
 	bool retval = true;
 	pkgconf_pkg_t world = {
@@ -112,7 +112,7 @@ pkgconf_queue_validate(const pkgconf_client_t *client, pkgconf_list_t *list, int
 	if (pkgconf_queue_verify(client, &world, list, maxdepth, flags) != PKGCONF_PKG_ERRF_OK)
 		retval = false;
 
-	pkgconf_pkg_free(&world);
+	pkgconf_pkg_free(client, &world);
 
 	return retval;
 }
