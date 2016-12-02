@@ -56,7 +56,7 @@ We do not provide bug-level compatibility with pkg-config.
 
 What that means is, if you feel that there is a legitimate regression versus pkg-config,
 do let us know, but also make sure that the .pc files are valid and follow the rules of
-the [pkg-config tutortial][fd-tut], as most likely fixing them to follow the specified
+the [pkg-config tutorial][fd-tut], as most likely fixing them to follow the specified
 rules will solve the problem.
 
 ## compiling `pkgconf` and `libpkgconf`
