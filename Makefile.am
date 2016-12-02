@@ -90,7 +90,7 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/dependency.c		\
 		libpkgconf/queue.c		\
 		libpkgconf/path.c
-libpkgconf_la_LDFLAGS = -version-info 1:0:0
+libpkgconf_la_LDFLAGS = -version-info 2:0:0
 # -export-symbols-regex '^pkgconf_'
 
 dist_man_MANS    = pkgconf.1
