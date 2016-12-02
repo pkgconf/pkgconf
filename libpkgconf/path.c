@@ -78,3 +78,17 @@ pkgconf_path_match_list(const char *path, pkgconf_list_t *dirlist)
 
 	return false;
 }
+
+void
+pkgconf_path_free(pkgconf_list_t *dirlist)
+{
+	pkgconf_node_t *n, *tn;
+
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(dirlist->head, tn, n)
+	{
+		pkgconf_path_t *pnode = n->data;
+
+		free(pnode->path);
+		free(pnode);
+	}
+}

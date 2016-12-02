@@ -260,5 +260,6 @@ void pkgconf_path_add(const char *text, pkgconf_list_t *dirlist);
 size_t pkgconf_path_split(const char *text, pkgconf_list_t *dirlist);
 size_t pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist);
 bool pkgconf_path_match_list(const char *path, pkgconf_list_t *dirlist);
+void pkgconf_path_free(pkgconf_list_t *dirlist);
 
 #endif
