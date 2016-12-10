@@ -98,24 +98,6 @@ fragment_has_system_dir(const pkgconf_fragment_t *frag)
 	return pkgconf_path_match_list(frag->data, check_paths);
 }
 
-static void
-print_fragment(pkgconf_fragment_t *frag)
-{
-	if (frag->type)
-		printf("-%c%s ", frag->type, frag->data);
-	else
-		printf("%s ", frag->data);
-}
-
-static void
-print_fragment_list(pkgconf_list_t *list)
-{
-	pkgconf_node_t *node;
-
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
-		print_fragment(node->data);
-}
-
 static bool
 print_list_entry(const pkgconf_pkg_t *entry, void *data)
 {
@@ -395,6 +377,7 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	int eflag;
+	char *render_buf;
 	(void) unused;
 
 	eflag = pkgconf_pkg_cflags(client, world, &unfiltered_list, maxdepth, flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
@@ -406,7 +389,9 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 	if (filtered_list.head == NULL)
 		return true;
 
-	print_fragment_list(&filtered_list);
+	render_buf = pkgconf_fragment_render(&filtered_list);
+	printf("%s", render_buf);
+	free(render_buf);
 
 	pkgconf_fragment_free(&unfiltered_list);
 	pkgconf_fragment_free(&filtered_list);
@@ -420,6 +405,7 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	int eflag;
+	char *render_buf;
 	(void) unused;
 
 	eflag = pkgconf_pkg_libs(client, world, &unfiltered_list, maxdepth, flags);
@@ -431,7 +417,9 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	if (filtered_list.head == NULL)
 		return true;
 
-	print_fragment_list(&filtered_list);
+	render_buf = pkgconf_fragment_render(&filtered_list);
+	printf("%s", render_buf);
+	free(render_buf);
 
 	pkgconf_fragment_free(&unfiltered_list);
 	pkgconf_fragment_free(&filtered_list);

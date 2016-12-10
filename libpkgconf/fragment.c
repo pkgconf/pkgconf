@@ -247,6 +247,64 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	}
 }
 
+size_t
+pkgconf_fragment_render_len(const pkgconf_list_t *list)
+{
+	size_t out = 0;
+	pkgconf_node_t *node;
+
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+	{
+		const pkgconf_fragment_t *frag = node->data;
+
+		out += 2;
+		if (frag->type)
+			out += 1;
+		if (frag->data != NULL)
+			out += strlen(frag->data);
+	}
+
+	return out;
+}
+
+void
+pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen)
+{
+	pkgconf_node_t *node;
+	char *bptr = buf;
+
+	memset(buf, 0, buflen);
+
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+	{
+		const pkgconf_fragment_t *frag = node->data;
+
+		if (frag->type)
+		{
+			*bptr++ = '-';
+			*bptr++ = frag->type;
+		}
+
+		if (frag->data)
+			bptr += strlcpy(bptr, frag->data, buflen - (bptr - buf));
+
+		*bptr++ = ' ';
+	}
+
+	*bptr = '\0';
+}
+
+char *
+pkgconf_fragment_render(const pkgconf_list_t *list)
+{
+	size_t buflen = pkgconf_fragment_render_len(list);
+	char *buf = calloc(1, buflen);
+
+	pkgconf_fragment_render_buf(list, buf, buflen);
+
+	return buf;
+}
+
 void
 pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node)
 {
