@@ -804,12 +804,7 @@ main(int argc, char *argv[])
 		pkgconf_client_set_buildroot_dir(&pkg_client, builddir);
 
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
-	{
-		pkgconf_tuple_add_global(&pkg_client, "pc_sysrootdir", sysroot_dir);
-		global_traverse_flags |= PKGCONF_PKG_PKGF_MUNGE_SYSROOT_PREFIX;
-	}
-	else
-		pkgconf_tuple_add_global(&pkg_client, "pc_sysrootdir", "/");
+		pkgconf_client_set_sysroot_dir(&pkg_client, sysroot_dir);
 
 	/* at this point, global_traverse_flags should be set, so build the dir list */
 	pkgconf_pkg_dir_list_build(&pkg_client, global_traverse_flags);
