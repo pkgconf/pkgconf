@@ -61,7 +61,6 @@ static uint64_t want_flags;
 static int maximum_traverse_depth = 2000;
 
 static char *want_variable = NULL;
-static char *sysroot_dir = NULL;
 
 FILE *error_msgout = NULL;
 FILE *logfile_out = NULL;
@@ -364,22 +363,11 @@ print_variable(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigne
 	{
 		if (*(req->buf) == '\0')
 		{
-			memset(req->buf, 0, sizeof(req->buf));
-
-			if (*var == '/' && (flags & PKGCONF_PKG_PKGF_MUNGE_SYSROOT_PREFIX) &&
-			    (sysroot_dir != NULL && strncmp(var, sysroot_dir, strlen(sysroot_dir))))
-				strlcat(req->buf, sysroot_dir, sizeof(req->buf));
-
-			strlcat(req->buf, var, sizeof(req->buf));
+			strlcpy(req->buf, var, sizeof(req->buf));
 			return;
 		}
 
 		strlcat(req->buf, " ", sizeof(req->buf));
-
-		if (*var == '/' && (flags & PKGCONF_PKG_PKGF_MUNGE_SYSROOT_PREFIX) &&
-		    (sysroot_dir != NULL && strncmp(var, sysroot_dir, strlen(sysroot_dir))))
-			strlcat(req->buf, sysroot_dir, sizeof(req->buf));
-
 		strlcat(req->buf, var, sizeof(req->buf));
 	}
 }
@@ -641,6 +629,7 @@ main(int argc, char *argv[])
 	int ret;
 	pkgconf_list_t pkgq = PKGCONF_LIST_INITIALIZER;
 	char *builddir;
+	char *sysroot_dir;
 	char *required_pkgconfig_version = NULL;
 	char *required_exact_module_version = NULL;
 	char *required_max_module_version = NULL;
