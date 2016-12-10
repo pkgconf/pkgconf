@@ -20,6 +20,9 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 {
 	client->error_handler = error_handler;
 	client->auditf = NULL;
+
+	pkgconf_client_set_sysroot_dir(client, NULL);
+	pkgconf_client_set_buildroot_dir(client, NULL);
 }
 
 pkgconf_client_t *
@@ -64,6 +67,8 @@ pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir
 		free(client->sysroot_dir);
 
 	client->sysroot_dir = sysroot_dir != NULL ? strdup(sysroot_dir) : NULL;
+
+	pkgconf_tuple_add_global(client, "pc_sysrootdir", client->sysroot_dir != NULL ? client->sysroot_dir : "/");
 }
 
 const char *
@@ -79,4 +84,6 @@ pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot
 		free(client->buildroot_dir);
 
 	client->buildroot_dir = buildroot_dir != NULL ? strdup(buildroot_dir) : NULL;
+
+	pkgconf_tuple_add_global(client, "pc_top_builddir", client->buildroot_dir != NULL ? client->buildroot_dir : "$(top_builddir)");
 }
