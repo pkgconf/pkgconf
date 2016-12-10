@@ -216,7 +216,7 @@ pkgconf_fragment_exists(pkgconf_list_t *list, const pkgconf_fragment_t *base, un
 }
 
 void
-pkgconf_fragment_copy(pkgconf_list_t *list, pkgconf_fragment_t *base, unsigned int flags, bool is_private)
+pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
 	pkgconf_fragment_t *frag;
 
@@ -231,6 +231,20 @@ pkgconf_fragment_copy(pkgconf_list_t *list, pkgconf_fragment_t *base, unsigned i
 	frag->data = strdup(base->data);
 
 	pkgconf_node_insert_tail(&frag->iter, frag, list);
+}
+
+void
+pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, unsigned int flags)
+{
+	pkgconf_node_t *node;
+
+	PKGCONF_FOREACH_LIST_ENTRY(src->head, node)
+	{
+		pkgconf_fragment_t *frag = node->data;
+
+		if (filter_func(client, frag, flags))
+			pkgconf_fragment_copy(dest, frag, flags, true);
+	}
 }
 
 void
