@@ -250,7 +250,7 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 size_t
 pkgconf_fragment_render_len(const pkgconf_list_t *list)
 {
-	size_t out = 0;
+	size_t out = 1;		/* trailing nul */
 	pkgconf_node_t *node;
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
