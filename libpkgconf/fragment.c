@@ -151,7 +151,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 }
 
 static inline pkgconf_fragment_t *
-pkgconf_fragment_lookup(pkgconf_list_t *list, pkgconf_fragment_t *base)
+pkgconf_fragment_lookup(pkgconf_list_t *list, const pkgconf_fragment_t *base)
 {
 	pkgconf_node_t *node;
 
@@ -170,7 +170,7 @@ pkgconf_fragment_lookup(pkgconf_list_t *list, pkgconf_fragment_t *base)
 }
 
 static inline bool
-pkgconf_fragment_can_merge_back(pkgconf_fragment_t *base, unsigned int flags, bool is_private)
+pkgconf_fragment_can_merge_back(const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
 	(void) flags;
 
@@ -193,7 +193,7 @@ pkgconf_fragment_can_merge_back(pkgconf_fragment_t *base, unsigned int flags, bo
 }
 
 static inline bool
-pkgconf_fragment_can_merge(pkgconf_fragment_t *base, unsigned int flags, bool is_private)
+pkgconf_fragment_can_merge(const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
 	(void) flags;
 
@@ -204,7 +204,7 @@ pkgconf_fragment_can_merge(pkgconf_fragment_t *base, unsigned int flags, bool is
 }
 
 static inline pkgconf_fragment_t *
-pkgconf_fragment_exists(pkgconf_list_t *list, pkgconf_fragment_t *base, unsigned int flags, bool is_private)
+pkgconf_fragment_exists(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
 	if (!pkgconf_fragment_can_merge_back(base, flags, is_private))
 		return NULL;
