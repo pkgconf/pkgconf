@@ -73,7 +73,7 @@ error_handler(const char *msg)
 }
 
 static bool
-fragment_has_system_dir(pkgconf_fragment_t *frag)
+fragment_has_system_dir(const pkgconf_fragment_t *frag)
 {
 	int check_flags = 0;
 	pkgconf_list_t *check_paths = NULL;
@@ -101,9 +101,6 @@ fragment_has_system_dir(pkgconf_fragment_t *frag)
 static void
 print_fragment(pkgconf_fragment_t *frag)
 {
-	if (fragment_has_system_dir(frag))
-		return;
-
 	if (frag->type)
 		printf("-%c%s ", frag->type, frag->data);
 	else
@@ -152,6 +149,9 @@ filter_cflags(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, un
 	(void) client;
 	(void) flags;
 
+	if (fragment_has_system_dir(frag))
+		return false;
+
 	if (frag->type == 'I')
 		got_flags = PKG_CFLAGS_ONLY_I;
 	else
@@ -166,6 +166,9 @@ filter_libs(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, unsi
 	int got_flags = 0;
 	(void) client;
 	(void) flags;
+
+	if (fragment_has_system_dir(frag))
+		return false;
 
 	switch (frag->type)
 	{
