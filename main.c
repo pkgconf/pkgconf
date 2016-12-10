@@ -343,12 +343,12 @@ print_variable(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigne
 	{
 		if (*(req->buf) == '\0')
 		{
-			strlcpy(req->buf, var, sizeof(req->buf));
+			pkgconf_strlcpy(req->buf, var, sizeof(req->buf));
 			return;
 		}
 
-		strlcat(req->buf, " ", sizeof(req->buf));
-		strlcat(req->buf, var, sizeof(req->buf));
+		pkgconf_strlcat(req->buf, " ", sizeof(req->buf));
+		pkgconf_strlcat(req->buf, var, sizeof(req->buf));
 	}
 }
 
