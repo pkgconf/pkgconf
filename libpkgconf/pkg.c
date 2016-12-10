@@ -77,13 +77,13 @@ get_default_pkgconfig_path(void)
 		return PKG_DEFAULT_PATH;
 
 	*p = '\0';
-	strlcpy(outbuf, namebuf, sizeof outbuf);
-	strlcat(outbuf, "/", sizeof outbuf);
-	strlcat(outbuf, "../lib/pkgconfig", sizeof outbuf);
-	strlcat(outbuf, ";", sizeof outbuf);
-	strlcat(outbuf, namebuf, sizeof outbuf);
-	strlcat(outbuf, "/", sizeof outbuf);
-	strlcat(outbuf, "../share/pkgconfig", sizeof outbuf);
+	pkgconf_strlcpy(outbuf, namebuf, sizeof outbuf);
+	pkgconf_strlcat(outbuf, "/", sizeof outbuf);
+	pkgconf_strlcat(outbuf, "../lib/pkgconfig", sizeof outbuf);
+	pkgconf_strlcat(outbuf, ";", sizeof outbuf);
+	pkgconf_strlcat(outbuf, namebuf, sizeof outbuf);
+	pkgconf_strlcat(outbuf, "/", sizeof outbuf);
+	pkgconf_strlcat(outbuf, "../share/pkgconfig", sizeof outbuf);
 
 	return outbuf;
 #endif
@@ -97,7 +97,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	static char buf[PKGCONF_BUFSIZE];
 	char *pathbuf;
 
-	strlcpy(buf, pkg->filename, sizeof buf);
+	pkgconf_strlcpy(buf, pkg->filename, sizeof buf);
 	pathbuf = strrchr(buf, PKG_DIR_SEP_S);
 	if (pathbuf == NULL)
 		pathbuf = strrchr(buf, '/');
@@ -357,9 +357,9 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 		FILE *f;
 		struct stat st;
 
-		strlcpy(filebuf, path, sizeof filebuf);
-		strlcat(filebuf, "/", sizeof filebuf);
-		strlcat(filebuf, dirent->d_name, sizeof filebuf);
+		pkgconf_strlcpy(filebuf, path, sizeof filebuf);
+		pkgconf_strlcat(filebuf, "/", sizeof filebuf);
+		pkgconf_strlcat(filebuf, dirent->d_name, sizeof filebuf);
 
 		stat(filebuf, &st);
 		if (!(S_ISREG(st.st_mode)))
@@ -524,8 +524,8 @@ pkgconf_compare_version(const char *a, const char *b)
 	if (!strcasecmp(a, b))
 		return 0;
 
-	strlcpy(buf1, a, sizeof buf1);
-	strlcpy(buf2, b, sizeof buf2);
+	pkgconf_strlcpy(buf1, a, sizeof buf1);
+	pkgconf_strlcpy(buf2, b, sizeof buf2);
 
 	one = str1 = buf1;
 	two = str2 = buf2;

@@ -79,9 +79,9 @@ pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen,
 		sysroot_dir = pkgconf_tuple_find_global(client, "pc_sysrootdir");
 
 	if (pkgconf_fragment_should_munge(source, sysroot_dir))
-		strlcat(buf, sysroot_dir, buflen);
+		pkgconf_strlcat(buf, sysroot_dir, buflen);
 
-	strlcat(buf, source, buflen);
+	pkgconf_strlcat(buf, source, buflen);
 }
 
 static inline char *
@@ -130,9 +130,9 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 				len = strlen(parent->data) + strlen(mungebuf) + 2;
 				newdata = malloc(len);
 
-				strlcpy(newdata, parent->data, len);
-				strlcat(newdata, " ", len);
-				strlcat(newdata, mungebuf, len);
+				pkgconf_strlcpy(newdata, parent->data, len);
+				pkgconf_strlcat(newdata, " ", len);
+				pkgconf_strlcat(newdata, mungebuf, len);
 
 				free(parent->data);
 				parent->data = newdata;
@@ -286,7 +286,7 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
 		}
 
 		if (frag->data)
-			bptr += strlcpy(bptr, frag->data, buflen - (bptr - buf));
+			bptr += pkgconf_strlcpy(bptr, frag->data, buflen - (bptr - buf));
 
 		*bptr++ = ' ';
 	}

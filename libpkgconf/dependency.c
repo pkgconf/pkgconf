@@ -41,10 +41,10 @@ pkgconf_dependency_addraw(pkgconf_list_t *list, const char *package, size_t pack
 	pkgconf_dependency_t *dep;
 
 	dep = calloc(sizeof(pkgconf_dependency_t), 1);
-	dep->package = strndup(package, package_sz);
+	dep->package = pkgconf_strndup(package, package_sz);
 
 	if (version_sz != 0)
-		dep->version = strndup(version, version_sz);
+		dep->version = pkgconf_strndup(version, version_sz);
 
 	dep->compare = compare;
 
@@ -103,8 +103,8 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 
 	memset(cmpname, '\0', sizeof cmpname);
 
-	strlcpy(buf, depends, sizeof buf);
-	strlcat(buf, " ", sizeof buf);
+	pkgconf_strlcpy(buf, depends, sizeof buf);
+	pkgconf_strlcat(buf, " ", sizeof buf);
 
 	while (*ptr)
 	{
