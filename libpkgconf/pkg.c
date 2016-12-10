@@ -239,9 +239,7 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 		switch (op)
 		{
 		case ':':
-			if (!pkgconf_pkg_parser_keyword_set(client, pkg, key, value))
-				/* XXX: warning? */
-				;
+			pkgconf_pkg_parser_keyword_set(client, pkg, key, value);
 			break;
 		case '=':
 			pkgconf_tuple_add(client, &pkg->vars, key, value, true);
