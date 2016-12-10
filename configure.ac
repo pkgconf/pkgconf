@@ -15,7 +15,7 @@ AC_PREREQ([2.68])
 AC_INIT([pkgconf], [1.0.1], [http://github.com/pkgconf/pkgconf/issues])
 AC_CONFIG_SRCDIR([main.c])
 AC_CONFIG_HEADERS([libpkgconf/config.h])
-AC_CHECK_FUNCS([strlcpy strlcat strndup strtok_r])
+AC_CHECK_FUNCS([strlcpy strlcat strndup])
 AM_INIT_AUTOMAKE([foreign no-dist-gzip dist-xz subdir-objects])
 AM_SILENT_RULES([yes])
 LT_INIT

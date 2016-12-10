@@ -19,6 +19,5 @@
 extern size_t pkgconf_strlcpy(char *dst, const char *src, size_t siz);
 extern size_t pkgconf_strlcat(char *dst, const char *src, size_t siz);
 extern char *pkgconf_strndup(const char *src, size_t len);
-extern char *pkgconf_strtok_r(char *s, const char *sep, char **p);
 
 #endif
