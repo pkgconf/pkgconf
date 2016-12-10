@@ -59,10 +59,29 @@ out:
 	free(workbuf);
 }
 
+static void
+pkgconf_tuple_find_delete(pkgconf_list_t *list, const char *key)
+{
+	pkgconf_node_t *node, *next;
+
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
+	{
+		pkgconf_tuple_t *tuple = node->data;
+
+		if (!strcmp(tuple->key, key))
+		{
+			pkgconf_tuple_free_entry(tuple, list);
+			return;
+		}
+	}
+}
+
 pkgconf_tuple_t *
 pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key, const char *value, bool parse)
 {
 	pkgconf_tuple_t *tuple = calloc(sizeof(pkgconf_tuple_t), 1);
+
+	pkgconf_tuple_find_delete(list, key);
 
 	tuple->key = strdup(key);
 	if (parse)
