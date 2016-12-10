@@ -156,16 +156,20 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 }
 
 void
+pkgconf_tuple_free_entry(pkgconf_tuple_t *tuple, pkgconf_list_t *list)
+{
+	pkgconf_node_delete(&tuple->iter, list);
+
+	free(tuple->key);
+	free(tuple->value);
+	free(tuple);
+}
+
+void
 pkgconf_tuple_free(pkgconf_list_t *list)
 {
 	pkgconf_node_t *node, *next;
 
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
-	{
-		pkgconf_tuple_t *tuple = node->data;
-
-		free(tuple->key);
-		free(tuple->value);
-		free(tuple);
-	}
+		pkgconf_tuple_free_entry(node->data, list);
 }
