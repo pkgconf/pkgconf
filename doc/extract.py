@@ -2,10 +2,26 @@
 # MIT license - https://github.com/jeanralphaviles/comment_parser/blob/master/LICENSE
 
 
-from collections import namedtuple
+class Comment:
+    def __init__(self, comment, line, multiline):
+        self.comment = comment
+        self.line = line
+        self.multiline = multiline
 
+    def __repr__(self):
+        return "Comment(comment=%r, line=%r, multiline=%r)" % (self.comment, self.line, self.multiline)
 
-Comment = namedtuple('Comment', ['comment', 'line', 'multiline'])
+    @property
+    def clean_text(self):
+        if not self.multiline:
+            return self.comment.strip()
+
+        lines = self.comment.splitlines()
+        cleanlines = []
+        for line in lines:
+            if line[0:3] == ' * ':
+                cleanlines.append(line[3:])
+        return '\n'.join(cleanlines)
 
 
 class FileError(Exception):
@@ -119,4 +135,4 @@ if __name__ == '__main__':
     import sys
     from pprint import pprint
 
-    pprint(extract_comments(sys.argv[1]))
+    pprint([c.clean_text for c in extract_comments(sys.argv[1])])
