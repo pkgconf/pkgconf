@@ -13,25 +13,12 @@
  * from the use of this software.
  */
 
-#include <libpkgconf/config.h>
-
 #ifndef __BSDSTUBS_H__
 #define __BSDSTUBS_H__
 
-#ifndef HAVE_STRLCPY
-extern size_t strlcpy(char *dst, const char *src, size_t siz);
-#endif
-
-#ifndef HAVE_STRLCAT
-extern size_t strlcat(char *dst, const char *src, size_t siz);
-#endif
-
-#ifndef HAVE_STRNDUP
-extern char *strndup(const char *src, size_t len);
-#endif
-
-#ifndef HAVE_STRTOK_R
-extern char *strtok_r(char *s, const char *sep, char **p);
-#endif
+extern size_t pkgconf_strlcpy(char *dst, const char *src, size_t siz);
+extern size_t pkgconf_strlcat(char *dst, const char *src, size_t siz);
+extern char *pkgconf_strndup(const char *src, size_t len);
+extern char *pkgconf_strtok_r(char *s, const char *sep, char **p);
 
 #endif

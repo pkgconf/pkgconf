@@ -24,13 +24,12 @@
 #include <libpkgconf/config.h>
 
 #ifndef HAVE_STRLCPY
-
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters
  * will be copied.  Always NUL terminates (unless siz == 0).
  * Returns strlen(src); if retval >= siz, truncation occurred.
  */
-size_t
+static inline size_t
 strlcpy(char *dst, const char *src, size_t siz)
 {
 	char *d = dst;
@@ -55,11 +54,9 @@ strlcpy(char *dst, const char *src, size_t siz)
 
 	return(s - src - 1);	/* count does not include NUL */
 }
-
 #endif
 
 #ifndef HAVE_STRLCAT
-
 /*
  * Appends src to string dst of size siz (unlike strncat, siz is the
  * full size of dst, not space left).  At most siz-1 characters
@@ -67,7 +64,7 @@ strlcpy(char *dst, const char *src, size_t siz)
  * Returns strlen(src) + MIN(siz, strlen(initial dst)).
  * If retval >= siz, truncation occurred.
  */
-size_t
+static inline size_t
 strlcat(char *dst, const char *src, size_t siz)
 {
 	char *d = dst;
@@ -94,7 +91,6 @@ strlcat(char *dst, const char *src, size_t siz)
 
 	return(dlen + (s - src));	/* count does not include NUL */
 }
-
 #endif
 
 /*
@@ -110,20 +106,17 @@ strlcat(char *dst, const char *src, size_t siz)
  */
 
 #ifndef HAVE_STRNDUP
-
 /*
  * Creates a memory buffer and copies at most 'len' characters to it.
  * If 'len' is less than the length of the source string, truncation occured.
  */
-char *strndup(const char *src, size_t len)
+static inline char *
+strndup(const char *src, size_t len)
 {
 	char *out = malloc(len + 1);
-
-	strlcpy(out, src, len + 1);
-
+	pkgconf_strlcpy(out, src, len + 1);
 	return out;
 }
-
 #endif
 
 #ifndef HAVE_STRTOK_R
@@ -149,8 +142,8 @@ char *strndup(const char *src, size_t len)
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-char *strtok_r(char *s, const char *sep, char **p)
+static inline char *
+strtok_r(char *s, const char *sep, char **p)
 {
 	if (!s && !(s = *p))
 		return NULL;
@@ -167,3 +160,27 @@ char *strtok_r(char *s, const char *sep, char **p)
 	return s;
 }
 #endif
+
+size_t
+pkgconf_strlcpy(char *dst, const char *src, size_t siz)
+{
+	return strlcpy(dst, src, siz);
+}
+
+size_t
+pkgconf_strlcat(char *dst, const char *src, size_t siz)
+{
+	return strlcat(dst, src, siz);
+}
+
+char *
+pkgconf_strndup(const char *src, size_t len)
+{
+	return strndup(src, len);
+}
+
+char *
+pkgconf_strtok_r(char *s, const char *sep, char **p)
+{
+	return strtok_r(s, sep, p);
+}
