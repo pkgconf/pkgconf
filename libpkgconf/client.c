@@ -33,6 +33,12 @@ pkgconf_client_new(pkgconf_error_handler_func_t error_handler)
 void
 pkgconf_client_deinit(pkgconf_client_t *client)
 {
+	if (client->sysroot_dir != NULL)
+		free(client->sysroot_dir);
+
+	if (client->buildroot_dir != NULL)
+		free(client->buildroot_dir);
+
 	pkgconf_tuple_free_global(client);
 	pkgconf_path_free(&client->dir_list);
 	pkgconf_cache_free(client);
@@ -43,4 +49,34 @@ pkgconf_client_free(pkgconf_client_t *client)
 {
 	pkgconf_client_deinit(client);
 	free(client);
+}
+
+const char *
+pkgconf_client_get_sysroot_dir(const pkgconf_client_t *client)
+{
+	return client->sysroot_dir;
+}
+
+void
+pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir)
+{
+	if (client->sysroot_dir != NULL)
+		free(client->sysroot_dir);
+
+	client->sysroot_dir = sysroot_dir != NULL ? strdup(sysroot_dir) : NULL;
+}
+
+const char *
+pkgconf_client_get_buildroot_dir(const pkgconf_client_t *client)
+{
+	return client->buildroot_dir;
+}
+
+void
+pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot_dir)
+{
+	if (client->buildroot_dir != NULL)
+		free(client->buildroot_dir);
+
+	client->buildroot_dir = buildroot_dir != NULL ? strdup(buildroot_dir) : NULL;
 }

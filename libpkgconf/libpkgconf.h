@@ -147,6 +147,9 @@ struct pkgconf_client_ {
 	pkgconf_error_handler_func_t error_handler;
 
 	FILE *auditf;
+
+	char *sysroot_dir;
+	char *buildroot_dir;
 };
 
 /* client.c */
@@ -154,6 +157,10 @@ void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t 
 pkgconf_client_t *pkgconf_client_new(pkgconf_error_handler_func_t error_handler);
 void pkgconf_client_deinit(pkgconf_client_t *client);
 void pkgconf_client_free(pkgconf_client_t *client);
+const char *pkgconf_client_get_sysroot_dir(const pkgconf_client_t *client);
+void pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir);
+const char *pkgconf_client_get_buildroot_dir(const pkgconf_client_t *client);
+void pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot_dir);
 
 #define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((unsigned int)(c)))
 #define PKGCONF_IS_OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
