@@ -812,9 +812,7 @@ main(int argc, char *argv[])
 		want_flags |= PKG_KEEP_SYSTEM_LIBS;
 
 	if ((builddir = getenv("PKG_CONFIG_TOP_BUILD_DIR")) != NULL)
-		pkgconf_tuple_add_global(&pkg_client, "pc_top_builddir", builddir);
-	else
-		pkgconf_tuple_add_global(&pkg_client, "pc_top_builddir", "$(top_builddir)");
+		pkgconf_client_set_buildroot_dir(&pkg_client, builddir);
 
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
 	{
