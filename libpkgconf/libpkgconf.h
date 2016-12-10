@@ -215,7 +215,7 @@ pkgconf_pkg_t *pkgconf_scan_all(pkgconf_client_t *client, void *ptr, pkgconf_pkg
 void pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags);
 
 /* parse.c */
-pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *path, FILE *f, unsigned int flags);
+pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *path, FILE *f);
 void pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends);
 void pkgconf_dependency_parse(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
 void pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail);

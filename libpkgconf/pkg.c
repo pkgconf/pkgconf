@@ -119,7 +119,7 @@ pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags)
 		pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", get_default_pkgconfig_path(), &client->dir_list);
 }
 
-typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags);
+typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value);
 typedef struct {
 	const char *keyword;
 	const pkgconf_pkg_parser_keyword_func_t func;
@@ -133,29 +133,23 @@ static int pkgconf_pkg_parser_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
+pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value)
 {
 	char **dest = ((void *) pkg + offset);
-	(void) flags;
-
 	*dest = pkgconf_tuple_parse(client, &pkg->vars, value);
 }
 
 static void
-pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
+pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value)
 {
 	pkgconf_list_t *dest = ((void *) pkg + offset);
-	(void) flags;
-
 	pkgconf_fragment_parse(client, dest, &pkg->vars, value);
 }
 
 static void
-pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
+pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value)
 {
 	pkgconf_list_t *dest = ((void *) pkg + offset);
-	(void) flags;
-
 	pkgconf_dependency_parse(client, pkg, dest, value);
 }
 
@@ -175,7 +169,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 };
 
 static bool
-pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, char *value, unsigned int flags)
+pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, char *value)
 {
 	const pkgconf_pkg_parser_keyword_pair_t *pair = bsearch(keyword,
 		pkgconf_pkg_parser_keyword_funcs, PKGCONF_ARRAY_SIZE(pkgconf_pkg_parser_keyword_funcs),
@@ -184,17 +178,17 @@ pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pk
 	if (pair == NULL || pair->func == NULL)
 		return false;
 
-	pair->func(client, pkg, pair->offset, value, flags);
+	pair->func(client, pkg, pair->offset, value);
 	return true;
 }
 
 /*
- * pkgconf_pkg_new_from_file(filename, file, flags)
+ * pkgconf_pkg_new_from_file(client, filename, file)
  *
  * Parse a .pc file into a pkgconf_pkg_t object structure.
  */
 pkgconf_pkg_t *
-pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f, unsigned int flags)
+pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f)
 {
 	pkgconf_pkg_t *pkg;
 	char readbuf[PKGCONF_BUFSIZE];
@@ -245,7 +239,7 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 		switch (op)
 		{
 		case ':':
-			if (!pkgconf_pkg_parser_keyword_set(client, pkg, key, value, flags))
+			if (!pkgconf_pkg_parser_keyword_set(client, pkg, key, value))
 				/* XXX: warning? */
 				;
 			break;
@@ -338,11 +332,11 @@ pkgconf_pkg_try_specific_path(const pkgconf_client_t *client, const char *path, 
 
 	if (!(flags & PKGCONF_PKG_PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 	{
-		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f, flags);
+		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f);
 		pkg->flags |= PKGCONF_PKG_PROPF_UNINSTALLED;
 	}
 	else if ((f = fopen(locbuf, "r")) != NULL)
-		pkg = pkgconf_pkg_new_from_file(client, locbuf, f, flags);
+		pkg = pkgconf_pkg_new_from_file(client, locbuf, f);
 
 	return pkg;
 }
@@ -377,7 +371,7 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 		if (f == NULL)
 			continue;
 
-		pkg = pkgconf_pkg_new_from_file(client, filebuf, f, 0);
+		pkg = pkgconf_pkg_new_from_file(client, filebuf, f);
 		if (pkg != NULL)
 		{
 			if (func(pkg, data))
@@ -464,7 +458,7 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name, unsigned int flags)
 		{
 			pkgconf_pkg_t *pkg;
 
-			pkg = pkgconf_pkg_new_from_file(client, name, f, flags);
+			pkg = pkgconf_pkg_new_from_file(client, name, f);
 			pkgconf_path_add(pkg_get_parent_dir(pkg), &client->dir_list);
 
 			return pkg;
