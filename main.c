@@ -110,6 +110,15 @@ print_fragment(pkgconf_fragment_t *frag)
 		printf("%s ", frag->data);
 }
 
+static void
+print_fragment_list(pkgconf_list_t *list)
+{
+	pkgconf_node_t *node;
+
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+		print_fragment(node->data);
+}
+
 static bool
 print_list_entry(const pkgconf_pkg_t *entry, void *data)
 {
@@ -136,50 +145,36 @@ print_package_entry(const pkgconf_pkg_t *entry, void *data)
 	return false;
 }
 
-static void
-print_cflags(pkgconf_list_t *list)
+static bool
+filter_cflags(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, unsigned int flags)
 {
-	pkgconf_node_t *node;
+	int got_flags = 0;
+	(void) client;
+	(void) flags;
 
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
-	{
-		pkgconf_fragment_t *frag = node->data;
-		int got_flags = 0;
+	if (frag->type == 'I')
+		got_flags = PKG_CFLAGS_ONLY_I;
+	else
+		got_flags = PKG_CFLAGS_ONLY_OTHER;
 
-		if (frag->type == 'I')
-			got_flags = PKG_CFLAGS_ONLY_I;
-		else
-			got_flags = PKG_CFLAGS_ONLY_OTHER;
-
-		if ((want_flags & got_flags) == 0)
-			continue;
-
-		print_fragment(frag);
-	}
+	return (want_flags & got_flags) != 0;
 }
 
-static void
-print_libs(pkgconf_list_t *list)
+static bool
+filter_libs(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, unsigned int flags)
 {
-	pkgconf_node_t *node;
+	int got_flags = 0;
+	(void) client;
+	(void) flags;
 
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+	switch (frag->type)
 	{
-		pkgconf_fragment_t *frag = node->data;
-		int got_flags = 0;
-
-		switch (frag->type)
-		{
-			case 'L': got_flags = PKG_LIBS_ONLY_LDPATH; break;
-			case 'l': got_flags = PKG_LIBS_ONLY_LIBNAME; break;
-			default: got_flags = PKG_LIBS_ONLY_OTHER; break;
-		}
-
-		if ((want_flags & got_flags) == 0)
-			continue;
-
-		print_fragment(frag);
+		case 'L': got_flags = PKG_LIBS_ONLY_LDPATH; break;
+		case 'l': got_flags = PKG_LIBS_ONLY_LIBNAME; break;
+		default: got_flags = PKG_LIBS_ONLY_OTHER; break;
 	}
+
+	return (want_flags & got_flags) != 0;
 }
 
 static void
@@ -392,41 +387,51 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, i
 }
 
 static bool
-apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
+apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
-	pkgconf_list_t *list = list_head;
+	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
+	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	int eflag;
+	(void) unused;
 
-	eflag = pkgconf_pkg_cflags(client, world, list, maxdepth, flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
+	eflag = pkgconf_pkg_cflags(client, world, &unfiltered_list, maxdepth, flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	if (list->head == NULL)
+	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, flags);
+
+	if (filtered_list.head == NULL)
 		return true;
 
-	print_cflags(list);
+	print_fragment_list(&filtered_list);
 
-	pkgconf_fragment_free(list);
+	pkgconf_fragment_free(&unfiltered_list);
+	pkgconf_fragment_free(&filtered_list);
 
 	return true;
 }
 
 static bool
-apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *list_head, int maxdepth, unsigned int flags)
+apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
 {
-	pkgconf_list_t *list = list_head;
+	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
+	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	int eflag;
+	(void) unused;
 
-	eflag = pkgconf_pkg_libs(client, world, list, maxdepth, flags);
+	eflag = pkgconf_pkg_libs(client, world, &unfiltered_list, maxdepth, flags);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	if (list->head == NULL)
+	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_libs, flags);
+
+	if (filtered_list.head == NULL)
 		return true;
 
-	print_libs(list);
+	print_fragment_list(&filtered_list);
 
-	pkgconf_fragment_free(list);
+	pkgconf_fragment_free(&unfiltered_list);
+	pkgconf_fragment_free(&filtered_list);
 
 	return true;
 }
@@ -1065,9 +1070,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_CFLAGS))
 	{
-		pkgconf_list_t frag_list = PKGCONF_LIST_INITIALIZER;
-
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_cflags, maximum_traverse_depth, global_traverse_flags, &frag_list))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_cflags, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out_println;
@@ -1076,9 +1079,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_LIBS))
 	{
-		pkgconf_list_t frag_list = PKGCONF_LIST_INITIALIZER;
-
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_libs, maximum_traverse_depth, global_traverse_flags, &frag_list))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_libs, maximum_traverse_depth, global_traverse_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out_println;

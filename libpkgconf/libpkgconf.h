@@ -227,7 +227,7 @@ int pkgconf_argv_split(const char *src, int *argc, char ***argv);
 void pkgconf_argv_free(char **argv);
 
 /* fragment.c */
-typedef bool (*pkgconf_fragment_filter_func_t)(const pkgconf_client_t *client, pkgconf_fragment_t *frag, unsigned int flags);
+typedef bool (*pkgconf_fragment_filter_func_t)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, unsigned int flags);
 void pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value);
 void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string);
 void pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private);
