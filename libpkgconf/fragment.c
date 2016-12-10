@@ -85,23 +85,20 @@ pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen,
 }
 
 static inline char *
-pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source, unsigned int flags)
+pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source)
 {
 	char mungebuf[PKGCONF_BUFSIZE];
-	char *sysroot_dir;
 
-	if (!(flags & PKGCONF_PKG_PKGF_MUNGE_SYSROOT_PREFIX))
+	if (client->sysroot_dir == NULL)
 		return strdup(source);
 
-	sysroot_dir = pkgconf_tuple_find_global(client, "pc_sysrootdir");
-
-	pkgconf_fragment_munge(client, mungebuf, sizeof mungebuf, source, sysroot_dir);
+	pkgconf_fragment_munge(client, mungebuf, sizeof mungebuf, source, client->sysroot_dir);
 
 	return strdup(mungebuf);
 }
 
 void
-pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
+pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string)
 {
 	pkgconf_fragment_t *frag;
 
@@ -113,7 +110,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 		frag = calloc(sizeof(pkgconf_fragment_t), 1);
 
 		frag->type = *(string + 1);
-		frag->data = pkgconf_fragment_copy_munged(client, string + 2, flags);
+		frag->data = pkgconf_fragment_copy_munged(client, string + 2);
 	}
 	else
 	{
@@ -260,7 +257,7 @@ pkgconf_fragment_free(pkgconf_list_t *list)
 }
 
 void
-pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
+pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
 {
 	int i, argc;
 	char **argv;
@@ -269,7 +266,7 @@ pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkg
 	pkgconf_argv_split(repstr, &argc, &argv);
 
 	for (i = 0; i < argc; i++)
-		pkgconf_fragment_add(client, list, argv[i], flags);
+		pkgconf_fragment_add(client, list, argv[i]);
 
 	pkgconf_argv_free(argv);
 	free(repstr);

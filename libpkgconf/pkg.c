@@ -145,7 +145,9 @@ static void
 pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value, unsigned int flags)
 {
 	pkgconf_list_t *dest = ((void *) pkg + offset);
-	pkgconf_fragment_parse(client, dest, &pkg->vars, value, flags);
+	(void) flags;
+
+	pkgconf_fragment_parse(client, dest, &pkg->vars, value);
 }
 
 static void

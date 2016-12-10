@@ -228,8 +228,8 @@ int pkgconf_argv_split(const char *src, int *argc, char ***argv);
 void pkgconf_argv_free(char **argv);
 
 /* fragment.c */
-void pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags);
-void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags);
+void pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value);
+void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string);
 void pkgconf_fragment_copy(pkgconf_list_t *list, pkgconf_fragment_t *base, unsigned int flags, bool is_private);
 void pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node);
 void pkgconf_fragment_free(pkgconf_list_t *list);
