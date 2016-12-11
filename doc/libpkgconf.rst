@@ -6,4 +6,5 @@ libpkgconf - an API for managing `pkg-config` modules
 
    libpkgconf-argvsplit
    libpkgconf-audit
+   libpkgconf-cache
    libpkgconf-client
