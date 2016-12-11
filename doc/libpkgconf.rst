@@ -9,3 +9,4 @@ libpkgconf - an API for managing `pkg-config` modules
    libpkgconf-cache
    libpkgconf-client
    libpkgconf-dependency
+   libpkgconf-path
