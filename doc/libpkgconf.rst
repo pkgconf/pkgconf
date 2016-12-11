@@ -11,3 +11,4 @@ libpkgconf - an API for managing `pkg-config` modules
    libpkgconf-dependency
    libpkgconf-path
    libpkgconf-queue
+   libpkgconf-tuple
