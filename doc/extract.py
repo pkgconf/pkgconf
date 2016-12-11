@@ -21,7 +21,16 @@ class Comment:
         for line in lines:
             if line[0:3] == ' * ':
                 cleanlines.append(line[3:])
+            elif len(line) == 2:
+                cleanlines.append('')
         return '\n'.join(cleanlines)
+
+    @property
+    def doc_text(self):
+        text = self.clean_text
+        if '!doc' in text[0:4]:
+            return text[5:]
+        return None
 
 
 class FileError(Exception):
@@ -135,4 +144,6 @@ if __name__ == '__main__':
     import sys
     from pprint import pprint
 
-    pprint([c.clean_text for c in extract_comments(sys.argv[1])])
+    comments = [comment for comment in extract_comments(sys.argv[1]) if comment.doc_text]
+    for comment in comments:
+        print(comment.doc_text)
