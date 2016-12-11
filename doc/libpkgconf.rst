@@ -5,4 +5,5 @@ libpkgconf - an API for managing `pkg-config` modules
    :maxdepth: 2
 
    libpkgconf-argvsplit
+   libpkgconf-audit
    libpkgconf-client
