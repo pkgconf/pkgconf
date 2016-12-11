@@ -8,3 +8,4 @@ libpkgconf - an API for managing `pkg-config` modules
    libpkgconf-audit
    libpkgconf-cache
    libpkgconf-client
+   libpkgconf-dependency
