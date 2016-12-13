@@ -38,7 +38,7 @@
  *
  *    :param pkgconf_client_t* client: The client to initialise.
  *    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
- *    :param void * error_handler_data: user data passed to optional error handler
+ *    :param void* error_handler_data: user data passed to optional error handler
  *    :return: nothing
  */
 void
@@ -60,7 +60,7 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
  *    Allocate and initialise a pkgconf client object.
  *
  *    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
- *    :param void * error_handler_data: user data passed to optional error handler
+ *    :param void* error_handler_data: user data passed to optional error handler
  *    :return: A pkgconf client object.
  *    :rtype: pkgconf_client_t*
  */
