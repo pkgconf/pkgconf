@@ -25,13 +25,15 @@ pkgconf_error(const pkgconf_client_t *client, const char *format, ...)
 	vsnprintf(errbuf, sizeof errbuf, format, va);
 	va_end(va);
 
-	return client->error_handler(errbuf);
+	return client->error_handler(errbuf, client, client->error_handler_data);
 }
 
 bool
-pkgconf_default_error_handler(const char *msg)
+pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
 {
 	(void) msg;
+	(void) client;
+	(void) data;
 
 	return true;
 }

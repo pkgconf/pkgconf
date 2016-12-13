@@ -66,8 +66,10 @@ FILE *error_msgout = NULL;
 FILE *logfile_out = NULL;
 
 static bool
-error_handler(const char *msg)
+error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
 {
+	(void) client;
+	(void) data;
 	fprintf(error_msgout, "%s", msg);
 	return true;
 }
@@ -682,7 +684,7 @@ main(int argc, char *argv[])
 		{ NULL, 0, NULL, 0 }
 	};
 
-	pkgconf_client_init(&pkg_client, error_handler);
+	pkgconf_client_init(&pkg_client, error_handler, NULL);
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &filter_libdirs);
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &filter_includedirs);
 

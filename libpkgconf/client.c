@@ -38,11 +38,13 @@
  *
  *    :param pkgconf_client_t* client: The client to initialise.
  *    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
+ *    :param void * error_handler_data: user data passed to optional error handler
  *    :return: nothing
  */
 void
-pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
+pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data)
 {
+	client->error_handler_data = error_handler_data;
 	client->error_handler = error_handler;
 	client->auditf = NULL;
 
@@ -58,14 +60,15 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
  *    Allocate and initialise a pkgconf client object.
  *
  *    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
+ *    :param void * error_handler_data: user data passed to optional error handler
  *    :return: A pkgconf client object.
  *    :rtype: pkgconf_client_t*
  */
 pkgconf_client_t *
-pkgconf_client_new(pkgconf_error_handler_func_t error_handler)
+pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data)
 {
 	pkgconf_client_t *out = calloc(sizeof(pkgconf_client_t), 1);
-	pkgconf_client_init(out, error_handler);
+	pkgconf_client_init(out, error_handler, error_handler_data);
 	return out;
 }
 

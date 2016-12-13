@@ -131,7 +131,7 @@ struct pkgconf_pkg_ {
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
 typedef void (*pkgconf_pkg_traverse_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags);
 typedef bool (*pkgconf_queue_apply_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags);
-typedef bool (*pkgconf_error_handler_func_t)(const char *msg);
+typedef bool (*pkgconf_error_handler_func_t)(const char *msg, const pkgconf_client_t *client, const void *data);
 
 struct pkgconf_client_ {
 	pkgconf_list_t dir_list;
@@ -144,6 +144,7 @@ struct pkgconf_client_ {
 
 	pkgconf_list_t global_vars;
 
+	void *error_handler_data;
 	pkgconf_error_handler_func_t error_handler;
 
 	FILE *auditf;
@@ -153,8 +154,8 @@ struct pkgconf_client_ {
 };
 
 /* client.c */
-void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler);
-pkgconf_client_t *pkgconf_client_new(pkgconf_error_handler_func_t error_handler);
+void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data);
+pkgconf_client_t *pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data);
 void pkgconf_client_deinit(pkgconf_client_t *client);
 void pkgconf_client_free(pkgconf_client_t *client);
 const char *pkgconf_client_get_sysroot_dir(const pkgconf_client_t *client);
@@ -195,7 +196,7 @@ void pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buil
 #endif /* defined(__INTEL_COMPILER) || defined(__GNUC__) */
 
 bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
-bool pkgconf_default_error_handler(const char *msg);
+bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data);
 
 pkgconf_pkg_t *pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 void pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
