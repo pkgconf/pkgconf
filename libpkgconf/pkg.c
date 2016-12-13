@@ -13,6 +13,7 @@
  * from the use of this software.
  */
 
+#include <libpkgconf/config.h>
 #include <libpkgconf/libpkgconf.h>
 
 bool

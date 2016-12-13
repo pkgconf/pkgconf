@@ -95,6 +95,7 @@ libpkgconf_la_LDFLAGS = -version-info 2:0:0 -export-symbols-regex '^pkgconf_'
 dist_man_MANS    = pkgconf.1
 pkgconf_LDADD    = libpkgconf.la
 pkgconf_SOURCES  = main.c getopt_long.c
+pkgconf_CPPFLAGS = -Ilibpkgconf
 noinst_HEADERS   = getopt_long.h
 
 dist_doc_DATA = README.md AUTHORS

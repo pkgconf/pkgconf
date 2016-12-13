@@ -16,7 +16,6 @@
 #ifndef LIBPKGCONF__LIBPKGCONF_H
 #define LIBPKGCONF__LIBPKGCONF_H
 
-#include <libpkgconf/config.h>
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/iter.h>
 #include <libpkgconf/bsdstubs.h>

@@ -14,6 +14,7 @@
  */
 
 #include <libpkgconf/libpkgconf.h>
+#include "config.h"
 #include "getopt_long.h"
 
 #define PKG_CFLAGS_ONLY_I		(((uint64_t) 1) << 2)
