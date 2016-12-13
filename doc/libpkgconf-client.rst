@@ -15,6 +15,7 @@ thread boundaries.
 
    :param pkgconf_client_t* client: The client to initialise.
    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
+   :param void* error_handler_data: user data passed to optional error handler
    :return: nothing
 
 .. c:function:: pkgconf_client_t* pkgconf_client_new(pkgconf_error_handler_func_t error_handler)
@@ -22,6 +23,7 @@ thread boundaries.
    Allocate and initialise a pkgconf client object.
 
    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
+   :param void* error_handler_data: user data passed to optional error handler
    :return: A pkgconf client object.
    :rtype: pkgconf_client_t*
 
