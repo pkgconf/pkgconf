@@ -76,8 +76,7 @@ check_SCRIPTS=	$(test_scripts:.sh=)
 
 SUFFIXES=	.sh
 
-pkgincludedir = $(includedir)/libpkgconf
-pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h
+nobase_pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h
 libpkgconf_la_SOURCES  =	\
 		libpkgconf/audit.c		\
 		libpkgconf/cache.c		\
