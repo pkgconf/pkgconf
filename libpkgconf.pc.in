@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+includedir=@includedir@
+libdir=@libdir@
+
+Name: libpkgconf
+Description: a library for accessing and manipulating development framework configuration
+URL: http://github.com/pkgconf/pkgconf
+Version: @PACKAGE_VERSION@
+CFlags: -I${includedir}/pkgconf
+Libs: -L${libdir} -lpkgconf

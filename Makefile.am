@@ -4,9 +4,11 @@ datadir                = @datadir@
 includedir             = @includedir@
 system_includedir      = @SYSTEM_INCLUDEDIR@
 system_libdir          = @SYSTEM_LIBDIR@
-pkgconfigdir           = @PKGCONFIGDIR@
+pkg_default_dir        = @PKGCONFIGDIR@
+pkgconfigdir           = $(libdir)/pkgconfig
+nodist_pkgconfig_DATA  = libpkgconf.pc
 
-AM_CFLAGS = -Wall -Wextra -Wformat=2 -std=gnu99 -DPKG_DEFAULT_PATH=\"$(pkgconfigdir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
+AM_CFLAGS = -Wall -Wextra -Wformat=2 -std=gnu99 -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
 
 bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la

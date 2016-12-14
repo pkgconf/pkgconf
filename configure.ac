@@ -45,5 +45,5 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
-AC_CONFIG_FILES([Makefile Kyuafile tests/Kyuafile tests/test_env.sh])
+AC_CONFIG_FILES([Makefile Kyuafile libpkgconf.pc tests/Kyuafile tests/test_env.sh])
 AC_OUTPUT
