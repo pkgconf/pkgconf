@@ -16,6 +16,16 @@
 #include <libpkgconf/config.h>
 #include <libpkgconf/libpkgconf.h>
 
+/*
+ * !doc
+ *
+ * libpkgconf `pkg` module
+ * =======================
+ *
+ * The `pkg` module provides dependency resolution services and the overall `.pc` file parsing
+ * routines.
+ */
+
 #ifdef _WIN32
 #	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
 #	undef PKG_DEFAULT_PATH
@@ -87,6 +97,19 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	return buf;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags)
+ *
+ *    Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is provided,
+ *    then only the ``PKG_CONFIG_PATH`` environment variable will be used, otherwise both the
+ *    ``PKG_CONFIG_PATH`` and ``PKG_CONFIG_LIBDIR`` environment variables will be used.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
+ *    :param uint flags: A set of dependency resolver options.
+ *    :return: nothing
+ */
 void
 pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags)
 {
@@ -163,9 +186,17 @@ pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pk
 }
 
 /*
- * pkgconf_pkg_new_from_file(client, filename, file)
+ * !doc
  *
- * Parse a .pc file into a pkgconf_pkg_t object structure.
+ * .. c:function:: pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f)
+ *
+ *    Parse a .pc file into a pkgconf_pkg_t object structure.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param char* filename: The filename of the package file (including full path).
+ *    :param FILE* f: The file object to read from.
+ *    :returns: A ``pkgconf_pkg_t`` object which contains the package data.
+ *    :rtype: pkgconf_pkg_t *
  */
 pkgconf_pkg_t *
 pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f)
@@ -236,6 +267,17 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 	return pkgconf_pkg_ref(client, pkg);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
+ *
+ *    Releases all releases for a given ``pkgconf_pkg_t`` object.
+ *
+ *    :param pkgconf_client_t* client: The client which owns the ``pkgconf_pkg_t`` object, `pkg`.
+ *    :param pkgconf_pkg_t* pkg: The package to free.
+ *    :return: nothing
+ */
 void
 pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
@@ -280,6 +322,18 @@ pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	free(pkg);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_pkg_t *pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg)
+ *
+ *    Adds an additional reference to the package object.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object which owns the package being referenced.
+ *    :param pkgconf_pkg_t* pkg: The package object being referenced.
+ *    :return: The package itself with an incremented reference count.
+ *    :rtype: pkgconf_pkg_t *
+ */
 pkgconf_pkg_t *
 pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
@@ -289,6 +343,17 @@ pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	return pkg;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
+ *
+ *    Releases a reference on the package object.  If the reference count is 0, then also free the package.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object which owns the package being dereferenced.
+ *    :param pkgconf_pkg_t* pkg: The package object being dereferenced.
+ *    :return: nothing
+ */
 void
 pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
@@ -367,6 +432,21 @@ out:
 	return outpkg;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_pkg_t *pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_func_t func)
+ *
+ *    Iterates over all packages found in the `package directory list`, running ``func`` on them.  If ``func`` returns true,
+ *    then stop iteration and return the last iterated package.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param void* data: An opaque pointer to data to provide the iteration function with.
+ *    :param pkgconf_pkg_iteration_func_t func: A function which is called for each package to determine if the package matches,
+ *        always return ``false`` to iterate over all packages.
+ *    :return: A package object reference if one is found by the scan function, else ``NULL``.
+ *    :rtype: pkgconf_pkg_t *
+ */
 pkgconf_pkg_t *
 pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_func_t func)
 {
@@ -422,6 +502,19 @@ pkgconf_pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags
 }
 #endif
 
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_pkg_t *pkgconf_pkg_find(pkgconf_client_t *client, const char *name, unsigned int flags)
+ *
+ *    Search for a package.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param char* name: The name of the package `atom` to use for searching.
+ *    :param uint flags: A set of flags which define the behaviour of the dependency resolver.
+ *    :return: A package object reference if the package was found, else ``NULL``.
+ *    :rtype: pkgconf_pkg_t *
+ */
 pkgconf_pkg_t *
 pkgconf_pkg_find(pkgconf_client_t *client, const char *name, unsigned int flags)
 {
@@ -480,9 +573,16 @@ out:
 }
 
 /*
- * pkgconf_compare_version(a, b)
+ * !doc
  *
- * compare versions using RPM version comparison rules as described in the LSB.
+ * .. c:function:: int pkgconf_compare_version(const char *a, const char *b)
+ *
+ *    Compare versions using RPM version comparison rules as described in the LSB.
+ *
+ *    :param char* a: The first version to compare in the pair.
+ *    :param char* b: The second version to compare in the pair.
+ *    :return: -1 if the first version is greater, 0 if both versions are equal, 1 if the second version is greater.
+ *    :rtype: int
  */
 int
 pkgconf_compare_version(const char *a, const char *b)
@@ -664,7 +764,19 @@ static int pkgconf_builtin_pkg_pair_cmp(const void *key, const void *ptr)
 	return strcasecmp(key, pair->name);
 }
 
-pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name)
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name)
+ *
+ *    Looks up a built-in package.  The package should not be freed or dereferenced.
+ *
+ *    :param char* name: An atom corresponding to a built-in package to search for.
+ *    :return: the built-in package if present, else ``NULL``.
+ *    :rtype: pkgconf_pkg_t *
+ */
+pkgconf_pkg_t *
+pkgconf_builtin_pkg_get(const char *name)
 {
 	const pkgconf_builtin_pkg_pair_t *pair = bsearch(name, pkgconf_builtin_pkg_pair_set,
 		PKGCONF_ARRAY_SIZE(pkgconf_builtin_pkg_pair_set), sizeof(pkgconf_builtin_pkg_pair_t),
@@ -753,9 +865,15 @@ static const pkgconf_vercmp_res_func_t pkgconf_pkg_comparator_impls[] = {
 };
 
 /*
- * pkgconf_pkg_get_comparator(pkgdep)
+ * !doc
  *
- * returns the comparator used in a depgraph dependency node as a string.
+ * .. c:function:: const char *pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep)
+ *
+ *    Returns the comparator used in a depgraph dependency node as a string.
+ *
+ *    :param pkgconf_dependency_t* pkgdep: The depgraph dependency node to return the comparator for.
+ *    :return: A string matching the comparator or ``"???"``.
+ *    :rtype: char *
  */
 const char *
 pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep)
@@ -767,10 +885,16 @@ pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep)
 }
 
 /*
- * pkgconf_pkg_comparator_lookup_by_name(name)
+ * !doc
  *
- * look up the appropriate comparator bytecode in the comparator set (defined
- * above, see pkgconf_pkg_comparator_names and pkgconf_pkg_comparator_impls).
+ * .. c:function:: pkgconf_pkg_comparator_t pkgconf_pkg_comparator_lookup_by_name(const char *name)
+ *
+ *    Look up the appropriate comparator bytecode in the comparator set (defined
+ *    in ``pkg.c``, see ``pkgconf_pkg_comparator_names`` and ``pkgconf_pkg_comparator_impls``).
+ *
+ *    :param char* name: The comparator to look up by `name`.
+ *    :return: The comparator bytecode if found, else ``PKGCONF_CMP_ANY``.
+ *    :rtype: pkgconf_pkg_comparator_t
  */
 pkgconf_pkg_comparator_t
 pkgconf_pkg_comparator_lookup_by_name(const char *name)
@@ -955,10 +1079,19 @@ pkgconf_pkg_scan_providers(pkgconf_client_t *client, pkgconf_dependency_t *pkgde
 }
 
 /*
- * pkg_verify_dependency(pkgdep, flags)
+ * !doc
  *
- * verify a pkgconf_dependency_t node in the depgraph.  if the dependency is solvable,
- * return the appropriate pkgconf_pkg_t object, else NULL.
+ * .. c:function:: pkgconf_pkg_t *pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
+ *
+ *    Verify a pkgconf_dependency_t node in the depgraph.  If the dependency is solvable,
+ *    return the appropriate ``pkgconf_pkg_t`` object, else ``NULL``.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param pkgconf_dependency_t* pkgdep: The dependency graph node to solve.
+ *    :param uint flags: A set of package resolver flags which modify behaviour.
+ *    :param uint* eflags: An optional pointer that, if set, will be populated with an error code from the resolver.
+ *    :return: On success, the appropriate ``pkgconf_pkg_t`` object to solve the dependency, else ``NULL``.
+ *    :rtype: pkgconf_pkg_t *
  */
 pkgconf_pkg_t *
 pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
@@ -995,10 +1128,19 @@ pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pk
 }
 
 /*
- * pkg_verify_graph(root, depth)
+ * !doc
  *
- * verify the graph dependency nodes are satisfiable by walking the tree using
- * pkgconf_pkg_traverse().
+ * .. c:function:: unsigned int pkgconf_pkg_verify_graph(pkgconf_client_t *client, pkgconf_pkg_t *root, int depth, unsigned int flags)
+ *
+ *    Verify the graph dependency nodes are satisfiable by walking the tree using
+ *    ``pkgconf_pkg_traverse()``.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param pkgconf_pkg_t* root: The root entry in the package dependency graph which should contain the top-level dependencies to resolve.
+ *    :param int depth: The maximum allowed depth for dependency resolution.
+ *    :param uint flags: A set of package resolver flags which modify it's behaviour.
+ *    :return: On success, ``PKGCONF_PKG_ERRF_OK`` (0), else an error code.
+ *    :rtype: unsigned int
  */
 unsigned int
 pkgconf_pkg_verify_graph(pkgconf_client_t *client, pkgconf_pkg_t *root, int depth, unsigned int flags)
@@ -1133,9 +1275,26 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_client_t *client,
 }
 
 /*
- * pkgconf_pkg_traverse(root, func, data, maxdepth, flags)
+ * !doc
  *
- * walk the dependency graph up to maxdepth levels.  -1 means infinite recursion.
+ * .. c:function:: unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags)
+ *
+ *    Walk and resolve the dependency graph up to `maxdepth` levels.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param pkgconf_pkg_t* root: The root of the dependency graph.
+ *    :param pkgconf_pkg_traverse_func_t func: A traversal function to call for each resolved node in the dependency graph.
+ *    :param void* data: An opaque pointer to data to be passed to the traversal function.
+ *    :param int maxdepth: The maximum depth to walk the dependency graph for.  -1 means infinite recursion.
+ *    :param uint flags: A set of flags which modify the dependency resolver's behaviour:
+ *
+ *        :``PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL``: Do not call the traversal function for the root element in the graph if it is a virtual or built-in package.
+ *        :``PKGCONF_PKG_PKGF_SKIP_CONFLICTS``: Do not process `conflicts` rules.
+ *        :``PKGCONF_PKG_PKGF_SKIP_PROVIDES``: Do not process `provides` rules.
+ *        :``PKGCONF_PKG_PKGF_SEARCH_PRIVATE``: Process `requires.private` rules.
+ *
+ *    :return: ``PKGCONF_PKG_ERRF_OK`` on success, else an error code.
+ *    :rtype: unsigned int
  */
 unsigned int
 pkgconf_pkg_traverse(pkgconf_client_t *client,
@@ -1204,15 +1363,32 @@ pkgconf_pkg_cflags_private_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg,
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags_private.head, node)
 	{
 		pkgconf_fragment_t *frag = node->data;
-
 		pkgconf_fragment_copy(list, frag, flags, true);
 	}
 }
 
-int
+/*
+ * !doc
+ *
+ * .. c:function:: int pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+ *
+ *    Walks a dependency graph and extracts relevant ``CFLAGS`` fragments.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param pkgconf_pkg_t* root: The root of the dependency graph.
+ *    :param pkgconf_list_t* list: The fragment list to add the extracted ``CFLAGS`` fragments to.
+ *    :param int maxdepth: The maximum allowed depth for dependency resolution.  -1 means infinite recursion.
+ *    :param uint flags: A set of optional dependency resolver flags.  All of the flags for ``pkgconf_pkg_traverse()`` are relevant here, as well as:
+ *
+ *        :``PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS``: merge ``CFLAGS.private`` entries as well
+ *
+ *    :return: ``PKGCONF_PKG_ERRF_OK`` if successful, otherwise an error code.
+ *    :rtype: unsigned int
+ */
+unsigned int
 pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
-	int eflag;
+	unsigned int eflag;
 
 	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_collect, list, maxdepth, flags);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
@@ -1252,10 +1428,28 @@ pkgconf_pkg_libs_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *dat
 	}
 }
 
-int
+/*
+ * !doc
+ *
+ * .. c:function:: int pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+ *
+ *    Walks a dependency graph and extracts relevant ``LIBS`` fragments.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param pkgconf_pkg_t* root: The root of the dependency graph.
+ *    :param pkgconf_list_t* list: The fragment list to add the extracted ``LIBS`` fragments to.
+ *    :param int maxdepth: The maximum allowed depth for dependency resolution.  -1 means infinite recursion.
+ *    :param uint flags: A set of optional dependency resolver flags.  All of the flags for ``pkgconf_pkg_traverse()`` are relevant here, as well as:
+ *
+ *        :``PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS``: merge ``LIBS.private`` entries as well
+ *
+ *    :return: ``PKGCONF_PKG_ERRF_OK`` if successful, otherwise an error code.
+ *    :rtype: unsigned int
+ */
+unsigned int
 pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
 {
-	int eflag;
+	unsigned int eflag;
 
 	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_libs_collect, list, maxdepth, flags);
 
