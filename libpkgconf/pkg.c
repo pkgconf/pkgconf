@@ -16,29 +16,6 @@
 #include <libpkgconf/config.h>
 #include <libpkgconf/libpkgconf.h>
 
-bool
-pkgconf_error(const pkgconf_client_t *client, const char *format, ...)
-{
-	char errbuf[PKGCONF_BUFSIZE];
-	va_list va;
-
-	va_start(va, format);
-	vsnprintf(errbuf, sizeof errbuf, format, va);
-	va_end(va);
-
-	return client->error_handler(errbuf, client, client->error_handler_data);
-}
-
-bool
-pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
-{
-	(void) msg;
-	(void) client;
-	(void) data;
-
-	return true;
-}
-
 #ifdef _WIN32
 #	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
 #	undef PKG_DEFAULT_PATH
