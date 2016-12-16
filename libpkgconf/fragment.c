@@ -15,6 +15,17 @@
 
 #include <libpkgconf/libpkgconf.h>
 
+/*
+ * !doc
+ *
+ * libpkgconf `fragment` module
+ * ============================
+ *
+ * The `fragment` module provides low-level management and rendering of fragment lists.  A
+ * `fragment list` contains various `fragments` of text (such as ``-I /usr/include``) in a matter
+ * which is composable, mergeable and reorderable.
+ */
+
 struct pkgconf_fragment_check {
 	char *token;
 	size_t len;
@@ -97,6 +108,18 @@ pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source)
 	return strdup(mungebuf);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string)
+ *
+ *    Adds a `fragment` of text to a `fragment list`, possibly modifying the fragment if a sysroot is set.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
+ *    :param pkgconf_list_t* list: The fragment list.
+ *    :param char* string: The string of text to add as a fragment to the fragment list.
+ *    :return: nothing
+ */
 void
 pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string)
 {
@@ -215,6 +238,20 @@ pkgconf_fragment_exists(pkgconf_list_t *list, const pkgconf_fragment_t *base, un
 	return pkgconf_fragment_lookup(list, base);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
+ *
+ *    Copies a `fragment` to another `fragment list`, possibly removing a previous copy of the `fragment`
+ *    in a process known as `mergeback`.
+ *
+ *    :param pkgconf_list_t* list: The list the fragment is being added to.
+ *    :param pkgconf_fragment_t* base: The fragment being copied.
+ *    :param uint flags: A set of dependency resolver flags.
+ *    :param bool is_private: Whether the fragment list is a `private` fragment list (static linking).
+ *    :return: nothing
+ */
 void
 pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
@@ -233,6 +270,20 @@ pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsi
 	pkgconf_node_insert_tail(&frag->iter, frag, list);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, unsigned int flags)
+ *
+ *    Copies a `fragment list` to another `fragment list` which match a user-specified filtering function.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
+ *    :param pkgconf_list_t* dest: The destination list.
+ *    :param pkgconf_list_t* src: The source list.
+ *    :param pkgconf_fragment_filter_func_t filter_func: The filter function to use.
+ *    :param uint flags: A set of dependency resolver flags.
+ *    :return: nothing
+ */
 void
 pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, unsigned int flags)
 {
@@ -247,6 +298,17 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	}
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: size_t pkgconf_fragment_render_len(const pkgconf_list_t *list)
+ *
+ *    Calculates the required memory to store a `fragment list` when rendered as a string.
+ *
+ *    :param pkgconf_list_t* list: The `fragment list` being rendered.
+ *    :return: the amount of bytes required to represent the `fragment list` when rendered
+ *    :rtype: size_t
+ */
 size_t
 pkgconf_fragment_render_len(const pkgconf_list_t *list)
 {
@@ -267,6 +329,18 @@ pkgconf_fragment_render_len(const pkgconf_list_t *list)
 	return out;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen)
+ *
+ *    Renders a `fragment list` into a buffer.
+ *
+ *    :param pkgconf_list_t* list: The `fragment list` being rendered.
+ *    :param char* buf: The buffer to render the fragment list into.
+ *    :param size_t buflen: The length of the buffer.
+ *    :return: nothing
+ */
 void
 pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen)
 {
@@ -294,6 +368,17 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
 	*bptr = '\0';
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: char *pkgconf_fragment_render(const pkgconf_list_t *list)
+ *
+ *    Allocate memory and render a `fragment list` into it.
+ *
+ *    :param pkgconf_list_t* list: The `fragment list` being rendered.
+ *    :return: An allocated string containing the rendered `fragment list`.
+ *    :rtype: char *
+ */
 char *
 pkgconf_fragment_render(const pkgconf_list_t *list)
 {
@@ -305,6 +390,17 @@ pkgconf_fragment_render(const pkgconf_list_t *list)
 	return buf;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node)
+ *
+ *    Delete a `fragment node` from a `fragment list`.
+ *
+ *    :param pkgconf_list_t* list: The `fragment list` to delete from.
+ *    :param pkgconf_fragment_t* node: The `fragment node` to delete.
+ *    :return: nothing
+ */
 void
 pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node)
 {
@@ -314,6 +410,16 @@ pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node)
 	free(node);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_free(pkgconf_list_t *list)
+ *
+ *    Delete an entire `fragment list`.
+ *
+ *    :param pkgconf_list_t* list: The `fragment list` to delete.
+ *    :return: nothing
+ */
 void
 pkgconf_fragment_free(pkgconf_list_t *list)
 {
@@ -328,6 +434,19 @@ pkgconf_fragment_free(pkgconf_list_t *list)
 	}
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
+ *
+ *    Parse a string into a `fragment list`.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
+ *    :param pkgconf_list_t* list: The `fragment list` to add the fragment entries to.
+ *    :param pkgconf_list_t* vars: A list of variables to use for variable substitution.
+ *    :param char* value: The string to parse into fragments.
+ *    :return: nothing
+ */
 void
 pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
 {
