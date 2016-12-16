@@ -385,7 +385,7 @@ pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_fun
 }
 
 #ifdef _WIN32
-pkgconf_pkg_t *
+static pkgconf_pkg_t *
 pkgconf_pkg_find_in_registry_key(HKEY hkey, const char *name, unsigned int flags)
 {
 	pkgconf_pkg_t *pkg = NULL;
