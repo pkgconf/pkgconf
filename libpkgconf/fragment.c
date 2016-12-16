@@ -298,6 +298,20 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	}
 }
 
+static inline size_t
+pkgconf_fragment_len(const pkgconf_fragment_t *frag)
+{
+	size_t len = 1;
+
+	if (frag->type)
+		len += 2;
+
+	if (frag->data != NULL)
+		len += strlen(frag->data);
+
+	return len;
+}
+
 /*
  * !doc
  *
@@ -318,12 +332,7 @@ pkgconf_fragment_render_len(const pkgconf_list_t *list)
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		const pkgconf_fragment_t *frag = node->data;
-
-		out += 2;
-		if (frag->type)
-			out += 1;
-		if (frag->data != NULL)
-			out += strlen(frag->data);
+		out += pkgconf_fragment_len(frag);
 	}
 
 	return out;
@@ -352,6 +361,10 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		const pkgconf_fragment_t *frag = node->data;
+		size_t buf_remaining = buflen - (bptr - buf);
+
+		if (pkgconf_fragment_len(frag) > buf_remaining)
+			break;
 
 		if (frag->type)
 		{
@@ -360,7 +373,7 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
 		}
 
 		if (frag->data)
-			bptr += pkgconf_strlcpy(bptr, frag->data, buflen - (bptr - buf));
+			bptr += pkgconf_strlcpy(bptr, frag->data, buf_remaining);
 
 		*bptr++ = ' ';
 	}
