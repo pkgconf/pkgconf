@@ -50,6 +50,9 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 
 	pkgconf_client_set_sysroot_dir(client, NULL);
 	pkgconf_client_set_buildroot_dir(client, NULL);
+
+	if (client->error_handler == NULL)
+		client->error_handler = pkgconf_default_error_handler;
 }
 
 /*
