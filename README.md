@@ -1,4 +1,4 @@
-# pkgconf [![Build Status](https://travis-ci.org/pkgconf/pkgconf.svg?branch=master)](https://travis-ci.org/pkgconf/pkgconf)
+# pkgconf [![Build Status](https://travis-ci.org/pkgconf/pkgconf.svg?branch=master)](https://travis-ci.org/pkgconf/pkgconf) [![Documentation Status](https://readthedocs.org/projects/pkgconf/badge/?version=latest)](http://pkgconf.readthedocs.io/en/latest/?badge=latest)
 
 `pkgconf` is a program which helps to configure compiler and linker flags for
 development frameworks.  It is similar to pkg-config from freedesktop.org.

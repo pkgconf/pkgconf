@@ -60,7 +60,21 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/provides.pc \
 		tests/lib1/provides-request-simple.pc \
 		tests/test_env.sh \
-		$(test_scripts)
+		$(test_scripts) \
+		doc/conf.py \
+		doc/extract.py \
+		doc/index.rst \
+		doc/libpkgconf.rst \
+		doc/libpkgconf-argvsplit.rst \
+		doc/libpkgconf-audit.rst \
+		doc/libpkgconf-cache.rst \
+		doc/libpkgconf-client.rst \
+		doc/libpkgconf-dependency.rst \
+		doc/libpkgconf-fragment.rst \
+		doc/libpkgconf-path.rst \
+		doc/libpkgconf-pkg.rst \
+		doc/libpkgconf-queue.rst \
+		doc/libpkgconf-tuple.rst
 
 test_scripts=	\
 		tests/basic.sh \
