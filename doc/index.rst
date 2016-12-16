@@ -5,7 +5,6 @@ pkgconf
    :maxdepth: 2
 
    libpkgconf
-   client
 
 Indices and tables
 ==================
