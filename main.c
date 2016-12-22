@@ -683,8 +683,6 @@ main(int argc, char *argv[])
 	};
 
 	pkgconf_client_init(&pkg_client, error_handler, NULL);
-	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &pkg_client.filter_libdirs);
-	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &pkg_client.filter_includedirs);
 
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
