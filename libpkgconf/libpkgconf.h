@@ -136,10 +136,8 @@ struct pkgconf_client_ {
 	pkgconf_list_t dir_list;
 	pkgconf_list_t pkg_cache;
 
-#ifdef XXX_NOTYET
 	pkgconf_list_t filter_libdirs;
 	pkgconf_list_t filter_includedirs;
-#endif
 
 	pkgconf_list_t global_vars;
 
@@ -274,7 +272,7 @@ void pkgconf_audit_log_dependency(pkgconf_client_t *client, const pkgconf_pkg_t 
 void pkgconf_path_add(const char *text, pkgconf_list_t *dirlist);
 size_t pkgconf_path_split(const char *text, pkgconf_list_t *dirlist);
 size_t pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist);
-bool pkgconf_path_match_list(const char *path, pkgconf_list_t *dirlist);
+bool pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist);
 void pkgconf_path_free(pkgconf_list_t *dirlist);
 
 #endif

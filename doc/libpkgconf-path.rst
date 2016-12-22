@@ -34,7 +34,7 @@ variables.
    :return: number of path nodes added to the path list
    :rtype: size_t
 
-.. c:function:: bool pkgconf_path_match_list(const char *path, pkgconf_list_t *dirlist)
+.. c:function:: bool pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
 
    Checks whether a path has a matching prefix in a path list.
 

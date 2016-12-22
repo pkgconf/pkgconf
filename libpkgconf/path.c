@@ -114,7 +114,7 @@ pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgco
 /*
  * !doc
  *
- * .. c:function:: bool pkgconf_path_match_list(const char *path, pkgconf_list_t *dirlist)
+ * .. c:function:: bool pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
  *
  *    Checks whether a path has a matching prefix in a path list.
  *
@@ -124,7 +124,7 @@ pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgco
  *    :rtype: bool
  */
 bool
-pkgconf_path_match_list(const char *path, pkgconf_list_t *dirlist)
+pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
 {
 	pkgconf_node_t *n = NULL;
 
