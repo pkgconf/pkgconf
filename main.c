@@ -55,9 +55,6 @@ static unsigned int global_traverse_flags = PKGCONF_PKG_PKGF_NONE;
 
 static pkgconf_client_t pkg_client;
 
-static pkgconf_list_t filter_libdirs = PKGCONF_LIST_INITIALIZER;
-static pkgconf_list_t filter_includedirs = PKGCONF_LIST_INITIALIZER;
-
 static uint64_t want_flags;
 static int maximum_traverse_depth = 2000;
 
@@ -76,20 +73,20 @@ error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
 }
 
 static bool
-fragment_has_system_dir(const pkgconf_fragment_t *frag)
+fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag)
 {
 	int check_flags = 0;
-	pkgconf_list_t *check_paths = NULL;
+	const pkgconf_list_t *check_paths = NULL;
 
 	switch (frag->type)
 	{
 	case 'L':
 		check_flags = PKG_KEEP_SYSTEM_LIBS;
-		check_paths = &filter_libdirs;
+		check_paths = &client->filter_libdirs;
 		break;
 	case 'I':
 		check_flags = PKG_KEEP_SYSTEM_CFLAGS;
-		check_paths = &filter_includedirs;
+		check_paths = &client->filter_includedirs;
 		break;
 	default:
 		return false;
@@ -134,7 +131,7 @@ filter_cflags(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, un
 	(void) client;
 	(void) flags;
 
-	if (fragment_has_system_dir(frag))
+	if (fragment_has_system_dir(client, frag))
 		return false;
 
 	if (frag->type == 'I')
@@ -152,7 +149,7 @@ filter_libs(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, unsi
 	(void) client;
 	(void) flags;
 
-	if (fragment_has_system_dir(frag))
+	if (fragment_has_system_dir(client, frag))
 		return false;
 
 	switch (frag->type)
@@ -686,8 +683,8 @@ main(int argc, char *argv[])
 	};
 
 	pkgconf_client_init(&pkg_client, error_handler, NULL);
-	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &filter_libdirs);
-	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &filter_includedirs);
+	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &pkg_client.filter_libdirs);
+	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &pkg_client.filter_includedirs);
 
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
