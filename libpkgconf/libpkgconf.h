@@ -235,6 +235,7 @@ void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *des
 size_t pkgconf_fragment_render_len(const pkgconf_list_t *list);
 void pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t len);
 char *pkgconf_fragment_render(const pkgconf_list_t *list);
+bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag);
 
 /* fileio.c */
 char *pkgconf_fgetline(char *line, size_t size, FILE *stream);

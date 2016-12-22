@@ -73,26 +73,6 @@ error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
 }
 
 static bool
-fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag)
-{
-	const pkgconf_list_t *check_paths = NULL;
-
-	switch (frag->type)
-	{
-	case 'L':
-		check_paths = &client->filter_libdirs;
-		break;
-	case 'I':
-		check_paths = &client->filter_includedirs;
-		break;
-	default:
-		return false;
-	}
-
-	return pkgconf_path_match_list(frag->data, check_paths);
-}
-
-static bool
 print_list_entry(const pkgconf_pkg_t *entry, void *data)
 {
 	(void) data;
@@ -125,7 +105,7 @@ filter_cflags(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, un
 	(void) client;
 	(void) flags;
 
-	if (fragment_has_system_dir(client, frag))
+	if (pkgconf_fragment_has_system_dir(client, frag))
 		return false;
 
 	if (frag->type == 'I')
@@ -143,7 +123,7 @@ filter_libs(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, unsi
 	(void) client;
 	(void) flags;
 
-	if (fragment_has_system_dir(client, frag))
+	if (pkgconf_fragment_has_system_dir(client, frag))
 		return false;
 
 	switch (frag->type)

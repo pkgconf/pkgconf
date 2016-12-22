@@ -15,6 +15,16 @@ which is composable, mergeable and reorderable.
    :param char* string: The string of text to add as a fragment to the fragment list.
    :return: nothing
 
+.. c:function:: bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag)
+
+   Checks if a `fragment` contains a `system path`.  System paths are detected at compile time and optionally overridden by
+   the ``PKG_CONFIG_SYSTEM_INCLUDE_PATH`` and ``PKG_CONFIG_SYSTEM_LIBRARY_PATH`` environment variables.
+
+   :param pkgconf_client_t* client: The pkgconf client object the fragment belongs to.
+   :param pkgconf_fragment_t* frag: The fragment being checked.
+   :return: true if the fragment contains a system path, else false
+   :rtype: bool
+
 .. c:function:: void pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 
    Copies a `fragment` to another `fragment list`, possibly removing a previous copy of the `fragment`
