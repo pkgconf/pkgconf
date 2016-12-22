@@ -75,25 +75,19 @@ error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
 static bool
 fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag)
 {
-	int check_flags = 0;
 	const pkgconf_list_t *check_paths = NULL;
 
 	switch (frag->type)
 	{
 	case 'L':
-		check_flags = PKG_KEEP_SYSTEM_LIBS;
 		check_paths = &client->filter_libdirs;
 		break;
 	case 'I':
-		check_flags = PKG_KEEP_SYSTEM_CFLAGS;
 		check_paths = &client->filter_includedirs;
 		break;
 	default:
 		return false;
 	}
-
-	if ((want_flags & check_flags) == 0)
-		return false;
 
 	return pkgconf_path_match_list(frag->data, check_paths);
 }
