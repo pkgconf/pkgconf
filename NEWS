@@ -1,18 +1,23 @@
 Changes from previous version of pkgconf
 ========================================
 
-Changes from 1.0.x to 1.1:
---------------------------
+Changes from 1.0.1 to 1.1.0:
+----------------------------
 
 * Features:
   - new Provides system allows alternate .pc files to provide a dependency
+  - stable library API (with documentation): http://pkgconf.readthedocs.io/
 
 * Enhancements:
   - make it possible to programmatically declare dependencies instead of just using the parser
   - testsuite migrated to run under kyua
+  - provide a libpkgconf.pc file for consumers to use
+  - pkgconf client: new --pure flag to enable dependency graph optimization in --static mode
+  - significant .pc parser speedups using bsearch(3).
 
 * Bug fixes:
-  - TODO
+  - fragments: fix another edge case involving empty tokens being concatenated onto previous tokens (#99)
+  - libpkgconf: remove dependencies on config.h in public headers
 
 Changes from 1.0.0 to 1.0.1:
 ----------------------------
