@@ -28,13 +28,21 @@ can run:
 ## comparison of `pkgconf` and `pkg-config` dependency resolvers
 
 pkgconf builds an acyclic directed dependency graph.  This allows for the user
-to more conservatively link their binaries -- which may be helpful in some 
+to more conservatively link their binaries -- which may be helpful in some
 environments, such as when prelink(1) is being used.  As a result of building
 a directed dependency graph designed for the specific problem domain provided
-by the user, more accurate dependencies can be determined.  pkg-config, on the
-other hand builds a database of all known pkg-config files on the system before
-attempting to resolve dependencies, which is a considerably slower and less
-efficient design.
+by the user, more accurate dependencies can be determined.
+
+Current release versions of pkg-config, on the other hand, build a database of all
+known pkg-config files on the system before attempting to resolve dependencies, which
+is a considerably slower and less efficient design.  Efforts have been made recently
+to improve this behaviour.
+
+As of the 1.1 series, pkgconf also fully implements support for `Provides` rules,
+while pkg-config does not.  pkg-config only provides the `--print-provides` functionality
+as a stub.  There are other intentional implementation differences in pkgconf's dependency
+resolver verses pkg-config's dependency resolver in terms of completeness and correctness,
+such as, for example, how `Conflicts` rules are processed.
 
 ## linker flags optimization
 
