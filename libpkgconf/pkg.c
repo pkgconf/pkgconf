@@ -116,10 +116,10 @@ pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags)
 	if (client->dir_list.head != NULL || client->dir_list.tail != NULL)
 		return;
 
-	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &client->dir_list);
+	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &client->dir_list, true);
 
 	if (!(flags & PKGCONF_PKG_PKGF_ENV_ONLY))
-		pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", get_default_pkgconfig_path(), &client->dir_list);
+		pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", get_default_pkgconfig_path(), &client->dir_list, true);
 }
 
 typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value);
@@ -530,7 +530,7 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name, unsigned int flags)
 			pkgconf_pkg_t *pkg;
 
 			pkg = pkgconf_pkg_new_from_file(client, name, f);
-			pkgconf_path_add(pkg_get_parent_dir(pkg), &client->dir_list);
+			pkgconf_path_add(pkg_get_parent_dir(pkg), &client->dir_list, true);
 
 			return pkg;
 		}

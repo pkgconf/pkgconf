@@ -12,6 +12,7 @@ variables.
 
    :param char* text: The path text to add as a path node.
    :param pkgconf_list_t* dirlist: The path list to add the path node to.
+   :param bool filter: Whether to perform duplicate filtering.
    :return: nothing
 
 .. c:function:: size_t pkgconf_path_split(const char *text, pkgconf_list_t *dirlist)
@@ -20,6 +21,7 @@ variables.
 
    :param char* text: The path text to split and add as path nodes.
    :param pkgconf_list_t* dirlist: The path list to have the path nodes added to.
+   :param bool filter: Whether to perform duplicate filtering.
    :return: number of path nodes added to the path list
    :rtype: size_t
 
@@ -31,6 +33,7 @@ variables.
    :param char* environ: The environment variable to look up.
    :param char* fallback: The fallback paths to use if the environment variable is not set.
    :param pkgconf_list_t* dirlist: The path list to add the path nodes to.
+   :param bool filter: Whether to perform duplicate filtering.
    :return: number of path nodes added to the path list
    :rtype: size_t
 

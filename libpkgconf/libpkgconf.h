@@ -271,9 +271,9 @@ void pkgconf_audit_log(pkgconf_client_t *client, const char *format, ...) PRINTF
 void pkgconf_audit_log_dependency(pkgconf_client_t *client, const pkgconf_pkg_t *dep, const pkgconf_dependency_t *depnode);
 
 /* path.c */
-void pkgconf_path_add(const char *text, pkgconf_list_t *dirlist);
-size_t pkgconf_path_split(const char *text, pkgconf_list_t *dirlist);
-size_t pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist);
+void pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter);
+size_t pkgconf_path_split(const char *text, pkgconf_list_t *dirlist, bool filter);
+size_t pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist, bool filter);
 bool pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist);
 void pkgconf_path_free(pkgconf_list_t *dirlist);
 

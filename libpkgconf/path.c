@@ -66,10 +66,11 @@ path_list_contains_entry(const char *text, pkgconf_list_t *dirlist)
  *
  *    :param char* text: The path text to add as a path node.
  *    :param pkgconf_list_t* dirlist: The path list to add the path node to.
+ *    :param bool filter: Whether to perform duplicate filtering.
  *    :return: nothing
  */
 void
-pkgconf_path_add(const char *text, pkgconf_list_t *dirlist)
+pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 {
 	pkgconf_path_t *node;
 #ifdef PKGCONF_CACHE_INODES
@@ -78,10 +79,10 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist)
 	if (stat(text, &st) == -1)
 		return;
 
-	if (path_list_contains_entry(text, dirlist, &st))
+	if (filter && path_list_contains_entry(text, dirlist, &st))
 		return;
 #else
-	if (path_list_contains_entry(text, dirlist))
+	if (filter && path_list_contains_entry(text, dirlist))
 		return;
 #endif
 
@@ -103,11 +104,12 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist)
  *
  *    :param char* text: The path text to split and add as path nodes.
  *    :param pkgconf_list_t* dirlist: The path list to have the path nodes added to.
+ *    :param bool filter: Whether to perform duplicate filtering.
  *    :return: number of path nodes added to the path list
  *    :rtype: size_t
  */
 size_t
-pkgconf_path_split(const char *text, pkgconf_list_t *dirlist)
+pkgconf_path_split(const char *text, pkgconf_list_t *dirlist, bool filter)
 {
 	size_t count = 0;
 	char *workbuf, *p, *iter;
@@ -118,7 +120,7 @@ pkgconf_path_split(const char *text, pkgconf_list_t *dirlist)
 	iter = workbuf = strdup(text);
 	while ((p = strtok(iter, PKG_CONFIG_PATH_SEP_S)) != NULL)
 	{
-		pkgconf_path_add(p, dirlist);
+		pkgconf_path_add(p, dirlist, filter);
 
 		count++, iter = NULL;
 	}
@@ -138,20 +140,21 @@ pkgconf_path_split(const char *text, pkgconf_list_t *dirlist)
  *    :param char* environ: The environment variable to look up.
  *    :param char* fallback: The fallback paths to use if the environment variable is not set.
  *    :param pkgconf_list_t* dirlist: The path list to add the path nodes to.
+ *    :param bool filter: Whether to perform duplicate filtering.
  *    :return: number of path nodes added to the path list
  *    :rtype: size_t
  */
 size_t
-pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist)
+pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist, bool filter)
 {
 	const char *data;
 
 	data = getenv(environ);
 	if (data != NULL)
-		return pkgconf_path_split(data, dirlist);
+		return pkgconf_path_split(data, dirlist, filter);
 
 	if (fallback != NULL)
-		return pkgconf_path_split(fallback, dirlist);
+		return pkgconf_path_split(fallback, dirlist, filter);
 
 	/* no fallback and no environment variable, thusly no nodes added */
 	return 0;
