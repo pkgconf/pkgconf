@@ -16,6 +16,7 @@ Changes from 1.0.1 to 1.1.0:
   - significant .pc parser speedups using bsearch(3).
   - handle -idirafter in the same way as -isystem CFLAGS
   - learn toolchain "system" paths from GCC environment variables, if present
+  - filter duplicate PKG_CONFIG_PATH (and other) entries by inode
 
 * Bug fixes:
   - fragments: fix another edge case involving empty tokens being concatenated onto previous tokens (#99)
