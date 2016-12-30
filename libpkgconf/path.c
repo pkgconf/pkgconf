@@ -16,14 +16,28 @@
 #include <libpkgconf/libpkgconf.h>
 #include <libpkgconf/config.h>
 
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
+# define PKGCONF_CACHE_INODES
+#endif
+
 static bool
+#ifdef PKGCONF_CACHE_INODES
+path_list_contains_entry(const char *text, pkgconf_list_t *dirlist, struct stat *st)
+#else
 path_list_contains_entry(const char *text, pkgconf_list_t *dirlist)
+#endif
 {
 	pkgconf_node_t *n;
 
 	PKGCONF_FOREACH_LIST_ENTRY(dirlist->head, n)
 	{
 		pkgconf_path_t *pn = n->data;
+
+#ifdef PKGCONF_CACHE_INODES
+		if (((ino_t) pn->handle) == st->st_ino)
+			return true;
+#endif
 
 		if (!strcmp(text, pn->path))
 			return true;
@@ -58,12 +72,24 @@ void
 pkgconf_path_add(const char *text, pkgconf_list_t *dirlist)
 {
 	pkgconf_path_t *node;
+#ifdef PKGCONF_CACHE_INODES
+	struct stat st;
 
+	if (stat(text, &st) == -1)
+		return;
+
+	if (path_list_contains_entry(text, dirlist, &st))
+		return;
+#else
 	if (path_list_contains_entry(text, dirlist))
 		return;
+#endif
 
 	node = calloc(sizeof(pkgconf_path_t), 1);
 	node->path = strdup(text);
+#ifdef PKGCONF_CACHE_INODES
+	node->handle = (void *)(intptr_t) st.st_ino;
+#endif
 
 	pkgconf_node_insert_tail(&node->lnode, node, dirlist);
 }

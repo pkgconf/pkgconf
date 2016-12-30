@@ -92,6 +92,7 @@ struct pkgconf_path_ {
 	pkgconf_node_t lnode;
 
 	char *path;
+	void *handle;
 };
 
 #define PKGCONF_PKG_PROPF_NONE			0x0
