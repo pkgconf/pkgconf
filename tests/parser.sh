@@ -13,6 +13,10 @@ tests_init \
 	tilde_quoting \
 	paren_quoting \
 	multiline_field \
+	flag_order_1 \
+	flag_order_2 \
+	flag_order_3 \
+	flag_order_4 \
 	quoted
 
 comments_body()
@@ -106,4 +110,36 @@ quoted_body()
 	atf_check \
 		-o inline:"-DQUOTED=\\\"bla\\\"  \n" \
 		pkgconf --cflags quotes
+}
+
+flag_order_1_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-L/test/lib -Bdynamic -lfoo -Bstatic -lbar  \n" \
+		pkgconf --libs flag-order-1
+}
+
+flag_order_2_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-L/test/lib -Bdynamic -lfoo -Bstatic -lbar -lfoo  \n" \
+		pkgconf --libs flag-order-1 foo
+}
+
+flag_order_3_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-L/test/lib -Wl,--start-group -lfoo -lbar -Wl,--end-group  \n" \
+		pkgconf --libs flag-order-3
+}
+
+flag_order_4_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-L/test/lib -Wl,--start-group -lfoo -lbar -Wl,--end-group -lfoo  \n" \
+		pkgconf --libs flag-order-3 foo
 }
