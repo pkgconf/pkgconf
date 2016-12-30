@@ -8,7 +8,7 @@ variables.
 
 .. c:function:: void pkgconf_path_add(const char *text, pkgconf_list_t *dirlist)
 
-   Adds a path node to a path list.
+   Adds a path node to a path list.  If the path is already in the list, do nothing.
 
    :param char* text: The path text to add as a path node.
    :param pkgconf_list_t* dirlist: The path list to add the path node to.

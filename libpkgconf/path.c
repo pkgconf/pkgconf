@@ -14,6 +14,23 @@
  */
 
 #include <libpkgconf/libpkgconf.h>
+#include <libpkgconf/config.h>
+
+static bool
+path_list_contains_entry(const char *text, pkgconf_list_t *dirlist)
+{
+	pkgconf_node_t *n;
+
+	PKGCONF_FOREACH_LIST_ENTRY(dirlist->head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+
+		if (!strcmp(text, pn->path))
+			return true;
+	}
+
+	return false;
+}
 
 /*
  * !doc
@@ -31,7 +48,7 @@
  *
  * .. c:function:: void pkgconf_path_add(const char *text, pkgconf_list_t *dirlist)
  *
- *    Adds a path node to a path list.
+ *    Adds a path node to a path list.  If the path is already in the list, do nothing.
  *
  *    :param char* text: The path text to add as a path node.
  *    :param pkgconf_list_t* dirlist: The path list to add the path node to.
@@ -41,6 +58,9 @@ void
 pkgconf_path_add(const char *text, pkgconf_list_t *dirlist)
 {
 	pkgconf_path_t *node;
+
+	if (path_list_contains_entry(text, dirlist))
+		return;
 
 	node = calloc(sizeof(pkgconf_path_t), 1);
 	node->path = strdup(text);
