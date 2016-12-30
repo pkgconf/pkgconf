@@ -25,9 +25,10 @@ struct pkgconf_node_ {
 
 typedef struct {
 	pkgconf_node_t *head, *tail;
+	size_t length;
 } pkgconf_list_t;
 
-#define PKGCONF_LIST_INITIALIZER		{ NULL, NULL }
+#define PKGCONF_LIST_INITIALIZER		{ NULL, NULL, 0 }
 
 static inline void
 pkgconf_node_insert(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
@@ -40,6 +41,7 @@ pkgconf_node_insert(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 	{
 		list->head = node;
 		list->tail = node;
+		list->length = 1;
 		return;
 	}
 
@@ -49,6 +51,7 @@ pkgconf_node_insert(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 	tnode->prev = node;
 
 	list->head = node;
+	list->length++;
 }
 
 static inline void
@@ -62,6 +65,7 @@ pkgconf_node_insert_tail(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 	{
 		list->head = node;
 		list->tail = node;
+		list->length = 1;
 		return;
 	}
 
@@ -71,11 +75,14 @@ pkgconf_node_insert_tail(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 	tnode->next = node;
 
 	list->tail = node;
+	list->length++;
 }
 
 static inline void
 pkgconf_node_delete(pkgconf_node_t *node, pkgconf_list_t *list)
 {
+	list->length--;
+
 	if (node->prev == NULL)
 		list->head = node->next;
 	else
