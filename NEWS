@@ -14,6 +14,8 @@ Changes from 1.0.1 to 1.1.0:
   - provide a libpkgconf.pc file for consumers to use
   - pkgconf client: new --pure flag to enable dependency graph optimization in --static mode
   - significant .pc parser speedups using bsearch(3).
+  - handle -idirafter in the same way as -isystem CFLAGS
+  - learn toolchain "system" paths from GCC environment variables, if present
 
 * Bug fixes:
   - fragments: fix another edge case involving empty tokens being concatenated onto previous tokens (#99)
