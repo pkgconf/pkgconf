@@ -240,6 +240,31 @@ pkgconf_fragment_exists(pkgconf_list_t *list, const pkgconf_fragment_t *base, un
 	return pkgconf_fragment_lookup(list, base);
 }
 
+static inline bool
+pkgconf_fragment_should_merge(const pkgconf_fragment_t *base)
+{
+	const pkgconf_fragment_t *parent;
+
+	/* if we are the first fragment, that means the next fragment is the same, so it's always safe. */
+	if (base->iter.prev == NULL)
+		return true;
+
+	/* this really shouldn't ever happen, but handle it */
+	parent = base->iter.prev->data;
+	if (parent == NULL)
+		return true;
+
+	switch (parent->type)
+	{
+	case 'l':
+	case 'L':
+	case 'I':
+		return true;
+	default:
+		return parent->type == base->type;
+	}
+}
+
 /*
  * !doc
  *
@@ -293,7 +318,10 @@ pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsi
 	pkgconf_fragment_t *frag;
 
 	if ((frag = pkgconf_fragment_exists(list, base, flags, is_private)) != NULL)
-		pkgconf_fragment_delete(list, frag);
+	{
+		if (pkgconf_fragment_should_merge(frag))
+			pkgconf_fragment_delete(list, frag);
+	}
 	else if (!is_private && !pkgconf_fragment_can_merge_back(base, flags, is_private) && (pkgconf_fragment_lookup(list, base) != NULL))
 		return;
 
