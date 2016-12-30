@@ -54,6 +54,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/conflicts.pc \
 		tests/lib1/omg-uninstalled.pc \
 		tests/lib1/isystem.pc \
+		tests/lib1/idirafter.pc \
 		tests/lib1/depgraph-break.pc \
 		tests/lib1/cflags-whitespace.pc \
 		tests/lib1/cflags-whitespace-trailing.pc \

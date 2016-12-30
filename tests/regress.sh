@@ -19,6 +19,8 @@ tests_init \
 	incomplete_cflags \
 	isystem_munge_order \
 	isystem_munge_sysroot \
+	idirafter_munge_order \
+	idirafter_munge_sysroot \
 	pcpath \
 	sysroot_munge
 
@@ -150,6 +152,22 @@ isystem_munge_sysroot_body()
 	atf_check \
 		-o match:"-isystem /test/opt/bad/include" \
 		pkgconf --cflags isystem
+}
+
+idirafter_munge_order_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-idirafter /opt/bad/include -idirafter /opt/bad2/include  \n" \
+		pkgconf --cflags idirafter
+}
+
+idirafter_munge_sysroot_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR='/test'
+	atf_check \
+		-o match:"-idirafter /test/opt/bad/include" \
+		pkgconf --cflags idirafter
 }
 
 pcpath_body()
