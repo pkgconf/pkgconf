@@ -28,6 +28,7 @@ tests_init \
 	libs_circular2 \
 	libs_circular_directpc \
 	libs_static \
+	libs_static_ordering \
 	pkg_config_path \
 	nolibs \
 	nocflags \
@@ -233,6 +234,14 @@ libs_static_body()
 	atf_check \
 		-o inline:"/libfoo.a -pthread  \n" \
 		pkgconf --libs static-archive-libs
+}
+
+libs_static_ordering_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-L/test/lib -lbar -lfoo  \n" \
+		pkgconf --libs foo bar
 }
 
 pkg_config_path_body()
