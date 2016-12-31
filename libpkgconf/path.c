@@ -76,7 +76,7 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 #ifdef PKGCONF_CACHE_INODES
 	struct stat st;
 
-	if (stat(text, &st) == -1)
+	if (filter && stat(text, &st) == -1)
 		return;
 
 	if (filter && path_list_contains_entry(text, dirlist, &st))
