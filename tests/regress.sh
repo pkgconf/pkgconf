@@ -21,6 +21,7 @@ tests_init \
 	isystem_munge_sysroot \
 	idirafter_munge_order \
 	idirafter_munge_sysroot \
+	idirafter_ordering \
 	pcpath \
 	sysroot_munge
 
@@ -168,6 +169,14 @@ idirafter_munge_sysroot_body()
 	atf_check \
 		-o match:"-idirafter /test/opt/bad/include" \
 		pkgconf --cflags idirafter
+}
+
+idirafter_ordering_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-I/opt/bad/include1 -idirafter -I/opt/bad/include2 -I/opt/bad/include3  \n" \
+		pkgconf --cflags idirafter-ordering
 }
 
 pcpath_body()
