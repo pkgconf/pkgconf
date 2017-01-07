@@ -47,6 +47,10 @@ pkgconf_fragment_is_unmergeable(const char *string)
 		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
 			return true;
 
+	/* only one pair of {-flag, arg} may be merged together */
+	if (strchr(string, ' ') != NULL)
+		return false;
+
 	return false;
 }
 
@@ -145,7 +149,8 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 		{
 			pkgconf_fragment_t *parent = list->tail->data;
 
-			if (pkgconf_fragment_is_unmergeable(parent->data))
+			/* only attempt to merge 'special' fragments together */
+			if (!parent->type && pkgconf_fragment_is_unmergeable(parent->data))
 			{
 				size_t len;
 				char *newdata;
@@ -161,6 +166,14 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 
 				free(parent->data);
 				parent->data = newdata;
+
+				/* use a copy operation to force a dedup */
+				pkgconf_node_delete(&parent->iter, list);
+				pkgconf_fragment_copy(list, parent, 0, false);
+
+				/* the fragment list now (maybe) has the copied node, so free the original */
+				free(parent->data);
+				free(parent);
 
 				return;
 			}
@@ -261,7 +274,7 @@ pkgconf_fragment_should_merge(const pkgconf_fragment_t *base)
 	case 'I':
 		return true;
 	default:
-		return parent->type == base->type;
+		return !base->type || parent->type == base->type;
 	}
 }
 
