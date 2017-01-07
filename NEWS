@@ -1,6 +1,17 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.1.0 to 1.1.1:
+----------------------------
+
+* Features:
+  - new --path option lists the .pc files which provided the requested dependencies
+
+* Bug fixes:
+  - fragments: fix even more edge cases involving token concatenation
+  - path lists: don't attempt to collect path inodes if the filter is disabled
+  - path lists: explicitly avoid uninitialised data for the path inode cache
+
 Changes from 1.0.1 to 1.1.0:
 ----------------------------
 
