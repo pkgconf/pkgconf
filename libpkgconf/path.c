@@ -35,7 +35,7 @@ path_list_contains_entry(const char *text, pkgconf_list_t *dirlist)
 		pkgconf_path_t *pn = n->data;
 
 #ifdef PKGCONF_CACHE_INODES
-		if (((dev_t) pn->handle_device) == st->st_dev && ((ino_t) pn->handle_path) == st->st_ino)
+		if (pn->handle_device == (void *)(intptr_t)st->st_dev && pn->handle_path == (void *)(intptr_t)st->st_ino)
 			return true;
 #endif
 
