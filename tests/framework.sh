@@ -12,9 +12,9 @@ libs_body()
 		-o inline:"-F/test/lib -framework framework-1  \n" \
 		pkgconf --libs framework-1
 	atf_check \
-		-o inline:"-F/test/lib -framework framework-2 -F/test/lib -framework framework-1  \n" \
+		-o inline:"-F/test/lib -framework framework-2 -framework framework-1  \n" \
 		pkgconf --libs framework-2
 	atf_check \
-		-o inline:"-F/test/lib -framework framework-1 -F/test/lib -framework framework-2  \n" \
+		-o inline:"-F/test/lib -framework framework-2 -framework framework-1  \n" \
 		pkgconf --libs framework-1 framework-2
 }
