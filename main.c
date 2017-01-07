@@ -51,6 +51,7 @@
 #define PKG_LIST_PACKAGE_NAMES		(((uint64_t) 1) << 31)
 #define PKG_NO_PROVIDES			(((uint64_t) 1) << 32)
 #define PKG_PURE			(((uint64_t) 1) << 33)
+#define PKG_PATH			(((uint64_t) 1) << 34)
 
 static unsigned int global_traverse_flags = PKGCONF_PKG_PKGF_NONE;
 
@@ -294,6 +295,29 @@ apply_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, in
 	int eflag;
 
 	eflag = pkgconf_pkg_traverse(client, world, print_variables, unused, maxdepth, flags);
+
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+		return false;
+
+	return true;
+}
+
+static void
+print_path(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags)
+{
+	(void) client;
+	(void) data;
+	(void) flags;
+
+	printf("%s\n", pkg->filename);
+}
+
+static bool
+apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+{
+	int eflag;
+
+	eflag = pkgconf_pkg_traverse(client, world, print_path, unused, maxdepth, flags);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -591,6 +615,7 @@ usage(void)
 	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
 	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", SYSTEM_INCLUDEDIR);
 	printf("  --keep-system-libs                keep -L%s entries in libs output\n", SYSTEM_LIBDIR);
+	printf("  --path                            show the exact filenames for any matching .pc files\n");
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
@@ -655,6 +680,7 @@ main(int argc, char *argv[])
 		{ "debug", no_argument, &want_flags, 0, },
 		{ "validate", no_argument, NULL, 0 },
 		{ "log-file", required_argument, NULL, 40 },
+		{ "path", no_argument, &want_flags, PKG_PATH },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -983,6 +1009,17 @@ main(int argc, char *argv[])
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_modversion, 2, global_traverse_flags, NULL))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+
+	if ((want_flags & PKG_PATH) == PKG_PATH)
+	{
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
+
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_path, 2, global_traverse_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
