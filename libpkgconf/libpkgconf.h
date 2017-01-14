@@ -277,5 +277,6 @@ size_t pkgconf_path_split(const char *text, pkgconf_list_t *dirlist, bool filter
 size_t pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist, bool filter);
 bool pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist);
 void pkgconf_path_free(pkgconf_list_t *dirlist);
+bool pkgconf_path_relocate(char *buf, size_t buflen);
 
 #endif

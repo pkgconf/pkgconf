@@ -16,6 +16,10 @@
 #include <libpkgconf/libpkgconf.h>
 #include <libpkgconf/config.h>
 
+#ifdef HAVE_CYGWIN_CONV_PATH
+# include <sys/cygwin.h>
+#endif
+
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
 # define PKGCONF_CACHE_INODES
@@ -213,4 +217,33 @@ pkgconf_path_free(pkgconf_list_t *dirlist)
 		free(pnode->path);
 		free(pnode);
 	}
+}
+
+bool
+pkgconf_path_relocate(char *buf, size_t buflen)
+{
+#ifdef HAVE_CYGWIN_CONV_PATH
+	ssize_t size;
+	char *tmpbuf, *ti;
+
+	size = cygwin_conv_path(CCP_POSIX_TO_WIN_A, buf, NULL, 0);
+	if (size < 0 || (size_t) size > buflen)
+		return false;
+
+	tmpbuf = malloc(size);
+	if (cygwin_conv_path(CCP_POSIX_TO_WIN_A, buf, tmpbuf, size))
+		return false;
+
+	pkgconf_strlcpy(buf, tmpbuf, buflen);
+	free(tmpbuf);
+
+	/* rewrite any backslash arguments for best compatibility */
+	for (ti = buf; *ti != '\0'; ti++)
+	{
+		if (*ti == '\\')
+			*ti = '/';
+	}
+#endif
+
+	return true;
 }
