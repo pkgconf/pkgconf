@@ -108,12 +108,7 @@ static inline char *
 pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source)
 {
 	char mungebuf[PKGCONF_BUFSIZE];
-
-	if (client->sysroot_dir == NULL)
-		return strdup(source);
-
 	pkgconf_fragment_munge(client, mungebuf, sizeof mungebuf, source, client->sysroot_dir);
-
 	return strdup(mungebuf);
 }
 
