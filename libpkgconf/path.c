@@ -243,6 +243,9 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 		if (*ti == '\\')
 			*ti = '/';
 	}
+#else
+	(void) buf;
+	(void) buflen;
 #endif
 
 	return true;
