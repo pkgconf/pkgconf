@@ -77,6 +77,8 @@ void
 pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 {
 	pkgconf_path_t *node;
+	char path[PKGCONF_BUFSIZE];
+
 #ifdef PKGCONF_CACHE_INODES
 	struct stat st;
 
@@ -90,8 +92,12 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 		return;
 #endif
 
+	pkgconf_strlcpy(path, text, sizeof path);
+	pkgconf_path_relocate(path, sizeof path);
+
 	node = calloc(sizeof(pkgconf_path_t), 1);
-	node->path = strdup(text);
+	node->path = strdup(path);
+
 #ifdef PKGCONF_CACHE_INODES
 	if (filter) {
 		node->handle_path = (void *)(intptr_t) st.st_ino;
