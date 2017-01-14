@@ -99,6 +99,9 @@ pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen,
 		pkgconf_strlcat(buf, sysroot_dir, buflen);
 
 	pkgconf_strlcat(buf, source, buflen);
+
+	if (*buf == '/')
+		pkgconf_path_relocate(buf, buflen);
 }
 
 static inline char *
