@@ -95,7 +95,7 @@ pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen,
 	if (sysroot_dir == NULL)
 		sysroot_dir = pkgconf_tuple_find_global(client, "pc_sysrootdir");
 
-	if (pkgconf_fragment_should_munge(source, sysroot_dir))
+	if (sysroot_dir != NULL && pkgconf_fragment_should_munge(source, sysroot_dir))
 		pkgconf_strlcat(buf, sysroot_dir, buflen);
 
 	pkgconf_strlcat(buf, source, buflen);
