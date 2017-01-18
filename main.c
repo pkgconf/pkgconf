@@ -577,6 +577,7 @@ usage(void)
 	printf("  --no-cache                        do not cache already seen packages when\n");
 	printf("                                    walking the dependency graph\n");
 	printf("  --log-file=filename               write an audit log to a specified file\n");
+	printf("  --with-path=path                  adds a directory to the search path\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -681,6 +682,7 @@ main(int argc, char *argv[])
 		{ "validate", no_argument, NULL, 0 },
 		{ "log-file", required_argument, NULL, 40 },
 		{ "path", no_argument, &want_flags, PKG_PATH },
+		{ "with-path", required_argument, NULL, 42 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -713,6 +715,9 @@ main(int argc, char *argv[])
 			break;
 		case 40:
 			logfile_arg = pkg_optarg;
+			break;
+		case 42:
+			pkgconf_path_add(pkg_optarg, &pkg_client.dir_list, true);
 			break;
 		case '?':
 		case ':':

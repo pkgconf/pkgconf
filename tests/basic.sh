@@ -32,7 +32,8 @@ tests_init \
 	pkg_config_path \
 	nolibs \
 	nocflags \
-	arbitary_path
+	arbitary_path \
+	with_path
 
 noargs_body()
 {
@@ -253,6 +254,16 @@ pkg_config_path_body()
 	atf_check \
 		-o inline:"-L/test/lib -lbar -lfoo  \n" \
 		pkgconf --libs bar
+}
+
+with_path_body()
+{
+	atf_check \
+		-o inline:"-L/test/lib -lfoo  \n" \
+		pkgconf --with-path=${selfdir}/lib1 --with-path=${selfdir}/lib2 --libs foo
+	atf_check \
+		-o inline:"-L/test/lib -lbar -lfoo  \n" \
+		pkgconf --with-path=${selfdir}/lib1 --with-path=${selfdir}/lib2 --libs bar
 }
 
 nolibs_body()

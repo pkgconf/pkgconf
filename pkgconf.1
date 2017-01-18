@@ -65,6 +65,9 @@ flag.
 Ignore
 .Sq Provides
 rules in modules when resolving dependencies.
+.It Fl -with-path Ns = Ns Ar PATH
+Adds a new module search path to pkgconf's dependency resolver.  Paths added in
+this way are given preference before other paths.
 .El
 .Sh MODULE-SPECIFIC OPTIONS
 .Bl -tag -width indent
