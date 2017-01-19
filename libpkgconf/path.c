@@ -225,6 +225,18 @@ pkgconf_path_free(pkgconf_list_t *dirlist)
 	}
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_path_relocate(char *buf, size_t buflen)
+ *
+ *    Relocates a path, possibly calling realpath() or cygwin_conv_path() on it.
+ *
+ *    :param char* buf: The path to relocate.
+ *    :param size_t buflen: The buffer length the path is contained in.
+ *    :return: true on success, false on error
+ *    :rtype: bool
+ */
 bool
 pkgconf_path_relocate(char *buf, size_t buflen)
 {
