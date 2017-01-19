@@ -74,7 +74,11 @@ variable_body()
 
 keep_system_libs_body()
 {
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	export PKG_CONFIG_PATH="${selfdir}/lib1" LIBRARY_PATH="/test/local/lib"
+	atf_check \
+		-o inline:" \n" \
+		pkgconf --libs-only-L cflags-libs-only
+
 	atf_check \
 		-o inline:"-L/test/local/lib  \n" \
 		pkgconf --libs-only-L --keep-system-libs cflags-libs-only
