@@ -53,8 +53,6 @@
 #define PKG_PURE			(((uint64_t) 1) << 33)
 #define PKG_PATH			(((uint64_t) 1) << 34)
 
-static unsigned int global_traverse_flags = PKGCONF_PKG_PKGF_NONE;
-
 static pkgconf_client_t pkg_client;
 
 static uint64_t want_flags;
@@ -635,6 +633,7 @@ main(int argc, char *argv[])
 	char *required_max_module_version = NULL;
 	char *required_module_version = NULL;
 	char *logfile_arg = NULL;
+	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
 
 	want_flags = 0;
 
@@ -773,29 +772,29 @@ main(int argc, char *argv[])
 		error_msgout = fopen(PATH_DEV_NULL, "w");
 
 	if ((want_flags & PKG_IGNORE_CONFLICTS) == PKG_IGNORE_CONFLICTS || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
-		global_traverse_flags |= PKGCONF_PKG_PKGF_SKIP_CONFLICTS;
+		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_CONFLICTS;
 
 	if ((want_flags & PKG_STATIC) == PKG_STATIC)
-		global_traverse_flags |= (PKGCONF_PKG_PKGF_SEARCH_PRIVATE | PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS);
+		want_client_flags |= (PKGCONF_PKG_PKGF_SEARCH_PRIVATE | PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS);
 
 	/* if --static and --pure are both specified, then disable merge-back.
 	 * this allows for a --static which searches private modules, but has the same fragment behaviour as if
 	 * --static were disabled.  see <https://github.com/pkgconf/pkgconf/issues/83> for rationale.
 	 */
 	if ((want_flags & PKG_PURE) == PKG_PURE || getenv("PKG_CONFIG_PURE_DEPGRAPH") != NULL)
-		global_traverse_flags &= ~PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS;
+		want_client_flags &= ~PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS;
 
 	if ((want_flags & PKG_ENV_ONLY) == PKG_ENV_ONLY)
-		global_traverse_flags |= PKGCONF_PKG_PKGF_ENV_ONLY;
+		want_client_flags |= PKGCONF_PKG_PKGF_ENV_ONLY;
 
 	if ((want_flags & PKG_NO_CACHE) == PKG_NO_CACHE)
-		global_traverse_flags |= PKGCONF_PKG_PKGF_NO_CACHE;
+		want_client_flags |= PKGCONF_PKG_PKGF_NO_CACHE;
 
 	if ((want_flags & PKG_NO_UNINSTALLED) == PKG_NO_UNINSTALLED || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
-		global_traverse_flags |= PKGCONF_PKG_PKGF_NO_UNINSTALLED;
+		want_client_flags |= PKGCONF_PKG_PKGF_NO_UNINSTALLED;
 
 	if ((want_flags & PKG_NO_PROVIDES) == PKG_NO_PROVIDES)
-		global_traverse_flags |= PKGCONF_PKG_PKGF_SKIP_PROVIDES;
+		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_PROVIDES;
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
 		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
@@ -809,8 +808,8 @@ main(int argc, char *argv[])
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
 		pkgconf_client_set_sysroot_dir(&pkg_client, sysroot_dir);
 
-	/* at this point, global_traverse_flags should be set, so build the dir list */
-	pkgconf_pkg_dir_list_build(&pkg_client, global_traverse_flags);
+	/* at this point, want_client_flags should be set, so build the dir list */
+	pkgconf_pkg_dir_list_build(&pkg_client, want_client_flags);
 
 	if (required_pkgconfig_version != NULL)
 	{
@@ -857,7 +856,7 @@ main(int argc, char *argv[])
 		{
 			pkgconf_dependency_t *pkgiter = node->data;
 
-			pkg = pkgconf_pkg_find(&pkg_client, pkgiter->package, global_traverse_flags);
+			pkg = pkgconf_pkg_find(&pkg_client, pkgiter->package, want_client_flags);
 			if (pkg == NULL)
 				return EXIT_FAILURE;
 
@@ -884,7 +883,7 @@ main(int argc, char *argv[])
 		{
 			pkgconf_dependency_t *pkgiter = node->data;
 
-			pkg = pkgconf_pkg_find(&pkg_client, pkgiter->package, global_traverse_flags);
+			pkg = pkgconf_pkg_find(&pkg_client, pkgiter->package, want_client_flags);
 			if (pkg == NULL)
 				return EXIT_FAILURE;
 
@@ -911,7 +910,7 @@ main(int argc, char *argv[])
 		{
 			pkgconf_dependency_t *pkgiter = node->data;
 
-			pkg = pkgconf_pkg_find(&pkg_client, pkgiter->package, global_traverse_flags);
+			pkg = pkgconf_pkg_find(&pkg_client, pkgiter->package, want_client_flags);
 			if (pkg == NULL)
 				return EXIT_FAILURE;
 
@@ -966,14 +965,14 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_simulate, -1, global_traverse_flags | PKGCONF_PKG_PKGF_SKIP_ERRORS, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_simulate, -1, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ERRORS, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
 		}
 	}
 
-	if (!pkgconf_queue_validate(&pkg_client, &pkgq, maximum_traverse_depth, global_traverse_flags))
+	if (!pkgconf_queue_validate(&pkg_client, &pkgq, maximum_traverse_depth, want_client_flags))
 	{
 		ret = EXIT_FAILURE;
 		goto out;
@@ -985,7 +984,7 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
 		ret = EXIT_FAILURE;
-		pkgconf_queue_apply(&pkg_client, &pkgq, apply_uninstalled, maximum_traverse_depth, global_traverse_flags, &ret);
+		pkgconf_queue_apply(&pkg_client, &pkgq, apply_uninstalled, maximum_traverse_depth, want_client_flags, &ret);
 		goto out;
 	}
 
@@ -993,7 +992,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_provides, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_provides, maximum_traverse_depth, want_client_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1004,7 +1003,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_digraph, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_digraph, maximum_traverse_depth, want_client_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1015,7 +1014,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_modversion, 2, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_modversion, 2, want_client_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1026,7 +1025,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_path, 2, global_traverse_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_path, 2, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1037,7 +1036,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variables, 2, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variables, 2, want_client_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1048,7 +1047,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variable, 2, global_traverse_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL, want_variable))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variable, 2, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL, want_variable))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1059,7 +1058,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires, maximum_traverse_depth, want_client_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1070,7 +1069,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires_private, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires_private, maximum_traverse_depth, want_client_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1079,7 +1078,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_CFLAGS))
 	{
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_cflags, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_cflags, maximum_traverse_depth, want_client_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out_println;
@@ -1088,7 +1087,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_LIBS))
 	{
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_libs, maximum_traverse_depth, global_traverse_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_libs, maximum_traverse_depth, want_client_flags, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out_println;
