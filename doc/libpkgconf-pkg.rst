@@ -5,14 +5,13 @@ libpkgconf `pkg` module
 The `pkg` module provides dependency resolution services and the overall `.pc` file parsing
 routines.
 
-.. c:function:: void pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags)
+.. c:function:: void pkgconf_pkg_dir_list_build(pkgconf_client_t *client)
 
-   Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is provided,
+   Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is set on the client,
    then only the ``PKG_CONFIG_PATH`` environment variable will be used, otherwise both the
    ``PKG_CONFIG_PATH`` and ``PKG_CONFIG_LIBDIR`` environment variables will be used.
 
    :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
-   :param uint flags: A set of dependency resolver options.
    :return: nothing
 
 .. c:function:: pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f)

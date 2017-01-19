@@ -100,22 +100,21 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags)
+ * .. c:function:: void pkgconf_pkg_dir_list_build(pkgconf_client_t *client)
  *
- *    Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is provided,
+ *    Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is set on the client,
  *    then only the ``PKG_CONFIG_PATH`` environment variable will be used, otherwise both the
  *    ``PKG_CONFIG_PATH`` and ``PKG_CONFIG_LIBDIR`` environment variables will be used.
  *
  *    :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
- *    :param uint flags: A set of dependency resolver options.
  *    :return: nothing
  */
 void
-pkgconf_pkg_dir_list_build(pkgconf_client_t *client, unsigned int flags)
+pkgconf_pkg_dir_list_build(pkgconf_client_t *client)
 {
 	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &client->dir_list, true);
 
-	if (!(flags & PKGCONF_PKG_PKGF_ENV_ONLY))
+	if (!(client->flags & PKGCONF_PKG_PKGF_ENV_ONLY))
 		pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", get_default_pkgconfig_path(), &client->dir_list, true);
 }
 

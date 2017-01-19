@@ -813,7 +813,7 @@ main(int argc, char *argv[])
 	pkgconf_client_set_flags(&pkg_client, want_client_flags);
 
 	/* at this point, want_client_flags should be set, so build the dir list */
-	pkgconf_pkg_dir_list_build(&pkg_client, want_client_flags);
+	pkgconf_pkg_dir_list_build(&pkg_client);
 
 	if (required_pkgconfig_version != NULL)
 	{
