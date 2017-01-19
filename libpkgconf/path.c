@@ -240,7 +240,7 @@ pkgconf_path_free(pkgconf_list_t *dirlist)
 bool
 pkgconf_path_relocate(char *buf, size_t buflen)
 {
-#ifdef HAVE_CYGWIN_CONV_PATH
+#if defined(HAVE_CYGWIN_CONV_PATH)
 	ssize_t size;
 	char *tmpbuf, *ti;
 
@@ -260,6 +260,21 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 	{
 		if (*ti == '\\')
 			*ti = '/';
+	}
+#elif defined(HAVE_REALPATH)
+	char *tmpbuf;
+
+	if ((tmpbuf = realpath(buf, NULL)) != NULL)
+	{
+		size_t tmpbuflen = strlen(tmpbuf);
+		if (tmpbuflen > buflen)
+		{
+			free(tmpbuf);
+			return false;
+		}
+
+		pkgconf_strlcpy(buf, tmpbuf, buflen);
+		free(tmpbuf);
 	}
 #else
 	(void) buf;
