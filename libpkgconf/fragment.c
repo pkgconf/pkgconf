@@ -355,11 +355,12 @@ pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsi
  *    :param pkgconf_list_t* dest: The destination list.
  *    :param pkgconf_list_t* src: The source list.
  *    :param pkgconf_fragment_filter_func_t filter_func: The filter function to use.
+ *    :param void* data: Optional data to pass to the filter function.
  *    :param uint flags: A set of dependency resolver flags.
  *    :return: nothing
  */
 void
-pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, unsigned int flags)
+pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, void *data, unsigned int flags)
 {
 	pkgconf_node_t *node;
 
@@ -367,7 +368,7 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	{
 		pkgconf_fragment_t *frag = node->data;
 
-		if (filter_func(client, frag, flags))
+		if (filter_func(client, frag, data, flags))
 			pkgconf_fragment_copy(dest, frag, flags, true);
 	}
 }
