@@ -257,3 +257,36 @@ pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, c
 
 	return true;
 }
+
+/*
+ * !doc
+ *
+ * .. c:function:: unsigned int pkgconf_client_get_flags(const pkgconf_client_t *client)
+ *
+ *    Retrieves resolver-specific flags associated with a client object.
+ *
+ *    :param pkgconf_client_t* client: The client object to retrieve the resolver-specific flags from.
+ *    :return: a bitfield of resolver-specific flags
+ *    :rtype: uint
+ */
+unsigned int
+pkgconf_client_get_flags(const pkgconf_client_t *client)
+{
+	return client->flags;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_client_set_flags(pkgconf_client_t *client, unsigned int flags)
+ *
+ *    Sets resolver-specific flags associated with a client object.
+ *
+ *    :param pkgconf_client_t* client: The client object to set the resolver-specific flags on.
+ *    :return: nothing
+ */
+void
+pkgconf_client_set_flags(pkgconf_client_t *client, unsigned int flags)
+{
+	client->flags = flags;
+}

@@ -78,3 +78,37 @@ thread boundaries.
    :param pkgconf_client_t* client: The client object being modified.
    :param char* buildroot_dir: The buildroot directory to set or NULL to unset.
    :return: nothing
+
+.. c:function:: bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...)
+
+   Report an error to a client-registered error handler.
+
+   :param pkgconf_client_t* client: The pkgconf client object to report the error to.
+   :param char* format: A printf-style format string to use for formatting the error message.
+   :return: true if the error handler processed the message, else false.
+   :rtype: bool
+
+.. c:function:: bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
+
+   The default pkgconf error handler.
+
+   :param char* msg: The error message to handle.
+   :param pkgconf_client_t* client: The client object the error originated from.
+   :param void* data: An opaque pointer to extra data associated with the client for error handling.
+   :return: true (the function does nothing to process the message)
+   :rtype: bool
+
+.. c:function:: unsigned int pkgconf_client_get_flags(const pkgconf_client_t *client)
+
+   Retrieves resolver-specific flags associated with a client object.
+
+   :param pkgconf_client_t* client: The client object to retrieve the resolver-specific flags from.
+   :return: a bitfield of resolver-specific flags
+   :rtype: uint
+
+.. c:function:: void pkgconf_client_set_flags(pkgconf_client_t *client, unsigned int flags)
+
+   Sets resolver-specific flags associated with a client object.
+
+   :param pkgconf_client_t* client: The client object to set the resolver-specific flags on.
+   :return: nothing
