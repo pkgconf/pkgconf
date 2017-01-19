@@ -220,7 +220,7 @@ print_provides(pkgconf_pkg_t *pkg)
 }
 
 static bool
-apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
 	(void) unused;
@@ -231,7 +231,7 @@ apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int
 		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
 
-		pkg = pkgconf_pkg_verify_dependency(client, dep, flags, NULL);
+		pkg = pkgconf_pkg_verify_dependency(client, dep, client->flags, NULL);
 		print_provides(pkg);
 
 		pkgconf_pkg_free(&pkg_client, pkg);
@@ -259,7 +259,7 @@ print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, u
 }
 
 static bool
-apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	int eflag;
 
@@ -267,7 +267,7 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int 
 	printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
 	printf("node [fontname=Sans fontsize=8]\n");
 
-	eflag = pkgconf_pkg_traverse(client, world, print_digraph_node, unused, maxdepth, flags);
+	eflag = pkgconf_pkg_traverse(client, world, print_digraph_node, unused, maxdepth, client->flags);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -277,11 +277,11 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int 
 }
 
 static bool
-apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	int eflag;
 
-	eflag = pkgconf_pkg_traverse(client, world, print_modversion, unused, maxdepth, flags);
+	eflag = pkgconf_pkg_traverse(client, world, print_modversion, unused, maxdepth, client->flags);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -290,11 +290,11 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, i
 }
 
 static bool
-apply_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	int eflag;
 
-	eflag = pkgconf_pkg_traverse(client, world, print_variables, unused, maxdepth, flags);
+	eflag = pkgconf_pkg_traverse(client, world, print_variables, unused, maxdepth, client->flags);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -313,11 +313,11 @@ print_path(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned in
 }
 
 static bool
-apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	int eflag;
 
-	eflag = pkgconf_pkg_traverse(client, world, print_path, unused, maxdepth, flags);
+	eflag = pkgconf_pkg_traverse(client, world, print_path, unused, maxdepth, client->flags);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -352,7 +352,7 @@ print_variable(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigne
 }
 
 static bool
-apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, int maxdepth, unsigned int flags)
+apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, int maxdepth)
 {
 	int eflag;
 
@@ -362,7 +362,7 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, i
 
 	*req.buf = '\0';
 
-	eflag = pkgconf_pkg_traverse(client, world, print_variable, &req, maxdepth, flags);
+	eflag = pkgconf_pkg_traverse(client, world, print_variable, &req, maxdepth, client->flags);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
@@ -371,7 +371,7 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, i
 }
 
 static bool
-apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
@@ -379,11 +379,12 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 	char *render_buf;
 	(void) unused;
 
-	eflag = pkgconf_pkg_cflags(client, world, &unfiltered_list, maxdepth, flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
+	/* XXX: why is this PKGCONF_PKG_PKGF_SEARCH_PRIVATE here? */
+	eflag = pkgconf_pkg_cflags(client, world, &unfiltered_list, maxdepth, client->flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, NULL, flags);
+	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, NULL, client->flags);
 
 	if (filtered_list.head == NULL)
 		return true;
@@ -399,7 +400,7 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 }
 
 static bool
-apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
@@ -407,11 +408,11 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	char *render_buf;
 	(void) unused;
 
-	eflag = pkgconf_pkg_libs(client, world, &unfiltered_list, maxdepth, flags);
+	eflag = pkgconf_pkg_libs(client, world, &unfiltered_list, maxdepth, client->flags);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_libs, NULL, flags);
+	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_libs, NULL, client->flags);
 
 	if (filtered_list.head == NULL)
 		return true;
@@ -427,7 +428,7 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 }
 
 static bool
-apply_requires(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_requires(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
 	(void) unused;
@@ -438,7 +439,7 @@ apply_requires(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int
 		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
 
-		pkg = pkgconf_pkg_verify_dependency(client, dep, flags, NULL);
+		pkg = pkgconf_pkg_verify_dependency(client, dep, client->flags, NULL);
 		print_requires(pkg);
 
 		pkgconf_pkg_free(&pkg_client, pkg);
@@ -448,7 +449,7 @@ apply_requires(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int
 }
 
 static bool
-apply_requires_private(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth, unsigned int flags)
+apply_requires_private(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
 	(void) unused;
@@ -459,7 +460,7 @@ apply_requires_private(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unu
 		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
 
-		pkg = pkgconf_pkg_verify_dependency(client, dep, flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE, NULL);
+		pkg = pkgconf_pkg_verify_dependency(client, dep, client->flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE, NULL);
 		print_requires_private(pkg);
 
 		pkgconf_pkg_free(&pkg_client, pkg);
@@ -479,11 +480,11 @@ check_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsi
 }
 
 static bool
-apply_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags)
+apply_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
 {
 	int eflag;
 
-	eflag = pkgconf_pkg_traverse(client, world, check_uninstalled, data, maxdepth, flags);
+	eflag = pkgconf_pkg_traverse(client, world, check_uninstalled, data, maxdepth, client->flags);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -524,11 +525,11 @@ print_graph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsig
 }
 
 static bool
-apply_simulate(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags)
+apply_simulate(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
 {
 	int eflag;
 
-	eflag = pkgconf_pkg_traverse(client, world, print_graph_node, data, maxdepth, flags);
+	eflag = pkgconf_pkg_traverse(client, world, print_graph_node, data, maxdepth, client->flags);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -808,6 +809,9 @@ main(int argc, char *argv[])
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
 		pkgconf_client_set_sysroot_dir(&pkg_client, sysroot_dir);
 
+	/* we have determined what features we want most likely.  in some cases, we override later. */
+	pkgconf_client_set_flags(&pkg_client, want_client_flags);
+
 	/* at this point, want_client_flags should be set, so build the dir list */
 	pkgconf_pkg_dir_list_build(&pkg_client, want_client_flags);
 
@@ -965,14 +969,15 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_simulate, -1, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ERRORS, NULL))
+		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ERRORS);
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_simulate, -1, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
 		}
 	}
 
-	if (!pkgconf_queue_validate(&pkg_client, &pkgq, maximum_traverse_depth, want_client_flags))
+	if (!pkgconf_queue_validate(&pkg_client, &pkgq, maximum_traverse_depth))
 	{
 		ret = EXIT_FAILURE;
 		goto out;
@@ -984,7 +989,7 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
 		ret = EXIT_FAILURE;
-		pkgconf_queue_apply(&pkg_client, &pkgq, apply_uninstalled, maximum_traverse_depth, want_client_flags, &ret);
+		pkgconf_queue_apply(&pkg_client, &pkgq, apply_uninstalled, maximum_traverse_depth, &ret);
 		goto out;
 	}
 
@@ -992,7 +997,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_provides, maximum_traverse_depth, want_client_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_provides, maximum_traverse_depth, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1003,7 +1008,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_digraph, maximum_traverse_depth, want_client_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_digraph, maximum_traverse_depth, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1014,7 +1019,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_modversion, 2, want_client_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_modversion, 2, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1025,7 +1030,8 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_path, 2, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL, NULL))
+		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_path, 2, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1036,7 +1042,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variables, 2, want_client_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variables, 2, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1047,7 +1053,8 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variable, 2, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL, want_variable))
+		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variable, 2, want_variable))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1058,7 +1065,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires, maximum_traverse_depth, want_client_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires, maximum_traverse_depth, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1069,7 +1076,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires_private, maximum_traverse_depth, want_client_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires_private, maximum_traverse_depth, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1078,7 +1085,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_CFLAGS))
 	{
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_cflags, maximum_traverse_depth, want_client_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_cflags, maximum_traverse_depth, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out_println;
@@ -1087,7 +1094,7 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_LIBS))
 	{
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_libs, maximum_traverse_depth, want_client_flags, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_libs, maximum_traverse_depth, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out_println;

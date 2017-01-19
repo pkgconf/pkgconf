@@ -107,18 +107,18 @@ pkgconf_queue_free(pkgconf_list_t *list)
 }
 
 static inline unsigned int
-pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth)
 {
 	if (!pkgconf_queue_compile(client, world, list))
 		return PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
 
-	return pkgconf_pkg_verify_graph(client, world, maxdepth, flags);
+	return pkgconf_pkg_verify_graph(client, world, maxdepth, client->flags);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
+ * .. c:function:: void pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, void *data)
  *
  *    Attempt to compile a dependency resolution queue into a dependency resolution problem, then attempt to solve the problem and
  *    feed the solution to a callback function if a complete dependency graph is found.
@@ -127,13 +127,12 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
  *    :param pkgconf_list_t* list: The list of dependency requests to consider.
  *    :param pkgconf_queue_apply_func_t func: The callback function to call if a solution is found by the dependency resolver.
  *    :param int maxdepth: The maximum allowed depth for the dependency resolver.  A depth of -1 means unlimited.
- *    :param uint flags: A bitfield of flags that is passed to the dependency resolver, optionally modifying it's behaviour.
  *    :param void* data: An opaque pointer which is passed to the callback function.
  *    :returns: true if the dependency resolver found a solution, otherwise false.
  *    :rtype: bool
  */
 bool
-pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
+pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, void *data)
 {
 	pkgconf_pkg_t world = {
 		.id = "virtual:world",
@@ -145,10 +144,10 @@ pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queu
 	if (!maxdepth)
 		maxdepth = -1;
 
-	if (pkgconf_queue_verify(client, &world, list, maxdepth, flags) != PKGCONF_PKG_ERRF_OK)
+	if (pkgconf_queue_verify(client, &world, list, maxdepth) != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	if (!func(client, &world, data, maxdepth, flags))
+	if (!func(client, &world, data, maxdepth))
 	{
 		pkgconf_pkg_free(client, &world);
 		return false;
@@ -162,19 +161,18 @@ pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queu
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data)
+ * .. c:function:: void pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, void *data)
  *
  *    Attempt to compile a dependency resolution queue into a dependency resolution problem, then attempt to solve the problem.
  *
  *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
  *    :param pkgconf_list_t* list: The list of dependency requests to consider.
  *    :param int maxdepth: The maximum allowed depth for the dependency resolver.  A depth of -1 means unlimited.
- *    :param uint flags: A bitfield of flags that is passed to the dependency resolver, optionally modifying it's behaviour.
  *    :returns: true if the dependency resolver found a solution, otherwise false.
  *    :rtype: bool
  */
 bool
-pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth)
 {
 	bool retval = true;
 	pkgconf_pkg_t world = {
@@ -187,7 +185,7 @@ pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxde
 	if (!maxdepth)
 		maxdepth = -1;
 
-	if (pkgconf_queue_verify(client, &world, list, maxdepth, flags) != PKGCONF_PKG_ERRF_OK)
+	if (pkgconf_queue_verify(client, &world, list, maxdepth) != PKGCONF_PKG_ERRF_OK)
 		retval = false;
 
 	pkgconf_pkg_free(client, &world);

@@ -131,7 +131,7 @@ struct pkgconf_pkg_ {
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
 typedef void (*pkgconf_pkg_traverse_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int flags);
-typedef bool (*pkgconf_queue_apply_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth, unsigned int flags);
+typedef bool (*pkgconf_queue_apply_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth);
 typedef bool (*pkgconf_error_handler_func_t)(const char *msg, const pkgconf_client_t *client, const void *data);
 
 struct pkgconf_client_ {
@@ -261,8 +261,8 @@ void pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv);
 void pkgconf_queue_push(pkgconf_list_t *list, const char *package);
 bool pkgconf_queue_compile(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list);
 void pkgconf_queue_free(pkgconf_list_t *list);
-bool pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, unsigned int flags, void *data);
-bool pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth, unsigned int flags);
+bool pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, void *data);
+bool pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth);
 
 /* cache.c */
 pkgconf_pkg_t *pkgconf_cache_lookup(const pkgconf_client_t *client, const char *id);
