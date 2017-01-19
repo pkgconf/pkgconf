@@ -108,7 +108,7 @@ filter_cflags(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, vo
 	(void) data;
 	(void) flags;
 
-	if (pkgconf_fragment_has_system_dir(client, frag))
+	if (!(want_flags & PKG_KEEP_SYSTEM_CFLAGS) && pkgconf_fragment_has_system_dir(client, frag))
 		return false;
 
 	if (frag->type == 'I')
@@ -127,7 +127,7 @@ filter_libs(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void
 	(void) data;
 	(void) flags;
 
-	if (pkgconf_fragment_has_system_dir(client, frag))
+	if (!(want_flags & PKG_KEEP_SYSTEM_LIBS) && pkgconf_fragment_has_system_dir(client, frag))
 		return false;
 
 	switch (frag->type)
