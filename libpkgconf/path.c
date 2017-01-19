@@ -189,12 +189,18 @@ bool
 pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
 {
 	pkgconf_node_t *n = NULL;
+	char relocated[PKGCONF_BUFSIZE];
+	const char *cpath = path;
+
+	pkgconf_strlcpy(relocated, path, sizeof relocated);
+	if (pkgconf_path_relocate(relocated, sizeof relocated))
+		cpath = path;
 
 	PKGCONF_FOREACH_LIST_ENTRY(dirlist->head, n)
 	{
 		pkgconf_path_t *pnode = n->data;
 
-		if (!strcmp(pnode->path, path))
+		if (!strcmp(pnode->path, cpath))
 			return true;
 	}
 
