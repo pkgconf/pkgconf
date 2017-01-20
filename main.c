@@ -569,6 +569,8 @@ usage(void)
 	printf("                                    walking the dependency graph\n");
 	printf("  --log-file=filename               write an audit log to a specified file\n");
 	printf("  --with-path=path                  adds a directory to the search path\n");
+	printf("  --prefix-variable=varname         sets the name of the variable that pkgconf considers\n");
+	printf("                                    to be the package prefix\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -675,6 +677,7 @@ main(int argc, char *argv[])
 		{ "log-file", required_argument, NULL, 40 },
 		{ "path", no_argument, &want_flags, PKG_PATH },
 		{ "with-path", required_argument, NULL, 42 },
+		{ "prefix-variable", required_argument, NULL, 43 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -710,6 +713,9 @@ main(int argc, char *argv[])
 			break;
 		case 42:
 			pkgconf_path_add(pkg_optarg, &pkg_client.dir_list, true);
+			break;
+		case 43:
+			pkgconf_client_set_prefix_varname(&pkg_client, pkg_optarg);
 			break;
 		case '?':
 		case ':':
