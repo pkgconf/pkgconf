@@ -99,12 +99,11 @@ print_package_entry(const pkgconf_pkg_t *entry, void *data)
 }
 
 static bool
-filter_cflags(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data, unsigned int flags)
+filter_cflags(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data)
 {
 	int got_flags = 0;
 	(void) client;
 	(void) data;
-	(void) flags;
 
 	if (!(want_flags & PKG_KEEP_SYSTEM_CFLAGS) && pkgconf_fragment_has_system_dir(client, frag))
 		return false;
@@ -118,12 +117,11 @@ filter_cflags(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, vo
 }
 
 static bool
-filter_libs(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data, unsigned int flags)
+filter_libs(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data)
 {
 	int got_flags = 0;
 	(void) client;
 	(void) data;
-	(void) flags;
 
 	if (!(want_flags & PKG_KEEP_SYSTEM_LIBS) && pkgconf_fragment_has_system_dir(client, frag))
 		return false;
@@ -378,7 +376,7 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, NULL, client->flags);
+	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, NULL);
 
 	if (filtered_list.head == NULL)
 		return true;
@@ -406,7 +404,7 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_libs, NULL, client->flags);
+	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_libs, NULL);
 
 	if (filtered_list.head == NULL)
 		return true;

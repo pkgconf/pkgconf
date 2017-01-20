@@ -167,7 +167,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 
 				/* use a copy operation to force a dedup */
 				pkgconf_node_delete(&parent->iter, list);
-				pkgconf_fragment_copy(list, parent, 0, false);
+				pkgconf_fragment_copy(client, list, parent, false);
 
 				/* the fragment list now (maybe) has the copied node, so free the original */
 				free(parent->data);
@@ -312,28 +312,28 @@ pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fr
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
+ * .. c:function:: void pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private)
  *
  *    Copies a `fragment` to another `fragment list`, possibly removing a previous copy of the `fragment`
  *    in a process known as `mergeback`.
  *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
  *    :param pkgconf_list_t* list: The list the fragment is being added to.
  *    :param pkgconf_fragment_t* base: The fragment being copied.
- *    :param uint flags: A set of dependency resolver flags.
  *    :param bool is_private: Whether the fragment list is a `private` fragment list (static linking).
  *    :return: nothing
  */
 void
-pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
+pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private)
 {
 	pkgconf_fragment_t *frag;
 
-	if ((frag = pkgconf_fragment_exists(list, base, flags, is_private)) != NULL)
+	if ((frag = pkgconf_fragment_exists(list, base, client->flags, is_private)) != NULL)
 	{
 		if (pkgconf_fragment_should_merge(frag))
 			pkgconf_fragment_delete(list, frag);
 	}
-	else if (!is_private && !pkgconf_fragment_can_merge_back(base, flags, is_private) && (pkgconf_fragment_lookup(list, base) != NULL))
+	else if (!is_private && !pkgconf_fragment_can_merge_back(base, client->flags, is_private) && (pkgconf_fragment_lookup(list, base) != NULL))
 		return;
 
 	frag = calloc(sizeof(pkgconf_fragment_t), 1);
@@ -347,7 +347,7 @@ pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsi
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, unsigned int flags)
+ * .. c:function:: void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func)
  *
  *    Copies a `fragment list` to another `fragment list` which match a user-specified filtering function.
  *
@@ -356,11 +356,10 @@ pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsi
  *    :param pkgconf_list_t* src: The source list.
  *    :param pkgconf_fragment_filter_func_t filter_func: The filter function to use.
  *    :param void* data: Optional data to pass to the filter function.
- *    :param uint flags: A set of dependency resolver flags.
  *    :return: nothing
  */
 void
-pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, void *data, unsigned int flags)
+pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, void *data)
 {
 	pkgconf_node_t *node;
 
@@ -368,8 +367,8 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	{
 		pkgconf_fragment_t *frag = node->data;
 
-		if (filter_func(client, frag, data, flags))
-			pkgconf_fragment_copy(dest, frag, flags, true);
+		if (filter_func(client, frag, data))
+			pkgconf_fragment_copy(client, dest, frag, true);
 	}
 }
 

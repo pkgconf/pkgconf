@@ -25,18 +25,18 @@ which is composable, mergeable and reorderable.
    :return: true if the fragment contains a system path, else false
    :rtype: bool
 
-.. c:function:: void pkgconf_fragment_copy(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
+.. c:function:: void pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private)
 
    Copies a `fragment` to another `fragment list`, possibly removing a previous copy of the `fragment`
    in a process known as `mergeback`.
 
+   :param pkgconf_client_t* client: The pkgconf client being accessed.
    :param pkgconf_list_t* list: The list the fragment is being added to.
    :param pkgconf_fragment_t* base: The fragment being copied.
-   :param uint flags: A set of dependency resolver flags.
    :param bool is_private: Whether the fragment list is a `private` fragment list (static linking).
    :return: nothing
 
-.. c:function:: void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, unsigned int flags)
+.. c:function:: void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func)
 
    Copies a `fragment list` to another `fragment list` which match a user-specified filtering function.
 
@@ -45,7 +45,6 @@ which is composable, mergeable and reorderable.
    :param pkgconf_list_t* src: The source list.
    :param pkgconf_fragment_filter_func_t filter_func: The filter function to use.
    :param void* data: Optional data to pass to the filter function.
-   :param uint flags: A set of dependency resolver flags.
    :return: nothing
 
 .. c:function:: size_t pkgconf_fragment_render_len(const pkgconf_list_t *list)
