@@ -14,6 +14,7 @@ bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	pkg.m4 \
+		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/dos-lineendings.pc \
 		tests/lib1/paren-quoting.pc \

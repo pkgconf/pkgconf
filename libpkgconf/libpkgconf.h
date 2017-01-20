@@ -184,6 +184,7 @@ void pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *pre
 #define PKGCONF_PKG_PKGF_SKIP_ERRORS			0x080
 #define PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE		0x100
 #define PKGCONF_PKG_PKGF_SKIP_PROVIDES			0x200
+#define PKGCONF_PKG_PKGF_REDEFINE_PREFIX		0x400
 
 #define PKGCONF_PKG_ERRF_OK			0x0
 #define PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND	0x1

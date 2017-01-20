@@ -33,7 +33,8 @@ tests_init \
 	nolibs \
 	nocflags \
 	arbitary_path \
-	with_path
+	with_path \
+	relocatable
 
 noargs_body()
 {
@@ -288,4 +289,12 @@ arbitary_path_body()
 	atf_check \
 		-o inline:"-L/test/lib -lfoo  \n" \
 		pkgconf --libs foo.pc
+}
+
+relocatable_body()
+{
+	basedir=$(pkgconf --relocate ${selfdir})
+	atf_check \
+		-o inline:"${basedir}/lib-relocatable\n" \
+		pkgconf --define-prefix --variable=prefix ${basedir}/lib-relocatable/lib/pkgconfig/foo.pc
 }

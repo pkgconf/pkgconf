@@ -52,6 +52,7 @@
 #define PKG_NO_PROVIDES			(((uint64_t) 1) << 32)
 #define PKG_PURE			(((uint64_t) 1) << 33)
 #define PKG_PATH			(((uint64_t) 1) << 34)
+#define PKG_DEFINE_PREFIX		(((uint64_t) 1) << 35)
 
 static pkgconf_client_t pkg_client;
 
@@ -569,8 +570,11 @@ usage(void)
 	printf("                                    walking the dependency graph\n");
 	printf("  --log-file=filename               write an audit log to a specified file\n");
 	printf("  --with-path=path                  adds a directory to the search path\n");
+	printf("  --define-prefix                   override the prefix variable with one that is guessed based on\n");
+	printf("                                    the location of the .pc file\n");
 	printf("  --prefix-variable=varname         sets the name of the variable that pkgconf considers\n");
 	printf("                                    to be the package prefix\n");
+	printf("  --relocate=path                   relocates a path and exits (mostly for testsuite)\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -612,6 +616,17 @@ usage(void)
 	printf("  --path                            show the exact filenames for any matching .pc files\n");
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
+}
+
+static void
+relocate_path(const char *path)
+{
+	char buf[PKGCONF_BUFSIZE];
+
+	pkgconf_strlcpy(buf, path, sizeof buf);
+	pkgconf_path_relocate(buf, sizeof buf);
+
+	printf("%s\n", buf);
 }
 
 int
@@ -678,6 +693,8 @@ main(int argc, char *argv[])
 		{ "path", no_argument, &want_flags, PKG_PATH },
 		{ "with-path", required_argument, NULL, 42 },
 		{ "prefix-variable", required_argument, NULL, 43 },
+		{ "define-prefix", no_argument, &want_flags, PKG_DEFINE_PREFIX },
+		{ "relocate", required_argument, NULL, 45 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -717,6 +734,9 @@ main(int argc, char *argv[])
 		case 43:
 			pkgconf_client_set_prefix_varname(&pkg_client, pkg_optarg);
 			break;
+		case 45:
+			relocate_path(pkg_optarg);
+			return EXIT_SUCCESS;
 		case '?':
 		case ':':
 			return EXIT_FAILURE;
@@ -786,6 +806,9 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_NO_CACHE) == PKG_NO_CACHE)
 		want_client_flags |= PKGCONF_PKG_PKGF_NO_CACHE;
+
+	if ((want_flags & PKG_DEFINE_PREFIX) == PKG_DEFINE_PREFIX)
+		want_client_flags |= PKGCONF_PKG_PKGF_REDEFINE_PREFIX;
 
 	if ((want_flags & PKG_NO_UNINSTALLED) == PKG_NO_UNINSTALLED || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
 		want_client_flags |= PKGCONF_PKG_PKGF_NO_UNINSTALLED;
