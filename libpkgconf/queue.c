@@ -112,7 +112,7 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
 	if (!pkgconf_queue_compile(client, world, list))
 		return PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
 
-	return pkgconf_pkg_verify_graph(client, world, maxdepth, client->flags);
+	return pkgconf_pkg_verify_graph(client, world, maxdepth);
 }
 
 /*

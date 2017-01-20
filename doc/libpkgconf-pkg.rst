@@ -61,13 +61,12 @@ routines.
    :return: A package object reference if one is found by the scan function, else ``NULL``.
    :rtype: pkgconf_pkg_t *
 
-.. c:function:: pkgconf_pkg_t *pkgconf_pkg_find(pkgconf_client_t *client, const char *name, unsigned int flags)
+.. c:function:: pkgconf_pkg_t *pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 
    Search for a package.
 
    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
    :param char* name: The name of the package `atom` to use for searching.
-   :param uint flags: A set of flags which define the behaviour of the dependency resolver.
    :return: A package object reference if the package was found, else ``NULL``.
    :rtype: pkgconf_pkg_t *
 
@@ -105,19 +104,18 @@ routines.
    :return: The comparator bytecode if found, else ``PKGCONF_CMP_ANY``.
    :rtype: pkgconf_pkg_comparator_t
 
-.. c:function:: pkgconf_pkg_t *pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pkgdep, unsigned int flags, unsigned int *eflags)
+.. c:function:: pkgconf_pkg_t *pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pkgdep, unsigned int *eflags)
 
    Verify a pkgconf_dependency_t node in the depgraph.  If the dependency is solvable,
    return the appropriate ``pkgconf_pkg_t`` object, else ``NULL``.
 
    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
    :param pkgconf_dependency_t* pkgdep: The dependency graph node to solve.
-   :param uint flags: A set of package resolver flags which modify behaviour.
    :param uint* eflags: An optional pointer that, if set, will be populated with an error code from the resolver.
    :return: On success, the appropriate ``pkgconf_pkg_t`` object to solve the dependency, else ``NULL``.
    :rtype: pkgconf_pkg_t *
 
-.. c:function:: unsigned int pkgconf_pkg_verify_graph(pkgconf_client_t *client, pkgconf_pkg_t *root, int depth, unsigned int flags)
+.. c:function:: unsigned int pkgconf_pkg_verify_graph(pkgconf_client_t *client, pkgconf_pkg_t *root, int depth)
 
    Verify the graph dependency nodes are satisfiable by walking the tree using
    ``pkgconf_pkg_traverse()``.
@@ -125,11 +123,10 @@ routines.
    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
    :param pkgconf_pkg_t* root: The root entry in the package dependency graph which should contain the top-level dependencies to resolve.
    :param int depth: The maximum allowed depth for dependency resolution.
-   :param uint flags: A set of package resolver flags which modify it's behaviour.
    :return: On success, ``PKGCONF_PKG_ERRF_OK`` (0), else an error code.
    :rtype: unsigned int
 
-.. c:function:: unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int flags)
+.. c:function:: unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth)
 
    Walk and resolve the dependency graph up to `maxdepth` levels.
 
@@ -138,17 +135,10 @@ routines.
    :param pkgconf_pkg_traverse_func_t func: A traversal function to call for each resolved node in the dependency graph.
    :param void* data: An opaque pointer to data to be passed to the traversal function.
    :param int maxdepth: The maximum depth to walk the dependency graph for.  -1 means infinite recursion.
-   :param uint flags: A set of flags which modify the dependency resolver's behaviour:
-
-       :``PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL``: Do not call the traversal function for the root element in the graph if it is a virtual or built-in package.
-       :``PKGCONF_PKG_PKGF_SKIP_CONFLICTS``: Do not process `conflicts` rules.
-       :``PKGCONF_PKG_PKGF_SKIP_PROVIDES``: Do not process `provides` rules.
-       :``PKGCONF_PKG_PKGF_SEARCH_PRIVATE``: Process `requires.private` rules.
-
    :return: ``PKGCONF_PKG_ERRF_OK`` on success, else an error code.
    :rtype: unsigned int
 
-.. c:function:: int pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+.. c:function:: int pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth)
 
    Walks a dependency graph and extracts relevant ``CFLAGS`` fragments.
 
@@ -156,14 +146,10 @@ routines.
    :param pkgconf_pkg_t* root: The root of the dependency graph.
    :param pkgconf_list_t* list: The fragment list to add the extracted ``CFLAGS`` fragments to.
    :param int maxdepth: The maximum allowed depth for dependency resolution.  -1 means infinite recursion.
-   :param uint flags: A set of optional dependency resolver flags.  All of the flags for ``pkgconf_pkg_traverse()`` are relevant here, as well as:
-
-       :``PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS``: merge ``CFLAGS.private`` entries as well
-
    :return: ``PKGCONF_PKG_ERRF_OK`` if successful, otherwise an error code.
    :rtype: unsigned int
 
-.. c:function:: int pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth, unsigned int flags)
+.. c:function:: int pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth)
 
    Walks a dependency graph and extracts relevant ``LIBS`` fragments.
 
@@ -171,9 +157,5 @@ routines.
    :param pkgconf_pkg_t* root: The root of the dependency graph.
    :param pkgconf_list_t* list: The fragment list to add the extracted ``LIBS`` fragments to.
    :param int maxdepth: The maximum allowed depth for dependency resolution.  -1 means infinite recursion.
-   :param uint flags: A set of optional dependency resolver flags.  All of the flags for ``pkgconf_pkg_traverse()`` are relevant here, as well as:
-
-       :``PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS``: merge ``LIBS.private`` entries as well
-
    :return: ``PKGCONF_PKG_ERRF_OK`` if successful, otherwise an error code.
    :rtype: unsigned int
