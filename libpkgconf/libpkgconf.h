@@ -152,6 +152,8 @@ struct pkgconf_client_ {
 	char *buildroot_dir;
 
 	unsigned int flags;
+
+	char *prefix_varname;
 };
 
 /* client.c */
@@ -165,6 +167,8 @@ const char *pkgconf_client_get_buildroot_dir(const pkgconf_client_t *client);
 void pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot_dir);
 unsigned int pkgconf_client_get_flags(const pkgconf_client_t *client);
 void pkgconf_client_set_flags(pkgconf_client_t *client, unsigned int flags);
+const char *pkgconf_client_get_prefix_varname(const pkgconf_client_t *client);
+void pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_varname);
 
 #define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((unsigned int)(c)))
 #define PKGCONF_IS_OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')

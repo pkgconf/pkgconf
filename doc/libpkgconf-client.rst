@@ -112,3 +112,21 @@ thread boundaries.
 
    :param pkgconf_client_t* client: The client object to set the resolver-specific flags on.
    :return: nothing
+
+.. c:function:: const char *pkgconf_client_get_prefix_varname(const pkgconf_client_t *client)
+
+   Retrieves the name of the variable that should contain a module's prefix.
+   In some cases, it is necessary to override this variable to allow proper path relocation.
+
+   :param pkgconf_client_t* client: The client object to retrieve the prefix variable name from.
+   :return: the prefix variable name as a string
+   :rtype: const char *
+
+.. c:function:: void pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_varname)
+
+   Sets the name of the variable that should contain a module's prefix.
+   If the variable name is ``NULL``, then the default variable name (``prefix``) is used.
+
+   :param pkgconf_client_t* client: The client object to set the prefix variable name on.
+   :param char* prefix_varname: The prefix variable name to set.
+   :return: nothing

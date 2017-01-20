@@ -50,6 +50,7 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 
 	pkgconf_client_set_sysroot_dir(client, NULL);
 	pkgconf_client_set_buildroot_dir(client, NULL);
+	pkgconf_client_set_prefix_varname(client, NULL);
 
 	if (client->error_handler == NULL)
 		client->error_handler = pkgconf_default_error_handler;
@@ -98,6 +99,9 @@ pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handl
 void
 pkgconf_client_deinit(pkgconf_client_t *client)
 {
+	if (client->prefix_varname != NULL)
+		free(client->prefix_varname);
+
 	if (client->sysroot_dir != NULL)
 		free(client->sysroot_dir);
 
@@ -289,4 +293,46 @@ void
 pkgconf_client_set_flags(pkgconf_client_t *client, unsigned int flags)
 {
 	client->flags = flags;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: const char *pkgconf_client_get_prefix_varname(const pkgconf_client_t *client)
+ *
+ *    Retrieves the name of the variable that should contain a module's prefix.
+ *    In some cases, it is necessary to override this variable to allow proper path relocation.
+ *
+ *    :param pkgconf_client_t* client: The client object to retrieve the prefix variable name from.
+ *    :return: the prefix variable name as a string
+ *    :rtype: const char *
+ */
+const char *
+pkgconf_client_get_prefix_varname(const pkgconf_client_t *client)
+{
+	return client->prefix_varname;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_varname)
+ *
+ *    Sets the name of the variable that should contain a module's prefix.
+ *    If the variable name is ``NULL``, then the default variable name (``prefix``) is used.
+ *
+ *    :param pkgconf_client_t* client: The client object to set the prefix variable name on.
+ *    :param char* prefix_varname: The prefix variable name to set.
+ *    :return: nothing
+ */
+void
+pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_varname)
+{
+	if (prefix_varname == NULL)
+		prefix_varname = "prefix";
+
+	if (client->prefix_varname != NULL)
+		free(client->prefix_varname);
+
+	client->prefix_varname = strdup(prefix_varname);
 }
