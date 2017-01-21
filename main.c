@@ -53,6 +53,7 @@
 #define PKG_PURE			(((uint64_t) 1) << 33)
 #define PKG_PATH			(((uint64_t) 1) << 34)
 #define PKG_DEFINE_PREFIX		(((uint64_t) 1) << 35)
+#define PKG_DONT_DEFINE_PREFIX		(((uint64_t) 1) << 36)
 
 static pkgconf_client_t pkg_client;
 
@@ -572,6 +573,7 @@ usage(void)
 	printf("  --with-path=path                  adds a directory to the search path\n");
 	printf("  --define-prefix                   override the prefix variable with one that is guessed based on\n");
 	printf("                                    the location of the .pc file\n");
+	printf("  --dont-define-prefix              do not override the prefix variable under any circumstances\n");
 	printf("  --prefix-variable=varname         sets the name of the variable that pkgconf considers\n");
 	printf("                                    to be the package prefix\n");
 	printf("  --relocate=path                   relocates a path and exits (mostly for testsuite)\n");
@@ -695,6 +697,7 @@ main(int argc, char *argv[])
 		{ "prefix-variable", required_argument, NULL, 43 },
 		{ "define-prefix", no_argument, &want_flags, PKG_DEFINE_PREFIX },
 		{ "relocate", required_argument, NULL, 45 },
+		{ "dont-define-prefix", no_argument, &want_flags, PKG_DONT_DEFINE_PREFIX },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -815,6 +818,9 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_NO_PROVIDES) == PKG_NO_PROVIDES)
 		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_PROVIDES;
+
+	if ((want_flags & PKG_DONT_DEFINE_PREFIX) == PKG_DONT_DEFINE_PREFIX)
+		want_client_flags &= ~PKGCONF_PKG_PKGF_REDEFINE_PREFIX;
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
 		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
