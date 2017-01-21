@@ -68,6 +68,22 @@ rules in modules when resolving dependencies.
 .It Fl -with-path Ns = Ns Ar PATH
 Adds a new module search path to pkgconf's dependency resolver.  Paths added in
 this way are given preference before other paths.
+.It Fl -define-prefix
+Attempts to determine the prefix variable to use for CFLAGS and LIBS entry relocations.
+This is mainly useful for platforms where framework SDKs are relocatable, such as Windows.
+.It Fl -dont-define-prefix
+Disables the
+.Sq define-prefix
+feature.
+.It Fl -prefix-variable Ns = Ns Ar VARIABLE
+Sets the
+.Sq prefix
+variable used by the
+.Sq define-prefix
+feature.
+.It Fl -relocate Ns = Ns Ar PATH
+Relocates a path using the pkgconf_path_relocate API.  This is mainly used by the
+testsuite to provide a guaranteed interface to the system's path relocation backend.
 .El
 .Sh MODULE-SPECIFIC OPTIONS
 .Bl -tag -width indent
