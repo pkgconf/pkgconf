@@ -1,6 +1,29 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.1.0 to 1.2.0:
+----------------------------
+
+* Features:
+  - new --path option lists the .pc files which provided the requested dependencies
+  - new path relocation API: pkgconf_path_relocate(), which wraps functions such as
+    realpath() and cygwin_conv_path().
+  - new --with-path option adds a path to the search list
+  - new --define-prefix and --dont-define-prefix features enable automatic prefix
+    detection for relocatable SDKs.  this is mostly useful on windows.
+
+* Bug fixes:
+  - fragments: fix even more edge cases involving token concatenation
+  - path lists: don't attempt to collect path inodes if the filter is disabled
+  - path lists: explicitly avoid uninitialised data for the path inode cache
+  - client: properly handle --keep-system-cflags and --keep-system-libs
+
+* Enhancements:
+  - windows: build libpkgconf as a DLL
+  - fragments: only munge fragments if sysroot_dir is actually set
+  - overall API: resolver flags have been moved to being a client-object setting
+    instead of used for every function invocation
+
 Changes from 1.0.1 to 1.1.0:
 ----------------------------
 
