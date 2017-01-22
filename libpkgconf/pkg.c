@@ -923,7 +923,7 @@ static const pkgconf_vercmp_res_func_t pkgconf_pkg_comparator_impls[] = {
 const char *
 pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep)
 {
-	if (pkgdep->compare > PKGCONF_ARRAY_SIZE(pkgconf_pkg_comparator_names))
+	if (pkgdep->compare >= PKGCONF_ARRAY_SIZE(pkgconf_pkg_comparator_names))
 		return "???";
 
 	return pkgconf_pkg_comparator_names[pkgdep->compare].name;
