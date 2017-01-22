@@ -1063,9 +1063,6 @@ pkgconf_pkg_scan_provides_vercmp(const pkgconf_dependency_t *pkgdep, const pkgco
 {
 	const pkgconf_pkg_provides_vermatch_rule_t *rule = &pkgconf_pkg_provides_vermatch_rules[pkgdep->compare];
 
-	if (rule == NULL)
-		return false;
-
 	if (rule->depcmp[provider->compare] != NULL &&
 	    !rule->depcmp[provider->compare](provider->version, pkgdep->version))
 		return false;
