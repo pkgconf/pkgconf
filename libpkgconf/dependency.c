@@ -208,7 +208,6 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 
 				compare = PKGCONF_CMP_ANY;
 				package_sz = 0;
-				version_sz = 0;
 			}
 
 			break;
@@ -254,7 +253,6 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 				cnameptr = cmpname;
 				memset(cmpname, 0, sizeof cmpname);
 				package_sz = 0;
-				version_sz = 0;
 			}
 
 			if (state == OUTSIDE_MODULE)
