@@ -137,7 +137,7 @@ pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queu
 	pkgconf_pkg_t world = {
 		.id = "virtual:world",
 		.realname = "virtual world package",
-		.flags = PKGCONF_PKG_PROPF_VIRTUAL,
+		.flags = PKGCONF_PKG_PROPF_STATIC | PKGCONF_PKG_PROPF_VIRTUAL,
 	};
 
 	/* if maxdepth is one, then we will not traverse deeper than our virtual package. */
@@ -178,7 +178,7 @@ pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxde
 	pkgconf_pkg_t world = {
 		.id = "virtual:world",
 		.realname = "virtual world package",
-		.flags = PKGCONF_PKG_PROPF_VIRTUAL,
+		.flags = PKGCONF_PKG_PROPF_STATIC | PKGCONF_PKG_PROPF_VIRTUAL,
 	};
 
 	/* if maxdepth is one, then we will not traverse deeper than our virtual package. */
