@@ -16,6 +16,10 @@
 #include <libpkgconf/config.h>
 #include <libpkgconf/libpkgconf.h>
 
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
+
 /*
  * !doc
  *
@@ -446,17 +450,21 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 		static char filebuf[PKGCONF_BUFSIZE];
 		pkgconf_pkg_t *pkg;
 		FILE *f;
+#ifdef HAVE_SYS_STAT_H
 		struct stat st;
+#endif
 
 		pkgconf_strlcpy(filebuf, path, sizeof filebuf);
 		pkgconf_strlcat(filebuf, "/", sizeof filebuf);
 		pkgconf_strlcat(filebuf, dirent->d_name, sizeof filebuf);
 
+#ifdef HAVE_SYS_STAT_H
 		if (stat(filebuf, &st) == -1)
 			continue;
 
 		if (!(S_ISREG(st.st_mode)))
 			continue;
+#endif
 
 		f = fopen(filebuf, "r");
 		if (f == NULL)
