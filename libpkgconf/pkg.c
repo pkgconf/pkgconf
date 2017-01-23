@@ -452,7 +452,9 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 		pkgconf_strlcat(filebuf, "/", sizeof filebuf);
 		pkgconf_strlcat(filebuf, dirent->d_name, sizeof filebuf);
 
-		stat(filebuf, &st);
+		if (stat(filebuf, &st) == -1)
+			continue;
+
 		if (!(S_ISREG(st.st_mode)))
 			continue;
 
