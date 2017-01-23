@@ -61,7 +61,7 @@ pkgconf_node_insert_tail(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 
 	node->data = data;
 
-	if (list->head == NULL)
+	if (list->tail == NULL)
 	{
 		list->head = node;
 		list->tail = node;
