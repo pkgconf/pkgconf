@@ -83,7 +83,8 @@ char    *pkg_optarg;		/* argument associated with option */
 #define	BADARG		((*options == ':') ? (int)':' : (int)'?')
 #define	INORDER 	(int)1
 
-#define	EMSG		""
+/* add some padding to EMSG to avoid overrun */
+#define	EMSG		"\0\0\0\0"
 
 #ifdef GNU_COMPATIBLE
 #define NO_PREFIX	(-1)
