@@ -1343,7 +1343,6 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 	void *data,
 	int maxdepth)
 {
-	unsigned int saved_flags = client->flags;
 	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
 
 	if (maxdepth == 0)
@@ -1354,7 +1353,6 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 		if (func != NULL)
 			func(client, root, data);
 	}
-	client->flags &= ~PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL;
 
 	if (!(client->flags & PKGCONF_PKG_PKGF_SKIP_CONFLICTS))
 	{
@@ -1377,7 +1375,6 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 		if (eflags != PKGCONF_PKG_ERRF_OK)
 			return eflags;
 	}
-	client->flags = saved_flags;
 
 	return eflags;
 }
