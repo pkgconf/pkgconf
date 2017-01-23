@@ -1,6 +1,16 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.2.0 to 1.2.1:
+----------------------------
+
+* Bug fixes:
+  - pkg: properly separate static and virtual packages so they are not inappropriately
+    optimized out of the dependency graph (#108)
+
+* Enhancements:
+  - many code fixes spotted by coverity
+
 Changes from 1.1.0 to 1.2.0:
 ----------------------------
 
