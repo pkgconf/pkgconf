@@ -331,7 +331,7 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 void
 pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
-	if (pkg == NULL || pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+	if (pkg == NULL || pkg->flags & PKGCONF_PKG_PROPF_STATIC)
 		return;
 
 	pkgconf_cache_remove(client, pkg);
@@ -768,7 +768,7 @@ static pkgconf_pkg_t pkg_config_virtual = {
 	.description = "virtual package defining pkg-config API version supported",
 	.url = PACKAGE_BUGREPORT,
 	.version = PACKAGE_VERSION,
-	.flags = PKGCONF_PKG_PROPF_VIRTUAL,
+	.flags = PKGCONF_PKG_PROPF_STATIC,
 	.vars = {
 		.head = &(pkgconf_node_t){
 			.prev = NULL,
@@ -788,7 +788,7 @@ static pkgconf_pkg_t pkgconf_virtual = {
 	.description = "virtual package defining pkgconf API version supported",
 	.url = PACKAGE_BUGREPORT,
 	.version = PACKAGE_VERSION,
-	.flags = PKGCONF_PKG_PROPF_VIRTUAL,
+	.flags = PKGCONF_PKG_PROPF_STATIC,
 	.vars = {
 		.head = &(pkgconf_node_t){
 			.prev = NULL,
