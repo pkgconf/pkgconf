@@ -12,12 +12,13 @@ addons:
 sudo: required
 
 before_install:
-  scripts/install_deps.sh
+  - scripts/install_deps.sh
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 script:
   - sh ./autogen.sh
-  - ./configure
-  - make distcheck
+  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./configure ; fi
+  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then make distcheck ; fi
 
 notifications:
   email: false
@@ -32,9 +33,6 @@ env:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
    #   via the "travis encrypt" command using the project repo's public key
    - secure: "blUnmLjOjZ1l9jSUff2gka+O6zI82wOMF/6zk6domstMjWbdRQFuEijkAngLyRYa/6uwbNQezqktJficEOvnU5kjq/IVUPkVTWR/nwhZdOpB4ksllpEWX6LH90HqxEaMqGZEaqPEG5uCYW+8pwTgWesPVzc0TF552WNoh4swAhs="
-
-before_install:
-      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 addons:
   coverity_scan:
