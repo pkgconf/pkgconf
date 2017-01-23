@@ -6,6 +6,11 @@ if [ "$(uname -s)" = "Msys" ]; then
 	PATH_SEP=";"
 fi
 
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+datarootdir="@datarootdir@"
+pcpath="@PKGCONFIGDIR@"
+
 tests_init()
 {
 	TESTS="$@"
