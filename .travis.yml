@@ -4,11 +4,6 @@ compiler:
   - clang
   - gcc
 
-addons:
-  apt:
-    packages:
-      - liblua5.2-dev
-
 sudo: required
 
 before_install:
@@ -35,6 +30,9 @@ env:
    - secure: "blUnmLjOjZ1l9jSUff2gka+O6zI82wOMF/6zk6domstMjWbdRQFuEijkAngLyRYa/6uwbNQezqktJficEOvnU5kjq/IVUPkVTWR/nwhZdOpB4ksllpEWX6LH90HqxEaMqGZEaqPEG5uCYW+8pwTgWesPVzc0TF552WNoh4swAhs="
 
 addons:
+  apt:
+    packages:
+      - liblua5.2-dev
   coverity_scan:
     project:
       name: "pkgconf/pkgconf"
