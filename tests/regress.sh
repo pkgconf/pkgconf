@@ -23,7 +23,8 @@ tests_init \
 	idirafter_munge_sysroot \
 	idirafter_ordering \
 	pcpath \
-	sysroot_munge
+	sysroot_munge \
+	virtual_variable
 
 case_sensitivity_body()
 {
@@ -202,4 +203,17 @@ sysroot_munge_body()
 	atf_check \
 		-o inline:"-L/sysroot2/sysroot/lib -lfoo  \n" \
 		pkgconf --libs sysroot-dir
+}
+
+virtual_variable_body()
+{
+	atf_check -s exit:0 \
+		pkgconf --exists pkg-config
+	atf_check -s exit:0 \
+		pkgconf --exists pkgconf
+
+	atf_check -o inline:"${pcpath}\n" \
+		pkgconf --variable=pc_path pkg-config
+	atf_check -o inline:"${pcpath}\n" \
+		pkgconf --variable=pc_path pkgconf
 }
