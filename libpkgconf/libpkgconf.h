@@ -96,11 +96,12 @@ struct pkgconf_path_ {
 	void *handle_device;
 };
 
-#define PKGCONF_PKG_PROPF_NONE			0x0
-#define PKGCONF_PKG_PROPF_VIRTUAL		0x1
-#define PKGCONF_PKG_PROPF_CACHED		0x2
-#define PKGCONF_PKG_PROPF_SEEN			0x4
-#define PKGCONF_PKG_PROPF_UNINSTALLED		0x8
+#define PKGCONF_PKG_PROPF_NONE			0x00
+#define PKGCONF_PKG_PROPF_STATIC		0x01
+#define PKGCONF_PKG_PROPF_CACHED		0x02
+#define PKGCONF_PKG_PROPF_SEEN			0x04
+#define PKGCONF_PKG_PROPF_UNINSTALLED		0x08
+#define PKGCONF_PKG_PROPF_VIRTUAL		0x10
 
 struct pkgconf_pkg_ {
 	pkgconf_node_t cache_iter;
