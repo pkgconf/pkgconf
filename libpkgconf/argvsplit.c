@@ -124,9 +124,14 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 					free(argv);
 					free(buf);
 					return -1;
-				} else {
-					*dst_iter++ = '\\';
 				}
+				else
+				{
+					*dst_iter++ = '\\';
+					*dst_iter++ = *src_iter;
+				}
+
+				break;
 			default:
 				*dst_iter++ = *src_iter;
 				break;
