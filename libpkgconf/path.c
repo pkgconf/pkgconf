@@ -16,7 +16,7 @@
 #include <libpkgconf/libpkgconf.h>
 #include <libpkgconf/config.h>
 
-#ifdef HAVE_CYGWIN_CONV_PATH
+#if defined(HAVE_CYGWIN_CONV_PATH) && defined(__MSYS__)
 # include <sys/cygwin.h>
 #endif
 
@@ -246,7 +246,7 @@ pkgconf_path_free(pkgconf_list_t *dirlist)
 bool
 pkgconf_path_relocate(char *buf, size_t buflen)
 {
-#if defined(HAVE_CYGWIN_CONV_PATH)
+#if defined(HAVE_CYGWIN_CONV_PATH) && defined(__MSYS__)
 	ssize_t size;
 	char *tmpbuf, *ti;
 
