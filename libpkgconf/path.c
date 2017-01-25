@@ -231,12 +231,39 @@ pkgconf_path_free(pkgconf_list_t *dirlist)
 	}
 }
 
+static char *
+normpath(const char *path)
+{
+	if (!path)
+		return NULL;
+
+	char *copy = strdup(path);
+	if (NULL == copy)
+		return NULL;
+	char *ptr = copy;
+
+	for (int ii = 0; copy[ii]; ii++)
+	{
+		*ptr++ = path[ii];
+		if ('/' == path[ii])
+		{
+			ii++;
+			while ('/' == path[ii])
+				ii++;
+			ii--;
+		}
+	}
+	*ptr = '\0';
+
+	return copy;
+}
+
 /*
  * !doc
  *
  * .. c:function:: bool pkgconf_path_relocate(char *buf, size_t buflen)
  *
- *    Relocates a path, possibly calling realpath() or cygwin_conv_path() on it.
+ *    Relocates a path, possibly calling normpath() or cygwin_conv_path() on it.
  *
  *    :param char* buf: The path to relocate.
  *    :param size_t buflen: The buffer length the path is contained in.
@@ -267,10 +294,10 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 		if (*ti == '\\')
 			*ti = '/';
 	}
-#elif defined(HAVE_REALPATH)
+#else
 	char *tmpbuf;
 
-	if ((tmpbuf = realpath(buf, NULL)) != NULL)
+	if ((tmpbuf = normpath(buf)) != NULL)
 	{
 		size_t tmpbuflen = strlen(tmpbuf);
 		if (tmpbuflen > buflen)
@@ -282,9 +309,6 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 		pkgconf_strlcpy(buf, tmpbuf, buflen);
 		free(tmpbuf);
 	}
-#else
-	(void) buf;
-	(void) buflen;
 #endif
 
 	return true;
