@@ -17,7 +17,7 @@ AC_CONFIG_SRCDIR([main.c])
 AC_CONFIG_HEADERS([libpkgconf/config.h])
 AC_CHECK_FUNCS([strlcpy strlcat strndup realpath cygwin_conv_path])
 AC_CHECK_HEADERS([sys/stat.h])
-AM_INIT_AUTOMAKE([foreign no-dist-gzip dist-xz subdir-objects])
+AM_INIT_AUTOMAKE([foreign dist-xz subdir-objects])
 AM_SILENT_RULES([yes])
 LT_INIT
 
