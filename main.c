@@ -690,7 +690,7 @@ main(int argc, char *argv[])
 		{ "print-provides", no_argument, &want_flags, PKG_PROVIDES, },
 		{ "no-provides", no_argument, &want_flags, PKG_NO_PROVIDES, },
 		{ "debug", no_argument, &want_flags, 0, },
-		{ "validate", no_argument, NULL, 0 },
+		{ "validate", no_argument, &want_flags, PKG_VALIDATE|PKG_PRINT_ERRORS|PKG_ERRORS_ON_STDOUT },
 		{ "log-file", required_argument, NULL, 40 },
 		{ "path", no_argument, &want_flags, PKG_PATH },
 		{ "with-path", required_argument, NULL, 42 },
