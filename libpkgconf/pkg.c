@@ -266,7 +266,8 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 		if (!isalpha((unsigned int)*key) && !isdigit((unsigned int)*p))
 			continue;
 
-		while (*p && isspace((unsigned int)*p)) {
+		while (*p && isspace((unsigned int)*p))
+		{
 			/* set to null to avoid trailing spaces in key */
 			*p = '\0';
 			p++;
@@ -280,6 +281,12 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 			p++;
 
 		value = p;
+		p = value + (strlen(value) - 1);
+		while (*p && isspace((unsigned int) *p) && p > value)
+		{
+			*p = '\0';
+			p--;
+		}
 
 		switch (op)
 		{
