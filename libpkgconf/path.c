@@ -82,11 +82,22 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 #ifdef PKGCONF_CACHE_INODES
 	struct stat st;
 
-	if (filter && stat(text, &st) == -1)
-		return;
+	if (filter)
+	{
+		if (lstat(text, &st) == -1)
+			return;
+		if (S_ISLNK(st.st_mode))
+		{
+			char linkdest[PKGCONF_BUFSIZE];
+			ssize_t len = readlink(text, linkdest, sizeof(linkdest));
 
-	if (filter && path_list_contains_entry(text, dirlist, &st))
-		return;
+			if (len != -1 && (size_t)len < sizeof(linkdest) &&
+				stat(linkdest, &st) == -1)
+				return;
+		}
+		if (path_list_contains_entry(text, dirlist, &st))
+			return;
+	}
 #else
 	if (filter && path_list_contains_entry(text, dirlist))
 		return;
