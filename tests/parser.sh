@@ -17,7 +17,8 @@ tests_init \
 	flag_order_2 \
 	flag_order_3 \
 	flag_order_4 \
-	quoted
+	quoted \
+	variable_whitespace
 
 comments_body()
 {
@@ -142,4 +143,12 @@ flag_order_4_body()
 	atf_check \
 		-o inline:"-L/test/lib -Wl,--start-group -lfoo -lbar -Wl,--end-group -lfoo  \n" \
 		pkgconf --libs flag-order-3 foo
+}
+
+variable_whitespace_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-I/test/include  \n" \
+		pkgconf --cflags variable-whitespace
 }
