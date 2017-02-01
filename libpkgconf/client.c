@@ -64,6 +64,11 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	pkgconf_path_build_from_environ("C_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
 	pkgconf_path_build_from_environ("CPLUS_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
 	pkgconf_path_build_from_environ("OBJC_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
+
+#ifdef _WIN32
+	/* also use the path lists that MSVC uses on windows */
+	pkgconf_path_build_from_environ("INCLUDE", NULL, &client->filter_includedirs, false);
+#endif
 }
 
 /*
