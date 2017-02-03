@@ -84,6 +84,8 @@ feature.
 .It Fl -relocate Ns = Ns Ar PATH
 Relocates a path using the pkgconf_path_relocate API.  This is mainly used by the
 testsuite to provide a guaranteed interface to the system's path relocation backend.
+.It Fl -dont-relocate-paths
+Disables the path relocation feature.
 .El
 .Sh MODULE-SPECIFIC OPTIONS
 .Bl -tag -width indent
@@ -193,6 +195,8 @@ which is used for dumping audit information concerning installed module versions
 .It Va PKG_CONFIG_DEBUG_SPEW
 If set, enables additional debug logging. The format of the debug log messages is
 implementation-specific.
+.It Va PKG_CONFIG_DONT_RELOCATE_PATHS
+If set, disables the path relocation feature.
 .El
 .Sh EXAMPLES
 Displaying the CFLAGS of a package:
