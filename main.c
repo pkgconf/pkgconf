@@ -54,6 +54,7 @@
 #define PKG_PATH			(((uint64_t) 1) << 34)
 #define PKG_DEFINE_PREFIX		(((uint64_t) 1) << 35)
 #define PKG_DONT_DEFINE_PREFIX		(((uint64_t) 1) << 36)
+#define PKG_DONT_RELOCATE_PATHS		(((uint64_t) 1) << 37)
 
 static pkgconf_client_t pkg_client;
 
@@ -577,6 +578,7 @@ usage(void)
 	printf("  --prefix-variable=varname         sets the name of the variable that pkgconf considers\n");
 	printf("                                    to be the package prefix\n");
 	printf("  --relocate=path                   relocates a path and exits (mostly for testsuite)\n");
+	printf("  --dont-relocate-paths             disables path relocation support\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -698,6 +700,7 @@ main(int argc, char *argv[])
 		{ "define-prefix", no_argument, &want_flags, PKG_DEFINE_PREFIX },
 		{ "relocate", required_argument, NULL, 45 },
 		{ "dont-define-prefix", no_argument, &want_flags, PKG_DONT_DEFINE_PREFIX },
+		{ "dont-relocate-paths", no_argument, &want_flags, PKG_DONT_RELOCATE_PATHS },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -757,6 +760,9 @@ main(int argc, char *argv[])
 	else
 		want_flags &= ~(PKG_SILENCE_ERRORS);
 
+	if (getenv("PKG_CONFIG_DONT_RELOCATE_PATHS"))
+		want_flags |= (PKG_DONT_RELOCATE_PATHS);
+
 	if ((want_flags & PKG_ABOUT) == PKG_ABOUT)
 	{
 		about();
@@ -784,6 +790,9 @@ main(int argc, char *argv[])
 		usage();
 		return EXIT_SUCCESS;
 	}
+
+	if ((want_flags & PKG_DONT_RELOCATE_PATHS) == PKG_DONT_RELOCATE_PATHS)
+		want_client_flags |= PKGCONF_PKG_PKGF_DONT_RELOCATE_PATHS;
 
 	error_msgout = stderr;
 	if ((want_flags & PKG_ERRORS_ON_STDOUT) == PKG_ERRORS_ON_STDOUT)
