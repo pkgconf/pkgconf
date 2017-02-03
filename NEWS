@@ -1,6 +1,17 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.2.1 to 1.2.2:
+----------------------------
+
+* Bug fixes:
+  - argvsplit: do not consider ' and " to have similar rules to escape sequences (#111)
+  - pkg: strip trailing whitespace when parsing .pc files
+
+* Enhancements:
+  - add PKG_CONFIG_DONT_RELOCATE_PATHS and --dont-relocate-paths environment variables to
+    disable path relocation feature if needed
+
 Changes from 1.2.0 to 1.2.1:
 ----------------------------
 
