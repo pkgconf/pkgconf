@@ -18,7 +18,8 @@ tests_init \
 	flag_order_3 \
 	flag_order_4 \
 	quoted \
-	variable_whitespace
+	variable_whitespace \
+	fragment_quoting
 
 comments_body()
 {
@@ -151,4 +152,12 @@ variable_whitespace_body()
 	atf_check \
 		-o inline:"-I/test/include  \n" \
 		pkgconf --cflags variable-whitespace
+}
+
+fragment_quoting_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-fPIC -I/test/include/foo -DQUOTED='\"/test/share/doc\"'  \n" \
+		pkgconf --cflags fragment-quoting
 }

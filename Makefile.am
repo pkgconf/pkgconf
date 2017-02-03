@@ -65,6 +65,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/flag-order-1.pc \
 		tests/lib1/flag-order-3.pc \
 		tests/lib1/variable-whitespace.pc \
+		tests/lib1/fragment-quoting.pc \
 		tests/test_env.sh \
 		$(test_scripts) \
 		doc/conf.py \
