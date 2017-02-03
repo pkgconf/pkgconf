@@ -111,11 +111,6 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 		}
 		else switch(*src_iter)
 		{
-			case '"':
-			case '\'':
-				quote = *src_iter;
-				break;
-
 			case '\\':
 				src_iter++;
 
