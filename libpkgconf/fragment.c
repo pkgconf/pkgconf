@@ -100,7 +100,7 @@ pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen,
 
 	pkgconf_strlcat(buf, source, buflen);
 
-	if (*buf == '/')
+	if (*buf == '/' && !(client->flags & PKGCONF_PKG_PKGF_DONT_RELOCATE_PATHS))
 		pkgconf_path_relocate(buf, buflen);
 }
 
