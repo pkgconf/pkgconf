@@ -62,14 +62,15 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	client->error_handler = error_handler;
 	client->auditf = NULL;
 
-	pkgconf_client_set_sysroot_dir(client, NULL);
-	pkgconf_client_set_buildroot_dir(client, NULL);
-	pkgconf_client_set_prefix_varname(client, NULL);
+	if (client->trace_handler == NULL)
+		pkgconf_client_set_trace_handler(client, NULL, NULL);
 
 	pkgconf_client_set_error_handler(client, error_handler, error_handler_data);
 	pkgconf_client_set_warn_handler(client, NULL, NULL);
-	if (client->trace_handler == NULL)
-		pkgconf_client_set_trace_handler(client, NULL, NULL);
+
+	pkgconf_client_set_sysroot_dir(client, NULL);
+	pkgconf_client_set_buildroot_dir(client, NULL);
+	pkgconf_client_set_prefix_varname(client, NULL);
 
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &client->filter_libdirs, false);
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &client->filter_includedirs, false);
@@ -547,7 +548,7 @@ pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler
 
 	if (client->trace_handler == NULL)
 	{
-		PKGCONF_TRACE(client, "installing default trace handler");
 		client->trace_handler = pkgconf_default_error_handler;
+		PKGCONF_TRACE(client, "installing default trace handler");
 	}
 }
