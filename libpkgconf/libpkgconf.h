@@ -146,9 +146,11 @@ struct pkgconf_client_ {
 
 	void *error_handler_data;
 	void *warn_handler_data;
+	void *trace_handler_data;
 
 	pkgconf_error_handler_func_t error_handler;
 	pkgconf_error_handler_func_t warn_handler;
+	pkgconf_error_handler_func_t trace_handler;
 
 	FILE *auditf;
 
@@ -177,6 +179,8 @@ pkgconf_error_handler_func_t pkgconf_client_get_warn_handler(const pkgconf_clien
 void pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler, void *warn_handler_data);
 pkgconf_error_handler_func_t pkgconf_client_get_error_handler(const pkgconf_client_t *client);
 void pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data);
+pkgconf_error_handler_func_t pkgconf_client_get_trace_handler(const pkgconf_client_t *client);
+void pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t trace_handler, void *trace_handler_data);
 
 #define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((unsigned int)(c)))
 #define PKGCONF_IS_OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
@@ -214,6 +218,7 @@ void pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_ha
 
 bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 bool pkgconf_warn(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
+bool pkgconf_trace(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data);
 
 pkgconf_pkg_t *pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg);

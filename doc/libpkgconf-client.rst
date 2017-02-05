@@ -97,6 +97,15 @@ thread boundaries.
    :return: true if the warn handler processed the message, else false.
    :rtype: bool
 
+.. c:function:: bool pkgconf_trace(const pkgconf_client_t *client, const char *format, ...)
+
+   Report a message to a client-registered trace handler.
+
+   :param pkgconf_client_t* client: The pkgconf client object to report the trace message to.
+   :param char* format: A printf-style format string to use for formatting the trace message.
+   :return: true if the trace handler processed the message, else false.
+   :rtype: bool
+
 .. c:function:: bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
 
    The default pkgconf error handler.
@@ -170,4 +179,20 @@ thread boundaries.
    :param pkgconf_client_t* client: The client object to set the error handler on.
    :param pkgconf_error_handler_func_t error_handler: The error handler to set.
    :param void* error_handler_data: Optional data to associate with the error handler.
+   :return: nothing
+
+.. c:function:: pkgconf_client_get_trace_handler(const pkgconf_client_t *client)
+
+   Returns the error handler if one is set, else ``NULL``.
+
+   :param pkgconf_client_t* client: The client object to get the error handler from.
+   :return: a function pointer to the error handler or ``NULL``
+
+.. c:function:: pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t trace_handler, void *trace_handler_data)
+
+   Sets a warn handler on a client object or uninstalls one if set to ``NULL``.
+
+   :param pkgconf_client_t* client: The client object to set the error handler on.
+   :param pkgconf_error_handler_func_t trace_handler: The error handler to set.
+   :param void* trace_handler_data: Optional data to associate with the error handler.
    :return: nothing

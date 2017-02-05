@@ -54,6 +54,7 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 
 	pkgconf_client_set_error_handler(client, error_handler, error_handler_data);
 	pkgconf_client_set_warn_handler(client, NULL, NULL);
+	pkgconf_client_set_trace_handler(client, NULL, NULL);
 
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &client->filter_libdirs, false);
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &client->filter_includedirs, false);
@@ -272,6 +273,31 @@ pkgconf_warn(const pkgconf_client_t *client, const char *format, ...)
 /*
  * !doc
  *
+ * .. c:function:: bool pkgconf_trace(const pkgconf_client_t *client, const char *format, ...)
+ *
+ *    Report a message to a client-registered trace handler.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to report the trace message to.
+ *    :param char* format: A printf-style format string to use for formatting the trace message.
+ *    :return: true if the trace handler processed the message, else false.
+ *    :rtype: bool
+ */
+bool
+pkgconf_trace(const pkgconf_client_t *client, const char *format, ...)
+{
+	char errbuf[PKGCONF_BUFSIZE];
+	va_list va;
+
+	va_start(va, format);
+	vsnprintf(errbuf, sizeof errbuf, format, va);
+	va_end(va);
+
+	return client->trace_handler(errbuf, client, client->trace_handler_data);
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
  *
  *    The default pkgconf error handler.
@@ -441,4 +467,42 @@ pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler
 
 	if (client->error_handler == NULL)
 		client->error_handler = pkgconf_default_error_handler;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_client_get_trace_handler(const pkgconf_client_t *client)
+ *
+ *    Returns the error handler if one is set, else ``NULL``.
+ *
+ *    :param pkgconf_client_t* client: The client object to get the error handler from.
+ *    :return: a function pointer to the error handler or ``NULL``
+ */
+pkgconf_error_handler_func_t
+pkgconf_client_get_trace_handler(const pkgconf_client_t *client)
+{
+	return client->trace_handler;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t trace_handler, void *trace_handler_data)
+ *
+ *    Sets a warn handler on a client object or uninstalls one if set to ``NULL``.
+ *
+ *    :param pkgconf_client_t* client: The client object to set the error handler on.
+ *    :param pkgconf_error_handler_func_t trace_handler: The error handler to set.
+ *    :param void* trace_handler_data: Optional data to associate with the error handler.
+ *    :return: nothing
+ */
+void
+pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t trace_handler, void *trace_handler_data)
+{
+	client->trace_handler = trace_handler;
+	client->trace_handler_data = trace_handler_data;
+
+	if (client->trace_handler == NULL)
+		client->trace_handler = pkgconf_default_error_handler;
 }
