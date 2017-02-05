@@ -54,7 +54,8 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 
 	pkgconf_client_set_error_handler(client, error_handler, error_handler_data);
 	pkgconf_client_set_warn_handler(client, NULL, NULL);
-	pkgconf_client_set_trace_handler(client, NULL, NULL);
+	if (client->trace_handler == NULL)
+		pkgconf_client_set_trace_handler(client, NULL, NULL);
 
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &client->filter_libdirs, false);
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &client->filter_includedirs, false);
@@ -273,24 +274,32 @@ pkgconf_warn(const pkgconf_client_t *client, const char *format, ...)
 /*
  * !doc
  *
- * .. c:function:: bool pkgconf_trace(const pkgconf_client_t *client, const char *format, ...)
+ * .. c:function:: bool pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t len, const char *funcname, const char *format, ...)
  *
  *    Report a message to a client-registered trace handler.
  *
  *    :param pkgconf_client_t* client: The pkgconf client object to report the trace message to.
+ *    :param char* filename: The file the function is in.
+ *    :param size_t lineno: The line number currently being executed.
+ *    :param char* funcname: The function name to use.
  *    :param char* format: A printf-style format string to use for formatting the trace message.
  *    :return: true if the trace handler processed the message, else false.
  *    :rtype: bool
  */
 bool
-pkgconf_trace(const pkgconf_client_t *client, const char *format, ...)
+pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t lineno, const char *funcname, const char *format, ...)
 {
 	char errbuf[PKGCONF_BUFSIZE];
+	size_t len;
 	va_list va;
 
+	len = snprintf(errbuf, sizeof errbuf, "%s:%zu [%s]: ", filename, lineno, funcname);
+
 	va_start(va, format);
-	vsnprintf(errbuf, sizeof errbuf, format, va);
+	vsnprintf(errbuf + len, sizeof(errbuf) - len, format, va);
 	va_end(va);
+
+	pkgconf_strlcat(errbuf, "\n", sizeof errbuf);
 
 	return client->trace_handler(errbuf, client, client->trace_handler_data);
 }

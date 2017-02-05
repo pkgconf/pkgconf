@@ -218,8 +218,18 @@ void pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_ha
 
 bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 bool pkgconf_warn(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
-bool pkgconf_trace(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
+bool pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t lineno, const char *funcname, const char *format, ...) PRINTFLIKE(5, 6);
 bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data);
+
+#if defined(__GNUC__) || defined(__INTEL_COMPILER)
+#define PKGCONF_TRACE(client, ...) do { \
+		pkgconf_trace(client, __FILE__, __LINE__, __PRETTY_FUNCTION__, __VA_ARGS__); \
+	} while (0);
+#else
+#define PKGCONF_TRACE(client, ...) do { \
+		pkgconf_trace(client, __FILE__, __LINE__, __func__, __VA_ARGS__); \
+	} while (0);
+#endif
 
 pkgconf_pkg_t *pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 void pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
