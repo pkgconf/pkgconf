@@ -262,6 +262,8 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 
 		lineno++;
 
+		PKGCONF_TRACE(client, "%s:%zu > [%s]", filename, lineno, readbuf);
+
 		p = readbuf;
 		while (*p && (isalpha((unsigned int)*p) || isdigit((unsigned int)*p) || *p == '_' || *p == '.'))
 			p++;
@@ -441,16 +443,22 @@ pkgconf_pkg_try_specific_path(const pkgconf_client_t *client, const char *path, 
 	char locbuf[PKG_CONFIG_PATH_SZ];
 	char uninst_locbuf[PKG_CONFIG_PATH_SZ];
 
+	PKGCONF_TRACE(client, "trying path: %s for %s", path, name);
+
 	snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path, name);
 	snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path, name);
 
 	if (!(client->flags & PKGCONF_PKG_PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 	{
+		PKGCONF_TRACE(client, "found: %s", uninst_locbuf);
 		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f);
 		pkg->flags |= PKGCONF_PKG_PROPF_UNINSTALLED;
 	}
 	else if ((f = fopen(locbuf, "r")) != NULL)
+	{
+		PKGCONF_TRACE(client, "found: %s", locbuf);
 		pkg = pkgconf_pkg_new_from_file(client, locbuf, f);
+	}
 
 	return pkg;
 }
@@ -466,6 +474,8 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 	if (dir == NULL)
 		return NULL;
 
+	PKGCONF_TRACE(client, "scanning dir [%s]", path);
+
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
 	{
 		static char filebuf[PKGCONF_BUFSIZE];
@@ -478,6 +488,8 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 
 		if (!str_has_suffix(filebuf, PKG_CONFIG_EXT))
 			continue;
+
+		PKGCONF_TRACE(client, "trying file [%s]", filebuf);
 
 		f = fopen(filebuf, "r");
 		if (f == NULL)
@@ -590,12 +602,16 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 	pkgconf_node_t *n;
 	FILE *f;
 
+	PKGCONF_TRACE(client, "looking for: %s", name);
+
 	/* name might actually be a filename. */
 	if (str_has_suffix(name, PKG_CONFIG_EXT))
 	{
 		if ((f = fopen(name, "r")) != NULL)
 		{
 			pkgconf_pkg_t *pkg;
+
+			PKGCONF_TRACE(client, "%s is a file", name);
 
 			pkg = pkgconf_pkg_new_from_file(client, name, f);
 			pkgconf_path_add(pkg_get_parent_dir(pkg), &client->dir_list, true);
@@ -606,13 +622,18 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 
 	/* check builtins */
 	if ((pkg = pkgconf_builtin_pkg_get(name)) != NULL)
+	{
+		PKGCONF_TRACE(client, "%s is a builtin", name);
 		return pkg;
+	}
 
 	/* check cache */
 	if (!(client->flags & PKGCONF_PKG_PKGF_NO_CACHE))
 	{
 		if ((pkg = pkgconf_cache_lookup(client, name)) != NULL)
 		{
+			PKGCONF_TRACE(client, "%s is cached", name);
+
 			pkg->flags |= PKGCONF_PKG_PROPF_CACHED;
 			return pkg;
 		}
