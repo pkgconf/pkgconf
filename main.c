@@ -763,6 +763,9 @@ main(int argc, char *argv[])
 	if (getenv("PKG_CONFIG_DONT_RELOCATE_PATHS"))
 		want_flags |= (PKG_DONT_RELOCATE_PATHS);
 
+	if ((want_flags & PKG_VALIDATE) == PKG_VALIDATE)
+		pkgconf_client_set_warn_handler(&pkg_client, error_handler, NULL);
+
 	if ((want_flags & PKG_ABOUT) == PKG_ABOUT)
 	{
 		about();
