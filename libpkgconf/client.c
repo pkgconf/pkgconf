@@ -29,6 +29,20 @@
  * thread boundaries.
  */
 
+static void
+trace_path_list(const pkgconf_client_t *client, const char *desc, pkgconf_list_t *list)
+{
+	const pkgconf_node_t *n;
+
+	PKGCONF_TRACE(client, "%s:", desc);
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, n)
+	{
+		const pkgconf_path_t *p = n->data;
+
+		PKGCONF_TRACE(client, "  - '%s'", p->path);
+	}
+}
+
 /*
  * !doc
  *
@@ -71,6 +85,11 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	/* also use the path lists that MSVC uses on windows */
 	pkgconf_path_build_from_environ("INCLUDE", NULL, &client->filter_includedirs, false);
 #endif
+
+	PKGCONF_TRACE(client, "initialized client @%p", client);
+
+	trace_path_list(client, "filtered library paths", &client->filter_libdirs);
+	trace_path_list(client, "filtered include paths", &client->filter_includedirs);
 }
 
 /*
@@ -106,6 +125,8 @@ pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handl
 void
 pkgconf_client_deinit(pkgconf_client_t *client)
 {
+	PKGCONF_TRACE(client, "deinit @%p", client);
+
 	if (client->prefix_varname != NULL)
 		free(client->prefix_varname);
 
@@ -176,6 +197,8 @@ pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir
 
 	client->sysroot_dir = sysroot_dir != NULL ? strdup(sysroot_dir) : NULL;
 
+	PKGCONF_TRACE(client, "set sysroot_dir to: %s", client->sysroot_dir != NULL ? client->sysroot_dir : "<default>");
+
 	pkgconf_tuple_add_global(client, "pc_sysrootdir", client->sysroot_dir != NULL ? client->sysroot_dir : "/");
 }
 
@@ -217,6 +240,8 @@ pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot
 		free(client->buildroot_dir);
 
 	client->buildroot_dir = buildroot_dir != NULL ? strdup(buildroot_dir) : NULL;
+
+	PKGCONF_TRACE(client, "set buildroot_dir to: %s", client->buildroot_dir != NULL ? client->buildroot_dir : "<default>");
 
 	pkgconf_tuple_add_global(client, "pc_top_builddir", client->buildroot_dir != NULL ? client->buildroot_dir : "$(top_builddir)");
 }
@@ -400,6 +425,8 @@ pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_v
 		free(client->prefix_varname);
 
 	client->prefix_varname = strdup(prefix_varname);
+
+	PKGCONF_TRACE(client, "set prefix_varname to: %s", client->prefix_varname);
 }
 
 /*
@@ -437,7 +464,10 @@ pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_
 	client->warn_handler_data = warn_handler_data;
 
 	if (client->warn_handler == NULL)
+	{
+		PKGCONF_TRACE(client, "installing default warn handler");
 		client->warn_handler = pkgconf_default_error_handler;
+	}
 }
 
 /*
@@ -475,7 +505,10 @@ pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler
 	client->error_handler_data = error_handler_data;
 
 	if (client->error_handler == NULL)
+	{
+		PKGCONF_TRACE(client, "installing default error handler");
 		client->error_handler = pkgconf_default_error_handler;
+	}
 }
 
 /*
@@ -513,5 +546,8 @@ pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler
 	client->trace_handler_data = trace_handler_data;
 
 	if (client->trace_handler == NULL)
+	{
+		PKGCONF_TRACE(client, "installing default trace handler");
 		client->trace_handler = pkgconf_default_error_handler;
+	}
 }
