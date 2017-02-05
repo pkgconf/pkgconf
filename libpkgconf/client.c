@@ -55,6 +55,8 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	if (client->error_handler == NULL)
 		client->error_handler = pkgconf_default_error_handler;
 
+	client->warn_handler = pkgconf_default_error_handler;
+
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &client->filter_libdirs, false);
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &client->filter_includedirs, false);
 
@@ -373,6 +375,9 @@ void
 pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler)
 {
 	client->warn_handler = warn_handler;
+
+	if (client->warn_handler == NULL)
+		client->warn_handler = pkgconf_default_error_handler;
 }
 
 /*
@@ -406,4 +411,7 @@ void
 pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
 {
 	client->error_handler = error_handler;
+
+	if (client->error_handler == NULL)
+		client->error_handler = pkgconf_default_error_handler;
 }
