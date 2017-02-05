@@ -88,6 +88,15 @@ thread boundaries.
    :return: true if the error handler processed the message, else false.
    :rtype: bool
 
+.. c:function:: bool pkgconf_warn(const pkgconf_client_t *client, const char *format, ...)
+
+   Report an error to a client-registered warn handler.
+
+   :param pkgconf_client_t* client: The pkgconf client object to report the error to.
+   :param char* format: A printf-style format string to use for formatting the warning message.
+   :return: true if the warn handler processed the message, else false.
+   :rtype: bool
+
 .. c:function:: bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
 
    The default pkgconf error handler.

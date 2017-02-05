@@ -247,6 +247,31 @@ pkgconf_error(const pkgconf_client_t *client, const char *format, ...)
 /*
  * !doc
  *
+ * .. c:function:: bool pkgconf_warn(const pkgconf_client_t *client, const char *format, ...)
+ *
+ *    Report an error to a client-registered warn handler.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to report the error to.
+ *    :param char* format: A printf-style format string to use for formatting the warning message.
+ *    :return: true if the warn handler processed the message, else false.
+ *    :rtype: bool
+ */
+bool
+pkgconf_warn(const pkgconf_client_t *client, const char *format, ...)
+{
+	char errbuf[PKGCONF_BUFSIZE];
+	va_list va;
+
+	va_start(va, format);
+	vsnprintf(errbuf, sizeof errbuf, format, va);
+	va_end(va);
+
+	return client->warn_handler(errbuf, client, client->warn_handler_data);
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
  *
  *    The default pkgconf error handler.

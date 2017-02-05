@@ -213,6 +213,7 @@ void pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_ha
 #endif /* defined(__INTEL_COMPILER) || defined(__GNUC__) */
 
 bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
+bool pkgconf_warn(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data);
 
 pkgconf_pkg_t *pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg);
