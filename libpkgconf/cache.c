@@ -52,9 +52,13 @@ pkgconf_cache_lookup(const pkgconf_client_t *client, const char *id)
 		pkgconf_pkg_t *pkg = node->data;
 
 		if (!strcmp(pkg->id, id))
+		{
+			PKGCONF_TRACE(client, "found: %s @%p", id, pkg);
 			return pkgconf_pkg_ref(client, pkg);
+		}
 	}
 
+	PKGCONF_TRACE(client, "miss: %s", id);
 	return NULL;
 }
 
@@ -78,6 +82,8 @@ pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 
 	pkgconf_pkg_ref(client, pkg);
 	pkgconf_node_insert(&pkg->cache_iter, pkg, &client->pkg_cache);
+
+	PKGCONF_TRACE(client, "added @%p to cache", pkg);
 }
 
 /*
@@ -96,6 +102,8 @@ pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
 	if (pkg == NULL)
 		return;
+
+	PKGCONF_TRACE(client, "removed @%p from cache", pkg);
 
 	pkgconf_node_delete(&pkg->cache_iter, &client->pkg_cache);
 }
@@ -123,4 +131,6 @@ pkgconf_cache_free(pkgconf_client_t *client)
 	}
 
 	memset(&client->pkg_cache, 0, sizeof client->pkg_cache);
+
+	PKGCONF_TRACE(client, "cleared package cache");
 }
