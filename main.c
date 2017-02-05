@@ -55,6 +55,7 @@
 #define PKG_DEFINE_PREFIX		(((uint64_t) 1) << 35)
 #define PKG_DONT_DEFINE_PREFIX		(((uint64_t) 1) << 36)
 #define PKG_DONT_RELOCATE_PATHS		(((uint64_t) 1) << 37)
+#define PKG_DEBUG			(((uint64_t) 1) << 38)
 
 static pkgconf_client_t pkg_client;
 
@@ -691,7 +692,7 @@ main(int argc, char *argv[])
 		{ "no-cache", no_argument, &want_flags, PKG_NO_CACHE, },
 		{ "print-provides", no_argument, &want_flags, PKG_PROVIDES, },
 		{ "no-provides", no_argument, &want_flags, PKG_NO_PROVIDES, },
-		{ "debug", no_argument, &want_flags, 0, },
+		{ "debug", no_argument, &want_flags, PKG_DEBUG|PKG_PRINT_ERRORS, },
 		{ "validate", no_argument, &want_flags, PKG_VALIDATE|PKG_PRINT_ERRORS|PKG_ERRORS_ON_STDOUT },
 		{ "log-file", required_argument, NULL, 40 },
 		{ "path", no_argument, &want_flags, PKG_PATH },
@@ -763,8 +764,11 @@ main(int argc, char *argv[])
 	if (getenv("PKG_CONFIG_DONT_RELOCATE_PATHS"))
 		want_flags |= (PKG_DONT_RELOCATE_PATHS);
 
-	if ((want_flags & PKG_VALIDATE) == PKG_VALIDATE)
+	if ((want_flags & PKG_VALIDATE) == PKG_VALIDATE || (want_flags & PKG_DEBUG) == PKG_DEBUG)
 		pkgconf_client_set_warn_handler(&pkg_client, error_handler, NULL);
+
+	if ((want_flags & PKG_DEBUG) == PKG_DEBUG)
+		pkgconf_client_set_trace_handler(&pkg_client, error_handler, NULL);
 
 	if ((want_flags & PKG_ABOUT) == PKG_ABOUT)
 	{
