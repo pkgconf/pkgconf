@@ -130,3 +130,33 @@ thread boundaries.
    :param pkgconf_client_t* client: The client object to set the prefix variable name on.
    :param char* prefix_varname: The prefix variable name to set.
    :return: nothing
+
+.. c:function:: pkgconf_client_get_warn_handler(const pkgconf_client_t *client)
+
+   Returns the warning handler if one is set, else ``NULL``.
+
+   :param pkgconf_client_t* client: The client object to get the warn handler from.
+   :return: a function pointer to the warn handler or ``NULL``
+
+.. c:function:: pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler)
+
+   Sets a warn handler on a client object or uninstalls one if set to ``NULL``.
+
+   :param pkgconf_client_t* client: The client object to set the warn handler on.
+   :param pkgconf_error_handler_func_t warn_handler: The warn handler to set.
+   :return: nothing
+
+.. c:function:: pkgconf_client_get_error_handler(const pkgconf_client_t *client)
+
+   Returns the warning handler if one is set, else ``NULL``.
+
+   :param pkgconf_client_t* client: The client object to get the warn handler from.
+   :return: a function pointer to the warn handler or ``NULL``
+
+.. c:function:: pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
+
+   Sets a warn handler on a client object or uninstalls one if set to ``NULL``.
+
+   :param pkgconf_client_t* client: The client object to set the warn handler on.
+   :param pkgconf_error_handler_func_t error_handler: The warn handler to set.
+   :return: nothing

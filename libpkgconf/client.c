@@ -341,3 +341,69 @@ pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_v
 
 	client->prefix_varname = strdup(prefix_varname);
 }
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_client_get_warn_handler(const pkgconf_client_t *client)
+ *
+ *    Returns the warning handler if one is set, else ``NULL``.
+ *
+ *    :param pkgconf_client_t* client: The client object to get the warn handler from.
+ *    :return: a function pointer to the warn handler or ``NULL``
+ */
+pkgconf_error_handler_func_t
+pkgconf_client_get_warn_handler(const pkgconf_client_t *client)
+{
+	return client->warn_handler;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler)
+ *
+ *    Sets a warn handler on a client object or uninstalls one if set to ``NULL``.
+ *
+ *    :param pkgconf_client_t* client: The client object to set the warn handler on.
+ *    :param pkgconf_error_handler_func_t warn_handler: The warn handler to set.
+ *    :return: nothing
+ */
+void
+pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler)
+{
+	client->warn_handler = warn_handler;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_client_get_error_handler(const pkgconf_client_t *client)
+ *
+ *    Returns the warning handler if one is set, else ``NULL``.
+ *
+ *    :param pkgconf_client_t* client: The client object to get the warn handler from.
+ *    :return: a function pointer to the warn handler or ``NULL``
+ */
+pkgconf_error_handler_func_t
+pkgconf_client_get_error_handler(const pkgconf_client_t *client)
+{
+	return client->error_handler;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
+ *
+ *    Sets a warn handler on a client object or uninstalls one if set to ``NULL``.
+ *
+ *    :param pkgconf_client_t* client: The client object to set the warn handler on.
+ *    :param pkgconf_error_handler_func_t error_handler: The warn handler to set.
+ *    :return: nothing
+ */
+void
+pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
+{
+	client->error_handler = error_handler;
+}
