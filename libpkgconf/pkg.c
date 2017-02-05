@@ -238,6 +238,7 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 	pkgconf_pkg_t *pkg;
 	char readbuf[PKGCONF_BUFSIZE];
 	char *idptr;
+	size_t lineno = 0;
 
 	pkg = calloc(sizeof(pkgconf_pkg_t), 1);
 	pkg->filename = strdup(filename);
@@ -257,6 +258,9 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 	while (pkgconf_fgetline(readbuf, PKGCONF_BUFSIZE, f) != NULL)
 	{
 		char op, *p, *key, *value;
+		bool warned_key_whitespace = false, warned_value_whitespace = false;
+
+		lineno++;
 
 		p = readbuf;
 		while (*p && (isalpha((unsigned int)*p) || isdigit((unsigned int)*p) || *p == '_' || *p == '.'))
@@ -268,6 +272,13 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 
 		while (*p && isspace((unsigned int)*p))
 		{
+			if (!warned_key_whitespace)
+			{
+				pkgconf_warn(client, "%s:%zu: warning: whitespace encountered while parsing key section\n",
+					pkg->filename, lineno);
+				warned_key_whitespace = true;
+			}
+
 			/* set to null to avoid trailing spaces in key */
 			*p = '\0';
 			p++;
@@ -284,6 +295,13 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 		p = value + (strlen(value) - 1);
 		while (*p && isspace((unsigned int) *p) && p > value)
 		{
+			if (!warned_value_whitespace && op == '=')
+			{
+				pkgconf_warn(client, "%s:%zu: warning: trailing whitespace encountered while parsing value section\n",
+					pkg->filename, lineno);
+				warned_value_whitespace = true;
+			}
+
 			*p = '\0';
 			p--;
 		}
