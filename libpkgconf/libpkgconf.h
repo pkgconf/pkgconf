@@ -145,6 +145,8 @@ struct pkgconf_client_ {
 	pkgconf_list_t global_vars;
 
 	void *error_handler_data;
+	void *warn_handler_data;
+
 	pkgconf_error_handler_func_t error_handler;
 	pkgconf_error_handler_func_t warn_handler;
 
@@ -172,9 +174,9 @@ void pkgconf_client_set_flags(pkgconf_client_t *client, unsigned int flags);
 const char *pkgconf_client_get_prefix_varname(const pkgconf_client_t *client);
 void pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_varname);
 pkgconf_error_handler_func_t pkgconf_client_get_warn_handler(const pkgconf_client_t *client);
-void pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler);
+void pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler, void *warn_handler_data);
 pkgconf_error_handler_func_t pkgconf_client_get_error_handler(const pkgconf_client_t *client);
-void pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler);
+void pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data);
 
 #define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((unsigned int)(c)))
 #define PKGCONF_IS_OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')

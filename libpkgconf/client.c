@@ -52,10 +52,8 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	pkgconf_client_set_buildroot_dir(client, NULL);
 	pkgconf_client_set_prefix_varname(client, NULL);
 
-	if (client->error_handler == NULL)
-		client->error_handler = pkgconf_default_error_handler;
-
-	client->warn_handler = pkgconf_default_error_handler;
+	pkgconf_client_set_error_handler(client, error_handler, error_handler_data);
+	pkgconf_client_set_warn_handler(client, NULL, NULL);
 
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &client->filter_libdirs, false);
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &client->filter_includedirs, false);
@@ -363,18 +361,20 @@ pkgconf_client_get_warn_handler(const pkgconf_client_t *client)
 /*
  * !doc
  *
- * .. c:function:: pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler)
+ * .. c:function:: pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler, void *warn_handler_data)
  *
  *    Sets a warn handler on a client object or uninstalls one if set to ``NULL``.
  *
  *    :param pkgconf_client_t* client: The client object to set the warn handler on.
  *    :param pkgconf_error_handler_func_t warn_handler: The warn handler to set.
+ *    :param void* warn_handler_data: Optional data to associate with the warn handler.
  *    :return: nothing
  */
 void
-pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler)
+pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t warn_handler, void *warn_handler_data)
 {
 	client->warn_handler = warn_handler;
+	client->warn_handler_data = warn_handler_data;
 
 	if (client->warn_handler == NULL)
 		client->warn_handler = pkgconf_default_error_handler;
@@ -385,10 +385,10 @@ pkgconf_client_set_warn_handler(pkgconf_client_t *client, pkgconf_error_handler_
  *
  * .. c:function:: pkgconf_client_get_error_handler(const pkgconf_client_t *client)
  *
- *    Returns the warning handler if one is set, else ``NULL``.
+ *    Returns the error handler if one is set, else ``NULL``.
  *
- *    :param pkgconf_client_t* client: The client object to get the warn handler from.
- *    :return: a function pointer to the warn handler or ``NULL``
+ *    :param pkgconf_client_t* client: The client object to get the error handler from.
+ *    :return: a function pointer to the error handler or ``NULL``
  */
 pkgconf_error_handler_func_t
 pkgconf_client_get_error_handler(const pkgconf_client_t *client)
@@ -399,18 +399,20 @@ pkgconf_client_get_error_handler(const pkgconf_client_t *client)
 /*
  * !doc
  *
- * .. c:function:: pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
+ * .. c:function:: pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data)
  *
  *    Sets a warn handler on a client object or uninstalls one if set to ``NULL``.
  *
- *    :param pkgconf_client_t* client: The client object to set the warn handler on.
- *    :param pkgconf_error_handler_func_t error_handler: The warn handler to set.
+ *    :param pkgconf_client_t* client: The client object to set the error handler on.
+ *    :param pkgconf_error_handler_func_t error_handler: The error handler to set.
+ *    :param void* error_handler_data: Optional data to associate with the error handler.
  *    :return: nothing
  */
 void
-pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
+pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data)
 {
 	client->error_handler = error_handler;
+	client->error_handler_data = error_handler_data;
 
 	if (client->error_handler == NULL)
 		client->error_handler = pkgconf_default_error_handler;
