@@ -705,6 +705,12 @@ main(int argc, char *argv[])
 		{ NULL, 0, NULL, 0 }
 	};
 
+	if (getenv("PKG_CONFIG_EARLY_TRACE"))
+	{
+		error_msgout = stderr;
+		pkgconf_client_set_trace_handler(&pkg_client, error_handler, NULL);
+	}
+
 	pkgconf_client_init(&pkg_client, error_handler, NULL);
 
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
