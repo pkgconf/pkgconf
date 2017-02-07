@@ -64,6 +64,7 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 	int argc_count = 0;
 	int argv_size = 5;
 	char quote = 0;
+	bool in_single_quotes = false;
 
 	src_iter = src;
 	dst_iter = buf;
@@ -111,6 +112,16 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 		}
 		else switch(*src_iter)
 		{
+			case '\"':
+				if (in_single_quotes)
+					*dst_iter++ = *src_iter;
+				break;
+
+			case '\'':
+				in_single_quotes ^= true;
+				*dst_iter++ = *src_iter;
+				break;
+
 			case '\\':
 				src_iter++;
 
