@@ -46,7 +46,7 @@ libs_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/lib -lfoo  \n" \
+		-o inline:"-L/test/lib -lfoo \n" \
 		pkgconf --libs foo
 }
 
@@ -54,7 +54,7 @@ libs_cflags_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo  \n" \
+		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo \n" \
 		pkgconf --cflags --libs foo
 }
 
@@ -63,7 +63,7 @@ libs_cflags_version_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo  \n" \
+		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo \n" \
 		pkgconf --cflags --libs 'foo > 1.2'
 }
 
@@ -71,7 +71,7 @@ libs_cflags_version_multiple_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-I/test/include/foo -fPIC -L/test/lib -lbar -lfoo  \n" \
+		-o inline:"-I/test/include/foo -fPIC -L/test/lib -lbar -lfoo \n" \
 		pkgconf --cflags --libs 'foo > 1.2 bar >= 1.3'
 }
 
@@ -79,7 +79,7 @@ libs_cflags_version_multiple_coma_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-I/test/include/foo -fPIC -L/test/lib -lbar -lfoo  \n" \
+		-o inline:"-I/test/include/foo -fPIC -L/test/lib -lbar -lfoo \n" \
 		pkgconf --cflags --libs 'foo > 1.2,bar >= 1.3'
 }
 
@@ -87,7 +87,7 @@ libs_cflags_version_alt_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo  \n" \
+		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo \n" \
 		pkgconf --cflags --libs 'foo' '>' '1.2'
 }
 
@@ -95,7 +95,7 @@ libs_cflags_version_different_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo  \n" \
+		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo \n" \
 		pkgconf --cflags --libs 'foo' '!=' '1.3.0'
 }
 
@@ -203,7 +203,7 @@ libs_intermediary_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-lintermediary-1 -lintermediary-2 -lfoo -lbar -lbaz  \n" \
+		-o inline:"-lintermediary-1 -lintermediary-2 -lfoo -lbar -lbaz \n" \
 		pkgconf --libs intermediary-1 intermediary-2
 }
 
@@ -211,7 +211,7 @@ libs_circular1_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-lcircular-1 -lcircular-2 -lcircular-3  \n" \
+		-o inline:"-lcircular-1 -lcircular-2 -lcircular-3 \n" \
 		pkgconf --libs circular-1
 }
 
@@ -219,14 +219,14 @@ libs_circular2_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-lcircular-3 -lcircular-1 -lcircular-2  \n" \
+		-o inline:"-lcircular-3 -lcircular-1 -lcircular-2 \n" \
 		pkgconf --libs circular-3
 }
 
 libs_circular_directpc_body()
 {
 	atf_check \
-		-o inline:"-lcircular-1 -lcircular-2 -lcircular-3  \n" \
+		-o inline:"-lcircular-1 -lcircular-2 -lcircular-3 \n" \
 		pkgconf --libs ${selfdir}/lib1/circular-3.pc
 }
 
@@ -234,7 +234,7 @@ libs_static_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"/libfoo.a -pthread  \n" \
+		-o inline:"/libfoo.a -pthread \n" \
 		pkgconf --libs static-archive-libs
 }
 
@@ -242,7 +242,7 @@ libs_static_ordering_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/lib -lbar -lfoo  \n" \
+		-o inline:"-L/test/lib -lbar -lfoo \n" \
 		pkgconf --libs foo bar
 }
 
@@ -250,20 +250,20 @@ pkg_config_path_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1${PATH_SEP}${selfdir}/lib2"
 	atf_check \
-		-o inline:"-L/test/lib -lfoo  \n" \
+		-o inline:"-L/test/lib -lfoo \n" \
 		pkgconf --libs foo
 	atf_check \
-		-o inline:"-L/test/lib -lbar -lfoo  \n" \
+		-o inline:"-L/test/lib -lbar -lfoo \n" \
 		pkgconf --libs bar
 }
 
 with_path_body()
 {
 	atf_check \
-		-o inline:"-L/test/lib -lfoo  \n" \
+		-o inline:"-L/test/lib -lfoo \n" \
 		pkgconf --with-path=${selfdir}/lib1 --with-path=${selfdir}/lib2 --libs foo
 	atf_check \
-		-o inline:"-L/test/lib -lbar -lfoo  \n" \
+		-o inline:"-L/test/lib -lbar -lfoo \n" \
 		pkgconf --with-path=${selfdir}/lib1 --with-path=${selfdir}/lib2 --libs bar
 }
 
@@ -271,7 +271,7 @@ nolibs_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:" \n" \
+		-o inline:"\n" \
 		pkgconf --libs nolib
 }
 
@@ -279,7 +279,7 @@ nocflags_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:" \n" \
+		-o inline:"\n" \
 		pkgconf --cflags nocflag
 }
 
@@ -287,7 +287,7 @@ arbitary_path_body()
 {
 	cp ${selfdir}/lib1/foo.pc .
 	atf_check \
-		-o inline:"-L/test/lib -lfoo  \n" \
+		-o inline:"-L/test/lib -lfoo \n" \
 		pkgconf --libs foo.pc
 }
 

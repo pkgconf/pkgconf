@@ -17,7 +17,7 @@ libs_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/lib -lbar -lfoo  \n" \
+		-o inline:"-L/test/lib -lbar -lfoo \n" \
 		pkgconf --libs bar
 }
 
@@ -25,7 +25,7 @@ libs_cflags_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lbaz  \n" \
+		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lbaz \n" \
 		pkgconf --libs --cflags baz
 }
 
@@ -33,7 +33,7 @@ libs_static_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/lib -lbaz -L/test/lib -lzee -L/test/lib -lfoo  \n" \
+		-o inline:"-L/test/lib -lbaz -L/test/lib -lzee -L/test/lib -lfoo \n" \
 		pkgconf --static --libs baz
 }
 
@@ -41,7 +41,7 @@ libs_static_pure_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/lib -lbaz -L/test/lib -lfoo  \n" \
+		-o inline:"-L/test/lib -lbaz -L/test/lib -lfoo \n" \
 		pkgconf --static --pure --libs baz
 }
 
@@ -49,7 +49,7 @@ argv_parse2_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-llib-1 -pthread /test/lib/lib2.so  \n" \
+		-o inline:"-llib-1 -pthread /test/lib/lib2.so \n" \
 		pkgconf --static --libs argv-parse-2
 }
 
@@ -57,7 +57,7 @@ static_cflags_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DFOO_STATIC  \n" \
+		-o inline:"-fPIC -I/test/include/foo -DFOO_STATIC \n" \
 		pkgconf --static --cflags baz
 }
 
@@ -65,7 +65,7 @@ private_duplication_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-lprivate -lfoo -lbaz -lzee -lbar -lfoo  \n" \
+		-o inline:"-lprivate -lfoo -lbaz -lzee -lbar -lfoo \n" \
 		pkgconf --static --libs-only-l private-libs-duplication
 }
 
@@ -73,7 +73,7 @@ libs_static2_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-lbar -lbar-private -L/test/lib -lfoo  \n" \
+		-o inline:"-lbar -lbar-private -L/test/lib -lfoo \n" \
 		pkgconf --static --libs static-libs
 }
 
@@ -83,6 +83,6 @@ missing_body()
 	atf_check \
 		-s exit:1 \
 		-e ignore \
-		-o inline:" \n" \
+		-o inline:"\n" \
 		pkgconf --cflags missing-require
 }

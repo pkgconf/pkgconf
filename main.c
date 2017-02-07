@@ -1160,7 +1160,7 @@ main(int argc, char *argv[])
 
 out_println:
 	if (want_flags & (PKG_CFLAGS|PKG_LIBS))
-		printf(" \n");
+		printf("\n");
 
 out:
 	pkgconf_client_deinit(&pkg_client);

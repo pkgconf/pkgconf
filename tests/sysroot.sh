@@ -11,7 +11,7 @@ cflags_body()
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	export PKG_CONFIG_SYSROOT_DIR="${SYSROOT_DIR}"
 	atf_check \
-		-o inline:"-fPIC -I${SYSROOT_DIR}/test/include/foo  \n" \
+		-o inline:"-fPIC -I${SYSROOT_DIR}/test/include/foo \n" \
 		pkgconf --cflags baz
 }
 

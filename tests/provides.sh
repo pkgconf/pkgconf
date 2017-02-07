@@ -26,7 +26,7 @@ provides = 1.2.3
 		-o inline:"${OUTPUT}" \
 		pkgconf --print-provides provides
 	atf_check \
-		-o inline:"-lfoo  \n" \
+		-o inline:"-lfoo \n" \
 		pkgconf --libs provides-request-simple
 	atf_check \
 		-e ignore \
