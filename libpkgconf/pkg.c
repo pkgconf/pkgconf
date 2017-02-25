@@ -450,7 +450,7 @@ pkgconf_pkg_try_specific_path(const pkgconf_client_t *client, const char *path, 
 
 	if (!(client->flags & PKGCONF_PKG_PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 	{
-		PKGCONF_TRACE(client, "found: %s", uninst_locbuf);
+		PKGCONF_TRACE(client, "found (uninstalled): %s", uninst_locbuf);
 		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f);
 		pkg->flags |= PKGCONF_PKG_PROPF_UNINSTALLED;
 	}
@@ -537,6 +537,8 @@ pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_fun
 	PKGCONF_FOREACH_LIST_ENTRY(client->dir_list.head, n)
 	{
 		pkgconf_path_t *pnode = n->data;
+
+		PKGCONF_TRACE(client, "scanning directory: %s", pnode->path);
 
 		if ((pkg = pkgconf_pkg_scan_dir(client, pnode->path, data, func)) != NULL)
 			return pkg;
@@ -1184,6 +1186,8 @@ pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pk
 	if (eflags != NULL)
 		*eflags = PKGCONF_PKG_ERRF_OK;
 
+	PKGCONF_TRACE(client, "trying to verify dependency: %s", pkgdep->package);
+
 	pkg = pkgconf_pkg_find(client, pkgdep->package);
 	if (pkg == NULL)
 	{
@@ -1395,12 +1399,15 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 			return eflags;
 	}
 
+	PKGCONF_TRACE(client, "%s: walking requires list", root->id);
 	eflags = pkgconf_pkg_walk_list(client, root, &root->requires, func, data, maxdepth);
 	if (eflags != PKGCONF_PKG_ERRF_OK)
 		return eflags;
 
 	if (client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE)
 	{
+		PKGCONF_TRACE(client, "%s: walking requires.private list", root->id);
+
 		/* XXX: ugly */
 		client->flags |= PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
 		eflags = pkgconf_pkg_walk_list(client, root, &root->requires_private, func, data, maxdepth);

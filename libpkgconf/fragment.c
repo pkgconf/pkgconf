@@ -138,6 +138,8 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 
 		frag->type = *(string + 1);
 		frag->data = pkgconf_fragment_copy_munged(client, string + 2);
+
+		PKGCONF_TRACE(client, "added fragment {%c, '%s'} to list @%p", frag->type, frag->data, list);
 	}
 	else
 	{
@@ -162,6 +164,8 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 				pkgconf_strlcat(newdata, " ", len);
 				pkgconf_strlcat(newdata, mungebuf, len);
 
+				PKGCONF_TRACE(client, "merging '%s' to '%s' to form fragment {'%s'} in list @%p", mungebuf, parent->data, newdata, list);
+
 				free(parent->data);
 				parent->data = newdata;
 
@@ -181,6 +185,8 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 
 		frag->type = 0;
 		frag->data = strdup(string);
+
+		PKGCONF_TRACE(client, "created special fragment {'%s'} in list @%p", frag->data, list);
 	}
 
 	pkgconf_node_insert_tail(&frag->iter, frag, list);
