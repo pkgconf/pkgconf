@@ -250,11 +250,12 @@ void pkgconf_pkg_dir_list_build(pkgconf_client_t *client);
 
 /* parse.c */
 pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *path, FILE *f);
-void pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends);
+void pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *depends);
 void pkgconf_dependency_parse(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
 void pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail);
 void pkgconf_dependency_free(pkgconf_list_t *list);
-pkgconf_dependency_t *pkgconf_dependency_add(pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare);
+const char *pkgconf_dependency_to_str(const pkgconf_dependency_t *dep);
+pkgconf_dependency_t *pkgconf_dependency_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare);
 
 /* argvsplit.c */
 int pkgconf_argv_split(const char *src, int *argc, char ***argv);

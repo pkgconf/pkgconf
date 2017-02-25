@@ -899,7 +899,7 @@ main(int argc, char *argv[])
 
 		while (argv[pkg_optind])
 		{
-			pkgconf_dependency_parse_str(&deplist, argv[pkg_optind]);
+			pkgconf_dependency_parse_str(&pkg_client, &deplist, argv[pkg_optind]);
 			pkg_optind++;
 		}
 
@@ -926,7 +926,7 @@ main(int argc, char *argv[])
 
 		while (argv[pkg_optind])
 		{
-			pkgconf_dependency_parse_str(&deplist, argv[pkg_optind]);
+			pkgconf_dependency_parse_str(&pkg_client, &deplist, argv[pkg_optind]);
 			pkg_optind++;
 		}
 
@@ -953,7 +953,7 @@ main(int argc, char *argv[])
 
 		while (argv[pkg_optind])
 		{
-			pkgconf_dependency_parse_str(&deplist, argv[pkg_optind]);
+			pkgconf_dependency_parse_str(&pkg_client, &deplist, argv[pkg_optind]);
 			pkg_optind++;
 		}
 

@@ -5,10 +5,19 @@ libpkgconf `dependency` module
 The `dependency` module provides support for building `dependency lists` (the basic component of the overall `dependency graph`) and
 `dependency nodes` which store dependency information.
 
+.. c:function:: const char *pkgconf_dependency_to_str(const pkgconf_dependency_t *dep)
+
+   Renders a dependency to a string.
+
+   :param pkgconf_dependency_t* dep: The dependency to render.
+   :return: The dependency rendered as a string.
+   :rtype: const char *
+
 .. c:function:: pkgconf_dependency_t *pkgconf_dependency_add(pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare)
 
    Adds a parsed dependency to a dependency list as a dependency node.
 
+   :param pkgconf_client_t* client: The client object that owns the package this dependency list belongs to.
    :param pkgconf_list_t* list: The dependency list to add a dependency node to.
    :param char* package: The package `atom` to set on the dependency node.
    :param char* version: The package `version` to set on the dependency node.
@@ -37,6 +46,7 @@ The `dependency` module provides support for building `dependency lists` (the ba
    Commas are counted as whitespace to allow for constructs such as ``@SUBSTVAR@, zlib`` being processed
    into ``, zlib``.
 
+   :param pkgconf_client_t* client: The client object that owns the package this dependency list belongs to.
    :param pkgconf_list_t* deplist_head: The dependency list to populate with dependency nodes.
    :param char* depends: The dependency data to parse.
    :return: nothing

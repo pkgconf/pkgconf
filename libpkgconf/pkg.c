@@ -335,7 +335,7 @@ pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, 
 
 	fclose(f);
 
-	pkgconf_dependency_add(&pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL);
+	pkgconf_dependency_add(client, &pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL);
 
 	return pkgconf_pkg_ref(client, pkg);
 }

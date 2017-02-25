@@ -36,8 +36,36 @@ typedef enum {
 
 #define DEBUG_PARSE 0
 
+/*
+ * !doc
+ *
+ * .. c:function:: const char *pkgconf_dependency_to_str(const pkgconf_dependency_t *dep)
+ *
+ *    Renders a dependency to a string.
+ *
+ *    :param pkgconf_dependency_t* dep: The dependency to render.
+ *    :return: The dependency rendered as a string.
+ *    :rtype: const char *
+ */
+const char *
+pkgconf_dependency_to_str(const pkgconf_dependency_t *dep)
+{
+	static char outbuf[PKGCONF_BUFSIZE];
+
+	pkgconf_strlcpy(outbuf, dep->package, sizeof outbuf);
+	if (dep->version != NULL)
+	{
+		pkgconf_strlcat(outbuf, " ", sizeof outbuf);
+		pkgconf_strlcat(outbuf, pkgconf_pkg_get_comparator(dep), sizeof outbuf);
+		pkgconf_strlcat(outbuf, " ", sizeof outbuf);
+		pkgconf_strlcat(outbuf, dep->version, sizeof outbuf);
+	}
+
+	return outbuf;
+}
+
 static inline pkgconf_dependency_t *
-pkgconf_dependency_addraw(pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare)
+pkgconf_dependency_addraw(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare)
 {
 	pkgconf_dependency_t *dep;
 
@@ -49,6 +77,7 @@ pkgconf_dependency_addraw(pkgconf_list_t *list, const char *package, size_t pack
 
 	dep->compare = compare;
 
+	PKGCONF_TRACE(client, "added dependency [%s] to list @%p", pkgconf_dependency_to_str(dep), list);
 	pkgconf_node_insert_tail(&dep->iter, dep, list);
 
 	return dep;
@@ -61,6 +90,7 @@ pkgconf_dependency_addraw(pkgconf_list_t *list, const char *package, size_t pack
  *
  *    Adds a parsed dependency to a dependency list as a dependency node.
  *
+ *    :param pkgconf_client_t* client: The client object that owns the package this dependency list belongs to.
  *    :param pkgconf_list_t* list: The dependency list to add a dependency node to.
  *    :param char* package: The package `atom` to set on the dependency node.
  *    :param char* version: The package `version` to set on the dependency node.
@@ -69,12 +99,12 @@ pkgconf_dependency_addraw(pkgconf_list_t *list, const char *package, size_t pack
  *    :rtype: pkgconf_dependency_t *
  */
 pkgconf_dependency_t *
-pkgconf_dependency_add(pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare)
+pkgconf_dependency_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare)
 {
 	if (version != NULL)
-		return pkgconf_dependency_addraw(list, package, strlen(package), version, strlen(version), compare);
+		return pkgconf_dependency_addraw(client, list, package, strlen(package), version, strlen(version), compare);
 
-	return pkgconf_dependency_addraw(list, package, strlen(package), NULL, 0, compare);
+	return pkgconf_dependency_addraw(client, list, package, strlen(package), NULL, 0, compare);
 }
 
 /*
@@ -132,12 +162,13 @@ pkgconf_dependency_free(pkgconf_list_t *list)
  *    Commas are counted as whitespace to allow for constructs such as ``@SUBSTVAR@, zlib`` being processed
  *    into ``, zlib``.
  *
+ *    :param pkgconf_client_t* client: The client object that owns the package this dependency list belongs to.
  *    :param pkgconf_list_t* deplist_head: The dependency list to populate with dependency nodes.
  *    :param char* depends: The dependency data to parse.
  *    :return: nothing
  */
 void
-pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
+pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *depends)
 {
 	parse_state_t state = OUTSIDE_MODULE;
 	pkgconf_pkg_comparator_t compare = PKGCONF_CMP_ANY;
@@ -204,7 +235,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 
 			if (state == OUTSIDE_MODULE)
 			{
-				pkgconf_dependency_addraw(deplist_head, package, package_sz, NULL, 0, compare);
+				pkgconf_dependency_addraw(client, deplist_head, package, package_sz, NULL, 0, compare);
 
 				compare = PKGCONF_CMP_ANY;
 				package_sz = 0;
@@ -247,7 +278,7 @@ pkgconf_dependency_parse_str(pkgconf_list_t *deplist_head, const char *depends)
 				version_sz = ptr - vstart;
 				state = OUTSIDE_MODULE;
 
-				pkgconf_dependency_addraw(deplist_head, package, package_sz, version, version_sz, compare);
+				pkgconf_dependency_addraw(client, deplist_head, package, package_sz, version, version_sz, compare);
 
 				compare = PKGCONF_CMP_ANY;
 				cnameptr = cmpname;
@@ -284,6 +315,6 @@ pkgconf_dependency_parse(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkg
 {
 	char *kvdepends = pkgconf_tuple_parse(client, &pkg->vars, depends);
 
-	pkgconf_dependency_parse_str(deplist, kvdepends);
+	pkgconf_dependency_parse_str(client, deplist, kvdepends);
 	free(kvdepends);
 }
