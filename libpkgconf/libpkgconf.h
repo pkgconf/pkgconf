@@ -268,9 +268,9 @@ void pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list,
 void pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node);
 void pkgconf_fragment_free(pkgconf_list_t *list);
 void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, void *data);
-size_t pkgconf_fragment_render_len(const pkgconf_list_t *list);
-void pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t len);
-char *pkgconf_fragment_render(const pkgconf_list_t *list);
+size_t pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape);
+void pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t len, bool escape);
+char *pkgconf_fragment_render(const pkgconf_list_t *list, bool escape);
 bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag);
 
 /* fileio.c */

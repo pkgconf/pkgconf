@@ -372,8 +372,42 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	}
 }
 
+static inline char *
+fragment_escape(const char *src)
+{
+	ssize_t outlen = strlen(src) + 10;
+	char *out = calloc(outlen, 1);
+	char *dst = out;
+
+	while (*src)
+	{
+		if ((*src < ' ') ||
+		    (*src > ' ' && *src < '$') ||
+		    (*src > '$' && *src < '(') ||
+		    (*src > ')' && *src < '+') ||
+		    (*src > ':' && *src < '=') ||
+		    (*src > '=' && *src < '@') ||
+		    (*src > 'Z' && *src < '^') ||
+		    (*src == '`') ||
+		    (*src > 'z' && *src < '~') ||
+		    (*src > '~'))
+			*dst++ = '\\';
+
+		*dst++ = *src++;
+
+		if ((ptrdiff_t)(dst - out) + 2 > outlen)
+		{
+			outlen *= 2;
+			out = realloc(out, outlen);
+		}
+	}
+
+	*dst = 0;
+	return out;
+}
+
 static inline size_t
-pkgconf_fragment_len(const pkgconf_fragment_t *frag)
+pkgconf_fragment_len(const pkgconf_fragment_t *frag, bool escape)
 {
 	size_t len = 1;
 
@@ -381,7 +415,16 @@ pkgconf_fragment_len(const pkgconf_fragment_t *frag)
 		len += 2;
 
 	if (frag->data != NULL)
-		len += strlen(frag->data);
+	{
+		if (!escape)
+			len += strlen(frag->data);
+		else
+		{
+			char *tmp = fragment_escape(frag->data);
+			len += strlen(tmp);
+			free(tmp);
+		}
+	}
 
 	return len;
 }
@@ -394,11 +437,12 @@ pkgconf_fragment_len(const pkgconf_fragment_t *frag)
  *    Calculates the required memory to store a `fragment list` when rendered as a string.
  *
  *    :param pkgconf_list_t* list: The `fragment list` being rendered.
+ *    :param bool escape: Whether or not to escape special shell characters.
  *    :return: the amount of bytes required to represent the `fragment list` when rendered
  *    :rtype: size_t
  */
 size_t
-pkgconf_fragment_render_len(const pkgconf_list_t *list)
+pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape)
 {
 	size_t out = 1;		/* trailing nul */
 	pkgconf_node_t *node;
@@ -406,7 +450,7 @@ pkgconf_fragment_render_len(const pkgconf_list_t *list)
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		const pkgconf_fragment_t *frag = node->data;
-		out += pkgconf_fragment_len(frag);
+		out += pkgconf_fragment_len(frag, escape);
 	}
 
 	return out;
@@ -422,10 +466,11 @@ pkgconf_fragment_render_len(const pkgconf_list_t *list)
  *    :param pkgconf_list_t* list: The `fragment list` being rendered.
  *    :param char* buf: The buffer to render the fragment list into.
  *    :param size_t buflen: The length of the buffer.
+ *    :param bool escape: Whether or not to escape special shell characters.
  *    :return: nothing
  */
 void
-pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen)
+pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape)
 {
 	pkgconf_node_t *node;
 	char *bptr = buf;
@@ -437,7 +482,7 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
 		const pkgconf_fragment_t *frag = node->data;
 		size_t buf_remaining = buflen - (bptr - buf);
 
-		if (pkgconf_fragment_len(frag) > buf_remaining)
+		if (pkgconf_fragment_len(frag, escape) > buf_remaining)
 			break;
 
 		if (frag->type)
@@ -447,7 +492,16 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
 		}
 
 		if (frag->data)
-			bptr += pkgconf_strlcpy(bptr, frag->data, buf_remaining);
+		{
+			if (!escape)
+				bptr += pkgconf_strlcpy(bptr, frag->data, buf_remaining);
+			else
+			{
+				char *tmp = fragment_escape(frag->data);
+				bptr += pkgconf_strlcpy(bptr, tmp, buf_remaining);
+				free(tmp);
+			}
+		}
 
 		*bptr++ = ' ';
 	}
@@ -463,16 +517,17 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
  *    Allocate memory and render a `fragment list` into it.
  *
  *    :param pkgconf_list_t* list: The `fragment list` being rendered.
+ *    :param bool escape: Whether or not to escape special shell characters.
  *    :return: An allocated string containing the rendered `fragment list`.
  *    :rtype: char *
  */
 char *
-pkgconf_fragment_render(const pkgconf_list_t *list)
+pkgconf_fragment_render(const pkgconf_list_t *list, bool escape)
 {
-	size_t buflen = pkgconf_fragment_render_len(list);
+	size_t buflen = pkgconf_fragment_render_len(list, escape);
 	char *buf = calloc(1, buflen);
 
-	pkgconf_fragment_render_buf(list, buf, buflen);
+	pkgconf_fragment_render_buf(list, buf, buflen, escape);
 
 	return buf;
 }

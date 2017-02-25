@@ -52,6 +52,7 @@ which is composable, mergeable and reorderable.
    Calculates the required memory to store a `fragment list` when rendered as a string.
 
    :param pkgconf_list_t* list: The `fragment list` being rendered.
+   :param bool escape: Whether or not to escape special shell characters.
    :return: the amount of bytes required to represent the `fragment list` when rendered
    :rtype: size_t
 
@@ -62,6 +63,7 @@ which is composable, mergeable and reorderable.
    :param pkgconf_list_t* list: The `fragment list` being rendered.
    :param char* buf: The buffer to render the fragment list into.
    :param size_t buflen: The length of the buffer.
+   :param bool escape: Whether or not to escape special shell characters.
    :return: nothing
 
 .. c:function:: char *pkgconf_fragment_render(const pkgconf_list_t *list)
@@ -69,6 +71,7 @@ which is composable, mergeable and reorderable.
    Allocate memory and render a `fragment list` into it.
 
    :param pkgconf_list_t* list: The `fragment list` being rendered.
+   :param bool escape: Whether or not to escape special shell characters.
    :return: An allocated string containing the rendered `fragment list`.
    :rtype: char *
 
