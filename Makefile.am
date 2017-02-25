@@ -68,6 +68,9 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/fragment-quoting.pc \
 		tests/lib1/fragment-quoting-2.pc \
 		tests/lib1/fragment-quoting-3.pc \
+		tests/lib1/fragment-quoting-4.pc \
+		tests/lib1/fragment-quoting-5.pc \
+		tests/lib1/fragment-quoting-6.pc \
 		tests/test_env.sh \
 		$(test_scripts) \
 		doc/conf.py \
