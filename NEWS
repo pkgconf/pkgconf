@@ -1,6 +1,29 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.2.0 to 1.3.0:
+----------------------------
+
+* Features:
+  - pkgconf --debug now provides a facility for tracing most relevant libpkgconf operations
+  - libpkgconf: add warn and trace handlers for warnings
+  - replace realpath() with faster, lighter weight path normalization function (#112)
+  - pkgconf CLI now emulates pkg-config quoting rules precisely, while allowing direct access
+    to the actual fragments via libpkgconf
+
+* Bug fixes:
+  - pkg: properly separate static and virtual packages so they are not inappropriately
+    optimized out of the dependency graph (#108)
+  - argvsplit: do not consider ' and " to have similar rules to escape sequences (#111)
+  - pkg: strip trailing whitespace when parsing .pc files
+
+* Enhancements:
+  - argvsplit basically rewritten from scratch
+  - many code fixes spotted by coverity
+  - add PKG_CONFIG_DONT_RELOCATE_PATHS and --dont-relocate-paths environment variables to
+    disable path relocation feature if needed
+  - remove extra whitespace that was present for compatibility with older pkg-config releases (#113)
+
 Changes from 1.1.0 to 1.2.0:
 ----------------------------
 
