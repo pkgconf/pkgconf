@@ -163,7 +163,7 @@ fragment_quoting_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED='\"/test/share/doc\"' \n" \
+		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\"/test/share/doc\\\" \n" \
 		pkgconf --cflags fragment-quoting
 }
 
@@ -187,7 +187,7 @@ fragment_quoting_4_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\"'/test/share/doc'\" \n" \
+		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\'/test/share/doc\\\' \n" \
 		pkgconf --cflags fragment-quoting-4
 }
 
