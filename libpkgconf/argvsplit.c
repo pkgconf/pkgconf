@@ -2,7 +2,7 @@
  * argvsplit.c
  * argv_split() routine
  *
- * Copyright (c) 2012 pkgconf authors (see AUTHORS).
+ * Copyright (c) 2012, 2017 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -64,7 +64,7 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 	int argc_count = 0;
 	int argv_size = 5;
 	char quote = 0;
-	bool in_single_quotes = false;
+	bool escaped = false;
 
 	src_iter = src;
 	dst_iter = buf;
@@ -76,24 +76,32 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 
 	while (*src_iter)
 	{
-		if (quote == *src_iter)
-			quote = 0;
+		if (escaped)
+		{
+			/* POSIX: only \CHAR is special inside a double quote if CHAR is {$, `, ", \, newline}. */
+			if (quote == '\"')
+			{
+				if (!(*src_iter == '$' || *src_iter == '`' || *src_iter == '"' || *src_iter == '\\'))
+					*dst_iter++ = '\\';
+
+				*dst_iter++ = *src_iter;
+			}
+			else
+			{
+				if (!isspace((unsigned int) *src_iter))
+					*dst_iter++ = *src_iter;
+			}
+
+			escaped = false;
+		}
 		else if (quote)
 		{
-			if (*src_iter == '\\')
-			{
-				src_iter++;
-				if (!*src_iter)
-				{
-					free(*argv);
-					free(buf);
-					return -1;
-				}
-
-				if (*src_iter != quote)
-					*dst_iter++ = '\\';
-			}
-			*dst_iter++ = *src_iter;
+			if (*src_iter == quote)
+				quote = 0;
+			else if (*src_iter == '\\')
+				escaped = true;
+			else
+				*dst_iter++ = *src_iter;
 		}
 		else if (isspace((unsigned int)*src_iter))
 		{
@@ -112,32 +120,15 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 		}
 		else switch(*src_iter)
 		{
-			case '\"':
-				if (in_single_quotes)
-					*dst_iter++ = *src_iter;
-				break;
-
-			case '\'':
-				in_single_quotes ^= true;
-				*dst_iter++ = *src_iter;
-				break;
-
 			case '\\':
-				src_iter++;
-
-				if (!*src_iter)
-				{
-					free(argv);
-					free(buf);
-					return -1;
-				}
-				else
-				{
-					*dst_iter++ = '\\';
-					*dst_iter++ = *src_iter;
-				}
-
+				escaped = true;
 				break;
+
+			case '\"':
+			case '\'':
+				quote = *src_iter;
+				break;
+
 			default:
 				*dst_iter++ = *src_iter;
 				break;
@@ -146,7 +137,15 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 		src_iter++;
 	}
 
-	if (strlen((*argv)[argc_count])) {
+	if (escaped || quote)
+	{
+		free(*argv);
+		free(buf);
+		return -1;
+	}
+
+	if (strlen((*argv)[argc_count]))
+	{
 		argc_count++;
 	}
 
