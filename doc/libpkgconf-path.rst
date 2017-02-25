@@ -55,7 +55,7 @@ variables.
 
 .. c:function:: bool pkgconf_path_relocate(char *buf, size_t buflen)
 
-   Relocates a path, possibly calling realpath() or cygwin_conv_path() on it.
+   Relocates a path, possibly calling normpath() or cygwin_conv_path() on it.
 
    :param char* buf: The path to relocate.
    :param size_t buflen: The buffer length the path is contained in.
