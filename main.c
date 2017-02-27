@@ -915,7 +915,11 @@ main(int argc, char *argv[])
 
 			pkg = pkgconf_pkg_find(&pkg_client, pkgiter->package);
 			if (pkg == NULL)
+			{
+				if (want_flags & PKG_PRINT_ERRORS)
+					pkgconf_error(&pkg_client, "Package '%s' was not found\n", pkgiter->package);
 				return EXIT_FAILURE;
+			}
 
 			if (pkgconf_compare_version(pkg->version, required_module_version) >= 0)
 				return EXIT_SUCCESS;
@@ -923,8 +927,7 @@ main(int argc, char *argv[])
 
 		return EXIT_FAILURE;
 	}
-
-	if (required_exact_module_version != NULL)
+	else if (required_exact_module_version != NULL)
 	{
 		pkgconf_pkg_t *pkg;
 		pkgconf_node_t *node;
@@ -942,7 +945,11 @@ main(int argc, char *argv[])
 
 			pkg = pkgconf_pkg_find(&pkg_client, pkgiter->package);
 			if (pkg == NULL)
+			{
+				if (want_flags & PKG_PRINT_ERRORS)
+					pkgconf_error(&pkg_client, "Package '%s' was not found\n", pkgiter->package);
 				return EXIT_FAILURE;
+			}
 
 			if (pkgconf_compare_version(pkg->version, required_exact_module_version) == 0)
 				return EXIT_SUCCESS;
@@ -950,8 +957,7 @@ main(int argc, char *argv[])
 
 		return EXIT_FAILURE;
 	}
-
-	if (required_max_module_version != NULL)
+	else if (required_max_module_version != NULL)
 	{
 		pkgconf_pkg_t *pkg;
 		pkgconf_node_t *node;
@@ -969,7 +975,11 @@ main(int argc, char *argv[])
 
 			pkg = pkgconf_pkg_find(&pkg_client, pkgiter->package);
 			if (pkg == NULL)
+			{
+				if (want_flags & PKG_PRINT_ERRORS)
+					pkgconf_error(&pkg_client, "Package '%s' was not found\n", pkgiter->package);
 				return EXIT_FAILURE;
+			}
 
 			if (pkgconf_compare_version(pkg->version, required_max_module_version) <= 0)
 				return EXIT_SUCCESS;
