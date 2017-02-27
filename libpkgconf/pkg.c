@@ -1241,7 +1241,7 @@ pkgconf_pkg_report_graph_error(pkgconf_client_t *client, pkgconf_pkg_t *parent, 
 
 	if (eflags & PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND)
 	{
-		if (!already_sent_notice)
+		if (!(client->flags & PKGCONF_PKG_PKGF_SIMPLIFY_ERRORS) & !already_sent_notice)
 		{
 			pkgconf_error(client, "Package %s was not found in the pkg-config search path.\n", node->package);
 			pkgconf_error(client, "Perhaps you should add the directory containing `%s.pc'\n", node->package);

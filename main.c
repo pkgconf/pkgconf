@@ -56,6 +56,7 @@
 #define PKG_DONT_DEFINE_PREFIX		(((uint64_t) 1) << 36)
 #define PKG_DONT_RELOCATE_PATHS		(((uint64_t) 1) << 37)
 #define PKG_DEBUG			(((uint64_t) 1) << 38)
+#define PKG_SHORT_ERRORS		(((uint64_t) 1) << 39)
 
 static pkgconf_client_t pkg_client;
 
@@ -565,6 +566,8 @@ usage(void)
 	printf("  --atleast-pkgconfig-version       check whether or not pkgconf is compatible\n");
 	printf("                                    with a specified pkg-config version\n");
 	printf("  --errors-to-stdout                print all errors on stdout instead of stderr\n");
+	printf("  --print-errors                    ensure all errors are printed\n");
+	printf("  --short-errors                    be less verbose about some errors\n");
 	printf("  --silence-errors                  explicitly be silent about errors\n");
 	printf("  --list-all                        list all known packages\n");
 	printf("  --list-package-names              list all known package names\n");
@@ -661,7 +664,7 @@ main(int argc, char *argv[])
 		{ "variable", required_argument, NULL, 7, },
 		{ "exists", no_argument, NULL, 8, },
 		{ "print-errors", no_argument, &want_flags, PKG_PRINT_ERRORS, },
-		{ "short-errors", no_argument, NULL, 10, },
+		{ "short-errors", no_argument, &want_flags, PKG_SHORT_ERRORS, },
 		{ "maximum-traverse-depth", required_argument, NULL, 11, },
 		{ "static", no_argument, &want_flags, PKG_STATIC, },
 		{ "pure", no_argument, &want_flags, PKG_PURE, },
@@ -803,6 +806,9 @@ main(int argc, char *argv[])
 		usage();
 		return EXIT_SUCCESS;
 	}
+
+	if ((want_flags & PKG_SHORT_ERRORS) == PKG_SHORT_ERRORS)
+		want_client_flags |= PKGCONF_PKG_PKGF_SIMPLIFY_ERRORS;
 
 	if ((want_flags & PKG_DONT_RELOCATE_PATHS) == PKG_DONT_RELOCATE_PATHS)
 		want_client_flags |= PKGCONF_PKG_PKGF_DONT_RELOCATE_PATHS;
