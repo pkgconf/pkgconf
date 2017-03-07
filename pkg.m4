@@ -210,14 +210,13 @@ AS_VAR_IF([$1], [""], [$5], [$4])dnl
 ])dnl PKG_CHECK_VAR
 
 dnl PKG_WITH_MODULES(VARIABLE-PREFIX, MODULES,
-dnl                  [ACTION-IF-FOUND],[ACTION-IF-NOT-FOUND],
-dnl                  [DESCRIPTION], [DEFAULT])
+dnl   [ACTION-IF-FOUND],[ACTION-IF-NOT-FOUND],
+dnl   [DESCRIPTION], [DEFAULT])
+dnl ------------------------------------------
 dnl
-dnl Prepare a "--with-" configure option using the lowercase [VARIABLE-PREFIX]
-dnl name, merging the behaviour of AC_ARG_WITH and PKG_CHECK_MODULES in a single
-dnl macro
-dnl
-dnl --------------------------------------------------------------
+dnl Prepare a "--with-" configure option using the lowercase
+dnl [VARIABLE-PREFIX] name, merging the behaviour of AC_ARG_WITH and
+dnl PKG_CHECK_MODULES in a single macro.
 AC_DEFUN([PKG_WITH_MODULES],
 [
 m4_pushdef([with_arg], m4_tolower([$1]))
@@ -247,38 +246,33 @@ m4_popdef([with_arg])
 m4_popdef([description])
 m4_popdef([def_arg])
 
-]) dnl PKG_WITH_MODULES
+])dnl PKG_WITH_MODULES
 
 dnl PKG_HAVE_WITH_MODULES(VARIABLE-PREFIX, MODULES,
-dnl                       [DESCRIPTION], [DEFAULT])
+dnl   [DESCRIPTION], [DEFAULT])
+dnl -----------------------------------------------
 dnl
-dnl Convenience macro to trigger AM_CONDITIONAL after
-dnl PKG_WITH_MODULES check.
-dnl
-dnl HAVE_[VARIABLE-PREFIX] is exported as make variable.
-dnl
-dnl --------------------------------------------------------------
+dnl Convenience macro to trigger AM_CONDITIONAL after PKG_WITH_MODULES
+dnl check._[VARIABLE-PREFIX] is exported as make variable.
 AC_DEFUN([PKG_HAVE_WITH_MODULES],
 [
 PKG_WITH_MODULES([$1],[$2],,,[$3],[$4])
 
 AM_CONDITIONAL([HAVE_][$1],
                [test "$AS_TR_SH([with_]m4_tolower([$1]))" = "yes"])
-])
+])dnl PKG_HAVE_WITH_MODULES
 
 dnl PKG_HAVE_DEFINE_WITH_MODULES(VARIABLE-PREFIX, MODULES,
-dnl                              [DESCRIPTION], [DEFAULT])
+dnl   [DESCRIPTION], [DEFAULT])
+dnl ------------------------------------------------------
 dnl
 dnl Convenience macro to run AM_CONDITIONAL and AC_DEFINE after
-dnl PKG_WITH_MODULES check.
-dnl
-dnl HAVE_[VARIABLE-PREFIX] is exported as make and preprocessor variable.
-dnl
-dnl --------------------------------------------------------------
+dnl PKG_WITH_MODULES check. HAVE_[VARIABLE-PREFIX] is exported as make
+dnl and preprocessor variable.
 AC_DEFUN([PKG_HAVE_DEFINE_WITH_MODULES],
 [
 PKG_HAVE_WITH_MODULES([$1],[$2],[$3],[$4])
 
 AS_IF([test "$AS_TR_SH([with_]m4_tolower([$1]))" = "yes"],
         [AC_DEFINE([HAVE_][$1], 1, [Enable ]m4_tolower([$1])[ support])])
-])
+])dnl PKG_HAVE_DEFINE_WITH_MODULES
