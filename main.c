@@ -143,21 +143,9 @@ filter_libs(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void
 }
 
 static void
-print_modversion(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
-{
-	(void) client;
-	(void) unused;
-
-	if (pkg->version != NULL)
-		printf("%s\n", pkg->version);
-}
-
-static void
-print_variables(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
+print_variables(pkgconf_pkg_t *pkg)
 {
 	pkgconf_node_t *node;
-	(void) client;
-	(void) unused;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->vars.head, node)
 	{
@@ -280,12 +268,21 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int 
 static bool
 apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
-	int eflag;
+	pkgconf_node_t *iter;
+	(void) unused;
+	(void) maxdepth;
 
-	eflag = pkgconf_pkg_traverse(client, world, print_modversion, unused, maxdepth);
+	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	{
+		pkgconf_pkg_t *pkg;
+		pkgconf_dependency_t *dep = iter->data;
 
-	if (eflag != PKGCONF_PKG_ERRF_OK)
-		return false;
+		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
+		if (pkg->version != NULL)
+			printf("%s\n", pkg->version);
+
+		pkgconf_pkg_free(&pkg_client, pkg);
+	}
 
 	return true;
 }
@@ -293,79 +290,72 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, i
 static bool
 apply_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
-	int eflag;
+	pkgconf_node_t *iter;
+	(void) unused;
+	(void) maxdepth;
 
-	eflag = pkgconf_pkg_traverse(client, world, print_variables, unused, maxdepth);
+	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	{
+		pkgconf_pkg_t *pkg;
+		pkgconf_dependency_t *dep = iter->data;
 
-	if (eflag != PKGCONF_PKG_ERRF_OK)
-		return false;
+		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
+		print_variables(pkg);
+
+		pkgconf_pkg_free(&pkg_client, pkg);
+	}
 
 	return true;
-}
-
-static void
-print_path(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
-{
-	(void) client;
-	(void) data;
-
-	printf("%s\n", pkg->filename);
 }
 
 static bool
 apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
-	int eflag;
+	pkgconf_node_t *iter;
+	(void) unused;
+	(void) maxdepth;
 
-	eflag = pkgconf_pkg_traverse(client, world, print_path, unused, maxdepth);
+	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	{
+		pkgconf_pkg_t *pkg;
+		pkgconf_dependency_t *dep = iter->data;
 
-	if (eflag != PKGCONF_PKG_ERRF_OK)
-		return false;
+		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
+		printf("%s\n", pkg->filename);
+
+		pkgconf_pkg_free(&pkg_client, pkg);
+	}
 
 	return true;
 }
 
-typedef struct {
-	const char *variable;
-	char buf[PKGCONF_BUFSIZE];
-} var_request_t;
-
 static void
-print_variable(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+print_variable(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *variable)
 {
-	var_request_t *req = data;
 	const char *var;
 
-	var = pkgconf_tuple_find(client, &pkg->vars, req->variable);
+	var = pkgconf_tuple_find(client, &pkg->vars, variable);
 	if (var != NULL)
-	{
-		if (*(req->buf) == '\0')
-		{
-			pkgconf_strlcpy(req->buf, var, sizeof(req->buf));
-			return;
-		}
-
-		pkgconf_strlcat(req->buf, " ", sizeof(req->buf));
-		pkgconf_strlcat(req->buf, var, sizeof(req->buf));
-	}
+		printf("%s\n", var);
 }
 
 static bool
 apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, int maxdepth)
 {
-	int eflag;
+	pkgconf_node_t *iter;
+	(void) maxdepth;
 
-	var_request_t req = {
-		.variable = variable,
-	};
+	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	{
+		pkgconf_pkg_t *pkg;
+		pkgconf_dependency_t *dep = iter->data;
 
-	*req.buf = '\0';
+		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
+		print_variable(client, pkg, variable);
 
-	eflag = pkgconf_pkg_traverse(client, world, print_variable, &req, maxdepth);
-	if (eflag != PKGCONF_PKG_ERRF_OK)
-		return false;
+		pkgconf_pkg_free(&pkg_client, pkg);
+	}
 
-	printf("%s\n", req.buf);
 	return true;
 }
 
@@ -860,6 +850,7 @@ main(int argc, char *argv[])
 		(want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
 		(want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
 		(want_flags & PKG_MODVERSION) == PKG_MODVERSION ||
+		(want_flags & PKG_PATH) == PKG_PATH ||
 		want_variable != NULL)
 	{
 		maximum_package_count = 1;
@@ -1104,7 +1095,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_modversion, 2, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_modversion, maximum_traverse_depth, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1116,7 +1107,7 @@ main(int argc, char *argv[])
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_path, 2, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_path, maximum_traverse_depth, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1127,7 +1118,7 @@ main(int argc, char *argv[])
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variables, 2, NULL))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variables, maximum_traverse_depth, NULL))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
@@ -1139,7 +1130,7 @@ main(int argc, char *argv[])
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variable, 2, want_variable))
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variable, maximum_traverse_depth, want_variable))
 		{
 			ret = EXIT_FAILURE;
 			goto out;
