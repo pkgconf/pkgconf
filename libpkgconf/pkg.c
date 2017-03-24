@@ -1386,6 +1386,8 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 	if (maxdepth == 0)
 		return eflags;
 
+	PKGCONF_TRACE(client, "%s: level %d", root->id, maxdepth);
+
 	if ((root->flags & PKGCONF_PKG_PROPF_VIRTUAL) != PKGCONF_PKG_PROPF_VIRTUAL || (client->flags & PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL) != PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL)
 	{
 		if (func != NULL)
