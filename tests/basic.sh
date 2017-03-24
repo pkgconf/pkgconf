@@ -34,7 +34,8 @@ tests_init \
 	nocflags \
 	arbitary_path \
 	with_path \
-	relocatable
+	relocatable \
+	single_depth_selectors
 
 noargs_body()
 {
@@ -297,4 +298,11 @@ relocatable_body()
 	atf_check \
 		-o inline:"${basedir}/lib-relocatable\n" \
 		pkgconf --define-prefix --variable=prefix ${basedir}/lib-relocatable/lib/pkgconfig/foo.pc
+}
+
+single_depth_selectors_body()
+{
+	atf_check \
+		-o inline:"foo\n" \
+		pkgconf --with-path=${selfdir}/lib3 --print-requires bar
 }
