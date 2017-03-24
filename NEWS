@@ -1,6 +1,15 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.3.1 to 1.3.2:
+----------------------------
+
+* Bug fixes:
+  - rewrite handling of --modversion, --print-variables and --variable to not require
+    the dependency resolver
+  - ensure we disable the dependency resolver in all cases where it is a single-package
+    query (1.3.1 did not go far enough)
+
 Changes from 1.3.0 to 1.3.1:
 ----------------------------
 
