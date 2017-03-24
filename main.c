@@ -62,6 +62,7 @@ static pkgconf_client_t pkg_client;
 
 static uint64_t want_flags;
 static int maximum_traverse_depth = 2000;
+static size_t maximum_package_count = 0;
 
 static char *want_variable = NULL;
 
@@ -850,6 +851,21 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_DONT_DEFINE_PREFIX) == PKG_DONT_DEFINE_PREFIX)
 		want_client_flags &= ~PKGCONF_PKG_PKGF_REDEFINE_PREFIX;
 
+	/* if these selectors are used, it means that we are inquiring about a single package.
+	 * so signal to libpkgconf that we do not want to use the dependency resolver for more than one level,
+	 * and also limit the SAT problem to a single package.
+	 */
+	if ((want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
+		(want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
+		(want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
+		(want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
+		(want_flags & PKG_MODVERSION) == PKG_MODVERSION ||
+		want_variable != NULL)
+	{
+		maximum_package_count = 1;
+		maximum_traverse_depth = 1;
+	}
+
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
 		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
 
@@ -993,6 +1009,12 @@ main(int argc, char *argv[])
 		const char *package = argv[pkg_optind];
 
 		if (package == NULL)
+			break;
+
+		/* check if there is a limit to the number of packages allowed to be included, if so and we have hit
+		 * the limit, stop adding packages to the queue.
+		 */
+		if (maximum_package_count > 0 && pkgq.length > maximum_package_count)
 			break;
 
 		while (isspace((unsigned int)package[0]))
