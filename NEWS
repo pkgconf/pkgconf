@@ -1,6 +1,20 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.3.2 to 1.3.3:
+----------------------------
+
+* Bug fixes:
+  - back out disabling the dependency resolver for single-package queries, it caused
+    too many regressions.
+
+* Enhancements:
+  - allow explicitly disabling the dependency resolver via new environment variable,
+    PKG_CONFIG_MINIMUM_TRAVERSE_DEPTH=1.  while pkgconf could already do this using
+    --minimum-traverse-depth=1, other pkg-config implementations do not have this
+    option, so adding an environment variable allows to make better use of this
+    feature (other implementations won't error due to unknown option this way)
+
 Changes from 1.3.1 to 1.3.2:
 ----------------------------
 
