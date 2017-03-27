@@ -302,6 +302,7 @@ relocatable_body()
 
 single_depth_selectors_body()
 {
+	export PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH=1
 	atf_check \
 		-o inline:"foo\n" \
 		pkgconf --with-path=${selfdir}/lib3 --print-requires bar
