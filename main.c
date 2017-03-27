@@ -57,6 +57,7 @@
 #define PKG_DONT_RELOCATE_PATHS		(((uint64_t) 1) << 37)
 #define PKG_DEBUG			(((uint64_t) 1) << 38)
 #define PKG_SHORT_ERRORS		(((uint64_t) 1) << 39)
+#define PKG_EXISTS			(((uint64_t) 1) << 40)
 
 static pkgconf_client_t pkg_client;
 
@@ -635,6 +636,7 @@ main(int argc, char *argv[])
 	pkgconf_list_t pkgq = PKGCONF_LIST_INITIALIZER;
 	char *builddir;
 	char *sysroot_dir;
+	char *env_traverse_depth;
 	char *required_pkgconfig_version = NULL;
 	char *required_exact_module_version = NULL;
 	char *required_max_module_version = NULL;
@@ -653,7 +655,7 @@ main(int argc, char *argv[])
 		{ "cflags", no_argument, &want_flags, PKG_CFLAGS|PKG_PRINT_ERRORS, },
 		{ "modversion", no_argument, &want_flags, PKG_MODVERSION|PKG_PRINT_ERRORS, },
 		{ "variable", required_argument, NULL, 7, },
-		{ "exists", no_argument, NULL, 8, },
+		{ "exists", no_argument, &want_flags, PKG_EXISTS, },
 		{ "print-errors", no_argument, &want_flags, PKG_PRINT_ERRORS, },
 		{ "short-errors", no_argument, &want_flags, PKG_SHORT_ERRORS, },
 		{ "maximum-traverse-depth", required_argument, NULL, 11, },
@@ -753,6 +755,9 @@ main(int argc, char *argv[])
 		}
 	}
 
+	if ((env_traverse_depth = getenv("PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH")) != NULL)
+		maximum_traverse_depth = atoi(env_traverse_depth);
+
 	if ((want_flags & PKG_PRINT_ERRORS) != PKG_PRINT_ERRORS)
 		want_flags |= (PKG_SILENCE_ERRORS);
 
@@ -841,21 +846,28 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_DONT_DEFINE_PREFIX) == PKG_DONT_DEFINE_PREFIX)
 		want_client_flags &= ~PKGCONF_PKG_PKGF_REDEFINE_PREFIX;
 
+#ifdef XXX_NOTYET
 	/* if these selectors are used, it means that we are inquiring about a single package.
 	 * so signal to libpkgconf that we do not want to use the dependency resolver for more than one level,
 	 * and also limit the SAT problem to a single package.
+	 *
+	 * i disabled this because too many upstream maintainers are still invoking pkg-config correctly to have
+	 * the more sane behaviour as default.  use --maximum-traverse-depth=1 or PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH
+	 * environment variable to get the same results in meantime.
 	 */
-	if ((want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
+	if ((want_flags & PKG_EXISTS) == 0 &&
+		((want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
 		(want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
 		(want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
 		(want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
 		(want_flags & PKG_MODVERSION) == PKG_MODVERSION ||
 		(want_flags & PKG_PATH) == PKG_PATH ||
-		want_variable != NULL)
+		want_variable != NULL))
 	{
 		maximum_package_count = 1;
 		maximum_traverse_depth = 1;
 	}
+#endif
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
 		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
