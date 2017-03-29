@@ -88,8 +88,10 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 			}
 			else
 			{
-				if (!isspace((unsigned int) *src_iter))
-					*dst_iter++ = *src_iter;
+				if (isspace((unsigned int) *src_iter))
+					*dst_iter++ = '\\';
+
+				*dst_iter++ = *src_iter;
 			}
 
 			escaped = false;

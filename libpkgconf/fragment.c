@@ -387,7 +387,7 @@ fragment_escape(const char *src)
 
 	while (*src)
 	{
-		if ((*src < ' ') ||
+		if (((*src < ' ') ||
 		    (*src > ' ' && *src < '$') ||
 		    (*src > '$' && *src < '(') ||
 		    (*src > ')' && *src < '+') ||
@@ -396,7 +396,7 @@ fragment_escape(const char *src)
 		    (*src > 'Z' && *src < '^') ||
 		    (*src == '`') ||
 		    (*src > 'z' && *src < '~') ||
-		    (*src > '~'))
+		    (*src > '~')) && *src != '\\')
 			*dst++ = '\\';
 
 		*dst++ = *src++;
