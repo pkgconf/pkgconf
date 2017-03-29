@@ -1,6 +1,12 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.3.3 to 1.3.4:
+----------------------------
+
+* Bug fixes:
+  - fix a quoting issue exposed by the Go testsuite
+
 Changes from 1.3.2 to 1.3.3:
 ----------------------------
 
