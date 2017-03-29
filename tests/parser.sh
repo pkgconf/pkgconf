@@ -210,11 +210,26 @@ fragment_quoting_6_body()
 
 fragment_quoting_7_body()
 {
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-Dhello=10 -Dworld=+32 -DDEFINED_FROM_PKG_CONFIG=hello\\ world \n" \
+		pkgconf --cflags fragment-quoting-7
+}
+
+fragment_quoting_7a_body()
+{
+	set -x
+
 	test_cflags=$(pkgconf --with-path=${selfdir}/lib1 --cflags fragment-quoting-7)
+	echo $test_cflags
+#	test_cflags='-Dhello=10 -Dworld=+32 -DDEFINED_FROM_PKG_CONFIG=hello\\ world'
+
 	cat > test.c <<- __TESTCASE_END__
 		int main(int argc, char *argv[]) { return DEFINED_FROM_PKG_CONFIG; }
 	__TESTCASE_END__
 	cc -o test-fragment-quoting-7 ${test_cflags} ./test.c
 	atf_check -e 42 ./test-fragment-quoting-7
 	rm -f test.c test-fragment-quoting-7
+
+	set +x
 }
