@@ -24,7 +24,8 @@ tests_init \
 	fragment_quoting_3 \
 	fragment_quoting_4 \
 	fragment_quoting_5 \
-	fragment_quoting_6
+	fragment_quoting_6 \
+	fragment_quoting_7
 
 comments_body()
 {
@@ -205,4 +206,15 @@ fragment_quoting_6_body()
 	atf_check \
 		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\'/test/share/doc\\\' \n" \
 		pkgconf --cflags fragment-quoting-6
+}
+
+fragment_quoting_7_body()
+{
+	test_cflags=$(pkgconf --with-path=${selfdir}/lib1 --cflags fragment-quoting-7)
+	cat > test.c <<- __TESTCASE_END__
+		int main(int argc, char *argv[]) { return DEFINED_FROM_PKG_CONFIG; }
+	__TESTCASE_END__
+	cc -o test-fragment-quoting-7 ${test_cflags} ./test.c
+	atf_check -e 42 ./test-fragment-quoting-7
+	rm -f test.c test-fragment-quoting-7
 }
