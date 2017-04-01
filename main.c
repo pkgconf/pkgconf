@@ -337,7 +337,7 @@ print_variable(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *variabl
 
 	var = pkgconf_tuple_find(client, &pkg->vars, variable);
 	if (var != NULL)
-		printf("%s\n", var);
+		printf("%s", var);
 }
 
 static bool
@@ -352,10 +352,16 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, i
 		pkgconf_dependency_t *dep = iter->data;
 
 		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
+
+		if (iter->prev != NULL)
+			printf(" ");
+
 		print_variable(client, pkg, variable);
 
 		pkgconf_pkg_free(&pkg_client, pkg);
 	}
+
+	printf("\n");
 
 	return true;
 }
