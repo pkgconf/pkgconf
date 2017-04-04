@@ -1,6 +1,13 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.3.4 to 1.3.5:
+----------------------------
+
+* Bug fixes:
+  - fix --variable output for compatibility some broken configure scripts when they
+    request the same variable from multiple packages
+
 Changes from 1.3.3 to 1.3.4:
 ----------------------------
 
