@@ -65,6 +65,10 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/flag-order-1.pc \
 		tests/lib1/flag-order-3.pc \
 		tests/lib1/variable-whitespace.pc \
+		tests/lib1/fragment-collision.pc \
+		tests/lib1/fragment-collision-intermediary.pc \
+		tests/lib1/fragment-collision-1.pc \
+		tests/lib1/fragment-collision-2.pc \
 		tests/lib1/fragment-quoting.pc \
 		tests/lib1/fragment-quoting-2.pc \
 		tests/lib1/fragment-quoting-3.pc \
