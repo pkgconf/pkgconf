@@ -38,7 +38,8 @@ pkgconf_fragment_is_unmergeable(const char *string)
 		{"-framework", 10},
 		{"-isystem", 8},
 		{"-idirafter", 10},
-		{"-pthread", 8}
+		{"-pthread", 8},
+		{"-Wl,", 4},
 	};
 
 	if (*string != '-')
