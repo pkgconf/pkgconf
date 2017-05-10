@@ -47,6 +47,7 @@ pkgconf_fragment_is_unmergeable(const char *string)
 		{"-ansi", 5},
 		{"-std=", 5},
 		{"-stdlib=", 8},
+		{"-include", 8},
 	};
 
 	if (*string != '-')
@@ -69,6 +70,7 @@ pkgconf_fragment_should_munge(const char *string, const char *sysroot_dir)
 	static struct pkgconf_fragment_check check_fragments[] = {
 		{"-isystem", 8},
 		{"-idirafter", 10},
+		{"-include", 8},
 	};
 
 	if (*string != '/')
