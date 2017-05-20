@@ -233,7 +233,7 @@ determine_prefix(const pkgconf_pkg_t *pkg)
  *    :rtype: pkgconf_pkg_t *
  */
 pkgconf_pkg_t *
-pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f)
+pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *f)
 {
 	pkgconf_pkg_t *pkg;
 	char readbuf[PKGCONF_BUFSIZE];
@@ -436,7 +436,7 @@ pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 }
 
 static inline pkgconf_pkg_t *
-pkgconf_pkg_try_specific_path(const pkgconf_client_t *client, const char *path, const char *name)
+pkgconf_pkg_try_specific_path(pkgconf_client_t *client, const char *path, const char *name)
 {
 	pkgconf_pkg_t *pkg = NULL;
 	FILE *f;
