@@ -1,6 +1,15 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.3.6 to 1.3.7:
+----------------------------
+
+* Enhancements:
+  - improved diagnostics for malformed packages.
+
+* Bug fixes:
+  - reject packages which contain incomplete metadata in post-parse phase.
+
 Changes from 1.3.5 to 1.3.6:
 ----------------------------
 
