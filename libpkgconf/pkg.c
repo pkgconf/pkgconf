@@ -616,9 +616,11 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 			PKGCONF_TRACE(client, "%s is a file", name);
 
 			pkg = pkgconf_pkg_new_from_file(client, name, f);
-			pkgconf_path_add(pkg_get_parent_dir(pkg), &client->dir_list, true);
-
-			return pkg;
+			if (pkg != NULL)
+			{
+				pkgconf_path_add(pkg_get_parent_dir(pkg), &client->dir_list, true);
+				return pkg;
+			}
 		}
 	}
 
