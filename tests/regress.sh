@@ -25,7 +25,8 @@ tests_init \
 	pcpath \
 	sysroot_munge \
 	virtual_variable \
-	fragment_collision
+	fragment_collision \
+	malformed_1
 
 case_sensitivity_body()
 {
@@ -223,4 +224,10 @@ fragment_collision_body()
 {
 	atf_check -o inline:"-D_BAZ -D_BAR -D_FOO -D_THREAD_SAFE -pthread \n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-collision
+}
+
+malformed_1_body()
+{
+	atf_check -s exit:1 -o ignore \
+		pkgconf --validate --with-path="${selfdir}/lib1" malformed-1
 }
