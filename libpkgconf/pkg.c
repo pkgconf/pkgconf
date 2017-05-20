@@ -219,6 +219,37 @@ determine_prefix(const pkgconf_pkg_t *pkg)
 	return buf;
 }
 
+typedef struct {
+	const char *field;
+	const ptrdiff_t offset;
+} pkgconf_pkg_validity_check_t;
+
+static const pkgconf_pkg_validity_check_t pkgconf_pkg_validations[] = {
+	{"Name", offsetof(pkgconf_pkg_t, realname)},
+	{"Description", offsetof(pkgconf_pkg_t, description)},
+	{"Version", offsetof(pkgconf_pkg_t, version)},
+};
+
+static bool
+pkgconf_pkg_validate(const pkgconf_client_t *client, const pkgconf_pkg_t *pkg)
+{
+	size_t i;
+	bool valid = true;
+
+	for (i = 0; i < PKGCONF_ARRAY_SIZE(pkgconf_pkg_validations); i++)
+	{
+		char **p = ((void *) pkg + pkgconf_pkg_validations[i].offset);
+
+		if (*p != NULL)
+			continue;
+
+		pkgconf_warn(client, "%s: warning: file does not declare a `%s' field\n", pkg->filename, pkgconf_pkg_validations[i].field);
+		valid = false;
+	}
+
+	return valid;
+}
+
 /*
  * !doc
  *
@@ -334,6 +365,13 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	}
 
 	fclose(f);
+
+	if (!pkgconf_pkg_validate(client, pkg))
+	{
+		pkgconf_warn(client, "%s: warning: skipping invalid file\n", pkg->filename);
+		pkgconf_pkg_free(client, pkg);
+		return NULL;
+	}
 
 	pkgconf_dependency_add(client, &pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL);
 
