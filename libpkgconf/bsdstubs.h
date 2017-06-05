@@ -16,8 +16,10 @@
 #ifndef __BSDSTUBS_H__
 #define __BSDSTUBS_H__
 
-extern size_t pkgconf_strlcpy(char *dst, const char *src, size_t siz);
-extern size_t pkgconf_strlcat(char *dst, const char *src, size_t siz);
-extern char *pkgconf_strndup(const char *src, size_t len);
+#include <libpkgconf/libpkgconf-api.h>
+
+PKGCONF_API extern size_t pkgconf_strlcpy(char *dst, const char *src, size_t siz);
+PKGCONF_API extern size_t pkgconf_strlcat(char *dst, const char *src, size_t siz);
+PKGCONF_API extern char *pkgconf_strndup(const char *src, size_t len);
 
 #endif
