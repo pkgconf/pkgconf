@@ -57,7 +57,7 @@ SET(test_scripts
    )
 # No accounting for taste
 FOREACH(file ${test_scripts})
-   CONFIGURE_FILE(${file}.sh ${file} @ONLY)
+   CONFIGURE_FILE(${file}.sh ${file} @ONLY NEWLINE_STYLE UNIX)
 ENDFOREACH()
 
 ADD_TEST(kyua
