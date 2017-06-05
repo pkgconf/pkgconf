@@ -17,11 +17,14 @@ SET(abs_top_srcdir ${pkgconf_SOURCE_DIR})
 CONFIGURE_FILE(libpkgconf/config.h.cmake.in libpkgconf/config.h @ONLY)
 # Expand others
 FOREACH(file Kyuafile libpkgconf.pc tests/Kyuafile tests/test_env.sh)
-   CONFIGURE_FILE(${file}.in ${file} @ONLY)
+   CONFIGURE_FILE(${file}.in ${file} @ONLY NEWLINE_STYLE UNIX)
 ENDFOREACH()
 
 IF (WIN32)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+  # Make warnings fatal... but ignore C4996: 'strdup' two different ways
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX /wd4996")
+  # Ignore warning C4996: 'strncpy'
+  ADD_DEFINITIONS("-D_CRT_SECURE_NO_WARNINGS=1")
 ELSE()
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wformat=2 -std=gnu99")
 ENDIF()
