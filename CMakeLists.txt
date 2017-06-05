@@ -21,7 +21,7 @@ FOREACH(file Kyuafile libpkgconf.pc tests/Kyuafile tests/test_env.sh)
 ENDFOREACH()
 
 IF (WIN32)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wx")
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
 ELSE()
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wformat=2 -std=gnu99")
 ENDIF()

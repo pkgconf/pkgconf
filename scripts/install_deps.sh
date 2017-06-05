@@ -27,6 +27,11 @@
 #
 # This script is primarily intended for travis CI to be able to setup the
 # build environment.
+#
+# To run on a clean Ubuntu system, try something like this:
+#  export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+#  sudo apt install liblua5.2-dev libsqlite3-dev
+#  sh -ex scripts/install_deps.sh 
 
 install_from_github() {
 	local name="${1}"
