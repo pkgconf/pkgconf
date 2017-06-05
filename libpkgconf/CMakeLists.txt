@@ -1,6 +1,6 @@
 PROJECT(libpkgconf C)
 
-ADD_LIBRARY(libpkgconf
+ADD_LIBRARY(libpkgconf SHARED
     argvsplit.c
     audit.c
     bsdstubs.c
@@ -13,4 +13,9 @@ ADD_LIBRARY(libpkgconf
     pkg.c
     queue.c
     tuple.c
+)
+INSTALL(TARGETS libpkgconf
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
 )

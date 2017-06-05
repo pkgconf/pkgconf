@@ -36,6 +36,7 @@ ADD_SUBDIRECTORY(libpkgconf)
 INCLUDE_DIRECTORIES(${libpkgconf_BINARY_DIR})
 ADD_EXECUTABLE(pkgconf main.c getopt_long.c)
 TARGET_LINK_LIBRARIES(pkgconf libpkgconf)
+INSTALL(TARGETS pkgconf DESTINATION bin)
 
 ENABLE_TESTING()
 
