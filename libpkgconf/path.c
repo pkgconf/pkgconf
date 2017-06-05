@@ -20,7 +20,7 @@
 # include <sys/cygwin.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
+#if defined(HAVE_SYS_STAT_H) && ! defined(_WIN32)
 # include <sys/stat.h>
 # define PKGCONF_CACHE_INODES
 #endif
@@ -156,12 +156,12 @@ pkgconf_path_split(const char *text, pkgconf_list_t *dirlist, bool filter)
 /*
  * !doc
  *
- * .. c:function:: size_t pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist)
+ * .. c:function:: size_t pkgconf_path_build_from_environ(const char *envvarname, const char *fallback, pkgconf_list_t *dirlist)
  *
  *    Adds the paths specified in an environment variable to a path list.  If the environment variable is not set,
  *    an optional default set of paths is added.
  *
- *    :param char* environ: The environment variable to look up.
+ *    :param char* envvarname: The environment variable to look up.
  *    :param char* fallback: The fallback paths to use if the environment variable is not set.
  *    :param pkgconf_list_t* dirlist: The path list to add the path nodes to.
  *    :param bool filter: Whether to perform duplicate filtering.
@@ -169,11 +169,11 @@ pkgconf_path_split(const char *text, pkgconf_list_t *dirlist, bool filter)
  *    :rtype: size_t
  */
 size_t
-pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist, bool filter)
+pkgconf_path_build_from_environ(const char *envvarname, const char *fallback, pkgconf_list_t *dirlist, bool filter)
 {
 	const char *data;
 
-	data = getenv(environ);
+	data = getenv(envvarname);
 	if (data != NULL)
 		return pkgconf_path_split(data, dirlist, filter);
 

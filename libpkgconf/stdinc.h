@@ -24,9 +24,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <string.h>
-#include <dirent.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <stdint.h>
 
 #ifdef _WIN32
@@ -34,8 +32,15 @@
 # include <windows.h>
 # include <malloc.h>
 # define PATH_DEV_NULL	"nul"
+# ifndef ssize_t
+#  include <BaseTsd.h>
+#  define ssize_t SSIZE_T
+# endif
+# include "win-dirent.h"
 #else
 # define PATH_DEV_NULL	"/dev/null"
+# include <dirent.h>
+# include <unistd.h>
 #endif
 
 #endif
