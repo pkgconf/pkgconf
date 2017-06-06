@@ -30,8 +30,8 @@
 #	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
 #	undef PKG_DEFAULT_PATH
 #	define PKG_DEFAULT_PATH "../lib/pkgconfig;../share/pkgconfig"
-#define strncasecmp _strnicmp
-#define strcasecmp _stricmp
+#	define strncasecmp _strnicmp
+#	define strcasecmp _stricmp
 #endif
 
 #define PKG_CONFIG_EXT		".pc"
