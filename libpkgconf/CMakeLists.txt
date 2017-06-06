@@ -18,9 +18,17 @@ ADD_LIBRARY(libpkgconf SHARED
     queue.c
     tuple.c
 )
+SET_TARGET_PROPERTIES(libpkgconf PROPERTIES VERSION "2.0.0" SOVERSION 2)
 INSTALL(TARGETS libpkgconf
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
 )
-SET_TARGET_PROPERTIES(libpkgconf PROPERTIES VERSION "2.0.0" SOVERSION 2)
+INSTALL(
+  FILES bsdstubs.h iter.h libpkgconf.h libpkgconf-api.h stdinc.h
+  DESTINATION include/libpkgconf
+)
+
+# Hypothesis: .pc files are a Unix thing, should always have unix line endings.
+CONFIGURE_FILE(${pkgconf_SOURCE_DIR}/libpkgconf.pc.in libpkgconf.pc @ONLY NEWLINE_STYLE UNIX)
+INSTALL(FILES ${libpkgconf_BINARY_DIR}/libpkgconf.pc DESTINATION lib/pkgconfig)

@@ -14,9 +14,14 @@ CHECK_FUNCTION_EXISTS(strlcat HAVE_STRLCAT)
 CHECK_FUNCTION_EXISTS(strndup HAVE_STRNDUP)
 CHECK_FUNCTION_EXISTS(cygwin_conv_path HAVE_CYGWIN_CONV_PATH)
 SET(abs_top_srcdir ${pkgconf_SOURCE_DIR})
+SET(prefix ${CMAKE_INSTALL_PREFIX})
+SET(exec_prefix ${CMAKE_INSTALL_PREFIX})
+SET(datarootdir ${CMAKE_INSTALL_PREFIX}/share)
+SET(libdir ${CMAKE_INSTALL_PREFIX}/lib)
+SET(PKGCONFIGDIR "${libdir}/pkgconfig:${datarootdir}/pkgconfig")
 CONFIGURE_FILE(libpkgconf/config.h.cmake.in libpkgconf/config.h @ONLY)
-# Expand others
-FOREACH(file Kyuafile libpkgconf.pc tests/Kyuafile tests/test_env.sh)
+# Handy that these files need configuring; cygwin atf doesn't like windows line endings, and NEWLINE_STYLE helps.
+FOREACH(file Kyuafile tests/Kyuafile tests/test_env.sh)
    CONFIGURE_FILE(${file}.in ${file} @ONLY NEWLINE_STYLE UNIX)
 ENDFOREACH()
 
@@ -34,6 +39,8 @@ ADD_DEFINITIONS(-DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\")
 ADD_DEFINITIONS(-DSYSTEM_INCLUDEDIR=\"$(system_includedir)\")
 ADD_DEFINITIONS(-DSYSTEM_LIBDIR=\"$(system_libdir)\")
 
+# Place shared libraries in same place as binary, for ease of setting PATH in test_env.sh
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${pkgconf_BINARY_DIR})
 ADD_SUBDIRECTORY(libpkgconf)
 
 INCLUDE_DIRECTORIES(${libpkgconf_BINARY_DIR})
@@ -55,11 +62,9 @@ SET(test_scripts
     tests/sysroot
     tests/version
    )
-# No accounting for taste
+# Handy that these files need configuring; cygwin atf doesn't like windows line endings, and NEWLINE_STYLE helps.
 FOREACH(file ${test_scripts})
    CONFIGURE_FILE(${file}.sh ${file} @ONLY NEWLINE_STYLE UNIX)
 ENDFOREACH()
 
-ADD_TEST(kyua
-    kyua --config=none test --kyuafile=${pkgconf_BINARY_DIR}/Kyuafile --build-root=${pkgconf_BINARY_DIR}
-    )
+ADD_TEST(kyua kyua --config=none test)
