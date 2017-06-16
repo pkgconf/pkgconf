@@ -373,7 +373,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 		return NULL;
 	}
 
-	pkgconf_dependency_add(client, &pkg->provides, pkg->realname, pkg->version, PKGCONF_CMP_EQUAL);
+	pkgconf_dependency_add(client, &pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL);
 
 	return pkgconf_pkg_ref(client, pkg);
 }
