@@ -278,6 +278,10 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
 		idptr++;
+#ifdef _WIN32
+	else if ((idptr = strrchr(pkg->filename, '/')) != NULL)
+		idptr++;
+#endif
 	else
 		idptr = pkg->filename;
 
