@@ -16,6 +16,7 @@ lib_LTLIBRARIES = libpkgconf.la
 EXTRA_DIST =	pkg.m4 \
 		CMakeLists.txt \
 		libpkgconf/CMakeLists.txt \
+		libpkgconf/win-dirent.h \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/dos-lineendings.pc \
