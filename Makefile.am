@@ -14,6 +14,8 @@ bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	pkg.m4 \
+		CMakeLists.txt \
+		libpkgconf/CMakeLists.txt \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/dos-lineendings.pc \
@@ -110,7 +112,7 @@ check_SCRIPTS=	$(test_scripts:.sh=)
 
 SUFFIXES=	.sh
 
-nobase_pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h
+nobase_pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h libpkgconf/libpkgconf-api.h
 libpkgconf_la_SOURCES  =	\
 		libpkgconf/audit.c		\
 		libpkgconf/cache.c		\
