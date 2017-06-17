@@ -17,6 +17,10 @@
 #include <libpkgconf/libpkgconf.h>
 #include "config.h"
 #include "getopt_long.h"
+#ifdef _WIN32
+#include <io.h>     /* for _setmode() */
+#include <fcntl.h>
+#endif
 
 #define PKG_CFLAGS_ONLY_I		(((uint64_t) 1) << 2)
 #define PKG_CFLAGS_ONLY_OTHER		(((uint64_t) 1) << 3)
@@ -651,6 +655,16 @@ main(int argc, char *argv[])
 	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
 
 	want_flags = 0;
+
+#ifdef _WIN32
+	/* When running regression tests in cygwin, and building native
+	 * executable, tests fail unless native executable outputs unix
+	 * line endings.  Come to think of it, this will probably help
+	 * real people who use cygwin build environments but native pkgconf, too.
+	 */
+	_setmode(fileno(stdout), O_BINARY);
+	_setmode(fileno(stderr), O_BINARY);
+#endif
 
 	struct pkg_option options[] = {
 		{ "version", no_argument, &want_flags, PKG_VERSION|PKG_PRINT_ERRORS, },

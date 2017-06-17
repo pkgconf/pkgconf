@@ -62,7 +62,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #define PKGCONF_HACK_LOGICAL_OR_ALL_VALUES
 
@@ -285,7 +287,7 @@ parse_long_options(char * const *nargv, const char *options,
 			 * XXX: GNU sets pkg_optopt to val regardless of flag
 			 */
 			if (long_options[match].flag == NULL)
-				pkg_optopt = long_options[match].val;
+				pkg_optopt = (int)long_options[match].val;
 			else
 				pkg_optopt = 0;
 #ifdef GNU_COMPATIBLE
@@ -325,7 +327,7 @@ parse_long_options(char * const *nargv, const char *options,
 			 * XXX: GNU sets pkg_optopt to val regardless of flag
 			 */
 			if (long_options[match].flag == NULL)
-				pkg_optopt = long_options[match].val;
+				pkg_optopt = (int)long_options[match].val;
 			else
 				pkg_optopt = 0;
 			--pkg_optind;
@@ -358,7 +360,7 @@ parse_long_options(char * const *nargv, const char *options,
 #endif
 		return (0);
 	} else
-		return (long_options[match].val);
+		return ((int)long_options[match].val);
 }
 
 /*

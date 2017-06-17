@@ -30,6 +30,8 @@
 #	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
 #	undef PKG_DEFAULT_PATH
 #	define PKG_DEFAULT_PATH "../lib/pkgconfig;../share/pkgconfig"
+#	define strncasecmp _strnicmp
+#	define strcasecmp _stricmp
 #endif
 
 #define PKG_CONFIG_EXT		".pc"
@@ -134,21 +136,21 @@ static int pkgconf_pkg_parser_keyword_pair_cmp(const void *key, const void *ptr)
 static void
 pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value)
 {
-	char **dest = ((void *) pkg + offset);
+	char **dest = (char **)((char *) pkg + offset);
 	*dest = pkgconf_tuple_parse(client, &pkg->vars, value);
 }
 
 static void
 pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value)
 {
-	pkgconf_list_t *dest = ((void *) pkg + offset);
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	pkgconf_fragment_parse(client, dest, &pkg->vars, value);
 }
 
 static void
 pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value)
 {
-	pkgconf_list_t *dest = ((void *) pkg + offset);
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	pkgconf_dependency_parse(client, pkg, dest, value);
 }
 
@@ -238,7 +240,7 @@ pkgconf_pkg_validate(const pkgconf_client_t *client, const pkgconf_pkg_t *pkg)
 
 	for (i = 0; i < PKGCONF_ARRAY_SIZE(pkgconf_pkg_validations); i++)
 	{
-		char **p = ((void *) pkg + pkgconf_pkg_validations[i].offset);
+		char **p = (char **)((char *) pkg + pkgconf_pkg_validations[i].offset);
 
 		if (*p != NULL)
 			continue;
@@ -591,7 +593,7 @@ pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_fun
 
 #ifdef _WIN32
 static pkgconf_pkg_t *
-pkgconf_pkg_find_in_registry_key(const pkgconf_client_t *client, HKEY hkey, const char *name)
+pkgconf_pkg_find_in_registry_key(pkgconf_client_t *client, HKEY hkey, const char *name)
 {
 	pkgconf_pkg_t *pkg = NULL;
 
@@ -1052,8 +1054,12 @@ typedef struct {
 
 static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_rules[] = {
 	[PKGCONF_CMP_ANY] = {
-		.rulecmp = {},
-		.depcmp = {},
+		.rulecmp = {
+			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
+                },
+		.depcmp = {
+			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
+                },
 	},
 	[PKGCONF_CMP_LESS_THAN] = {
 		.rulecmp = {
@@ -1125,7 +1131,9 @@ static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_
 			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_eq,
 			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_ne
 		},
-		.depcmp = {},
+		.depcmp = {
+			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
+                },
 	},
 	[PKGCONF_CMP_NOT_EQUAL] = {
 		.rulecmp = {
@@ -1137,7 +1145,9 @@ static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_
 			[PKGCONF_CMP_EQUAL]			= pkgconf_pkg_comparator_ne,
 			[PKGCONF_CMP_NOT_EQUAL]			= pkgconf_pkg_comparator_eq
 		},
-		.depcmp = {},
+		.depcmp = {
+			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
+                },
 	},
 };
 
