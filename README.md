@@ -67,7 +67,7 @@ do let us know, but also make sure that the .pc files are valid and follow the r
 the [pkg-config tutorial][fd-tut], as most likely fixing them to follow the specified
 rules will solve the problem.
 
-## compiling `pkgconf` and `libpkgconf`
+## compiling `pkgconf` and `libpkgconf` on UNIX
 
 pkgconf is basically compiled the same way any other autotools-based project is
 compiled:
@@ -87,6 +87,24 @@ flags like so:
          --with-system-includedir=/usr/include
     $ make
     $ sudo make install
+
+## compiling `pkgconf` and `libpkgconf` with CMake (usually for Windows)
+
+pkgconf is compiled using CMake on Windows.  In theory, you could also use CMake to build
+on UNIX, but this is not recommended at this time as it pkgconf is typically built much earlier
+than CMake.
+
+    $ mkdir build
+    $ cd build
+    $ cmake ..
+    $ make
+    $ sudo make install
+
+There are a few defines such as SYSTEM_LIBDIR, PKGCONFIGDIR and SYSTEM_INCLUDEDIR.
+However, on Windows, the default PKGCONFIGDIR value is usually overridden at runtime based
+on path relocation.
+
+## pkg-config symlink
 
 If you want pkgconf to be used when you invoke `pkg-config`, you should install a
 symlink for this.  We do not do this for you, as we believe it is better for vendors
