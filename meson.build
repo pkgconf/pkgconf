@@ -66,6 +66,7 @@ libpkg = shared_library('pkgconf',
 pkg_bin = executable('pkgconf',
   'main.c',
   'getopt_long.c',
-  
   link_with : libpkg,
   install : true)
+
+install_man('pkgconf.1')
