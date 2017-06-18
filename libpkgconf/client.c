@@ -14,7 +14,7 @@
  */
 
 #include <libpkgconf/libpkgconf.h>
-
+#include <libpkgconf/config.h>
 /*
  * !doc
  *

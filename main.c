@@ -15,7 +15,7 @@
  */
 
 #include <libpkgconf/libpkgconf.h>
-#include "config.h"
+#include "libpkgconf/config.h"
 #include "getopt_long.h"
 #ifdef _WIN32
 #include <io.h>     /* for _setmode() */
