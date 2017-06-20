@@ -1,5 +1,7 @@
-project('pkg-conf', 'c',
-  version : '1.3.7')
+project('pkgconf', 'c',
+  version : '1.4.0',
+  license : 'ISC',
+  meson_version : '>=0.40')
 
 cc = meson.get_compiler('c')
 
@@ -41,13 +43,13 @@ cdata.set_quoted('SYSTEM_INCLUDEDIR', '/fixme')
 cdata.set_quoted('PKG_DEFAULT_PATH', '/fixme')
 cdata.set_quoted('PACKAGE_NAME', 'pkgconf')
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
-cdata.set_quoted('PACKAGE_BUGREPORT', 'fixme@example.com')
+cdata.set_quoted('PACKAGE_BUGREPORT', 'http://github.com/pkgconf/pkgconf/issues')
 
 
 
 subdir('libpkgconf')
 
-libpkg = shared_library('pkgconf',
+libpkgconf = shared_library('pkgconf',
   'libpkgconf/argvsplit.c',
   'libpkgconf/audit.c',
   'libpkgconf/bsdstubs.c',
@@ -61,12 +63,14 @@ libpkg = shared_library('pkgconf',
   'libpkgconf/queue.c',
   'libpkgconf/tuple.c',
   install : true,
+  version : '2.0.0',
+  soversion : '2',
 )
 
-pkg_bin = executable('pkgconf',
+pkgconf_bin = executable('pkgconf',
   'main.c',
   'getopt_long.c',
-  link_with : libpkg,
+  link_with : libpkgconf,
   install : true)
 
 install_man('pkgconf.1')
