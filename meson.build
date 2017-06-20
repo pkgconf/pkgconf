@@ -26,7 +26,7 @@ foreach h : check_headers
 endforeach
 
 check_functions = [
-# check token ('HAVE_CYGWIN_CONV_PATH',)
+  ['HAVE_CYGWIN_CONV_PATH', 'cygwin_conv_path', '#include<sys/cygwin.h>'],
   ['HAVE_STRLCAT', 'strlcat', '#include<string.h>'],
   ['HAVE_STRLCPY', 'strlcpy', '#include<string.h>'],
   ['HAVE_STRNDUP', 'strndup', '#include<string.h>'],
