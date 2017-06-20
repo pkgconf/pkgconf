@@ -3,7 +3,9 @@ project('pkgconf', 'c',
   license : 'ISC',
   meson_version : '>=0.40')
 
+
 cc = meson.get_compiler('c')
+
 
 cdata = configuration_data()
 check_headers = [
@@ -41,10 +43,11 @@ endforeach
 cdata.set_quoted('SYSTEM_LIBDIR', '/fixme')
 cdata.set_quoted('SYSTEM_INCLUDEDIR', '/fixme')
 cdata.set_quoted('PKG_DEFAULT_PATH', '/fixme')
-cdata.set_quoted('PACKAGE_NAME', 'pkgconf')
+cdata.set_quoted('PACKAGE_NAME', meson.project_name())
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
 cdata.set_quoted('PACKAGE_BUGREPORT', 'http://github.com/pkgconf/pkgconf/issues')
-
+cdata.set('abs_top_srcdir', meson.source_root())
+cdata.set('abs_top_builddir', meson.build_root())
 
 
 subdir('libpkgconf')
@@ -67,10 +70,17 @@ libpkgconf = shared_library('pkgconf',
   soversion : '2',
 )
 
-pkgconf_bin = executable('pkgconf',
+
+pkgconf_exe = executable('pkgconf',
   'main.c',
   'getopt_long.c',
   link_with : libpkgconf,
   install : true)
+
+
+kyua_exe = find_program('kyua')
+test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + meson.build_root() + '/Kyuafile', '--build-root=' + meson.build_root()])
+configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
+
 
 install_man('pkgconf.1')
