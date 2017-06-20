@@ -84,7 +84,7 @@ pkgconf_exe = executable('pkgconf',
 
 
 kyua_exe = find_program('kyua')
-test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + meson.build_root() + '/Kyuafile', '--build-root=' + meson.build_root()])
+test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + join_paths(meson.build_root(), 'Kyuafile'), '--build-root=' + meson.build_root()])
 configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
 
 
