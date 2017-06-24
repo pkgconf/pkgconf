@@ -24,10 +24,10 @@ LT_INIT
 AC_SYS_LARGEFILE
 
 AC_ARG_WITH([pkg-config-dir],[AC_HELP_STRING([--with-pkg-config-dir],[specify
-	     the place where pc files will be found])],PKGCONFIGDIR="$withval",
-	     PKGCONFIGDIR="${libdir}/pkgconfig:${datadir}/pkgconfig")
+	     the place where pc files will be found])],PKG_DEFAULT_PATH="$withval",
+	     PKG_DEFAULT_PATH="${libdir}/pkgconfig:${datadir}/pkgconfig")
 
-AC_SUBST([PKGCONFIGDIR])
+AC_SUBST([PKG_DEFAULT_PATH])
 
 AC_ARG_WITH([system-libdir],[AC_HELP_STRING([--with-system-libdir],[specify the
 	     system library directory (default LIBDIR)])],

@@ -4,7 +4,7 @@ datadir                = @datadir@
 includedir             = @includedir@
 system_includedir      = @SYSTEM_INCLUDEDIR@
 system_libdir          = @SYSTEM_LIBDIR@
-pkg_default_dir        = @PKGCONFIGDIR@
+pkg_default_dir        = @PKG_DEFAULT_PATH@
 pkgconfigdir           = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA  = libpkgconf.pc
 
