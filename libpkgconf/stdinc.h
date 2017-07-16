@@ -33,10 +33,18 @@
 # include <malloc.h>
 # define PATH_DEV_NULL	"nul"
 # ifndef ssize_t
+# ifndef __MINGW32__
 #  include <BaseTsd.h>
+# else
+#  include <basetsd.h>
+# endif
 #  define ssize_t SSIZE_T
 # endif
-# include "win-dirent.h"
+# ifndef __MINGW32__
+#  include "win-dirent.h"
+# else
+# include <dirent.h>
+# endif
 #else
 # define PATH_DEV_NULL	"/dev/null"
 # include <dirent.h>
