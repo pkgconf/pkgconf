@@ -26,7 +26,8 @@ tests_init \
 	sysroot_munge \
 	virtual_variable \
 	fragment_collision \
-	malformed_1
+	malformed_1 \
+	explicit_sysroot
 
 case_sensitivity_body()
 {
@@ -230,4 +231,11 @@ malformed_1_body()
 {
 	atf_check -s exit:1 -o ignore \
 		pkgconf --validate --with-path="${selfdir}/lib1" malformed-1
+}
+
+explicit_sysroot_body()
+{
+	export PKG_CONFIG_SYSROOT_DIR=/sysroot
+	atf_check -o inline:"/sysroot/usr/share/test\n" \
+		pkgconf --with-path="${selfdir}/lib1" --variable=pkgdatadir explicit-sysroot
 }
