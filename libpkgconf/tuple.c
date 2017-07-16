@@ -274,6 +274,34 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 
 	*bptr = '\0';
 
+	/*
+	 * Sigh.  Somebody actually attempted to use freedesktop.org pkg-config's broken sysroot support,
+	 * which was written by somebody who did not understand how sysroots are supposed to work.  This
+	 * results in an incorrect path being built as the sysroot will be prepended twice, once explicitly,
+	 * and once by variable expansion (the pkgconf approach).  We could simply make ${pc_sysrootdir} blank,
+	 * but sometimes it is necessary to know the explicit sysroot path for other reasons, so we can't really
+	 * do that.
+	 *
+	 * As a result, we check to see if ${pc_sysrootdir} is prepended as a duplicate, and if so, remove the
+	 * prepend.  This allows us to handle both our approach and the broken freedesktop.org implementation's
+	 * approach.  Because a path can be shorter than ${pc_sysrootdir}, we do some checks first to ensure it's
+	 * safe to skip ahead in the string to scan for our sysroot dir.
+	 *
+	 * Finally, we call pkgconf_path_relocate() to clean the path of spurious elements.
+	 */
+	if (*buf == '/' &&
+	    client->sysroot_dir != NULL &&
+	    strlen(buf) > strlen(client->sysroot_dir) &&
+	    strstr(buf + strlen(client->sysroot_dir), client->sysroot_dir) != NULL)
+	{
+		char cleanpath[PKGCONF_BUFSIZE];
+
+		pkgconf_strlcpy(cleanpath, buf + strlen(client->sysroot_dir), sizeof cleanpath);
+		pkgconf_path_relocate(cleanpath, sizeof cleanpath);
+
+		return strdup(cleanpath);
+	}
+
 	return strdup(buf);
 }
 
