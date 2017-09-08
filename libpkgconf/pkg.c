@@ -299,7 +299,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 
 		lineno++;
 
-		PKGCONF_TRACE(client, "%s:%zu > [%s]", filename, lineno, readbuf);
+		PKGCONF_TRACE(client, "%s:" SIZE_FMT_SPECIFIER " > [%s]", filename, lineno, readbuf);
 
 		p = readbuf;
 		while (*p && (isalpha((unsigned int)*p) || isdigit((unsigned int)*p) || *p == '_' || *p == '.'))
@@ -313,7 +313,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 		{
 			if (!warned_key_whitespace)
 			{
-				pkgconf_warn(client, "%s:%zu: warning: whitespace encountered while parsing key section\n",
+				pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: whitespace encountered while parsing key section\n",
 					pkg->filename, lineno);
 				warned_key_whitespace = true;
 			}
@@ -336,7 +336,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 		{
 			if (!warned_value_whitespace && op == '=')
 			{
-				pkgconf_warn(client, "%s:%zu: warning: trailing whitespace encountered while parsing value section\n",
+				pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: trailing whitespace encountered while parsing value section\n",
 					pkg->filename, lineno);
 				warned_value_whitespace = true;
 			}

@@ -32,6 +32,11 @@
 # include <windows.h>
 # include <malloc.h>
 # define PATH_DEV_NULL	"nul"
+# ifdef _WIN64
+#  define SIZE_FMT_SPECIFIER	"%llu"
+# else
+#  define SIZE_FMT_SPECIFIER	"%lu"
+# endif
 # ifndef ssize_t
 # ifndef __MINGW32__
 #  include <BaseTsd.h>
@@ -47,6 +52,7 @@
 # endif
 #else
 # define PATH_DEV_NULL	"/dev/null"
+# define SIZE_FMT_SPECIFIER	"%zu"
 # include <dirent.h>
 # include <unistd.h>
 #endif
