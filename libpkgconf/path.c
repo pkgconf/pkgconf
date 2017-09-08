@@ -205,7 +205,7 @@ pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
 
 	pkgconf_strlcpy(relocated, path, sizeof relocated);
 	if (pkgconf_path_relocate(relocated, sizeof relocated))
-		cpath = path;
+		cpath = relocated;
 
 	PKGCONF_FOREACH_LIST_ENTRY(dirlist->head, n)
 	{
