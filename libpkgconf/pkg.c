@@ -50,10 +50,9 @@ str_has_suffix(const char *str, const char *suffix)
 }
 
 static inline const char *
-get_default_pkgconfig_path(void)
+get_default_pkgconfig_path(char *outbuf, size_t outlen)
 {
 #ifdef _WIN32
-	static char outbuf[MAX_PATH];
 	char namebuf[MAX_PATH];
 	char *p;
 
@@ -69,15 +68,18 @@ get_default_pkgconfig_path(void)
 		return PKG_DEFAULT_PATH;
 
 	*p = '\0';
-	pkgconf_strlcpy(outbuf, namebuf, sizeof outbuf);
-	pkgconf_strlcat(outbuf, "/", sizeof outbuf);
-	pkgconf_strlcat(outbuf, "../lib/pkgconfig", sizeof outbuf);
-	pkgconf_strlcat(outbuf, ";", sizeof outbuf);
-	pkgconf_strlcat(outbuf, namebuf, sizeof outbuf);
-	pkgconf_strlcat(outbuf, "/", sizeof outbuf);
-	pkgconf_strlcat(outbuf, "../share/pkgconfig", sizeof outbuf);
+	pkgconf_strlcpy(outbuf, namebuf, outlen);
+	pkgconf_strlcat(outbuf, "/", outlen);
+	pkgconf_strlcat(outbuf, "../lib/pkgconfig", outlen);
+	pkgconf_strlcat(outbuf, ";", outlen);
+	pkgconf_strlcat(outbuf, namebuf, outlen);
+	pkgconf_strlcat(outbuf, "/", outlen);
+	pkgconf_strlcat(outbuf, "../share/pkgconfig", outlen);
 
 	return outbuf;
+#else
+	(void) outbuf;
+	(void) outlen;
 #endif
 
 	return PKG_DEFAULT_PATH;
@@ -116,7 +118,11 @@ pkgconf_pkg_dir_list_build(pkgconf_client_t *client)
 	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &client->dir_list, true);
 
 	if (!(client->flags & PKGCONF_PKG_PKGF_ENV_ONLY))
-		pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", get_default_pkgconfig_path(), &client->dir_list, true);
+	{
+		char pathbuf[PKGCONF_BUFSIZE];
+
+		pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", get_default_pkgconfig_path(pathbuf, sizeof pathbuf), &client->dir_list, true);
+	}
 }
 
 typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value);
