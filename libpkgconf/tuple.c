@@ -230,7 +230,7 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 			*bptr++ = *ptr;
 		else if (*(ptr + 1) == '{')
 		{
-			static char varname[PKGCONF_BUFSIZE];
+			char varname[PKGCONF_BUFSIZE];
 			char *vptr = varname;
 			const char *pptr;
 			char *kv, *parsekv;
