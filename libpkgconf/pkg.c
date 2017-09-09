@@ -84,12 +84,11 @@ get_default_pkgconfig_path(void)
 }
 
 static const char *
-pkg_get_parent_dir(pkgconf_pkg_t *pkg)
+pkg_get_parent_dir(pkgconf_pkg_t *pkg, char *buf, size_t buflen)
 {
-	static char buf[PKGCONF_BUFSIZE];
 	char *pathbuf;
 
-	pkgconf_strlcpy(buf, pkg->filename, sizeof buf);
+	pkgconf_strlcpy(buf, pkg->filename, buflen);
 	pathbuf = strrchr(buf, PKG_DIR_SEP_S);
 	if (pathbuf == NULL)
 		pathbuf = strrchr(buf, '/');
@@ -270,12 +269,13 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 {
 	pkgconf_pkg_t *pkg;
 	char readbuf[PKGCONF_BUFSIZE];
+	char pathbuf[PKGCONF_BUFSIZE];
 	char *idptr;
 	size_t lineno = 0;
 
 	pkg = calloc(sizeof(pkgconf_pkg_t), 1);
 	pkg->filename = strdup(filename);
-	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg), true);
+	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg, pathbuf, sizeof pathbuf), true);
 
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
@@ -644,6 +644,7 @@ pkgconf_pkg_find_in_registry_key(pkgconf_client_t *client, HKEY hkey, const char
 pkgconf_pkg_t *
 pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 {
+	char pathbuf[PKGCONF_BUFSIZE];
 	pkgconf_pkg_t *pkg = NULL;
 	pkgconf_node_t *n;
 	FILE *f;
@@ -662,7 +663,7 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 			pkg = pkgconf_pkg_new_from_file(client, name, f);
 			if (pkg != NULL)
 			{
-				pkgconf_path_add(pkg_get_parent_dir(pkg), &client->dir_list, true);
+				pkgconf_path_add(pkg_get_parent_dir(pkg, pathbuf, sizeof pathbuf), &client->dir_list, true);
 				return pkg;
 			}
 		}
