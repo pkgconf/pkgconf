@@ -161,6 +161,8 @@ struct pkgconf_client_ {
 	unsigned int flags;
 
 	char *prefix_varname;
+
+	bool already_sent_notice;
 };
 
 /* client.c */

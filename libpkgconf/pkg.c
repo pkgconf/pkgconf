@@ -1292,16 +1292,14 @@ pkgconf_pkg_verify_graph(pkgconf_client_t *client, pkgconf_pkg_t *root, int dept
 static unsigned int
 pkgconf_pkg_report_graph_error(pkgconf_client_t *client, pkgconf_pkg_t *parent, pkgconf_pkg_t *pkg, pkgconf_dependency_t *node, unsigned int eflags)
 {
-	static bool already_sent_notice = false;
-
 	if (eflags & PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND)
 	{
-		if (!(client->flags & PKGCONF_PKG_PKGF_SIMPLIFY_ERRORS) & !already_sent_notice)
+		if (!(client->flags & PKGCONF_PKG_PKGF_SIMPLIFY_ERRORS) & !client->already_sent_notice)
 		{
 			pkgconf_error(client, "Package %s was not found in the pkg-config search path.\n", node->package);
 			pkgconf_error(client, "Perhaps you should add the directory containing `%s.pc'\n", node->package);
 			pkgconf_error(client, "to the PKG_CONFIG_PATH environment variable\n");
-			already_sent_notice = true;
+			client->already_sent_notice = true;
 		}
 
 		pkgconf_error(client, "Package '%s', required by '%s', not found\n", node->package, parent->id);
