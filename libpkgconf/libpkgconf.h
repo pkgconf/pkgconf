@@ -258,7 +258,6 @@ PKGCONF_API void pkgconf_dependency_parse_str(const pkgconf_client_t *client, pk
 PKGCONF_API void pkgconf_dependency_parse(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
 PKGCONF_API void pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail);
 PKGCONF_API void pkgconf_dependency_free(pkgconf_list_t *list);
-PKGCONF_API const char *pkgconf_dependency_to_str(const pkgconf_dependency_t *dep);
 PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare);
 
 /* argvsplit.c */

@@ -5,14 +5,6 @@ libpkgconf `dependency` module
 The `dependency` module provides support for building `dependency lists` (the basic component of the overall `dependency graph`) and
 `dependency nodes` which store dependency information.
 
-.. c:function:: const char *pkgconf_dependency_to_str(const pkgconf_dependency_t *dep)
-
-   Renders a dependency to a string.
-
-   :param pkgconf_dependency_t* dep: The dependency to render.
-   :return: The dependency rendered as a string.
-   :rtype: const char *
-
 .. c:function:: pkgconf_dependency_t *pkgconf_dependency_add(pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare)
 
    Adds a parsed dependency to a dependency list as a dependency node.

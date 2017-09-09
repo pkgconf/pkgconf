@@ -36,38 +36,26 @@ typedef enum {
 
 #define DEBUG_PARSE 0
 
-/*
- * !doc
- *
- * .. c:function:: const char *pkgconf_dependency_to_str(const pkgconf_dependency_t *dep)
- *
- *    Renders a dependency to a string.
- *
- *    :param pkgconf_dependency_t* dep: The dependency to render.
- *    :return: The dependency rendered as a string.
- *    :rtype: const char *
- */
-const char *
-pkgconf_dependency_to_str(const pkgconf_dependency_t *dep)
+static const char *
+dependency_to_str(const pkgconf_dependency_t *dep, char *buf, size_t buflen)
 {
-	static char outbuf[PKGCONF_BUFSIZE];
-
-	pkgconf_strlcpy(outbuf, dep->package, sizeof outbuf);
+	pkgconf_strlcpy(buf, dep->package, buflen);
 	if (dep->version != NULL)
 	{
-		pkgconf_strlcat(outbuf, " ", sizeof outbuf);
-		pkgconf_strlcat(outbuf, pkgconf_pkg_get_comparator(dep), sizeof outbuf);
-		pkgconf_strlcat(outbuf, " ", sizeof outbuf);
-		pkgconf_strlcat(outbuf, dep->version, sizeof outbuf);
+		pkgconf_strlcat(buf, " ", buflen);
+		pkgconf_strlcat(buf, pkgconf_pkg_get_comparator(dep), buflen);
+		pkgconf_strlcat(buf, " ", buflen);
+		pkgconf_strlcat(buf, dep->version, buflen);
 	}
 
-	return outbuf;
+	return buf;
 }
 
 static inline pkgconf_dependency_t *
 pkgconf_dependency_addraw(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare)
 {
 	pkgconf_dependency_t *dep;
+	char depbuf[PKGCONF_BUFSIZE];
 
 	dep = calloc(sizeof(pkgconf_dependency_t), 1);
 	dep->package = pkgconf_strndup(package, package_sz);
@@ -77,7 +65,7 @@ pkgconf_dependency_addraw(const pkgconf_client_t *client, pkgconf_list_t *list, 
 
 	dep->compare = compare;
 
-	PKGCONF_TRACE(client, "added dependency [%s] to list @%p", pkgconf_dependency_to_str(dep), list);
+	PKGCONF_TRACE(client, "added dependency [%s] to list @%p", dependency_to_str(dep, depbuf, sizeof depbuf), list);
 	pkgconf_node_insert_tail(&dep->iter, dep, list);
 
 	return dep;
