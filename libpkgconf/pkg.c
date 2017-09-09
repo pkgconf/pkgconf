@@ -528,7 +528,7 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
 	{
-		static char filebuf[PKGCONF_BUFSIZE];
+		char filebuf[PKGCONF_BUFSIZE];
 		pkgconf_pkg_t *pkg;
 		FILE *f;
 
