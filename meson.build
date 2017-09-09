@@ -92,3 +92,4 @@ subdir('tests')
 
 
 install_man('pkgconf.1')
+install_data('pkg.m4', install_dir: 'share/aclocal')
