@@ -189,13 +189,12 @@ pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pk
 }
 
 static const char *
-determine_prefix(const pkgconf_pkg_t *pkg)
+determine_prefix(const pkgconf_pkg_t *pkg, char *buf, size_t buflen)
 {
-	static char buf[PKGCONF_BUFSIZE];
 	char *pathiter;
 
-	pkgconf_strlcpy(buf, pkg->filename, sizeof buf);
-	pkgconf_path_relocate(buf, sizeof buf);
+	pkgconf_strlcpy(buf, pkg->filename, buflen);
+	pkgconf_path_relocate(buf, buflen);
 
 	pathiter = strrchr(buf, PKG_DIR_SEP_S);
 	if (pathiter == NULL)
@@ -276,6 +275,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	pkgconf_pkg_t *pkg;
 	char readbuf[PKGCONF_BUFSIZE];
 	char pathbuf[PKGCONF_BUFSIZE];
+	char prefixbuf[PKGCONF_BUFSIZE];
 	char *idptr;
 	size_t lineno = 0;
 
@@ -361,7 +361,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 				pkgconf_tuple_add(client, &pkg->vars, key, value, true);
 			else
 			{
-				const char *relvalue = determine_prefix(pkg);
+				const char *relvalue = determine_prefix(pkg, prefixbuf, sizeof prefixbuf);
 				if (relvalue != NULL)
 				{
 					pkgconf_tuple_add(client, &pkg->vars, "orig_prefix", value, true);
