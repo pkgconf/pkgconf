@@ -404,7 +404,10 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 void
 pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
-	if (pkg == NULL || pkg->flags & PKGCONF_PKG_PROPF_STATIC)
+	if (pkg == NULL)
+		return;
+
+	if (pkg->flags & PKGCONF_PKG_PROPF_STATIC && !(pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL))
 		return;
 
 	pkgconf_cache_remove(client, pkg);
@@ -420,6 +423,9 @@ pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	pkgconf_fragment_free(&pkg->libs_private);
 
 	pkgconf_tuple_free(&pkg->vars);
+
+	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+		return;
 
 	if (pkg->id != NULL)
 		free(pkg->id);
