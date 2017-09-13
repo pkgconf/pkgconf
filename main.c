@@ -386,12 +386,13 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, NULL);
 
 	if (filtered_list.head == NULL)
-		return true;
+		goto out;
 
 	render_buf = pkgconf_fragment_render(&filtered_list, true);
 	printf("%s", render_buf);
 	free(render_buf);
 
+out:
 	pkgconf_fragment_free(&unfiltered_list);
 	pkgconf_fragment_free(&filtered_list);
 
@@ -414,12 +415,13 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_libs, NULL);
 
 	if (filtered_list.head == NULL)
-		return true;
+		goto out;
 
 	render_buf = pkgconf_fragment_render(&filtered_list, true);
 	printf("%s", render_buf);
 	free(render_buf);
 
+out:
 	pkgconf_fragment_free(&unfiltered_list);
 	pkgconf_fragment_free(&filtered_list);
 
