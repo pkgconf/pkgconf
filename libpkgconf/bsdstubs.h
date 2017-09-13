@@ -18,8 +18,16 @@
 
 #include <libpkgconf/libpkgconf-api.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 PKGCONF_API extern size_t pkgconf_strlcpy(char *dst, const char *src, size_t siz);
 PKGCONF_API extern size_t pkgconf_strlcat(char *dst, const char *src, size_t siz);
 PKGCONF_API extern char *pkgconf_strndup(const char *src, size_t len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

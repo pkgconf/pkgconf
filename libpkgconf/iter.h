@@ -16,6 +16,10 @@
 #ifndef PKGCONF__ITER_H
 #define PKGCONF__ITER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct pkgconf_node_ pkgconf_node_t;
 
 struct pkgconf_node_ {
@@ -93,5 +97,9 @@ pkgconf_node_delete(pkgconf_node_t *node, pkgconf_list_t *list)
 	else
 		node->next->prev = node->prev;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

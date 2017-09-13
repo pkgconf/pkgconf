@@ -21,6 +21,10 @@
 #include <libpkgconf/bsdstubs.h>
 #include <libpkgconf/libpkgconf-api.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* pkg-config uses ';' on win32 as ':' is part of path */
 #ifdef _WIN32
 #define PKG_CONFIG_PATH_SEP_S   ";"
@@ -316,5 +320,9 @@ PKGCONF_API size_t pkgconf_path_build_from_environ(const char *envvarname, const
 PKGCONF_API bool pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist);
 PKGCONF_API void pkgconf_path_free(pkgconf_list_t *dirlist);
 PKGCONF_API bool pkgconf_path_relocate(char *buf, size_t buflen);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
