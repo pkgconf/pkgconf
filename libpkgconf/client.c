@@ -137,6 +137,9 @@ pkgconf_client_deinit(pkgconf_client_t *client)
 	if (client->buildroot_dir != NULL)
 		free(client->buildroot_dir);
 
+	pkgconf_path_free(&client->filter_libdirs);
+	pkgconf_path_free(&client->filter_includedirs);
+
 	pkgconf_tuple_free_global(client);
 	pkgconf_path_free(&client->dir_list);
 	pkgconf_cache_free(client);
