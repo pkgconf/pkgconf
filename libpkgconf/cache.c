@@ -84,6 +84,9 @@ pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	pkgconf_node_insert(&pkg->cache_iter, pkg, &client->pkg_cache);
 
 	PKGCONF_TRACE(client, "added @%p to cache", pkg);
+
+	/* mark package as cached */
+	pkg->flags |= PKGCONF_PKG_PROPF_CACHED;
 }
 
 /*
@@ -101,6 +104,9 @@ void
 pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
 	if (pkg == NULL)
+		return;
+
+	if (!(pkg->flags & PKGCONF_PKG_PROPF_CACHED))
 		return;
 
 	PKGCONF_TRACE(client, "removed @%p from cache", pkg);

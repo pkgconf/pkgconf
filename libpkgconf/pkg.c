@@ -688,8 +688,6 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 		if ((pkg = pkgconf_cache_lookup(client, name)) != NULL)
 		{
 			PKGCONF_TRACE(client, "%s is cached", name);
-
-			pkg->flags |= PKGCONF_PKG_PROPF_CACHED;
 			return pkg;
 		}
 	}
