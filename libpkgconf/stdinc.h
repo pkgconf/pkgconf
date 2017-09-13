@@ -16,7 +16,6 @@
 #ifndef __STDINC_H
 #define __STDINC_H
 
-#define _GNU_SOURCE
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
