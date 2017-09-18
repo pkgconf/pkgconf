@@ -16,7 +16,10 @@
 #ifndef LIBPKGCONF__LIBPKGCONF_H
 #define LIBPKGCONF__LIBPKGCONF_H
 
-#include <libpkgconf/stdinc.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdbool.h>
 #include <libpkgconf/iter.h>
 #include <libpkgconf/bsdstubs.h>
 #include <libpkgconf/libpkgconf-api.h>

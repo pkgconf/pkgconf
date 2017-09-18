@@ -14,6 +14,7 @@
  * from the use of this software.
  */
 
+#include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 #include "libpkgconf/config.h"
 #include "getopt_long.h"
