@@ -27,6 +27,7 @@ tests_init \
 	virtual_variable \
 	fragment_collision \
 	malformed_1 \
+	malformed_quoting \
 	explicit_sysroot
 
 case_sensitivity_body()
@@ -231,6 +232,12 @@ malformed_1_body()
 {
 	atf_check -s exit:1 -o ignore \
 		pkgconf --validate --with-path="${selfdir}/lib1" malformed-1
+}
+
+malformed_quoting_body()
+{
+	atf_check -s exit:0 -o ignore \
+		pkgconf --validate --with-path="${selfdir}/lib1" malformed-quoting
 }
 
 explicit_sysroot_body()
