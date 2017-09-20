@@ -126,7 +126,7 @@ pkgconf_pkg_dir_list_build(pkgconf_client_t *client)
 	}
 }
 
-typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value);
+typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value);
 typedef struct {
 	const char *keyword;
 	const pkgconf_pkg_parser_keyword_func_t func;
@@ -140,22 +140,34 @@ static int pkgconf_pkg_parser_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value)
+pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
 {
+	(void) keyword;
+	(void) lineno;
+
 	char **dest = (char **)((char *) pkg + offset);
 	*dest = pkgconf_tuple_parse(client, &pkg->vars, value);
 }
 
 static void
-pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value)
+pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
-	pkgconf_fragment_parse(client, dest, &pkg->vars, value);
+	bool ret = pkgconf_fragment_parse(client, dest, &pkg->vars, value);
+
+	if (!ret)
+	{
+		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: unable to parse field '%s' into an argument vector, value [%s]\n", pkg->filename,
+			     lineno, keyword, value);
+	}
 }
 
 static void
-pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const ptrdiff_t offset, char *value)
+pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
 {
+	(void) keyword;
+	(void) lineno;
+
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	pkgconf_dependency_parse(client, pkg, dest, value);
 }
@@ -176,7 +188,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 };
 
 static bool
-pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, char *value)
+pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const size_t lineno, const char *keyword, char *value)
 {
 	const pkgconf_pkg_parser_keyword_pair_t *pair = bsearch(keyword,
 		pkgconf_pkg_parser_keyword_funcs, PKGCONF_ARRAY_SIZE(pkgconf_pkg_parser_keyword_funcs),
@@ -185,7 +197,7 @@ pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pk
 	if (pair == NULL || pair->func == NULL)
 		return false;
 
-	pair->func(client, pkg, pair->offset, value);
+	pair->func(client, pkg, keyword, lineno, pair->offset, value);
 	return true;
 }
 
@@ -355,7 +367,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 		switch (op)
 		{
 		case ':':
-			pkgconf_pkg_parser_keyword_set(client, pkg, key, value);
+			pkgconf_pkg_parser_keyword_set(client, pkg, lineno, key, value);
 			break;
 		case '=':
 			if (strcmp(key, client->prefix_varname) || !(client->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
