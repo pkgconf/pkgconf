@@ -618,7 +618,7 @@ pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkg
 
 	pkgconf_argv_split(repstr, &argc, &argv);
 
-	for (i = 0; i < argc; i++)
+	for (i = 0; i < argc && argv[i] != NULL; i++)
 		pkgconf_fragment_add(client, list, argv[i]);
 
 	pkgconf_argv_free(argv);
