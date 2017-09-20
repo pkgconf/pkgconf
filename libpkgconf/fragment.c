@@ -613,11 +613,17 @@ pkgconf_fragment_free(pkgconf_list_t *list)
 void
 pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
 {
-	int i, argc;
+	int i, ret, argc;
 	char **argv;
 	char *repstr = pkgconf_tuple_parse(client, vars, value);
 
-	pkgconf_argv_split(repstr, &argc, &argv);
+	ret = pkgconf_argv_split(repstr, &argc, &argv);
+	if (ret < 0)
+	{
+		PKGCONF_TRACE(client, "unable to parse fragment string [%s]", repstr);
+		free(repstr);
+		return;
+	}
 
 	for (i = 0; i < argc && argv[i] != NULL; i++)
 		pkgconf_fragment_add(client, list, argv[i]);
