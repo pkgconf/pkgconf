@@ -600,7 +600,7 @@ pkgconf_fragment_free(pkgconf_list_t *list)
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
+ * .. c:function:: bool pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
  *
  *    Parse a string into a `fragment list`.
  *
@@ -608,9 +608,9 @@ pkgconf_fragment_free(pkgconf_list_t *list)
  *    :param pkgconf_list_t* list: The `fragment list` to add the fragment entries to.
  *    :param pkgconf_list_t* vars: A list of variables to use for variable substitution.
  *    :param char* value: The string to parse into fragments.
- *    :return: nothing
+ *    :return: true on success, false on parse error
  */
-void
+bool
 pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
 {
 	int i, ret, argc;
@@ -622,12 +622,24 @@ pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkg
 	{
 		PKGCONF_TRACE(client, "unable to parse fragment string [%s]", repstr);
 		free(repstr);
-		return;
+		return false;
 	}
 
-	for (i = 0; i < argc && argv[i] != NULL; i++)
+	for (i = 0; i < argc; i++)
+	{
+		if (argv[i] == NULL)
+		{
+			PKGCONF_TRACE(client, "parsed fragment string is inconsistent: argc = %d while argv[%d] == NULL", argc, i);
+			pkgconf_argv_free(argv);
+			free(repstr);
+			return false;
+		}
+
 		pkgconf_fragment_add(client, list, argv[i]);
+	}
 
 	pkgconf_argv_free(argv);
 	free(repstr);
+
+	return true;
 }

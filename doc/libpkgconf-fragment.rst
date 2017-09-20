@@ -90,7 +90,7 @@ which is composable, mergeable and reorderable.
    :param pkgconf_list_t* list: The `fragment list` to delete.
    :return: nothing
 
-.. c:function:: void pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
+.. c:function:: bool pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
 
    Parse a string into a `fragment list`.
 
@@ -98,4 +98,4 @@ which is composable, mergeable and reorderable.
    :param pkgconf_list_t* list: The `fragment list` to add the fragment entries to.
    :param pkgconf_list_t* vars: A list of variables to use for variable substitution.
    :param char* value: The string to parse into fragments.
-   :return: nothing
+   :return: true on success, false on parse error
