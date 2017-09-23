@@ -8,7 +8,7 @@
 #if defined(PKGCONFIG_IS_STATIC)
 # define PKGCONF_API
 #elif defined(_WIN32) || defined(_WIN64)
-# ifdef LIBPKGCONF_EXPORT
+# if defined(LIBPKGCONF_EXPORT) || defined(DLL_EXPORT)
 #  define PKGCONF_API __declspec(dllexport)
 # else
 #  define PKGCONF_API __declspec(dllimport)
