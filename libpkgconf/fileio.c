@@ -29,7 +29,7 @@ pkgconf_fgetline(char *line, size_t size, FILE *stream)
 
 	while (s < end && (c = getc(stream)) != EOF)
 	{
-		if (c == '\\')
+		if (c == '\\' && !quoted)
 		{
 			quoted = true;
 			continue;
