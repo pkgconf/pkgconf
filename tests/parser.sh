@@ -13,6 +13,7 @@ tests_init \
 	tilde_quoting \
 	paren_quoting \
 	multiline_field \
+	escaped_backslash \
 	flag_order_1 \
 	flag_order_2 \
 	flag_order_3 \
@@ -110,6 +111,14 @@ multiline_field_body()
 		-e ignore \
 		-o match:"multiline description" \
 		pkgconf --list-all
+}
+
+escaped_backslash_body()
+{
+	atf_check \
+		-e ignore \
+		-o inline:"-IC:\\\\\\\\A \n" \
+		pkgconf --with-path=${selfdir}/lib1 --cflags escaped-backslash
 }
 
 quoted_body()
