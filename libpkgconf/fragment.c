@@ -617,6 +617,8 @@ pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkg
 	char **argv;
 	char *repstr = pkgconf_tuple_parse(client, vars, value);
 
+	PKGCONF_TRACE(client, "post-subst: [%s] -> [%s]", value, repstr);
+
 	ret = pkgconf_argv_split(repstr, &argc, &argv);
 	if (ret < 0)
 	{
