@@ -8,7 +8,7 @@ pkg_default_dir        = @PKG_DEFAULT_PATH@
 pkgconfigdir           = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA  = libpkgconf.pc
 
-AM_CFLAGS = -Wall -Wextra -Wformat=2 -std=gnu99 -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
+AM_CFLAGS = -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
 
 bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la
