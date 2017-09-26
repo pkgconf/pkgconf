@@ -14,6 +14,7 @@ dnl from the use of this software.
 AC_PREREQ([2.68])
 AC_INIT([pkgconf], [1.3.7], [http://github.com/pkgconf/pkgconf/issues])
 AC_CONFIG_SRCDIR([main.c])
+AC_CONFIG_MACRO_DIRS([m4])
 AX_CHECK_COMPILE_FLAG([-Wall], [CFLAGS="$CFLAGS -Wall"])
 AX_CHECK_COMPILE_FLAG([-Wextra], [CFLAGS="$CFLAGS -Wextra"])
 AX_CHECK_COMPILE_FLAG([-Wformat=2], [CFLAGS="$CFLAGS -Wformat=2"])
