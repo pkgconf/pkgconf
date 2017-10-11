@@ -291,6 +291,7 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 	 */
 	if (*buf == '/' &&
 	    client->sysroot_dir != NULL &&
+	    strcmp(client->sysroot_dir, "/") != 0 &&
 	    strlen(buf) > strlen(client->sysroot_dir) &&
 	    strstr(buf + strlen(client->sysroot_dir), client->sysroot_dir) != NULL)
 	{
