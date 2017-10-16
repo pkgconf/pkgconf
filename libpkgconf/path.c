@@ -90,7 +90,10 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 		if (S_ISLNK(st.st_mode))
 		{
 			char linkdest[PKGCONF_BUFSIZE];
-			ssize_t len = readlink(text, linkdest, sizeof(linkdest));
+			ssize_t len;
+
+			memset(linkdest, '\0', sizeof linkdest);
+			len = readlink(text, linkdest, sizeof linkdest);
 
 			if (len != -1 && (size_t)len < sizeof(linkdest) &&
 				stat(linkdest, &st) == -1)
