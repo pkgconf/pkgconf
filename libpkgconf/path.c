@@ -80,12 +80,15 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 	pkgconf_path_t *node;
 	char path[PKGCONF_BUFSIZE];
 
+	pkgconf_strlcpy(path, text, sizeof path);
+	pkgconf_path_relocate(path, sizeof path);
+
 #ifdef PKGCONF_CACHE_INODES
 	struct stat st;
 
 	if (filter)
 	{
-		if (lstat(text, &st) == -1)
+		if (lstat(path, &st) == -1)
 			return;
 		if (S_ISLNK(st.st_mode))
 		{
@@ -93,22 +96,19 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 			ssize_t len;
 
 			memset(linkdest, '\0', sizeof linkdest);
-			len = readlink(text, linkdest, sizeof linkdest);
+			len = readlink(path, linkdest, sizeof linkdest);
 
 			if (len != -1 && (size_t)len < sizeof(linkdest) &&
 				stat(linkdest, &st) == -1)
 				return;
 		}
-		if (path_list_contains_entry(text, dirlist, &st))
+		if (path_list_contains_entry(path, dirlist, &st))
 			return;
 	}
 #else
-	if (filter && path_list_contains_entry(text, dirlist))
+	if (filter && path_list_contains_entry(path, dirlist))
 		return;
 #endif
-
-	pkgconf_strlcpy(path, text, sizeof path);
-	pkgconf_path_relocate(path, sizeof path);
 
 	node = calloc(sizeof(pkgconf_path_t), 1);
 	node->path = strdup(path);
