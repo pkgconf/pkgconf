@@ -70,21 +70,11 @@ pkgconf_fragment_is_unmergeable(const char *string)
 static inline bool
 pkgconf_fragment_should_munge(const char *string, const char *sysroot_dir)
 {
-	static struct pkgconf_fragment_check check_fragments[] = {
-		{"-isystem", 8},
-		{"-idirafter", 10},
-		{"-include", 8},
-	};
-
 	if (*string != '/')
 		return false;
 
 	if (sysroot_dir != NULL && strncmp(sysroot_dir, string, strlen(sysroot_dir)))
 		return true;
-
-	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(check_fragments); i++)
-		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
-			return true;
 
 	return false;
 }
