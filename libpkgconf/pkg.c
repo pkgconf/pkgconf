@@ -35,8 +35,7 @@
 #	define strcasecmp _stricmp
 #endif
 
-#define PKG_CONFIG_EXT		".pc"
-#define PKG_CONFIG_PATH_SZ	(65535)
+#define PKG_CONFIG_EXT ".pc"
 
 static inline bool
 str_has_suffix(const char *str, const char *suffix)
@@ -287,8 +286,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 {
 	pkgconf_pkg_t *pkg;
 	char readbuf[PKGCONF_BUFSIZE];
-	char pathbuf[PKGCONF_BUFSIZE];
-	char prefixbuf[PKGCONF_BUFSIZE];
+	char pathbuf[PKGCONF_ITEM_SIZE];
 	char *idptr;
 	size_t lineno = 0;
 
@@ -374,7 +372,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 				pkgconf_tuple_add(client, &pkg->vars, key, value, true);
 			else
 			{
-				const char *relvalue = determine_prefix(pkg, prefixbuf, sizeof prefixbuf);
+				const char *relvalue = determine_prefix(pkg, pathbuf, sizeof pathbuf);
 				if (relvalue != NULL)
 				{
 					pkgconf_tuple_add(client, &pkg->vars, "orig_prefix", value, true);
@@ -509,8 +507,8 @@ pkgconf_pkg_try_specific_path(pkgconf_client_t *client, const char *path, const 
 {
 	pkgconf_pkg_t *pkg = NULL;
 	FILE *f;
-	char locbuf[PKG_CONFIG_PATH_SZ];
-	char uninst_locbuf[PKG_CONFIG_PATH_SZ];
+	char locbuf[PKGCONF_ITEM_SIZE];
+	char uninst_locbuf[PKGCONF_ITEM_SIZE];
 
 	PKGCONF_TRACE(client, "trying path: %s for %s", path, name);
 
@@ -547,7 +545,7 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
 	{
-		char filebuf[PKGCONF_BUFSIZE];
+		char filebuf[PKGCONF_ITEM_SIZE];
 		pkgconf_pkg_t *pkg;
 		FILE *f;
 
@@ -634,7 +632,7 @@ pkgconf_pkg_find_in_registry_key(pkgconf_client_t *client, HKEY hkey, const char
 	while (RegEnumValue(key, i++, buf, &bufsize, NULL, NULL, NULL, NULL)
 			== ERROR_SUCCESS)
 	{
-		char pathbuf[PKG_CONFIG_PATH_SZ];
+		char pathbuf[PKGCONF_ITEM_SIZE];
 		DWORD type;
 		DWORD pathbuflen = sizeof pathbuf;
 
@@ -669,7 +667,7 @@ pkgconf_pkg_find_in_registry_key(pkgconf_client_t *client, HKEY hkey, const char
 pkgconf_pkg_t *
 pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 {
-	char pathbuf[PKGCONF_BUFSIZE];
+	char pathbuf[PKGCONF_ITEM_SIZE];
 	pkgconf_pkg_t *pkg = NULL;
 	pkgconf_node_t *n;
 	FILE *f;
@@ -749,7 +747,7 @@ int
 pkgconf_compare_version(const char *a, const char *b)
 {
 	char oldch1, oldch2;
-	char buf1[PKGCONF_BUFSIZE], buf2[PKGCONF_BUFSIZE];
+	char buf1[PKGCONF_ITEM_SIZE], buf2[PKGCONF_ITEM_SIZE];
 	char *str1, *str2;
 	char *one, *two;
 	int ret;

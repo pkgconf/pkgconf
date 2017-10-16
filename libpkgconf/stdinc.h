@@ -49,11 +49,18 @@
 # else
 # include <dirent.h>
 # endif
+# define PKGCONF_ITEM_SIZE (_MAX_PATH + 1024)
 #else
 # define PATH_DEV_NULL	"/dev/null"
 # define SIZE_FMT_SPECIFIER	"%zu"
 # include <dirent.h>
 # include <unistd.h>
+# include <limits.h>
+# ifdef PATH_MAX
+#  define PKGCONF_ITEM_SIZE (PATH_MAX + 1024)
+# else
+#  define PKGCONF_ITEM_SIZE (4096 + 1024)
+# endif
 #endif
 
 #endif

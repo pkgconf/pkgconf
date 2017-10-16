@@ -78,7 +78,7 @@ void
 pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 {
 	pkgconf_path_t *node;
-	char path[PKGCONF_BUFSIZE];
+	char path[PKGCONF_ITEM_SIZE];
 
 	pkgconf_strlcpy(path, text, sizeof path);
 	pkgconf_path_relocate(path, sizeof path);
@@ -92,7 +92,7 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 			return;
 		if (S_ISLNK(st.st_mode))
 		{
-			char linkdest[PKGCONF_BUFSIZE];
+			char linkdest[PKGCONF_ITEM_SIZE];
 			ssize_t len;
 
 			memset(linkdest, '\0', sizeof linkdest);
@@ -204,7 +204,7 @@ bool
 pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
 {
 	pkgconf_node_t *n = NULL;
-	char relocated[PKGCONF_BUFSIZE];
+	char relocated[PKGCONF_ITEM_SIZE];
 	const char *cpath = path;
 
 	pkgconf_strlcpy(relocated, path, sizeof relocated);

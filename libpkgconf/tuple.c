@@ -231,7 +231,7 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 			*bptr++ = *ptr;
 		else if (*(ptr + 1) == '{')
 		{
-			char varname[PKGCONF_BUFSIZE];
+			char varname[PKGCONF_ITEM_SIZE];
 			char *vptr = varname;
 			const char *pptr;
 			char *kv, *parsekv;
@@ -296,7 +296,7 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 	    strlen(buf) > strlen(client->sysroot_dir) &&
 	    strstr(buf + strlen(client->sysroot_dir), client->sysroot_dir) != NULL)
 	{
-		char cleanpath[PKGCONF_BUFSIZE];
+		char cleanpath[PKGCONF_ITEM_SIZE];
 
 		pkgconf_strlcpy(cleanpath, buf + strlen(client->sysroot_dir), sizeof cleanpath);
 		pkgconf_path_relocate(cleanpath, sizeof cleanpath);

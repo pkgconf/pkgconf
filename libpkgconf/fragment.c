@@ -112,7 +112,7 @@ pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen,
 static inline char *
 pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source)
 {
-	char mungebuf[PKGCONF_BUFSIZE];
+	char mungebuf[PKGCONF_ITEM_SIZE];
 	pkgconf_fragment_munge(client, mungebuf, sizeof mungebuf, source, client->sysroot_dir);
 	return strdup(mungebuf);
 }
@@ -148,7 +148,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 	}
 	else
 	{
-		char mungebuf[PKGCONF_BUFSIZE];
+		char mungebuf[PKGCONF_ITEM_SIZE];
 
 		if (list->tail != NULL && list->tail->data != NULL)
 		{

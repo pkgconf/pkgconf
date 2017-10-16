@@ -56,7 +56,7 @@ static inline pkgconf_dependency_t *
 pkgconf_dependency_addraw(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare)
 {
 	pkgconf_dependency_t *dep;
-	char depbuf[PKGCONF_BUFSIZE];
+	char depbuf[PKGCONF_ITEM_SIZE];
 
 	dep = calloc(sizeof(pkgconf_dependency_t), 1);
 	dep->package = pkgconf_strndup(package, package_sz);
@@ -161,7 +161,7 @@ pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *dep
 {
 	parse_state_t state = OUTSIDE_MODULE;
 	pkgconf_pkg_comparator_t compare = PKGCONF_CMP_ANY;
-	char cmpname[PKGCONF_BUFSIZE];
+	char cmpname[PKGCONF_ITEM_SIZE];
 	char buf[PKGCONF_BUFSIZE];
 	size_t package_sz = 0, version_sz = 0;
 	char *start = buf;
