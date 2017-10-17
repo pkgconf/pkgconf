@@ -1,6 +1,15 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.3.9 to 1.3.10:
+-----------------------------
+
+* Bug fixes:
+  - ensure we work on a zeroed buffer prior to calling realpath(2) with it
+  - fix path deduplication edge case when cache-inodes feature is unavailable
+  - fix path rewriting regression with PKG_CONFIG_SYSROOT_DIR when
+    PKG_CONFIG_SYSROOT_DIR is set to /
+
 Changes from 1.3.8 to 1.3.9:
 ----------------------------
 
