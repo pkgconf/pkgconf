@@ -627,6 +627,7 @@ usage(void)
 	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", SYSTEM_INCLUDEDIR);
 	printf("  --keep-system-libs                keep -L%s entries in libs output\n", SYSTEM_LIBDIR);
 	printf("  --path                            show the exact filenames for any matching .pc files\n");
+	printf("  --modversion                      print the specified module's version to stdout\n");
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
