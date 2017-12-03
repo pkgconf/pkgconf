@@ -327,7 +327,10 @@ apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 		pkgconf_dependency_t *dep = iter->data;
 
 		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
-		printf("%s\n", pkg->filename);
+
+		/* a module entry with no filename is either virtual, static (builtin) or synthesized. */
+		if (pkg->filename != NULL)
+			printf("%s\n", pkg->filename);
 
 		pkgconf_pkg_free(&pkg_client, pkg);
 	}
