@@ -1273,6 +1273,12 @@ pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pk
 
 	PKGCONF_TRACE(client, "trying to verify dependency: %s", pkgdep->package);
 
+	if (pkgdep->match != NULL)
+	{
+		PKGCONF_TRACE(client, "cached dependency: %s -> %s@%p", pkgdep->package, pkgdep->match->id, pkgdep->match);
+		return pkgconf_pkg_ref(client, pkgdep->match);
+	}
+
 	pkg = pkgconf_pkg_find(client, pkgdep->package);
 	if (pkg == NULL)
 	{
@@ -1290,11 +1296,13 @@ pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pk
 	if (pkg->id == NULL)
 		pkg->id = strdup(pkgdep->package);
 
-	if (pkgconf_pkg_comparator_impls[pkgdep->compare](pkg->version, pkgdep->version) == true)
-		return pkg;
-
-	if (eflags != NULL)
-		*eflags |= PKGCONF_PKG_ERRF_PACKAGE_VER_MISMATCH;
+	if (pkgconf_pkg_comparator_impls[pkgdep->compare](pkg->version, pkgdep->version) != true)
+	{
+		if (eflags != NULL)
+			*eflags |= PKGCONF_PKG_ERRF_PACKAGE_VER_MISMATCH;
+	}
+	else
+		pkgdep->match = pkgconf_pkg_ref(client, pkg);
 
 	return pkg;
 }

@@ -87,6 +87,7 @@ struct pkgconf_dependency_ {
 	pkgconf_pkg_comparator_t compare;
 	char *version;
 	pkgconf_pkg_t *parent;
+	pkgconf_pkg_t *match;
 };
 
 struct pkgconf_tuple_ {

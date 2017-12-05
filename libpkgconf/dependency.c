@@ -132,6 +132,9 @@ pkgconf_dependency_free(pkgconf_list_t *list)
 	{
 		pkgconf_dependency_t *dep = node->data;
 
+		if (dep->match != NULL)
+			pkgconf_pkg_unref(NULL, dep->match);
+
 		if (dep->package != NULL)
 			free(dep->package);
 
