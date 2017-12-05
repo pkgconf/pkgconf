@@ -480,6 +480,8 @@ pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	(void) client;
 
 	pkg->refcount++;
+	PKGCONF_TRACE(client, "refcount@%p: %d", pkg, pkg->refcount);
+
 	return pkg;
 }
 
@@ -498,6 +500,8 @@ void
 pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
 	pkg->refcount--;
+	PKGCONF_TRACE(client, "refcount@%p: %d", pkg, pkg->refcount);
+
 	if (pkg->refcount <= 0)
 		pkgconf_pkg_free(client, pkg);
 }
