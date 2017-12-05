@@ -44,7 +44,7 @@
  *    :rtype: pkgconf_pkg_t *
  */
 pkgconf_pkg_t *
-pkgconf_cache_lookup(const pkgconf_client_t *client, const char *id)
+pkgconf_cache_lookup(pkgconf_client_t *client, const char *id)
 {
 	pkgconf_node_t *node;
 

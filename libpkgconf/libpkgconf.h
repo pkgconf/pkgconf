@@ -136,6 +136,8 @@ struct pkgconf_pkg_ {
 	pkgconf_list_t vars;
 
 	unsigned int flags;
+
+	pkgconf_client_t *owner;
 };
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
@@ -242,7 +244,7 @@ PKGCONF_API bool pkgconf_default_error_handler(const char *msg, const pkgconf_cl
 	} while (0);
 #endif
 
-PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_ref(const pkgconf_client_t *client, pkgconf_pkg_t *pkg);
+PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_ref(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 PKGCONF_API void pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 PKGCONF_API void pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_find(pkgconf_client_t *client, const char *name);
@@ -306,7 +308,7 @@ PKGCONF_API bool pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *l
 PKGCONF_API bool pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth);
 
 /* cache.c */
-PKGCONF_API pkgconf_pkg_t *pkgconf_cache_lookup(const pkgconf_client_t *client, const char *id);
+PKGCONF_API pkgconf_pkg_t *pkgconf_cache_lookup(pkgconf_client_t *client, const char *id);
 PKGCONF_API void pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 PKGCONF_API void pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 PKGCONF_API void pkgconf_cache_free(pkgconf_client_t *client);
