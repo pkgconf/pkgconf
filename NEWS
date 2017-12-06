@@ -8,6 +8,10 @@ Changes from 1.3.10 to 1.3.11:
   - add missing --modversion to --help output
   - do not evaluate module paths for modules that are not actually on disk
 
+* Enhancements:
+  - do not mention PKG_CONFIG_SKIP_CONFLICTS environmental variable when
+    simplified errors are requested, as with PKG_CONFIG_PATH.
+
 Changes from 1.3.9 to 1.3.10:
 -----------------------------
 
