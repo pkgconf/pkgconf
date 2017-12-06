@@ -1,0 +1,31 @@
+.\" Copyright (c) 2017 pkgconf authors (see AUTHORS).
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" This software is provided 'as is' and without any warranty, express or
+.\" implied.  In no event shall the authors be liable for any damages arising
+.\" from the use of this software.
+.Dd December 5, 2017
+.Dt PKG.M4 7
+.Os
+.Sh NAME
+.Nm pkg.m4
+.Nd autoconf macros for using pkgconf
+.Sh SYNOPSIS
+.Nm PKG_PREREQ
+.Nm PKG_PROG_PKG_CONFIG
+.Nm PKG_CHECK_EXISTS
+.Nm PKG_CHECK_MODULES_STATIC
+.Nm PKG_INSTALLDIR
+.Nm PKG_NOARCH_INSTALLDIR
+.Nm PKG_CHECK_VAR
+.Nm PKG_WITH_MODULES
+.Nm PKG_HAVE_WITH_MODULES
+.Nm PKG_HAVE_DEFINE_WITH_MODULES
+.Sh DESCRIPTION
+.Nm
+is a collection of autoconf macros which help to configure compiler and linker
+flags for development libraries. This allows build systems to detect other
+dependencies and use them with the system toolchain.
