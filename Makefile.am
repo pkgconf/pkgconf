@@ -133,7 +133,8 @@ libpkgconf_la_SOURCES  =	\
 libpkgconf_la_LDFLAGS = -no-undefined -version-info 2:0:0 -export-symbols-regex '^pkgconf_'
 
 dist_man_MANS    = 		\
-	man/pkgconf.1
+	man/pkgconf.1		\
+	man/pkg.m4.7
 
 pkgconf_LDADD    = libpkgconf.la
 pkgconf_SOURCES  = main.c getopt_long.c
