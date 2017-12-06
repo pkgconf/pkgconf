@@ -91,5 +91,5 @@ configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata
 subdir('tests')
 
 
-install_man('pkgconf.1')
+install_man('man/pkgconf.1')
 install_data('pkg.m4', install_dir: 'share/aclocal')
