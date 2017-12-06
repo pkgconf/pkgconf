@@ -375,6 +375,57 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, i
 }
 
 static bool
+apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world, int maxdepth,
+	unsigned int (*collect_fn)(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth),
+	bool (*filter_fn)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data))
+{
+	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
+	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
+	unsigned int eflag;
+	char *render_buf;
+
+	eflag = collect_fn(client, world, &unfiltered_list, maxdepth);
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+		return false;
+
+	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_fn, NULL);
+
+	if (filtered_list.head == NULL)
+		goto out;
+
+	render_buf = pkgconf_fragment_render(&filtered_list, true);
+	printf("%s=%s\n", prefix, render_buf);
+	free(render_buf);
+
+out:
+	pkgconf_fragment_free(&unfiltered_list);
+	pkgconf_fragment_free(&filtered_list);
+
+	return true;
+}
+
+static bool
+apply_env(pkgconf_client_t *client, pkgconf_pkg_t *world, void *env_prefix_p, int maxdepth)
+{
+	const char *want_env_prefix = env_prefix_p, *it;
+	char workbuf[PKGCONF_ITEM_SIZE];
+
+	for (it = want_env_prefix; *it != '\0'; it++)
+		if (!isalpha(*it) && !isdigit(*it))
+			return false;
+
+	snprintf(workbuf, sizeof workbuf, "%s_CFLAGS", want_env_prefix);
+	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_cflags, filter_cflags))
+		return false;
+
+	snprintf(workbuf, sizeof workbuf, "%s_LIBS", want_env_prefix);
+	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_libs, filter_libs))
+		return false;
+
+	return true;
+}
+
+static bool
 apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
@@ -659,6 +710,7 @@ main(int argc, char *argv[])
 	char *required_max_module_version = NULL;
 	char *required_module_version = NULL;
 	char *logfile_arg = NULL;
+	char *want_env_prefix = NULL;
 	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
 
 	want_flags = 0;
@@ -725,6 +777,7 @@ main(int argc, char *argv[])
 		{ "relocate", required_argument, NULL, 45 },
 		{ "dont-define-prefix", no_argument, &want_flags, PKG_DONT_DEFINE_PREFIX },
 		{ "dont-relocate-paths", no_argument, &want_flags, PKG_DONT_RELOCATE_PATHS },
+		{ "env", required_argument, NULL, 48 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -773,6 +826,9 @@ main(int argc, char *argv[])
 		case 45:
 			relocate_path(pkg_optarg);
 			return EXIT_SUCCESS;
+		case 48:
+			want_env_prefix = pkg_optarg;
+			break;
 		case '?':
 		case ':':
 			return EXIT_FAILURE;
@@ -1106,6 +1162,17 @@ main(int argc, char *argv[])
 		ret = EXIT_FAILURE;
 		pkgconf_queue_apply(&pkg_client, &pkgq, apply_uninstalled, maximum_traverse_depth, &ret);
 		goto out;
+	}
+
+	if (want_env_prefix != NULL)
+	{
+		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_env, maximum_traverse_depth, want_env_prefix))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		want_flags = 0;
 	}
 
 	if ((want_flags & PKG_PROVIDES) == PKG_PROVIDES)
