@@ -1435,8 +1435,12 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_client_t *client,
 				pkgconf_error(client, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
 					pkgdep->version, pkgdep->realname, root->realname, parentnode->package, pkgconf_pkg_get_comparator(parentnode),
 					parentnode->version != NULL ? " " : "", parentnode->version != NULL ? parentnode->version : "");
-				pkgconf_error(client, "It may be possible to ignore this conflict and continue, try the\n");
-				pkgconf_error(client, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
+
+				if (!(client->flags & PKGCONF_PKG_PKGF_SIMPLIFY_ERRORS))
+				{
+					pkgconf_error(client, "It may be possible to ignore this conflict and continue, try the\n");
+					pkgconf_error(client, "PKG_CONFIG_IGNORE_CONFLICTS environment variable.\n");
+				}
 
 				pkgconf_pkg_unref(client, pkgdep);
 
