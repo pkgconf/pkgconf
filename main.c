@@ -394,7 +394,7 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 		goto out;
 
 	render_buf = pkgconf_fragment_render(&filtered_list, true);
-	printf("%s=%s\n", prefix, render_buf);
+	printf("%s='%s'\n", prefix, render_buf);
 	free(render_buf);
 
 out:
