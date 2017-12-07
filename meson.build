@@ -84,6 +84,7 @@ pkgconf_exe = executable('pkgconf',
 
 
 kyua_exe = find_program('kyua')
+atf_sh_exe = find_program('atf-sh')
 test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + join_paths(meson.build_root(), 'Kyuafile'), '--build-root=' + meson.build_root()])
 
 
