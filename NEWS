@@ -11,6 +11,15 @@ Changes from 1.3.7 to 1.4.0:
     usage pattern.
   - do not mention PKG_CONFIG_SKIP_CONFLICTS environmental variable when
     simplified errors are requested, as with PKG_CONFIG_PATH.
+  - the dependency solver now stores solutions to dependency graph elements
+    it visits, allowing for the dependency graph to be incrementally solved.
+    this improves dependency solving time by an order of magnitude in most
+    cases.
+  - new --env option allows for exporting cflags/libs fragments as export
+    variables
+  - new support for building pkgconf with CMake and Meson
+  - improve compiler warning flag detection
+  - removed PKGCONF_BUFSIZE allocations from the stack where possible
 
 * Bug fixes:
   - fix pkgconf_pkg_t.id generation on native Windows where either \ or / are usable
