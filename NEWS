@@ -7,10 +7,22 @@ Changes from 1.3.7 to 1.4.0:
 * Enhancements:
   - pkgconf and libpkgconf has been ported to Windows as native binaries.
   - CMake-based build system mainly intended for building on Windows.
+  - improved compatibility with freedesktop.org pkg-config's ${pc_sysrootdir}
+    usage pattern.
+  - do not mention PKG_CONFIG_SKIP_CONFLICTS environmental variable when
+    simplified errors are requested, as with PKG_CONFIG_PATH.
 
 * Bug fixes:
   - fix pkgconf_pkg_t.id generation on native Windows where either \ or / are usable
     as path separator.
+  - add missing --modversion to --help output
+  - do not evaluate module paths for modules that are not actually on disk
+  - ensure we work on a zeroed buffer prior to calling realpath(2) with it
+  - fix path deduplication edge case when cache-inodes feature is unavailable
+  - fix path rewriting regression with PKG_CONFIG_SYSROOT_DIR when
+    PKG_CONFIG_SYSROOT_DIR is set to /
+  - fix crash in edge case where a .pc file has misquoting in a fragment list.
+  - fix logic edge case when comparing relocated paths
 
 Changes from 1.3.6 to 1.3.7:
 ----------------------------
