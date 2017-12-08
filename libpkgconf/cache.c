@@ -127,7 +127,7 @@ pkgconf_cache_free(pkgconf_client_t *client)
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(client->pkg_cache.head, iter2, iter)
 	{
 		pkgconf_pkg_t *pkg = iter->data;
-		pkgconf_pkg_free(client, pkg);
+		pkgconf_pkg_unref(client, pkg);
 	}
 
 	memset(&client->pkg_cache, 0, sizeof client->pkg_cache);
