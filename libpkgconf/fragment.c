@@ -440,20 +440,8 @@ pkgconf_fragment_len(const pkgconf_fragment_t *frag, bool escape)
 	return len;
 }
 
-/*
- * !doc
- *
- * .. c:function:: size_t pkgconf_fragment_render_len(const pkgconf_list_t *list)
- *
- *    Calculates the required memory to store a `fragment list` when rendered as a string.
- *
- *    :param pkgconf_list_t* list: The `fragment list` being rendered.
- *    :param bool escape: Whether or not to escape special shell characters.
- *    :return: the amount of bytes required to represent the `fragment list` when rendered
- *    :rtype: size_t
- */
-size_t
-pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape)
+static size_t
+fragment_render_len(const pkgconf_list_t *list, bool escape)
 {
 	size_t out = 1;		/* trailing nul */
 	pkgconf_node_t *node;
@@ -467,21 +455,8 @@ pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape)
 	return out;
 }
 
-/*
- * !doc
- *
- * .. c:function:: void pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen)
- *
- *    Renders a `fragment list` into a buffer.
- *
- *    :param pkgconf_list_t* list: The `fragment list` being rendered.
- *    :param char* buf: The buffer to render the fragment list into.
- *    :param size_t buflen: The length of the buffer.
- *    :param bool escape: Whether or not to escape special shell characters.
- *    :return: nothing
- */
-void
-pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape)
+static void
+fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape)
 {
 	pkgconf_node_t *node;
 	char *bptr = buf;
@@ -520,6 +495,52 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
 	*bptr = '\0';
 }
 
+static const pkgconf_fragment_render_ops_t default_render_ops = {
+	.render_len = fragment_render_len,
+	.render_buf = fragment_render_buf
+};
+
+/*
+ * !doc
+ *
+ * .. c:function:: size_t pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops)
+ *
+ *    Calculates the required memory to store a `fragment list` when rendered as a string.
+ *
+ *    :param pkgconf_list_t* list: The `fragment list` being rendered.
+ *    :param bool escape: Whether or not to escape special shell characters.
+ *    :param pkgconf_fragment_render_ops_t* ops: An optional ops structure to use for custom renderers, else ``NULL``.
+ *    :return: the amount of bytes required to represent the `fragment list` when rendered
+ *    :rtype: size_t
+ */
+size_t
+pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops)
+{
+	ops = ops != NULL ? ops : &default_render_ops;
+	return ops->render_len(list, escape);
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape, const pkgconf_fragment_render_ops_t *ops)
+ *
+ *    Renders a `fragment list` into a buffer.
+ *
+ *    :param pkgconf_list_t* list: The `fragment list` being rendered.
+ *    :param char* buf: The buffer to render the fragment list into.
+ *    :param size_t buflen: The length of the buffer.
+ *    :param bool escape: Whether or not to escape special shell characters.
+ *    :param pkgconf_fragment_render_ops_t* ops: An optional ops structure to use for custom renderers, else ``NULL``.
+ *    :return: nothing
+ */
+void
+pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape, const pkgconf_fragment_render_ops_t *ops)
+{
+	ops = ops != NULL ? ops : &default_render_ops;
+	return ops->render_buf(list, buf, buflen, escape);
+}
+
 /*
  * !doc
  *
@@ -529,16 +550,17 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
  *
  *    :param pkgconf_list_t* list: The `fragment list` being rendered.
  *    :param bool escape: Whether or not to escape special shell characters.
+ *    :param pkgconf_fragment_render_ops_t* ops: An optional ops structure to use for custom renderers, else ``NULL``.
  *    :return: An allocated string containing the rendered `fragment list`.
  *    :rtype: char *
  */
 char *
-pkgconf_fragment_render(const pkgconf_list_t *list, bool escape)
+pkgconf_fragment_render(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops)
 {
-	size_t buflen = pkgconf_fragment_render_len(list, escape);
+	size_t buflen = pkgconf_fragment_render_len(list, escape, ops);
 	char *buf = calloc(1, buflen);
 
-	pkgconf_fragment_render_buf(list, buf, buflen, escape);
+	pkgconf_fragment_render_buf(list, buf, buflen, escape, ops);
 
 	return buf;
 }

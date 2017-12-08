@@ -65,6 +65,7 @@
 #define PKG_EXISTS			(((uint64_t) 1) << 40)
 
 static pkgconf_client_t pkg_client;
+static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
 
 static uint64_t want_flags;
 static int maximum_traverse_depth = 2000;
@@ -393,7 +394,7 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 	if (filtered_list.head == NULL)
 		goto out;
 
-	render_buf = pkgconf_fragment_render(&filtered_list, true);
+	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops);
 	printf("%s='%s'\n", prefix, render_buf);
 	free(render_buf);
 
@@ -443,7 +444,7 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 	if (filtered_list.head == NULL)
 		goto out;
 
-	render_buf = pkgconf_fragment_render(&filtered_list, true);
+	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops);
 	printf("%s", render_buf);
 	free(render_buf);
 
@@ -472,7 +473,7 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	if (filtered_list.head == NULL)
 		goto out;
 
-	render_buf = pkgconf_fragment_render(&filtered_list, true);
+	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops);
 	printf("%s", render_buf);
 	free(render_buf);
 
