@@ -98,7 +98,7 @@ ADD_SUBDIRECTORY(libpkgconf)
 #-------- Build and install executable --------
 
 INCLUDE_DIRECTORIES(${libpkgconf_BINARY_DIR})
-ADD_EXECUTABLE(pkgconf main.c getopt_long.c)
+ADD_EXECUTABLE(pkgconf main.c getopt_long.c renderer-msvc.c)
 TARGET_LINK_LIBRARIES(pkgconf libpkgconf)
 INSTALL(TARGETS pkgconf DESTINATION bin)
 

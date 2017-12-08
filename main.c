@@ -18,6 +18,7 @@
 #include <libpkgconf/libpkgconf.h>
 #include "libpkgconf/config.h"
 #include "getopt_long.h"
+#include "renderer-msvc.h"
 #ifdef _WIN32
 #include <io.h>     /* for _setmode() */
 #include <fcntl.h>
@@ -63,6 +64,7 @@
 #define PKG_DEBUG			(((uint64_t) 1) << 38)
 #define PKG_SHORT_ERRORS		(((uint64_t) 1) << 39)
 #define PKG_EXISTS			(((uint64_t) 1) << 40)
+#define PKG_MSVC_SYNTAX			(((uint64_t) 1) << 41)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -683,6 +685,7 @@ usage(void)
 	printf("  --keep-system-libs                keep -L%s entries in libs output\n", SYSTEM_LIBDIR);
 	printf("  --path                            show the exact filenames for any matching .pc files\n");
 	printf("  --modversion                      print the specified module's version to stdout\n");
+	printf("  --msvc-syntax                     print translatable fragments in MSVC syntax\n");
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
@@ -779,6 +782,7 @@ main(int argc, char *argv[])
 		{ "dont-define-prefix", no_argument, &want_flags, PKG_DONT_DEFINE_PREFIX },
 		{ "dont-relocate-paths", no_argument, &want_flags, PKG_DONT_RELOCATE_PATHS },
 		{ "env", required_argument, NULL, 48 },
+		{ "msvc-syntax", no_argument, &want_flags, PKG_MSVC_SYNTAX },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -838,6 +842,9 @@ main(int argc, char *argv[])
 			break;
 		}
 	}
+
+	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX)
+		want_render_ops = msvc_renderer_get();
 
 	if ((env_traverse_depth = getenv("PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH")) != NULL)
 		maximum_traverse_depth = atoi(env_traverse_depth);

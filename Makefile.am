@@ -137,7 +137,7 @@ dist_man_MANS    = 		\
 	man/pkg.m4.7
 
 pkgconf_LDADD    = libpkgconf.la
-pkgconf_SOURCES  = main.c getopt_long.c
+pkgconf_SOURCES  = main.c getopt_long.c renderer-msvc.c
 pkgconf_CPPFLAGS = -Ilibpkgconf
 noinst_HEADERS   = getopt_long.h
 
