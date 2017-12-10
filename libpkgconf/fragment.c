@@ -173,6 +173,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 
 				free(parent->data);
 				parent->data = newdata;
+				parent->merged = true;
 
 				/* use a copy operation to force a dedup */
 				pkgconf_node_delete(&parent->iter, list);

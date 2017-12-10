@@ -78,6 +78,8 @@ struct pkgconf_fragment_ {
 
 	char type;
 	char *data;
+
+	bool merged;
 };
 
 struct pkgconf_dependency_ {
