@@ -23,9 +23,7 @@ tests_init \
 	fragment_quoting \
 	fragment_quoting_2 \
 	fragment_quoting_3 \
-	fragment_quoting_4 \
 	fragment_quoting_5 \
-	fragment_quoting_6 \
 	fragment_quoting_7
 
 comments_body()
@@ -125,7 +123,7 @@ quoted_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-DQUOTED=\\\"bla\\\" \n" \
+		-o inline:"'-DQUOTED=\"bla\"' \n" \
 		pkgconf --cflags quotes
 }
 
@@ -173,7 +171,7 @@ fragment_quoting_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\"/test/share/doc\\\" \n" \
+		-o inline:"-fPIC -I/test/include/foo '-DQUOTED=\"/test/share/doc\"' \n" \
 		pkgconf --cflags fragment-quoting
 }
 
@@ -189,16 +187,8 @@ fragment_quoting_3_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\"/test/share/doc\\\" \n" \
+		-o inline:"-fPIC -I/test/include/foo '-DQUOTED=\"/test/share/doc\"' \n" \
 		pkgconf --cflags fragment-quoting-3
-}
-
-fragment_quoting_4_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\'/test/share/doc\\\' \n" \
-		pkgconf --cflags fragment-quoting-4
 }
 
 fragment_quoting_5_body()
@@ -207,14 +197,6 @@ fragment_quoting_5_body()
 	atf_check \
 		-o inline:"-fPIC -I/test/include/foo -DQUOTED=/test/share/doc \n" \
 		pkgconf --cflags fragment-quoting-5
-}
-
-fragment_quoting_6_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\'/test/share/doc\\\' \n" \
-		pkgconf --cflags fragment-quoting-6
 }
 
 fragment_quoting_7_body()
