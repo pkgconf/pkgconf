@@ -158,6 +158,8 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 
 	pkgconf_tuple_find_delete(list, key);
 
+	PKGCONF_TRACE(client, "adding tuple to @%p: %s => %s (parsed? %d)", list, key, value, parse);
+
 	tuple->key = strdup(key);
 	if (parse)
 		tuple->value = pkgconf_tuple_parse(client, list, value);
