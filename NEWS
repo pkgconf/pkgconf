@@ -17,10 +17,11 @@ Changes from 1.3.7 to 1.4.0:
   - new --env option allows for exporting cflags/libs fragments as export
     variables
   - new support for building pkgconf with CMake and Meson
-  - improve compiler warning flag detection
+  - improved compiler warning flag detection on autoconf and CMake
   - removed PKGCONF_BUFSIZE allocations from the stack where possible
   - allow for customizing the way fragment lists are rendered using a callback API
   - new support for --msvc-syntax output using the new fragment rendering callbacks
+  - fragments are now quoted according to POSIX literal rules
 
 * Bug fixes:
   - fix pkgconf_pkg_t.id generation on native Windows where either \ or / are usable
