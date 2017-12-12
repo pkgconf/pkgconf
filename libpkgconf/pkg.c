@@ -181,7 +181,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"LIBS.private", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs_private)},
 	{"Name", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, realname)},
 	{"Provides", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, provides)},
-	{"Requires", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, requires)},
+	{"Requires", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, required)},
 	{"Requires.private", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
 	{"Version", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, version)},
 };
@@ -423,7 +423,7 @@ pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 
 	pkgconf_cache_remove(client, pkg);
 
-	pkgconf_dependency_free(&pkg->requires);
+	pkgconf_dependency_free(&pkg->required);
 	pkgconf_dependency_free(&pkg->requires_private);
 	pkgconf_dependency_free(&pkg->conflicts);
 	pkgconf_dependency_free(&pkg->provides);
@@ -1421,7 +1421,7 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_client_t *client,
 		if (*parentnode->package == '\0')
 			continue;
 
-		PKGCONF_FOREACH_LIST_ENTRY(root->requires.head, childnode)
+		PKGCONF_FOREACH_LIST_ENTRY(root->required.head, childnode)
 		{
 			pkgconf_pkg_t *pkgdep;
 			pkgconf_dependency_t *depnode = childnode->data;
@@ -1497,7 +1497,7 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 	}
 
 	PKGCONF_TRACE(client, "%s: walking requires list", root->id);
-	eflags = pkgconf_pkg_walk_list(client, root, &root->requires, func, data, maxdepth);
+	eflags = pkgconf_pkg_walk_list(client, root, &root->required, func, data, maxdepth);
 	if (eflags != PKGCONF_PKG_ERRF_OK)
 		return eflags;
 

@@ -169,7 +169,7 @@ print_requires(pkgconf_pkg_t *pkg)
 {
 	pkgconf_node_t *node;
 
-	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
 
@@ -226,7 +226,7 @@ apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int
 	(void) unused;
 	(void) maxdepth;
 
-	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
 		pkgconf_pkg_t *pkg = dep->match;
@@ -246,7 +246,7 @@ print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 
 	printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
 
-	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
 
@@ -280,7 +280,7 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, i
 	(void) unused;
 	(void) maxdepth;
 
-	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
 		pkgconf_pkg_t *pkg = dep->match;
@@ -300,7 +300,7 @@ apply_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, in
 	(void) unused;
 	(void) maxdepth;
 
-	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
 		pkgconf_pkg_t *pkg = dep->match;
@@ -319,7 +319,7 @@ apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	(void) unused;
 	(void) maxdepth;
 
-	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
 		pkgconf_pkg_t *pkg = dep->match;
@@ -348,7 +348,7 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, i
 	pkgconf_node_t *iter;
 	(void) maxdepth;
 
-	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
 		pkgconf_pkg_t *pkg = dep->match;
@@ -481,7 +481,7 @@ apply_requires(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int
 	(void) unused;
 	(void) maxdepth;
 
-	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
 		pkgconf_pkg_t *pkg = dep->match;
@@ -500,7 +500,7 @@ apply_requires_private(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unu
 	(void) unused;
 	(void) maxdepth;
 
-	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
 		pkgconf_pkg_t *pkg = dep->match;
@@ -546,7 +546,7 @@ print_graph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 	if (pkg->version != NULL)
 		printf("    version = '%s';\n", pkg->version);
 
-	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, n)
 	{
 		pkgconf_dependency_t *dep = n->data;
 		printf("    dependency '%s'", dep->package);
