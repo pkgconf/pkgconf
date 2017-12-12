@@ -203,7 +203,7 @@ fragment_quoting_7_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-Dhello=10 -Dworld=+32 -DDEFINED_FROM_PKG_CONFIG=hello\\ world \n" \
+		-o inline:"-Dhello=10 -Dworld=+32 '-DDEFINED_FROM_PKG_CONFIG=hello world' \n" \
 		pkgconf --cflags fragment-quoting-7
 }
 

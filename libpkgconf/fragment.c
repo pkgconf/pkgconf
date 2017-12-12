@@ -351,7 +351,9 @@ pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, cons
 	frag = calloc(sizeof(pkgconf_fragment_t), 1);
 
 	frag->type = base->type;
-	frag->data = strdup(base->data);
+	frag->merged = base->merged;
+	if (base->data != NULL)
+		frag->data = strdup(base->data);
 
 	pkgconf_node_insert_tail(&frag->iter, frag, list);
 }
@@ -384,17 +386,18 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	}
 }
 
-static inline char *
-fragment_escape(const char *src)
+static inline bool
+fragment_should_quote(const pkgconf_fragment_t *frag)
 {
-	ssize_t outlen = strlen(src) + 10;
-	char *out = calloc(outlen, 1);
-	char *dst = out;
+	const char *src;
 
-	while (*src)
+	if (frag->data == NULL)
+		return false;
+
+	for (src = frag->data; *src; src++)
 	{
 		if (((*src < ' ') ||
-		    (*src > ' ' && *src < '$') ||
+		    (*src >= (' ' + (frag->merged ? 1 : 0)) && *src < '$') ||
 		    (*src > '$' && *src < '(') ||
 		    (*src > ')' && *src < '+') ||
 		    (*src > ':' && *src < '=') ||
@@ -403,23 +406,14 @@ fragment_escape(const char *src)
 		    (*src == '`') ||
 		    (*src > 'z' && *src < '~') ||
 		    (*src > '~')) && *src != '\\')
-			*dst++ = '\\';
-
-		*dst++ = *src++;
-
-		if ((ptrdiff_t)(dst - out) + 2 > outlen)
-		{
-			outlen *= 2;
-			out = realloc(out, outlen);
-		}
+			return true;
 	}
 
-	*dst = 0;
-	return out;
+	return false;
 }
 
 static inline size_t
-pkgconf_fragment_len(const pkgconf_fragment_t *frag, bool escape)
+pkgconf_fragment_len(const pkgconf_fragment_t *frag)
 {
 	size_t len = 1;
 
@@ -428,14 +422,10 @@ pkgconf_fragment_len(const pkgconf_fragment_t *frag, bool escape)
 
 	if (frag->data != NULL)
 	{
-		if (!escape)
-			len += strlen(frag->data);
-		else
-		{
-			char *tmp = fragment_escape(frag->data);
-			len += strlen(tmp);
-			free(tmp);
-		}
+		len += strlen(frag->data);
+
+		if (fragment_should_quote(frag))
+			len += 2;
 	}
 
 	return len;
@@ -444,13 +434,15 @@ pkgconf_fragment_len(const pkgconf_fragment_t *frag, bool escape)
 static size_t
 fragment_render_len(const pkgconf_list_t *list, bool escape)
 {
+	(void) escape;
+
 	size_t out = 1;		/* trailing nul */
 	pkgconf_node_t *node;
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		const pkgconf_fragment_t *frag = node->data;
-		out += pkgconf_fragment_len(frag, escape);
+		out += pkgconf_fragment_len(frag);
 	}
 
 	return out;
@@ -459,6 +451,8 @@ fragment_render_len(const pkgconf_list_t *list, bool escape)
 static void
 fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape)
 {
+	(void) escape;
+
 	pkgconf_node_t *node;
 	char *bptr = buf;
 
@@ -468,9 +462,13 @@ fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool e
 	{
 		const pkgconf_fragment_t *frag = node->data;
 		size_t buf_remaining = buflen - (bptr - buf);
+		bool should_quote = fragment_should_quote(frag);
 
-		if (pkgconf_fragment_len(frag, escape) > buf_remaining)
+		if (pkgconf_fragment_len(frag) > buf_remaining)
 			break;
+
+		if (should_quote)
+			*bptr++ = '\'';
 
 		if (frag->type)
 		{
@@ -479,16 +477,10 @@ fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool e
 		}
 
 		if (frag->data)
-		{
-			if (!escape)
-				bptr += pkgconf_strlcpy(bptr, frag->data, buf_remaining);
-			else
-			{
-				char *tmp = fragment_escape(frag->data);
-				bptr += pkgconf_strlcpy(bptr, tmp, buf_remaining);
-				free(tmp);
-			}
-		}
+			bptr += pkgconf_strlcpy(bptr, frag->data, buf_remaining);
+
+		if (should_quote)
+			*bptr++ = '\'';
 
 		*bptr++ = ' ';
 	}
