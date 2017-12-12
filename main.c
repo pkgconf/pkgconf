@@ -222,18 +222,16 @@ static bool
 apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
+	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
-		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
+		pkgconf_pkg_t *pkg = dep->match;
 
-		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
 		print_provides(pkg);
-
-		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 
 	return true;
@@ -278,19 +276,17 @@ static bool
 apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
+	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
-		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
+		pkgconf_pkg_t *pkg = dep->match;
 
-		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
 		if (pkg->version != NULL)
 			printf("%s\n", pkg->version);
-
-		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 
 	return true;
@@ -300,18 +296,16 @@ static bool
 apply_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
+	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
-		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
+		pkgconf_pkg_t *pkg = dep->match;
 
-		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
 		print_variables(pkg);
-
-		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 
 	return true;
@@ -321,21 +315,18 @@ static bool
 apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
+	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
-		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
-
-		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
+		pkgconf_pkg_t *pkg = dep->match;
 
 		/* a module entry with no filename is either virtual, static (builtin) or synthesized. */
 		if (pkg->filename != NULL)
 			printf("%s\n", pkg->filename);
-
-		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 
 	return true;
@@ -359,17 +350,13 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, i
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
-		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
-
-		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
+		pkgconf_pkg_t *pkg = dep->match;
 
 		if (iter->prev != NULL)
 			printf(" ");
 
 		print_variable(client, pkg, variable);
-
-		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 
 	printf("\n");
@@ -490,18 +477,16 @@ static bool
 apply_requires(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
+	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
-		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
+		pkgconf_pkg_t *pkg = dep->match;
 
-		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
 		print_requires(pkg);
-
-		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 
 	return true;
@@ -511,18 +496,16 @@ static bool
 apply_requires_private(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
+	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->requires.head, iter)
 	{
-		pkgconf_pkg_t *pkg;
 		pkgconf_dependency_t *dep = iter->data;
+		pkgconf_pkg_t *pkg = dep->match;
 
-		pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
 		print_requires_private(pkg);
-
-		pkgconf_pkg_free(&pkg_client, pkg);
 	}
 	return true;
 }
