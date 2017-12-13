@@ -535,7 +535,7 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
 	(void) escape;
 
 	ops = ops != NULL ? ops : &default_render_ops;
-	return ops->render_buf(list, buf, buflen, true);
+	ops->render_buf(list, buf, buflen, true);
 }
 
 /*
