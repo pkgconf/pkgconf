@@ -405,7 +405,7 @@ fragment_should_quote(const pkgconf_fragment_t *frag)
 		    (*src > 'Z' && *src < '^') ||
 		    (*src == '`') ||
 		    (*src > 'z' && *src < '~') ||
-		    (*src > '~')) && *src != '\\')
+		    (*src > '~')))
 			return true;
 	}
 

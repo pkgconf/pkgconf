@@ -118,7 +118,7 @@ escaped_backslash_body()
 {
 	atf_check \
 		-e ignore \
-		-o inline:"-IC:\\\\\\\\A \n" \
+		-o inline:"'-IC:\\A' \n" \
 		pkgconf --with-path=${selfdir}/lib1 --cflags escaped-backslash
 }
 

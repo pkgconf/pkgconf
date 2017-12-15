@@ -88,12 +88,7 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 				*dst_iter++ = *src_iter;
 			}
 			else
-			{
-				if (*src_iter == '\\')
-					*dst_iter++ = '\\';
-
 				*dst_iter++ = *src_iter;
-			}
 
 			escaped = false;
 		}
@@ -101,7 +96,7 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 		{
 			if (*src_iter == quote)
 				quote = 0;
-			else if (*src_iter == '\\')
+			else if (*src_iter == '\\' && quote != '\'')
 				escaped = true;
 			else
 				*dst_iter++ = *src_iter;
