@@ -135,7 +135,8 @@ libpkgconf_la_LDFLAGS = -no-undefined -version-info 2:0:0 -export-symbols-regex 
 
 dist_man_MANS    = 		\
 	man/pkgconf.1		\
-	man/pkg.m4.7
+	man/pkg.m4.7		\
+	man/pc.5
 
 pkgconf_LDADD    = libpkgconf.la
 pkgconf_SOURCES  = main.c getopt_long.c renderer-msvc.c
