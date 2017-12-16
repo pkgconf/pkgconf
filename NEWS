@@ -26,6 +26,9 @@ Changes from 1.3.7 to 1.4.0:
   - allow for customizing the way fragment lists are rendered using a callback API
   - new support for --msvc-syntax output using the new fragment rendering callbacks
   - fragments are now quoted according to POSIX literal rules
+  - new manpages:
+    - pc(5) describing pkgconf's interpretation of pkg-config .pc files
+    - pkg.m4(7) describing the autotools macros bundled with pkgconf
 
 * Bug fixes:
   - fix pkgconf_pkg_t.id generation on native Windows where either \ or / are usable
