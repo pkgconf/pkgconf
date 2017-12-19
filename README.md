@@ -110,7 +110,7 @@ If you want pkgconf to be used when you invoke `pkg-config`, you should install 
 symlink for this.  We do not do this for you, as we believe it is better for vendors
 to make this determination themselves.
 
-    $ ln -sf /usr/bin/pkgconf /usr/bin/pkg-config
+    $ ln -sf pkgconf /usr/bin/pkg-config
 
 ## release tarballs
 
