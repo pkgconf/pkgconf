@@ -884,15 +884,24 @@ static pkgconf_pkg_t pkg_config_virtual = {
 	.flags = PKGCONF_PKG_PROPF_STATIC,
 	.vars = {
 		.head = &(pkgconf_node_t){
-			.prev = NULL,
-			.next = NULL,
+			.next = &(pkgconf_node_t){
+				.next = &(pkgconf_node_t){
+					.data = &(pkgconf_tuple_t){
+						.key = "pc_system_libdirs",
+						.value = SYSTEM_LIBDIR,
+					}
+				},
+				.data = &(pkgconf_tuple_t){
+					.key = "pc_system_includedirs",
+					.value = SYSTEM_INCLUDEDIR,
+				}
+			},
 			.data = &(pkgconf_tuple_t){
 				.key = "pc_path",
 				.value = PKG_DEFAULT_PATH,
 			},
-		},
-		.tail = NULL,
-	},
+		}
+	}
 };
 
 static pkgconf_pkg_t pkgconf_virtual = {
@@ -904,14 +913,23 @@ static pkgconf_pkg_t pkgconf_virtual = {
 	.flags = PKGCONF_PKG_PROPF_STATIC,
 	.vars = {
 		.head = &(pkgconf_node_t){
-			.prev = NULL,
-			.next = NULL,
+			.next = &(pkgconf_node_t){
+				.next = &(pkgconf_node_t){
+					.data = &(pkgconf_tuple_t){
+						.key = "pc_system_libdirs",
+						.value = SYSTEM_LIBDIR,
+					}
+				},
+				.data = &(pkgconf_tuple_t){
+					.key = "pc_system_includedirs",
+					.value = SYSTEM_INCLUDEDIR,
+				}
+			},
 			.data = &(pkgconf_tuple_t){
 				.key = "pc_path",
 				.value = PKG_DEFAULT_PATH,
 			},
-		},
-		.tail = NULL,
+		}
 	},
 };
 
