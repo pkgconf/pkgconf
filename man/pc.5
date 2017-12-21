@@ -31,9 +31,9 @@ is an implementation.
 .Ss FILE SYNTAX
 The
 .Nm .pc
-file follows a format inspired by RFC822.  Comments are prefixed by an octothorpe
-(#), and variable assignment is similar to POSIX shell.  Properties are defined
-using RFC822-style stanzas.
+file follows a format inspired by RFC822.  Comments are prefixed by a pound sign,
+hash sign or octothorpe (#), and variable assignment is similar to POSIX shell.
+Properties are defined using RFC822-style stanzas.
 .\"
 .Ss VARIABLES
 .\"
@@ -54,7 +54,7 @@ There are three types of property:
 .Bl -tag
 .\"
 .It Literal
-the property will be set to the text of the value.
+The property will be set to the text of the value.
 .\"
 .It Dependency List
 The property will be set to a list of dependencies parsed from the
@@ -118,6 +118,15 @@ Dependencies that may be provided by an alternate package.  If a package cannot 
 found, the entire package collection is scanned for providers which can match the
 requested dependency.  (optional; dependency list; pkgconf extension)
 .El
+.Ss EXTENSIONS
+Features that have been marked as a pkgconf extension are only guaranteed to work
+with the pkgconf implementation of pkg-config.  Other implementations may or may
+not support the extensions.
+.Pp
+Accordingly, it is suggested that
+.Nm .pc
+files which absolutely depend on these extensions declare a requirement on the
+pkgconf virtual.
 .Sh EXAMPLES
 An example .pc file:
 .Bd -literal
