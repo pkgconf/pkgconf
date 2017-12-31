@@ -2,7 +2,7 @@
  * main.c
  * main() routine, printer functions
  *
- * Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016, 2017
+ * Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
  *     pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -587,7 +587,7 @@ static void
 about(void)
 {
 	printf("%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	printf("Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016, 2017\n");
+	printf("Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018\n");
 	printf("    pkgconf authors (see AUTHORS in documentation directory).\n\n");
 	printf("Permission to use, copy, modify, and/or distribute this software for any\n");
 	printf("purpose with or without fee is hereby granted, provided that the above\n");
