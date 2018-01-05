@@ -19,17 +19,18 @@
 #include <libpkgconf/libpkgconf.h>
 #include "renderer-msvc.h"
 
-static inline char *
-fragment_escape(const char *src)
+static inline bool
+fragment_should_quote(const pkgconf_fragment_t *frag)
 {
-	ssize_t outlen = strlen(src) + 10;
-	char *out = calloc(outlen, 1);
-	char *dst = out;
+	const char *src;
 
-	while (*src)
+	if (frag->data == NULL)
+		return false;
+
+	for (src = frag->data; *src; src++)
 	{
 		if (((*src < ' ') ||
-		    (*src > ' ' && *src < '$') ||
+		    (*src >= (' ' + (frag->merged ? 1 : 0)) && *src < '$') ||
 		    (*src > '$' && *src < '(') ||
 		    (*src > ')' && *src < '+') ||
 		    (*src > ':' && *src < '=') ||
@@ -37,34 +38,27 @@ fragment_escape(const char *src)
 		    (*src > 'Z' && *src < '^') ||
 		    (*src == '`') ||
 		    (*src > 'z' && *src < '~') ||
-		    (*src > '~')) && *src != '\\')
-			*dst++ = '\\';
-
-		*dst++ = *src++;
-
-		if ((ptrdiff_t)(dst - out) + 2 > outlen)
-		{
-			outlen *= 2;
-			out = realloc(out, outlen);
-		}
+		    (*src > '~')))
+			return true;
 	}
 
-	*dst = 0;
-	return out;
+	return false;
 }
 
 static inline size_t
-fragment_len(const pkgconf_fragment_t *frag, bool escape)
+fragment_len(const pkgconf_fragment_t *frag)
 {
 	size_t len = 1;
 
-	if (!escape)
-		len += strlen(frag->data);
-	else
+	if (frag->type)
+		len += 2;
+
+	if (frag->data != NULL)
 	{
-		char *tmp = fragment_escape(frag->data);
-		len += strlen(tmp);
-		free(tmp);
+		len += strlen(frag->data);
+
+		if (fragment_should_quote(frag))
+			len += 2;
 	}
 
 	return len;
@@ -79,6 +73,8 @@ allowed_fragment(const pkgconf_fragment_t *frag)
 static size_t
 msvc_renderer_render_len(const pkgconf_list_t *list, bool escape)
 {
+	(void) escape;
+
 	size_t out = 1;		/* trailing nul */
 	pkgconf_node_t *node;
 
@@ -101,7 +97,7 @@ msvc_renderer_render_len(const pkgconf_list_t *list, bool escape)
 				break;
 		}
 
-		out += fragment_len(frag, escape);
+		out += fragment_len(frag);
 	}
 
 	return out;
@@ -119,11 +115,12 @@ msvc_renderer_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, b
 	{
 		const pkgconf_fragment_t *frag = node->data;
 		size_t buf_remaining = buflen - (bptr - buf);
+		size_t cnt;
 
 		if (!allowed_fragment(frag))
 			continue;
 
-		if (fragment_len(frag, escape) > buf_remaining)
+		if (fragment_len(frag) > buf_remaining)
 			break;
 
 		if (frag->type == 'L')
@@ -133,21 +130,14 @@ msvc_renderer_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, b
 			buf_remaining -= cnt;
 		}
 
-		if (!escape)
-		{
-			size_t cnt = pkgconf_strlcpy(bptr, frag->data, buf_remaining);
-			bptr += cnt;
-			buf_remaining -= cnt;
-		}
-		else
-		{
-			char *tmp = fragment_escape(frag->data);
-			size_t cnt = pkgconf_strlcpy(bptr, tmp, buf_remaining);
-			free(tmp);
+		escape = fragment_should_quote(frag);
 
-			bptr += cnt;
-			buf_remaining -= cnt;
-		}
+		if (escape)
+			*bptr++ = '"';
+
+		cnt = pkgconf_strlcpy(bptr, frag->data, buf_remaining);
+		bptr += cnt;
+		buf_remaining -= cnt;
 
 		if (frag->type == 'l')
 		{
@@ -155,6 +145,9 @@ msvc_renderer_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, b
 			bptr += cnt;
 			buf_remaining -= cnt;
 		}
+
+		if (escape)
+			*bptr++ = '"';
 
 		*bptr++ = ' ';
 	}
