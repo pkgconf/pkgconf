@@ -13,8 +13,8 @@ PROJECT(pkgconf C)
 SET(PACKAGE_BUGREPORT http://github.com/pkgconf/pkgconf/issues)
 SET(PACKAGE_NAME pkgconf)
 SET(PACKAGE_VERSION 1.3.7)
-SET(LIBPKGCONF_VERSION "2.0.0")
-SET(LIBPKGCONF_SOVERSION 2)
+SET(LIBPKGCONF_VERSION "3.0.0")
+SET(LIBPKGCONF_SOVERSION 3)
 
 #-------- GNU directory variables ---------
 

@@ -131,7 +131,7 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/dependency.c		\
 		libpkgconf/queue.c		\
 		libpkgconf/path.c
-libpkgconf_la_LDFLAGS = -no-undefined -version-info 2:0:0 -export-symbols-regex '^pkgconf_'
+libpkgconf_la_LDFLAGS = -no-undefined -version-info 3:0:0 -export-symbols-regex '^pkgconf_'
 
 dist_man_MANS    = 		\
 	man/pkgconf.1		\

@@ -71,8 +71,8 @@ libpkgconf = shared_library('pkgconf',
   'libpkgconf/queue.c',
   'libpkgconf/tuple.c',
   install : true,
-  version : '2.0.0',
-  soversion : '2',
+  version : '3.0.0',
+  soversion : '3',
 )
 
 
