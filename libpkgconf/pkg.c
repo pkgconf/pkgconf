@@ -900,7 +900,8 @@ static pkgconf_pkg_t pkg_config_virtual = {
 				.key = "pc_path",
 				.value = PKG_DEFAULT_PATH,
 			},
-		}
+		},
+		.tail = NULL,
 	}
 };
 
@@ -929,7 +930,8 @@ static pkgconf_pkg_t pkgconf_virtual = {
 				.key = "pc_path",
 				.value = PKG_DEFAULT_PATH,
 			},
-		}
+		},
+		.tail = NULL,
 	},
 };
 
