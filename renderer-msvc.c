@@ -67,7 +67,7 @@ fragment_len(const pkgconf_fragment_t *frag)
 static inline bool
 allowed_fragment(const pkgconf_fragment_t *frag)
 {
-	return !(!frag->type || frag->data == NULL || strchr("Ll", frag->type) == NULL);
+	return !(!frag->type || frag->data == NULL || strchr("DILl", frag->type) == NULL);
 }
 
 static size_t
@@ -123,11 +123,17 @@ msvc_renderer_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, b
 		if (fragment_len(frag) > buf_remaining)
 			break;
 
-		if (frag->type == 'L')
-		{
-			size_t cnt = pkgconf_strlcpy(bptr, "/libpath:", buf_remaining);
+		switch(frag->type) {
+		case 'D':
+		case 'I':
+			*bptr++ = '/';
+			*bptr++ = frag->type;
+			break;
+		case 'L':
+			cnt = pkgconf_strlcpy(bptr, "/libpath:", buf_remaining);
 			bptr += cnt;
 			buf_remaining -= cnt;
+			break;
 		}
 
 		escape = fragment_should_quote(frag);
@@ -141,7 +147,7 @@ msvc_renderer_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, b
 
 		if (frag->type == 'l')
 		{
-			size_t cnt = pkgconf_strlcpy(bptr, ".lib", buf_remaining);
+			cnt = pkgconf_strlcpy(bptr, ".lib", buf_remaining);
 			bptr += cnt;
 			buf_remaining -= cnt;
 		}
