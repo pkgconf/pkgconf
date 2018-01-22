@@ -120,7 +120,7 @@ escaped_backslash_body()
 {
 	atf_check \
 		-e ignore \
-		-o inline:"'-IC:\\A' \n" \
+		-o inline:"-IC:\\\\\\\\A \n" \
 		pkgconf --with-path=${selfdir}/lib1 --cflags escaped-backslash
 }
 
@@ -128,7 +128,7 @@ quoted_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"'-DQUOTED=\"bla\"' \n" \
+		-o inline:"-DQUOTED=\\\"bla\\\" \n" \
 		pkgconf --cflags quotes
 }
 
@@ -176,7 +176,7 @@ fragment_quoting_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo '-DQUOTED=\"/test/share/doc\"' \n" \
+		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\"/test/share/doc\\\" \n" \
 		pkgconf --cflags fragment-quoting
 }
 
@@ -192,7 +192,7 @@ fragment_quoting_3_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo '-DQUOTED=\"/test/share/doc\"' \n" \
+		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\"/test/share/doc\\\" \n" \
 		pkgconf --cflags fragment-quoting-3
 }
 
@@ -208,28 +208,28 @@ fragment_quoting_7_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-Dhello=10 -Dworld=+32 '-DDEFINED_FROM_PKG_CONFIG=hello world' \n" \
+		-o inline:"-Dhello=10 -Dworld=+32 -DDEFINED_FROM_PKG_CONFIG=hello\\ world \n" \
 		pkgconf --cflags fragment-quoting-7
 }
 
 fragment_escaping_1_body()
 {
 	atf_check \
-		-o inline:"'-IC:\D E' \n" \
+		-o inline:"-IC:\\\\\\\\D\\ E \n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-escaping-1
 }
 
 fragment_escaping_2_body()
 {
 	atf_check \
-		-o inline:"'-IC:\D E' \n" \
+		-o inline:"-IC:\\\\\\\\D\\ E \n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-escaping-2
 }
 
 fragment_escaping_3_body()
 {
 	atf_check \
-		-o inline:"'-IC:\D E' \n" \
+		-o inline:"-IC:\\\\\\\\D\\ E \n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-escaping-3
 }
 
