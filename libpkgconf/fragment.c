@@ -386,15 +386,19 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	}
 }
 
-static inline bool
-fragment_should_quote(const pkgconf_fragment_t *frag)
+static inline char *
+fragment_quote(const pkgconf_fragment_t *frag)
 {
-	const char *src;
+	const char *src = frag->data;
+	ssize_t outlen = strlen(src) + 10;
+	char *out, *dst;
 
 	if (frag->data == NULL)
-		return false;
+		return NULL;
 
-	for (src = frag->data; *src; src++)
+	out = dst = calloc(outlen, 1);
+
+	for (; *src; src++)
 	{
 		if (((*src < ' ') ||
 		    (*src >= (' ' + (frag->merged ? 1 : 0)) && *src < '$') ||
@@ -406,10 +410,19 @@ fragment_should_quote(const pkgconf_fragment_t *frag)
 		    (*src == '`') ||
 		    (*src > 'z' && *src < '~') ||
 		    (*src > '~')))
-			return true;
+			*dst++ = '\\';
+
+		*dst++ = *src;
+
+		if ((ptrdiff_t)(dst - out) + 2 > outlen)
+		{
+			outlen *= 2;
+			out = realloc(out, outlen);
+		}
 	}
 
-	return false;
+	*dst = 0;
+	return out;
 }
 
 static inline size_t
@@ -422,10 +435,9 @@ pkgconf_fragment_len(const pkgconf_fragment_t *frag)
 
 	if (frag->data != NULL)
 	{
-		len += strlen(frag->data);
-
-		if (fragment_should_quote(frag))
-			len += 2;
+		char *quoted = fragment_quote(frag);
+		len += strlen(quoted);
+		free(quoted);
 	}
 
 	return len;
@@ -462,13 +474,13 @@ fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool e
 	{
 		const pkgconf_fragment_t *frag = node->data;
 		size_t buf_remaining = buflen - (bptr - buf);
-		bool should_quote = fragment_should_quote(frag);
+		char *quoted = fragment_quote(frag);
 
-		if (pkgconf_fragment_len(frag) > buf_remaining)
+		if (strlen(quoted) > buf_remaining)
+		{
+			free(quoted);
 			break;
-
-		if (should_quote)
-			*bptr++ = '\'';
+		}
 
 		if (frag->type)
 		{
@@ -476,11 +488,11 @@ fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool e
 			*bptr++ = frag->type;
 		}
 
-		if (frag->data)
-			bptr += pkgconf_strlcpy(bptr, frag->data, buf_remaining);
-
-		if (should_quote)
-			*bptr++ = '\'';
+		if (quoted != NULL)
+		{
+			bptr += pkgconf_strlcpy(bptr, quoted, buf_remaining);
+			free(quoted);
+		}
 
 		*bptr++ = ' ';
 	}
