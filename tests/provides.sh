@@ -9,7 +9,8 @@ tests_init \
 	baz \
 	quux \
 	moo \
-	meow
+	meow \
+	indirect_dependency_node
 
 simple_body()
 {
@@ -295,4 +296,15 @@ meow_body()
 	atf_check \
 		-o ignore \
 		pkgconf --libs 'provides-test-meow < 1.2.9'
+}
+
+indirect_dependency_node_body()
+{
+	atf_check \
+		-o inline:'1.2.3\n' \
+		pkgconf --with-path="${selfdir}/lib1" --modversion 'provides-test-meow'
+	atf_check \
+		-s exit:1 \
+		-e ignore \
+		pkgconf --with-path="${selfdir}/lib1" --modversion 'provides-test-meow = 1.3.0'
 }
