@@ -1261,7 +1261,10 @@ pkgconf_pkg_scan_providers(pkgconf_client_t *client, pkgconf_dependency_t *pkgde
 
 	pkg = pkgconf_scan_all(client, &ctx, (pkgconf_pkg_iteration_func_t) pkgconf_pkg_scan_provides_entry);
 	if (pkg != NULL)
+	{
+		pkgdep->match = pkgconf_pkg_ref(client, pkg);
 		return pkg;
+	}
 
 	if (eflags != NULL)
 		*eflags |= PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND;
