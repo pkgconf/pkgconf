@@ -139,9 +139,14 @@ dist_man_MANS    = 		\
 	man/pc.5
 
 pkgconf_LDADD    = libpkgconf.la
-pkgconf_SOURCES  = main.c getopt_long.c renderer-msvc.c
-pkgconf_CPPFLAGS = -Ilibpkgconf
-noinst_HEADERS   = getopt_long.h renderer-msvc.h
+pkgconf_SOURCES  = \
+	cli/main.c				\
+	cli/getopt_long.c			\
+	cli/renderer-msvc.c
+pkgconf_CPPFLAGS = -Ilibpkgconf -Icli
+noinst_HEADERS   = \
+	cli/getopt_long.h			\
+	cli/renderer-msvc.h
 
 dist_doc_DATA = README.md AUTHORS
 
