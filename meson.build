@@ -77,9 +77,9 @@ libpkgconf = shared_library('pkgconf',
 
 
 pkgconf_exe = executable('pkgconf',
-  'main.c',
-  'getopt_long.c',
-  'renderer-msvc.c',
+  'cli/main.c',
+  'cli/getopt_long.c',
+  'cli/renderer-msvc.c',
   link_with : libpkgconf,
   install : true)
 

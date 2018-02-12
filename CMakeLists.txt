@@ -98,7 +98,8 @@ ADD_SUBDIRECTORY(libpkgconf)
 #-------- Build and install executable --------
 
 INCLUDE_DIRECTORIES(${libpkgconf_BINARY_DIR})
-ADD_EXECUTABLE(pkgconf main.c getopt_long.c renderer-msvc.c)
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Icli")
+ADD_EXECUTABLE(pkgconf cli/main.c cli/getopt_long.c cli/renderer-msvc.c)
 TARGET_LINK_LIBRARIES(pkgconf libpkgconf)
 INSTALL(TARGETS pkgconf DESTINATION bin)
 
