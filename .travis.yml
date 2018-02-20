@@ -1,20 +1,26 @@
-language: c
-
-compiler:
-  - clang
-  - gcc
-
 sudo: required
+language: minimal
+env:
+  matrix:
+    - ARCH=x86_64
+    - ARCH=x86
+    - ARCH=aarch64
+    - ARCH=armhf
+    - ARCH=ppc64le
 
 before_install:
-  - scripts/install_deps.sh
-  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  - "wget 'https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/v0.7.0/alpine-chroot-install' \
+        && echo '090d323d887ef3a2fd4e752428553f22a52b87bb  alpine-chroot-install' | sha1sum -c || exit 1"
+  - alpine() { /alpine/enter-chroot -u "$USER" "$@"; }
+
+install:
+  - sudo sh alpine-chroot-install -a "$ARCH"
+      -p 'build-base autoconf automake libtool kyua atf'
 
 script:
-  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then sh ./autogen.sh ; fi
-  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./configure ; fi
-  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then cp tests/parser.sh tests/parser; chmod +x tests/parser; make; tests/parser escaped_backslash ; fi
-  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then make distcheck ; fi
+  - alpine sh ./autogen.sh
+  - alpine ./configure
+  - alpine make distcheck
 
 notifications:
   email: false
@@ -23,22 +29,3 @@ notifications:
       - "irc.freenode.org#pkgconf"
     on_success: change
     on_failure: always
-
-env:
-  global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "blUnmLjOjZ1l9jSUff2gka+O6zI82wOMF/6zk6domstMjWbdRQFuEijkAngLyRYa/6uwbNQezqktJficEOvnU5kjq/IVUPkVTWR/nwhZdOpB4ksllpEWX6LH90HqxEaMqGZEaqPEG5uCYW+8pwTgWesPVzc0TF552WNoh4swAhs="
-
-addons:
-  apt:
-    packages:
-      - liblua5.2-dev
-  coverity_scan:
-    project:
-      name: "pkgconf/pkgconf"
-      description: "package compiler and linker metadata toolkit"
-    notification_email: nenolod@dereferenced.org
-    build_command_prepend: "sh autogen.sh; ./configure"
-    build_command: make
-    branch_pattern: coverity
