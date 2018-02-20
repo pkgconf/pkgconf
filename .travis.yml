@@ -15,7 +15,7 @@ before_install:
 
 install:
   - sudo sh alpine-chroot-install -a "$ARCH"
-      -p 'build-base autoconf automake libtool kyua atf'
+      -p 'build-base autoconf automake libtool kyua atf xz'
 
 script:
   - alpine sh ./autogen.sh
