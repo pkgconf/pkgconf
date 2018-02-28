@@ -74,6 +74,7 @@ static int maximum_traverse_depth = 2000;
 static size_t maximum_package_count = 0;
 
 static char *want_variable = NULL;
+static char *want_fragment_filter = NULL;
 
 FILE *error_msgout = NULL;
 FILE *logfile_out = NULL;
@@ -123,6 +124,9 @@ filter_cflags(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, vo
 	if (!(want_flags & PKG_KEEP_SYSTEM_CFLAGS) && pkgconf_fragment_has_system_dir(client, frag))
 		return false;
 
+	if (want_fragment_filter != NULL && (strchr(want_fragment_filter, frag->type) == NULL || !frag->type))
+		return false;
+
 	if (frag->type == 'I')
 		got_flags = PKG_CFLAGS_ONLY_I;
 	else
@@ -139,6 +143,9 @@ filter_libs(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void
 	(void) data;
 
 	if (!(want_flags & PKG_KEEP_SYSTEM_LIBS) && pkgconf_fragment_has_system_dir(client, frag))
+		return false;
+
+	if (want_fragment_filter != NULL && (strchr(want_fragment_filter, frag->type) == NULL || !frag->type))
 		return false;
 
 	switch (frag->type)
@@ -668,7 +675,10 @@ usage(void)
 	printf("  --keep-system-libs                keep -L%s entries in libs output\n", SYSTEM_LIBDIR);
 	printf("  --path                            show the exact filenames for any matching .pc files\n");
 	printf("  --modversion                      print the specified module's version to stdout\n");
+
+	printf("\nfiltering output:\n\n");
 	printf("  --msvc-syntax                     print translatable fragments in MSVC syntax\n");
+	printf("  --fragment-filter=types           filter output fragments to the specified types\n");
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
@@ -766,6 +776,7 @@ main(int argc, char *argv[])
 		{ "dont-relocate-paths", no_argument, &want_flags, PKG_DONT_RELOCATE_PATHS },
 		{ "env", required_argument, NULL, 48 },
 		{ "msvc-syntax", no_argument, &want_flags, PKG_MSVC_SYNTAX },
+		{ "fragment-filter", required_argument, NULL, 50 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -816,6 +827,9 @@ main(int argc, char *argv[])
 			return EXIT_SUCCESS;
 		case 48:
 			want_env_prefix = pkg_optarg;
+			break;
+		case 50:
+			want_fragment_filter = pkg_optarg;
 			break;
 		case '?':
 		case ':':
