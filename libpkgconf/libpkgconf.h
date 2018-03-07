@@ -20,9 +20,9 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <libpkgconf/libpkgconf-api.h>
 #include <libpkgconf/iter.h>
 #include <libpkgconf/bsdstubs.h>
-#include <libpkgconf/libpkgconf-api.h>
 
 #ifdef __cplusplus
 extern "C" {
