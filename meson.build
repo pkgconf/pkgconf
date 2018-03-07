@@ -83,15 +83,15 @@ pkgconf_exe = executable('pkgconf',
   link_with : libpkgconf,
   install : true)
 
+if get_option('tests')
+  kyua_exe = find_program('kyua')
+  atf_sh_exe = find_program('atf-sh')
+  test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + join_paths(meson.build_root(), 'Kyuafile'), '--build-root=' + meson.build_root()])
 
-kyua_exe = find_program('kyua')
-atf_sh_exe = find_program('atf-sh')
-test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + join_paths(meson.build_root(), 'Kyuafile'), '--build-root=' + meson.build_root()])
 
-
-configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
-subdir('tests')
-
+  configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
+  subdir('tests')
+endif
 
 install_man('man/pkgconf.1')
 install_man('man/pkg.m4.7')
