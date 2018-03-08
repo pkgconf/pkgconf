@@ -287,12 +287,16 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	pkgconf_pkg_t *pkg;
 	char readbuf[PKGCONF_BUFSIZE];
 	char pathbuf[PKGCONF_ITEM_SIZE];
+	char original_prefix[PKGCONF_ITEM_SIZE];
+	char prefix[PKGCONF_ITEM_SIZE];
 	char *idptr;
 	size_t lineno = 0;
 
 	pkg = calloc(sizeof(pkgconf_pkg_t), 1);
 	pkg->filename = strdup(filename);
 	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg, pathbuf, sizeof pathbuf), true);
+
+	original_prefix[0] = '\0';
 
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
@@ -368,7 +372,22 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 			pkgconf_pkg_parser_keyword_set(client, pkg, lineno, key, value);
 			break;
 		case '=':
-			if (strcmp(key, client->prefix_varname) || !(client->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
+			/* Some pc files will use absolute paths for all of their directories
+			 * which is broken when redefining the prefix. We try to outsmart the
+			 * file and rewrite any directory that starts with the same prefix.
+			 * Note that `pkg-config` just blindly sets all of the directories
+			 * so this is a behavioral difference but arguablly more correct.
+			 */
+			if (client->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX && original_prefix[0]
+			    && !strncmp(value, original_prefix, strlen(original_prefix)))
+			{
+				char newvalue[PKGCONF_ITEM_SIZE];
+
+				pkgconf_strlcpy(newvalue, prefix, sizeof newvalue);
+				pkgconf_strlcat(newvalue, value + strlen(original_prefix), sizeof newvalue);
+				pkgconf_tuple_add(client, &pkg->vars, key, newvalue, false);
+			}
+			else if (strcmp(key, client->prefix_varname) || !(client->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
 				pkgconf_tuple_add(client, &pkg->vars, key, value, true);
 			else
 			{
@@ -377,6 +396,8 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 				{
 					pkgconf_tuple_add(client, &pkg->vars, "orig_prefix", value, true);
 					pkgconf_tuple_add(client, &pkg->vars, key, relvalue, false);
+					pkgconf_strlcpy(original_prefix, value, sizeof original_prefix);
+					pkgconf_strlcpy(prefix, relvalue, sizeof original_prefix);
 				}
 				else
 					pkgconf_tuple_add(client, &pkg->vars, key, value, true);
