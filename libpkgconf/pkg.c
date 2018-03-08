@@ -375,8 +375,6 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 			/* Some pc files will use absolute paths for all of their directories
 			 * which is broken when redefining the prefix. We try to outsmart the
 			 * file and rewrite any directory that starts with the same prefix.
-			 * Note that `pkg-config` just blindly sets all of the directories
-			 * so this is a behavioral difference but arguablly more correct.
 			 */
 			if (client->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX && original_prefix[0]
 			    && !strncmp(value, original_prefix, strlen(original_prefix)))
