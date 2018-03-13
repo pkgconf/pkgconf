@@ -55,7 +55,7 @@ CONFIGURE_FILE(libpkgconf/config.h.cmake.in libpkgconf/config.h @ONLY)
 
 #-------- Configure common compiler options --------
 
-IF (WIN32)
+IF (MSVC)
   # Make warnings fatal... but ignore C4996: 'strdup' two different ways
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX /wd4996")
   # Ignore warning C4996: 'strncpy'
