@@ -90,6 +90,8 @@ struct pkgconf_dependency_ {
 	char *version;
 	pkgconf_pkg_t *parent;
 	pkgconf_pkg_t *match;
+
+	unsigned int flags;
 };
 
 struct pkgconf_tuple_ {
@@ -214,6 +216,9 @@ PKGCONF_API void pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgc
 #define PKGCONF_PKG_PKGF_REDEFINE_PREFIX		0x0400
 #define PKGCONF_PKG_PKGF_DONT_RELOCATE_PATHS		0x0800
 #define PKGCONF_PKG_PKGF_SIMPLIFY_ERRORS		0x1000
+#define PKGCONF_PKG_PKGF_DONT_FILTER_INTERNAL_CFLAGS	0x2000
+
+#define PKGCONF_PKG_DEPF_INTERNAL		0x1
 
 #define PKGCONF_PKG_ERRF_OK			0x0
 #define PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND	0x1
@@ -266,11 +271,11 @@ PKGCONF_API void pkgconf_pkg_dir_list_build(pkgconf_client_t *client);
 
 /* parse.c */
 PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *path, FILE *f);
-PKGCONF_API void pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *depends);
-PKGCONF_API void pkgconf_dependency_parse(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends);
+PKGCONF_API void pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *depends, unsigned int flags);
+PKGCONF_API void pkgconf_dependency_parse(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends, unsigned int flags);
 PKGCONF_API void pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail);
 PKGCONF_API void pkgconf_dependency_free(pkgconf_list_t *list);
-PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare);
+PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare, unsigned int flags);
 
 /* argvsplit.c */
 PKGCONF_API int pkgconf_argv_split(const char *src, int *argc, char ***argv);
