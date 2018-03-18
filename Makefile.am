@@ -84,6 +84,10 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/malformed-quoting.pc \
 		tests/lib1/explicit-sysroot.pc \
 		tests/lib1/escaped-backslash.pc \
+		tests/lib1/cflags-internal.pc \
+		tests/lib1/requires-internal.pc \
+		tests/lib1/requires-internal-2.pc \
+		tests/lib1/requires-internal-missing.pc \
 		tests/test_env.sh \
 		$(test_scripts) \
 		doc/conf.py \
