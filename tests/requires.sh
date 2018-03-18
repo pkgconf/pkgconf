@@ -11,7 +11,9 @@ tests_init \
 	static_cflags \
 	private_duplication \
 	libs_static2 \
-	missing
+	missing \
+	requires_internal \
+	requires_internal_missing
 
 libs_body()
 {
@@ -85,4 +87,20 @@ missing_body()
 		-e ignore \
 		-o inline:"\n" \
 		pkgconf --cflags missing-require
+}
+
+requires_internal_body()
+{
+	atf_check \
+		-o inline:"-lbar -lbar-private -L/test/lib -lfoo \n" \
+		pkgconf --with-path="${selfdir}/lib1" --static --libs requires-internal
+}
+
+requires_internal_missing_body()
+{
+	atf_check \
+		-s exit:1 \
+		-e ignore \
+		-o ignore \
+		pkgconf --with-path="${selfdir}/lib1" --static --libs requires-internal-missing
 }
