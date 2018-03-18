@@ -168,7 +168,18 @@ pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t
 	(void) lineno;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
-	pkgconf_dependency_parse(client, pkg, dest, value);
+	pkgconf_dependency_parse(client, pkg, dest, value, 0);
+}
+
+/* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as an "internal" dependency. */
+static void
+pkgconf_pkg_parser_internal_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
+{
+	(void) keyword;
+	(void) lineno;
+
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_INTERNAL);
 }
 
 /* keep this in alphabetical order */
@@ -182,7 +193,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"Name", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, realname)},
 	{"Provides", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, provides)},
 	{"Requires", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, required)},
-	{"Requires.internal", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
+	{"Requires.internal", pkgconf_pkg_parser_internal_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
 	{"Requires.private", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
 	{"Version", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, version)},
 };
@@ -416,7 +427,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 		return NULL;
 	}
 
-	pkgconf_dependency_add(client, &pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL);
+	pkgconf_dependency_add(client, &pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL, 0);
 
 	return pkgconf_pkg_ref(client, pkg);
 }
@@ -1367,7 +1378,7 @@ pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pk
 unsigned int
 pkgconf_pkg_verify_graph(pkgconf_client_t *client, pkgconf_pkg_t *root, int depth)
 {
-	return pkgconf_pkg_traverse(client, root, NULL, NULL, depth);
+	return pkgconf_pkg_traverse(client, root, NULL, NULL, depth, 0);
 }
 
 static unsigned int
@@ -1408,7 +1419,8 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 	pkgconf_list_t *deplist,
 	pkgconf_pkg_traverse_func_t func,
 	void *data,
-	int depth)
+	int depth,
+	unsigned int skip_flags)
 {
 	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
 	pkgconf_node_t *node;
@@ -1439,10 +1451,16 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 			continue;
 		}
 
+		if (skip_flags && (depnode->flags & skip_flags) == skip_flags)
+		{
+			pkgconf_pkg_unref(client, pkgdep);
+			continue;
+		}
+
 		pkgconf_audit_log_dependency(client, pkgdep, depnode);
 
 		pkgdep->flags |= PKGCONF_PKG_PROPF_SEEN;
-		eflags |= pkgconf_pkg_traverse(client, pkgdep, func, data, depth - 1);
+		eflags |= pkgconf_pkg_traverse(client, pkgdep, func, data, depth - 1, skip_flags);
 		pkgdep->flags &= ~PKGCONF_PKG_PROPF_SEEN;
 		pkgconf_pkg_unref(client, pkgdep);
 	}
@@ -1500,7 +1518,7 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_client_t *client,
 /*
  * !doc
  *
- * .. c:function:: unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth)
+ * .. c:function:: unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int skip_flags)
  *
  *    Walk and resolve the dependency graph up to `maxdepth` levels.
  *
@@ -1509,6 +1527,7 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_client_t *client,
  *    :param pkgconf_pkg_traverse_func_t func: A traversal function to call for each resolved node in the dependency graph.
  *    :param void* data: An opaque pointer to data to be passed to the traversal function.
  *    :param int maxdepth: The maximum depth to walk the dependency graph for.  -1 means infinite recursion.
+ *    :param uint skip_flags: Skip over dependency nodes containing the specified flags.  A setting of 0 skips no dependency nodes.
  *    :return: ``PKGCONF_PKG_ERRF_OK`` on success, else an error code.
  *    :rtype: unsigned int
  */
@@ -1517,7 +1536,8 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 	pkgconf_pkg_t *root,
 	pkgconf_pkg_traverse_func_t func,
 	void *data,
-	int maxdepth)
+	int maxdepth,
+	unsigned int skip_flags)
 {
 	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
 
@@ -1540,7 +1560,7 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 	}
 
 	PKGCONF_TRACE(client, "%s: walking requires list", root->id);
-	eflags = pkgconf_pkg_walk_list(client, root, &root->required, func, data, maxdepth);
+	eflags = pkgconf_pkg_walk_list(client, root, &root->required, func, data, maxdepth, skip_flags);
 	if (eflags != PKGCONF_PKG_ERRF_OK)
 		return eflags;
 
@@ -1550,7 +1570,7 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 
 		/* XXX: ugly */
 		client->flags |= PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
-		eflags = pkgconf_pkg_walk_list(client, root, &root->requires_private, func, data, maxdepth);
+		eflags = pkgconf_pkg_walk_list(client, root, &root->requires_private, func, data, maxdepth, skip_flags);
 		client->flags &= ~PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
 
 		if (eflags != PKGCONF_PKG_ERRF_OK)
@@ -1604,14 +1624,15 @@ unsigned int
 pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth)
 {
 	unsigned int eflag;
+	unsigned int skip_flags = (client->flags & PKGCONF_PKG_PKGF_DONT_FILTER_INTERNAL_CFLAGS) == 0 ? PKGCONF_PKG_DEPF_INTERNAL : 0;
 
-	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_collect, list, maxdepth);
+	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_collect, list, maxdepth, skip_flags);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		pkgconf_fragment_free(list);
 
 	if (client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
 	{
-		eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_private_collect, list, maxdepth);
+		eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_private_collect, list, maxdepth, skip_flags);
 		if (eflag != PKGCONF_PKG_ERRF_OK)
 			pkgconf_fragment_free(list);
 	}
@@ -1660,7 +1681,7 @@ pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *
 {
 	unsigned int eflag;
 
-	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_libs_collect, list, maxdepth);
+	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_libs_collect, list, maxdepth, 0);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 	{

@@ -65,6 +65,7 @@
 #define PKG_SHORT_ERRORS		(((uint64_t) 1) << 39)
 #define PKG_EXISTS			(((uint64_t) 1) << 40)
 #define PKG_MSVC_SYNTAX			(((uint64_t) 1) << 41)
+#define PKG_INTERNAL_CFLAGS		(((uint64_t) 1) << 42)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -270,7 +271,7 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int 
 	printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
 	printf("node [fontname=Sans fontsize=8]\n");
 
-	eflag = pkgconf_pkg_traverse(client, world, print_digraph_node, unused, maxdepth);
+	eflag = pkgconf_pkg_traverse(client, world, print_digraph_node, unused, maxdepth, 0);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -532,7 +533,7 @@ apply_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, in
 {
 	int eflag;
 
-	eflag = pkgconf_pkg_traverse(client, world, check_uninstalled, data, maxdepth);
+	eflag = pkgconf_pkg_traverse(client, world, check_uninstalled, data, maxdepth, 0);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -576,7 +577,7 @@ apply_simulate(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int m
 {
 	int eflag;
 
-	eflag = pkgconf_pkg_traverse(client, world, print_graph_node, data, maxdepth);
+	eflag = pkgconf_pkg_traverse(client, world, print_graph_node, data, maxdepth, 0);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
@@ -675,6 +676,7 @@ usage(void)
 	printf("  --keep-system-libs                keep -L%s entries in libs output\n", SYSTEM_LIBDIR);
 	printf("  --path                            show the exact filenames for any matching .pc files\n");
 	printf("  --modversion                      print the specified module's version to stdout\n");
+	printf("  --internal-cflags                 do not filter 'internal' cflags from output\n");
 
 	printf("\nfiltering output:\n\n");
 	printf("  --msvc-syntax                     print translatable fragments in MSVC syntax\n");
@@ -777,6 +779,7 @@ main(int argc, char *argv[])
 		{ "env", required_argument, NULL, 48 },
 		{ "msvc-syntax", no_argument, &want_flags, PKG_MSVC_SYNTAX },
 		{ "fragment-filter", required_argument, NULL, 50 },
+		{ "internal-cflags", no_argument, &want_flags, PKG_INTERNAL_CFLAGS },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -937,6 +940,9 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_DONT_DEFINE_PREFIX) == PKG_DONT_DEFINE_PREFIX)
 		want_client_flags &= ~PKGCONF_PKG_PKGF_REDEFINE_PREFIX;
+
+	if ((want_flags & PKG_INTERNAL_CFLAGS) == PKG_INTERNAL_CFLAGS)
+		want_client_flags |= PKGCONF_PKG_PKGF_DONT_FILTER_INTERNAL_CFLAGS;
 
 #ifdef XXX_NOTYET
 	/* if these selectors are used, it means that we are inquiring about a single package.
