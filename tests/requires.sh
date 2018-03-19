@@ -13,7 +13,8 @@ tests_init \
 	libs_static2 \
 	missing \
 	requires_internal \
-	requires_internal_missing
+	requires_internal_missing \
+	requires_internal_collision
 
 libs_body()
 {
@@ -103,4 +104,11 @@ requires_internal_missing_body()
 		-e ignore \
 		-o ignore \
 		pkgconf --with-path="${selfdir}/lib1" --static --libs requires-internal-missing
+}
+
+requires_internal_collision_body()
+{
+	atf_check \
+		-o inline:"-I/test/local/include/foo \n" \
+		pkgconf --with-path="${selfdir}/lib1" --cflags requires-internal-collision
 }

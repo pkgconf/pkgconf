@@ -52,11 +52,76 @@ dependency_to_str(const pkgconf_dependency_t *dep, char *buf, size_t buflen)
 	return buf;
 }
 
+/* find a colliding dependency that is coloured differently */
+static inline pkgconf_dependency_t *
+find_colliding_dependency(const pkgconf_dependency_t *dep, const pkgconf_list_t *list)
+{
+	const pkgconf_node_t *n;
+
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, n)
+	{
+		pkgconf_dependency_t *dep2 = n->data;
+
+		if (strcmp(dep->package, dep2->package))
+			continue;
+
+		if (dep->flags != dep2->flags)
+			return dep2;
+	}
+
+	return NULL;
+}
+
+static inline pkgconf_dependency_t *
+add_or_replace_dependency_node(const pkgconf_client_t *client, pkgconf_dependency_t *dep, pkgconf_list_t *list)
+{
+	char depbuf[PKGCONF_ITEM_SIZE];
+	pkgconf_dependency_t *dep2 = find_colliding_dependency(dep, list);
+
+	/* there is already a node in the graph which describes this dependency */
+	if (dep2 != NULL)
+	{
+		char depbuf2[PKGCONF_ITEM_SIZE];
+
+		PKGCONF_TRACE(client, "dependency collision: [%s/%x] -- [%s/%x]",
+			      dependency_to_str(dep, depbuf, sizeof depbuf), dep->flags,
+			      dependency_to_str(dep2, depbuf2, sizeof depbuf2), dep2->flags);
+
+		/* prefer the uncoloured node, either dep or dep2 */
+		if (dep->flags && dep2->flags == 0)
+		{
+			PKGCONF_TRACE(client, "dropping dependency [%s]@%p because of collision", depbuf, dep);
+
+			free(dep);
+			return NULL;
+		}
+		else if (dep2->flags && dep->flags == 0)
+		{
+			PKGCONF_TRACE(client, "dropping dependency [%s]@%p because of collision", depbuf2, dep2);
+
+			pkgconf_node_delete(&dep2->iter, list);
+			free(dep2);
+		}
+		else
+			/* If both dependencies have equal strength, we keep both, because of situations like:
+			 *    Requires: foo > 1, foo < 3
+			 *
+			 * If the situation is that both dependencies are literally equal, it is still harmless because
+			 * fragment deduplication will handle the excessive fragments.
+			 */
+			PKGCONF_TRACE(client, "keeping both dependencies (harmless)");
+	}
+
+	PKGCONF_TRACE(client, "added dependency [%s] to list @%p; flags=%x", dependency_to_str(dep, depbuf, sizeof depbuf), list, dep->flags);
+	pkgconf_node_insert_tail(&dep->iter, dep, list);
+
+	return dep;
+}
+
 static inline pkgconf_dependency_t *
 pkgconf_dependency_addraw(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare, unsigned int flags)
 {
 	pkgconf_dependency_t *dep;
-	char depbuf[PKGCONF_ITEM_SIZE];
 
 	dep = calloc(sizeof(pkgconf_dependency_t), 1);
 	dep->package = pkgconf_strndup(package, package_sz);
@@ -67,10 +132,7 @@ pkgconf_dependency_addraw(const pkgconf_client_t *client, pkgconf_list_t *list, 
 	dep->compare = compare;
 	dep->flags = flags;
 
-	PKGCONF_TRACE(client, "added dependency [%s] to list @%p; flags=%x", dependency_to_str(dep, depbuf, sizeof depbuf), list, dep->flags);
-	pkgconf_node_insert_tail(&dep->iter, dep, list);
-
-	return dep;
+	return add_or_replace_dependency_node(client, dep, list);
 }
 
 /*
