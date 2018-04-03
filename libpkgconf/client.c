@@ -78,7 +78,11 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &client->filter_includedirs, false);
 
 	/* GCC uses these environment variables to define system include paths, so we should check them. */
+#ifdef __HAIKU__
+	pkgconf_path_build_from_environ("BELIBRARIES", NULL, &client->filter_libdirs, false);
+#else
 	pkgconf_path_build_from_environ("LIBRARY_PATH", NULL, &client->filter_libdirs, false);
+#endif
 	pkgconf_path_build_from_environ("CPATH", NULL, &client->filter_includedirs, false);
 	pkgconf_path_build_from_environ("C_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
 	pkgconf_path_build_from_environ("CPLUS_INCLUDE_PATH", NULL, &client->filter_includedirs, false);

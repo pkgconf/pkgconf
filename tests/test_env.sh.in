@@ -22,10 +22,12 @@ done
 #--- end kludge ---
 
 selfdir="@abs_top_srcdir@/tests"
+LIBRARY_PATH_ENV="LIBRARY_PATH"
 PATH_SEP=":"
 SYSROOT_DIR="${selfdir}/test"
 case "$(uname -s)" in
 Msys|CYGWIN*) PATH_SEP=";";;
+Haiku) LIBRARY_PATH_ENV="BELIBRARIES";;
 esac
 
 prefix="@prefix@"
