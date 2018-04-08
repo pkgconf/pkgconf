@@ -20,8 +20,9 @@
 .Sh DESCRIPTION
 .Nm
 is a program which helps to configure compiler and linker flags for
-development libraries. This allows build systems to detect other dependencies
-and use them with the system toolchain.
+development libraries.
+This allows build systems to detect other dependencies and use them with the
+system toolchain.
 .Sh GENERAL OPTIONS
 .Bl -tag -width indent
 .It Fl -version
@@ -39,10 +40,11 @@ environmental variable and display information on packages which have registered
 information there.
 .It Fl -simulate
 Simulates resolving a dependency graph based on the requested modules on the
-command line. Dumps a series of trees denoting pkgconf's resolver state.
+command line.
+Dumps a series of trees denoting pkgconf's resolver state.
 .It Fl -no-cache
-Skip caching packages when they are loaded into the internal resolver.  This may
-result in an alternate dependency graph being computed.
+Skip caching packages when they are loaded into the internal resolver.
+This may result in an alternate dependency graph being computed.
 .It Fl -ignore-conflicts
 Ignore
 .Sq Conflicts
@@ -50,15 +52,15 @@ rules in modules.
 .It Fl -env-only
 Learn about pkgconf's configuration strictly from environmental variables.
 .It Fl -maximum-traverse-depth Ns = Ns Ar DEPTH
-Impose a limit on the allowed depth in the dependency graph.  For example, a
-depth of 2 will restrict the resolver from acting on child dependencies of
-modules added to the resolver's solution.
+Impose a limit on the allowed depth in the dependency graph.
+For example, a depth of 2 will restrict the resolver from acting on child
+dependencies of modules added to the resolver's solution.
 .It Fl -static
 Compute a deeper dependency graph and use compiler/linker flags intended for
 static linking.
 .It Fl -pure
-Treats the computed dependency graph as if it were pure. This is mainly intended
-for use with the
+Treats the computed dependency graph as if it were pure.
+This is mainly intended for use with the
 .Fl -static
 flag.
 .It Fl -no-provides
@@ -66,8 +68,8 @@ Ignore
 .Sq Provides
 rules in modules when resolving dependencies.
 .It Fl -with-path Ns = Ns Ar PATH
-Adds a new module search path to pkgconf's dependency resolver.  Paths added in
-this way are given preference before other paths.
+Adds a new module search path to pkgconf's dependency resolver.
+Paths added in this way are given preference before other paths.
 .It Fl -define-prefix
 Attempts to determine the prefix variable to use for CFLAGS and LIBS entry relocations.
 This is mainly useful for platforms where framework SDKs are relocatable, such as Windows.
@@ -82,8 +84,9 @@ variable used by the
 .Sq define-prefix
 feature.
 .It Fl -relocate Ns = Ns Ar PATH
-Relocates a path using the pkgconf_path_relocate API.  This is mainly used by the
-testsuite to provide a guaranteed interface to the system's path relocation backend.
+Relocates a path using the pkgconf_path_relocate API.
+This is mainly used by the testsuite to provide a guaranteed interface
+to the system's path relocation backend.
 .It Fl -dont-relocate-paths
 Disables the path relocation feature.
 .El
@@ -150,7 +153,8 @@ field.
 .It Fl -digraph
 Dump the dependency resolver's solution as a graphviz
 .Sq dot
-file. This can be used with graphviz to visualize module interdependencies.
+file.
+This can be used with graphviz to visualize module interdependencies.
 .It Fl -path
 Display the filenames of the
 .Sq .pc
@@ -199,8 +203,8 @@ flag.
 .Sq logfile
 which is used for dumping audit information concerning installed module versions.
 .It Va PKG_CONFIG_DEBUG_SPEW
-If set, enables additional debug logging. The format of the debug log messages is
-implementation-specific.
+If set, enables additional debug logging.
+The format of the debug log messages is implementation-specific.
 .It Va PKG_CONFIG_DONT_RELOCATE_PATHS
 If set, disables the path relocation feature.
 .El
