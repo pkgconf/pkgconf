@@ -14,8 +14,9 @@
 .Nm file.pc
 .Nd pkg-config file format
 .Sh DESCRIPTION
-pkg-config files provide a useful mechanism for storing various information 
-about libraries and packages on a given system.  Information stored by
+pkg-config files provide a useful mechanism for storing various information
+about libraries and packages on a given system.
+Information stored by
 .Nm .pc
 files include compiler and linker flags necessary to use a given library, as
 well as any other relevant metadata.
@@ -31,8 +32,9 @@ is an implementation.
 .Ss FILE SYNTAX
 The
 .Nm .pc
-file follows a format inspired by RFC822.  Comments are prefixed by a pound sign,
-hash sign or octothorpe (#), and variable assignment is similar to POSIX shell.
+file follows a format inspired by RFC822.
+Comments are prefixed by a pound sign, hash sign or octothorpe (#), and variable
+assignment is similar to POSIX shell.
 Properties are defined using RFC822-style stanzas.
 .\"
 .Ss VARIABLES
@@ -40,18 +42,18 @@ Properties are defined using RFC822-style stanzas.
 Variable definitions start with an alphanumeric string, followed by an equal sign,
 and then the value the variable should contain.
 .Pp
-Variable references are always written as "${variable}".  It is possible to escape
-literal "${" as "$${".
+Variable references are always written as "${variable}".
+It is possible to escape literal "${" as "$${".
 .\"
 .Ss PROPERTIES
 .\"
 Properties are set using RFC822-style stanzas which consist of a keyword, followed
-by a colon (:) and then the value the property should be set to.  Variable
-substitution is always performed regardless of property type.
+by a colon (:) and then the value the property should be set to.
+Variable substitution is always performed regardless of property type.
 .Pp
 There are three types of property:
 .\"
-.Bl -tag
+.Bl -tag -width indent
 .\"
 .It Literal
 The property will be set to the text of the value.
@@ -75,53 +77,64 @@ shell without any shell expansions after variable substitution has been done.
 .\"
 .El
 .Ss PROPERTY KEYWORDS
-.Bl -tag
+.Bl -tag -width indent
 .\"
 .It Name
-The displayed name of the package.  (mandatory; literal)
+The displayed name of the package.
+(mandatory; literal)
 .It Version
-The version of the package.  (mandatory; literal)
+The version of the package.
+(mandatory; literal)
 .It Description
-A description of the package.  (mandatory; literal)
+A description of the package.
+(mandatory; literal)
 .It URL
-A URL to a webpage for the package.  This is used to recommend where newer
-versions of the package can be acquired.  (mandatory; literal)
+A URL to a webpage for the package.
+This is used to recommend where newer versions of the package can be acquired.
+(mandatory; literal)
 .It Cflags
-Required compiler flags.  These flags are always used, regardless of whether
-static compilation is requested.  (optional; fragment list)
+Required compiler flags.
+These flags are always used, regardless of whether static compilation is requested.
+(optional; fragment list)
 .It Cflags.private
 Required compiler flags for static compilation.
 (optional; fragment list; pkgconf extension)
 .It Libs
 Required linking flags for this package.
 Libraries this package depends on for linking against it, which are not
-described as dependencies should be specified here.  (optional; fragment list)
+described as dependencies should be specified here.
+(optional; fragment list)
 .It Libs.private
 Required linking flags for this package that are only required when linking
 statically.
 Libraries this package depends on for linking against it statically, which are
-not described as dependencies should be specified here.  (optional; fragment list)
+not described as dependencies should be specified here.
+(optional; fragment list)
 .It Requires
 Required dependencies that must be met for the package to be usable.
 All dependencies must be satisfied or the pkg-config implementation must not use
-the package.  (optional; dependency list)
+the package.
+(optional; dependency list)
 .It Requires.private
 Required dependencies that must be met for the package to be usable for static linking.
 All dependencies must be satisfied or the pkg-config implementation must not use
-the package for static linking.  (optional; dependency list)
+the package for static linking.
+(optional; dependency list)
 .It Conflicts
-Dependencies that must not be met for the package to be usable.  If any package in the
-proposed dependency solution match any dependency in the Conflicts list, the package
-being considered is not usable.  (optional; dependency list)
+Dependencies that must not be met for the package to be usable.
+If any package in the proposed dependency solution match any dependency in the
+Conflicts list, the package being considered is not usable.
+(optional; dependency list)
 .It Provides
-Dependencies that may be provided by an alternate package.  If a package cannot be
-found, the entire package collection is scanned for providers which can match the
-requested dependency.  (optional; dependency list; pkgconf extension)
+Dependencies that may be provided by an alternate package.
+If a package cannot be found, the entire package collection is scanned for
+providers which can match the requested dependency.
+(optional; dependency list; pkgconf extension)
 .El
 .Ss EXTENSIONS
 Features that have been marked as a pkgconf extension are only guaranteed to work
-with the pkgconf implementation of pkg-config.  Other implementations may or may
-not support the extensions.
+with the pkgconf implementation of pkg-config.
+Other implementations may or may not support the extensions.
 .Pp
 Accordingly, it is suggested that
 .Nm .pc

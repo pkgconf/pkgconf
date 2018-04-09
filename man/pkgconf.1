@@ -111,12 +111,12 @@ of a solution.
 .El
 .Sh QUERY-SPECIFIC OPTIONS
 .Bl -tag -width indent
-.It Fl -cflags Ns , Fl -cflags-only-I Ns , Fl -cflags-only-other
+.It Fl -cflags , Fl -cflags-only-I , Fl -cflags-only-other
 Display either all CFLAGS, only
 .Fl I
 CFLAGS or only CFLAGS that are not
 .Fl I .
-.It Fl -libs Ns , Fl -libs-only-L Ns , Fl -libs-only-l Ns , Fl -libs-only-other
+.It Fl -libs , Fl -libs-only-L , Fl -libs-only-l , Fl -libs-only-other
 Display either all linker flags, only
 .Fl L
 linker flags, only
@@ -125,7 +125,7 @@ linker flags or only linker flags that are not
 .Fl L
 or
 .Fl l .
-.It Fl -keep-system-cflags Ns , Fl -keep-system-libs
+.It Fl -keep-system-cflags , Fl -keep-system-libs
 Keep CFLAGS or linker flag fragments that would be filtered due to being
 included by default in the compiler.
 .It Fl -define-variable Ns = Ns Ar VARNAME Ns = Ns Ar VALUE
@@ -144,7 +144,7 @@ entries for a module to the output channel.
 .It Fl -variable Ns = Ns Ar VARNAME
 Print the value of
 .Va VARNAME .
-.It Fl -print-requires Ns , Fl -print-requires-private
+.It Fl -print-requires , Fl -print-requires-private
 Print the modules included in either the
 .Va Requires
 field or the
@@ -213,5 +213,5 @@ Displaying the CFLAGS of a package:
 .Dl $ pkgconf --cflags foo
 .Dl -fPIC -I/usr/include/foo
 .Sh SEE ALSO
-.Xr pkg.m4 7 ,
-.Xr pc 5
+.Xr pc 5 ,
+.Xr pkg.m4 7
