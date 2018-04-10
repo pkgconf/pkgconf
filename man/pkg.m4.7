@@ -27,23 +27,21 @@
 .Sh DESCRIPTION
 .Nm
 is a collection of autoconf macros which help to configure compiler and linker
-flags for development libraries. This allows build systems to detect other
-dependencies and use them with the system toolchain.
+flags for development libraries.
+This allows build systems to detect other dependencies and use them with the
+system toolchain.
 .Sh "AUTOCONF MACROS"
-.Pp
 .Ss "PKG_PREREQ(MIN-VERSION)"
 Checks that the version of the
 .Nm
-autoconf macros in use is at
-least MIN-VERSION. This can be used to ensure a particular
+autoconf macros in use is at least MIN-VERSION.
+This can be used to ensure a particular
 .Nm
 macro will be available.
-.Pp
 .Ss "PKG_PROG_PKG_CONFIG([MIN-VERSION])"
 Checks for an implementation of
 .Nm pkg-config
 which is at least MIN-VERSION or newer.
-.Pp
 .Ss "PKG_CHECK_MODULES(VARIABLE-PREFIX, MODULES [,ACTION-IF-FOUND [,ACTION-IF-NOT-FOUND]])"
 .Ss "PKG_CHECK_MODULES_STATIC(VARIABLE-PREFIX, MODULES [,ACTION-IF-FOUND [,ACTION-IF-NOT-FOUND]])"
 Checks whether a given module set exists, and if so, defines
@@ -131,7 +129,7 @@ in a single macro.
 Convenience macro to trigger
 .Nm AM_CONDITIONAL
 after a
-.Nm PKG_WITH_MODULES check.
+.Nm PKG_WITH_MODULES check.\&
 .Nm VARIABLE-PREFIX
 is exported as a make variable.
 .Ss "PKG_HAVE_DEFINE_WITH_MODULES(VARIABLE-PREFIX, MODULES, [DESCRIPTION], [DEFAULT])"
@@ -140,6 +138,6 @@ Convenience macro to trigger
 and
 .Nm AC_DEFINE
 after a
-.Nm PKG_WITH_MODULES check.
+.Nm PKG_WITH_MODULES check.\&
 .Nm VARIABLE-PREFIX
 is exported as a make variable.
