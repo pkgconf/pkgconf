@@ -338,6 +338,7 @@ PKGCONF_API size_t pkgconf_path_build_from_environ(const char *envvarname, const
 PKGCONF_API bool pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist);
 PKGCONF_API void pkgconf_path_free(pkgconf_list_t *dirlist);
 PKGCONF_API bool pkgconf_path_relocate(char *buf, size_t buflen);
+PKGCONF_API void pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_t *src);
 
 #ifdef __cplusplus
 }

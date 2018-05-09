@@ -225,6 +225,38 @@ pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
 /*
  * !doc
  *
+ * .. c:function:: void pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_t *src)
+ *
+ *    Copies a path list to another path list.
+ *
+ *    :param pkgconf_list_t* dst: The path list to copy to.
+ *    :param pkgconf_list_t* src: The path list to copy from.
+ *    :return: nothing
+ */
+void
+pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_t *src)
+{
+	pkgconf_node_t *n;
+
+	PKGCONF_FOREACH_LIST_ENTRY(src->head, n)
+	{
+		pkgconf_path_t *srcpath = n->data, *path;
+
+		path = calloc(sizeof(pkgconf_path_t), 1);
+		path->path = strdup(srcpath->path);
+
+#ifdef PKGCONF_CACHE_INODES
+		path->handle_path = srcpath->handle_path;
+		path->handle_device = srcpath->handle_device;
+#endif
+
+		pkgconf_node_insert_tail(&path->lnode, path, dst);
+	}
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void pkgconf_path_free(pkgconf_list_t *dirlist)
  *
  *    Releases any path nodes attached to the given path list.
