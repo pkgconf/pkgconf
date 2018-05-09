@@ -4,10 +4,23 @@ Changes from previous version of pkgconf
 Changes from 1.4.2 to 1.5.0:
 ---------------------------
 
-* Enhancements:
+* Overall enhancements:
   - pkgconf now supports the proposed Requires.internal pkg-config extension,
     by merging it with the Requires.private list (there is no functional difference
     between the two in our resolver implementation)
+  - Support for Haiku has been added, including interpretation of BELIBRARIES and
+    other toolchain specifics. (#180)
+  - Testsuite support can be disabled when building with Meson. (#175)
+
+* Various Windows enhancements:
+  - CMake supports building with GCC on Windows. (#179)
+  - Prefix rewriting has been improved. (#177)
+  - PKGCONF_API support has been implemented when building with Meson,
+    allowing Meson to be used to build pkgconf on Windows. (#174)
+
+* Documentation fixes:
+  - The manpages have been linted and fixed. (#181, #182, #183)
+  - The description of pkgconf --exists has been corrected. (#173)
 
 Changes from 1.4.1 to 1.4.2:
 ----------------------------
