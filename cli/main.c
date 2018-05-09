@@ -711,6 +711,7 @@ main(int argc, char *argv[])
 	char *logfile_arg = NULL;
 	char *want_env_prefix = NULL;
 	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
+	const pkgconf_cross_personality_t *personality;
 
 	want_flags = 0;
 
@@ -789,7 +790,8 @@ main(int argc, char *argv[])
 		pkgconf_client_set_trace_handler(&pkg_client, error_handler, NULL);
 	}
 
-	pkgconf_client_init(&pkg_client, error_handler, NULL, pkgconf_cross_personality_default());
+	personality = pkgconf_cross_personality_default();
+	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
 
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
@@ -983,7 +985,7 @@ main(int argc, char *argv[])
 	pkgconf_client_set_flags(&pkg_client, want_client_flags);
 
 	/* at this point, want_client_flags should be set, so build the dir list */
-	pkgconf_pkg_dir_list_build(&pkg_client);
+	pkgconf_client_dir_list_build(&pkg_client, personality);
 
 	if (required_pkgconfig_version != NULL)
 	{

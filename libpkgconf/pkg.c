@@ -49,54 +49,6 @@ str_has_suffix(const char *str, const char *suffix)
 	return !strncasecmp(str + str_len - suf_len, suffix, suf_len);
 }
 
-static inline void
-build_default_pkgconfig_path(pkgconf_list_t* dirlist)
-{
-#ifdef _WIN32
-	char namebuf[MAX_PATH];
-	char outbuf[MAX_PATH];
-	char *p;
-
-	int sizepath = GetModuleFileName(NULL, namebuf, sizeof namebuf);
-	char * winslash;
-	namebuf[sizepath] = '\0';
-	while ((winslash = strchr (namebuf, '\\')) != NULL)
-	{
-		*winslash = '/';
-	}
-	p = strrchr(namebuf, '/');
-	if (p == NULL)
-		pkgconf_path_split(PKG_DEFAULT_PATH, dirlist, true);
-
-	*p = '\0';
-	pkgconf_strlcpy(outbuf, namebuf, sizeof outbuf);
-	pkgconf_strlcat(outbuf, "/", sizeof outbuf);
-	pkgconf_strlcat(outbuf, "../lib/pkgconfig", sizeof outbuf);
-	pkgconf_path_add(outbuf, dirlist, true);
-	pkgconf_strlcpy(outbuf, namebuf, sizeof outbuf);
-	pkgconf_strlcat(outbuf, "/", sizeof outbuf);
-	pkgconf_strlcat(outbuf, "../share/pkgconfig", sizeof outbuf);
-	pkgconf_path_add(outbuf, dirlist, true);
-#elif __HAIKU__
-	char **paths;
-	size_t count;
-	if (find_paths(B_FIND_PATH_DEVELOP_LIB_DIRECTORY, "pkgconfig", &paths, &count) == B_OK) {
-		for (size_t i = 0; i < count; i++)
-			pkgconf_path_add(paths[i], dirlist, true);
-		free(paths);
-		paths = NULL;
-	}
-	if (find_paths(B_FIND_PATH_DATA_DIRECTORY, "pkgconfig", &paths, &count) == B_OK) {
-		for (size_t i = 0; i < count; i++)
-			pkgconf_path_add(paths[i], dirlist, true);
-		free(paths);
-		paths = NULL;
-	}
-#else
-	pkgconf_path_split(PKG_DEFAULT_PATH, dirlist, true);
-#endif
-}
-
 static const char *
 pkg_get_parent_dir(pkgconf_pkg_t *pkg, char *buf, size_t buflen)
 {
@@ -110,27 +62,6 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg, char *buf, size_t buflen)
 		pathbuf[0] = '\0';
 
 	return buf;
-}
-
-/*
- * !doc
- *
- * .. c:function:: void pkgconf_pkg_dir_list_build(pkgconf_client_t *client)
- *
- *    Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is set on the client,
- *    then only the ``PKG_CONFIG_PATH`` environment variable will be used, otherwise both the
- *    ``PKG_CONFIG_PATH`` and ``PKG_CONFIG_LIBDIR`` environment variables will be used.
- *
- *    :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
- *    :return: nothing
- */
-void
-pkgconf_pkg_dir_list_build(pkgconf_client_t *client)
-{
-	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &client->dir_list, true);
-
-	if (!(client->flags & PKGCONF_PKG_PKGF_ENV_ONLY) && (pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", NULL, &client->dir_list, true)) < 1)
-		build_default_pkgconfig_path(&client->dir_list);
 }
 
 typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value);

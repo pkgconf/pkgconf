@@ -48,6 +48,27 @@ trace_path_list(const pkgconf_client_t *client, const char *desc, pkgconf_list_t
 /*
  * !doc
  *
+ * .. c:function:: void pkgconf_client_dir_list_build(pkgconf_client_t *client)
+ *
+ *    Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is set on the client,
+ *    then only the ``PKG_CONFIG_PATH`` environment variable will be used, otherwise both the
+ *    ``PKG_CONFIG_PATH`` and ``PKG_CONFIG_LIBDIR`` environment variables will be used.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
+ *    :return: nothing
+ */
+void
+pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
+{
+	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &client->dir_list, true);
+
+	if (!(client->flags & PKGCONF_PKG_PKGF_ENV_ONLY) && (pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", NULL, &client->dir_list, true)) < 1)
+		pkgconf_path_copy_list(&client->dir_list, &personality->dir_list);
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
  *
  *    Initialise a pkgconf client object.

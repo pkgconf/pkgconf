@@ -210,6 +210,7 @@ PKGCONF_API pkgconf_error_handler_func_t pkgconf_client_get_error_handler(const 
 PKGCONF_API void pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data);
 PKGCONF_API pkgconf_error_handler_func_t pkgconf_client_get_trace_handler(const pkgconf_client_t *client);
 PKGCONF_API void pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t trace_handler, void *trace_handler_data);
+PKGCONF_API void pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality);
 
 /* personality.c */
 PKGCONF_API const pkgconf_cross_personality_t *pkgconf_cross_personality_default(void);
@@ -282,7 +283,6 @@ PKGCONF_API pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name);
 
 PKGCONF_API int pkgconf_compare_version(const char *a, const char *b);
 PKGCONF_API pkgconf_pkg_t *pkgconf_scan_all(pkgconf_client_t *client, void *ptr, pkgconf_pkg_iteration_func_t func);
-PKGCONF_API void pkgconf_pkg_dir_list_build(pkgconf_client_t *client);
 
 /* parse.c */
 PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *path, FILE *f);
