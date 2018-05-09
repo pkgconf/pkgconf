@@ -14,6 +14,7 @@ ADD_LIBRARY(libpkgconf SHARED
     fileio.c
     fragment.c
     path.c
+    personality.c
     pkg.c
     queue.c
     tuple.c

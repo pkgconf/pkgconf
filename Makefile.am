@@ -135,7 +135,8 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/tuple.c		\
 		libpkgconf/dependency.c		\
 		libpkgconf/queue.c		\
-		libpkgconf/path.c
+		libpkgconf/path.c		\
+		libpkgconf/personality.c
 libpkgconf_la_LDFLAGS = -no-undefined -version-info 3:0:0 -export-symbols-regex '^pkgconf_'
 
 dist_man_MANS    = 		\

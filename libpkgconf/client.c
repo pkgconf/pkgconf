@@ -48,17 +48,18 @@ trace_path_list(const pkgconf_client_t *client, const char *desc, pkgconf_list_t
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
+ * .. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
  *
  *    Initialise a pkgconf client object.
  *
  *    :param pkgconf_client_t* client: The client to initialise.
  *    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
  *    :param void* error_handler_data: user data passed to optional error handler
+ *    :param pkgconf_cross_personality_t* personality: the cross-compile personality to use for defaults
  *    :return: nothing
  */
 void
-pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data)
+pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
 {
 	client->error_handler_data = error_handler_data;
 	client->error_handler = error_handler;
@@ -70,12 +71,15 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	pkgconf_client_set_error_handler(client, error_handler, error_handler_data);
 	pkgconf_client_set_warn_handler(client, NULL, NULL);
 
-	pkgconf_client_set_sysroot_dir(client, NULL);
+	pkgconf_client_set_sysroot_dir(client, personality->sysroot_dir);
 	pkgconf_client_set_buildroot_dir(client, NULL);
 	pkgconf_client_set_prefix_varname(client, NULL);
 
-	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", SYSTEM_LIBDIR, &client->filter_libdirs, false);
-	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", SYSTEM_INCLUDEDIR, &client->filter_includedirs, false);
+	pkgconf_path_copy_list(&client->filter_libdirs, &personality->filter_libdirs);
+	pkgconf_path_copy_list(&client->filter_includedirs, &personality->filter_includedirs);
+
+	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", NULL, &client->filter_libdirs, false);
+	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
 
 	/* GCC uses these environment variables to define system include paths, so we should check them. */
 #ifdef __HAIKU__
@@ -102,20 +106,21 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 /*
  * !doc
  *
- * .. c:function:: pkgconf_client_t* pkgconf_client_new(pkgconf_error_handler_func_t error_handler)
+ * .. c:function:: pkgconf_client_t* pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
  *
  *    Allocate and initialise a pkgconf client object.
  *
  *    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
  *    :param void* error_handler_data: user data passed to optional error handler
+ *    :param pkgconf_cross_personality_t* personality: cross-compile personality to use
  *    :return: A pkgconf client object.
  *    :rtype: pkgconf_client_t*
  */
 pkgconf_client_t *
-pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data)
+pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
 {
 	pkgconf_client_t *out = calloc(sizeof(pkgconf_client_t), 1);
-	pkgconf_client_init(out, error_handler, error_handler_data);
+	pkgconf_client_init(out, error_handler, error_handler_data, personality);
 	return out;
 }
 
