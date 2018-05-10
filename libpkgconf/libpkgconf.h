@@ -219,7 +219,7 @@ PKGCONF_API void pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgc
 PKGCONF_API void pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality);
 
 /* personality.c */
-PKGCONF_API const pkgconf_cross_personality_t *pkgconf_cross_personality_default(void);
+PKGCONF_API pkgconf_cross_personality_t *pkgconf_cross_personality_default(void);
 PKGCONF_API pkgconf_cross_personality_t *pkgconf_cross_personality_find(const char *triplet);
 
 #define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((unsigned int)(c)))

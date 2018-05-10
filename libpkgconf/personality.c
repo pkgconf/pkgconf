@@ -80,7 +80,7 @@ build_default_search_path(pkgconf_list_t* dirlist)
  *    :rtype: pkgconf_cross_personality_t*
  *    :return: the default cross-compile personality
  */
-const pkgconf_cross_personality_t *
+pkgconf_cross_personality_t *
 pkgconf_cross_personality_default(void)
 {
 	if (default_personality_init)
