@@ -100,8 +100,8 @@ valid_triplet(const char *triplet)
 {
 	const char *c = triplet;
 
-	for (; c != '\0'; c++)
-		if (!isalnum(*c) && *c != '-')
+	for (; *c; c++)
+		if (!isalnum(*c) && *c != '-' && *c != '_')
 			return false;
 
 	return true;
@@ -219,7 +219,7 @@ load_personality_with_path(const char *path, const char *triplet)
 pkgconf_cross_personality_t *
 pkgconf_cross_personality_find(const char *triplet)
 {
-	pkgconf_list_t plist;
+	pkgconf_list_t plist = PKGCONF_LIST_INITIALIZER;
 	pkgconf_node_t *n;
 	pkgconf_cross_personality_t *out = NULL;
 
