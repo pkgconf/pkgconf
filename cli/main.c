@@ -737,6 +737,27 @@ dump_personality(const pkgconf_cross_personality_t *p)
 	printf("\n");
 }
 
+static pkgconf_cross_personality_t *
+deduce_personality(char *argv[])
+{
+	char *workbuf = strdup(argv[0]), *i;
+	pkgconf_cross_personality_t *out = pkgconf_cross_personality_default(), *deduced;
+
+	i = strstr(workbuf, "-pkg");
+	if (i == NULL)
+		goto finish;
+
+	*i = 0;
+
+	deduced = pkgconf_cross_personality_find(workbuf);
+	if (deduced != NULL)
+		out = deduced;
+
+finish:
+	free(workbuf);
+	return out;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -834,7 +855,7 @@ main(int argc, char *argv[])
 		pkgconf_client_set_trace_handler(&pkg_client, error_handler, NULL);
 	}
 
-	personality = pkgconf_cross_personality_default();
+	personality = deduce_personality(argv);
 
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
