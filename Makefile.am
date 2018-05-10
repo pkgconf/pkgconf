@@ -5,10 +5,11 @@ includedir             = @includedir@
 system_includedir      = @SYSTEM_INCLUDEDIR@
 system_libdir          = @SYSTEM_LIBDIR@
 pkg_default_dir        = @PKG_DEFAULT_PATH@
+personality_dir        = @PERSONALITY_PATH@
 pkgconfigdir           = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA  = libpkgconf.pc
 
-AM_CFLAGS = -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
+AM_CFLAGS = -DPERSONALITY_PATH=\"$(personality_dir)\" -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
 
 bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la

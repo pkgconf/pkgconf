@@ -94,3 +94,57 @@ pkgconf_cross_personality_default(void)
 	default_personality_init = true;
 	return &default_personality;
 }
+
+static bool
+valid_triplet(const char *triplet)
+{
+	const char *c = triplet;
+
+	for (; c != '\0'; c++)
+		if (!isalnum(*c) && *c != '-')
+			return false;
+
+	return true;
+}
+
+static pkgconf_cross_personality_t *
+load_personality_with_path(const char *path, const char *triplet)
+{
+	return NULL;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_cross_personality_t *pkgconf_cross_personality_find(const char *triplet)
+ *
+ *    Attempts to find a cross-compile personality given a triplet.
+ *
+ *    :rtype: pkgconf_cross_personality_t*
+ *    :return: the default cross-compile personality
+ */
+pkgconf_cross_personality_t *
+pkgconf_cross_personality_find(const char *triplet)
+{
+	pkgconf_list_t plist;
+	pkgconf_node_t *n;
+	pkgconf_cross_personality_t *out = NULL;
+
+	if (!valid_triplet(triplet))
+		return NULL;
+
+	pkgconf_path_split(PERSONALITY_PATH, &plist, true);
+
+	PKGCONF_FOREACH_LIST_ENTRY(plist.head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+
+		out = load_personality_with_path(pn->path, triplet);
+		if (out != NULL)
+			goto finish;
+	}
+
+finish:
+	pkgconf_path_free(&plist);
+	return out;
+}

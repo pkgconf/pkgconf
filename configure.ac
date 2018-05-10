@@ -30,6 +30,13 @@ LT_INIT
 
 AC_SYS_LARGEFILE
 
+AC_ARG_WITH([personality-dir],[AC_HELP_STRING([--with-personality-dir],[specify
+	     the place where cross-compile personality files will be found])],
+	     PERSONALITY_PATH="$withval",
+	     PERSONALITY_PATH="${datadir}/pkgconfig/personality.d:${etcdir}/pkgconfig/personality.d")
+
+AC_SUBST([PERSONALITY_PATH])
+
 AC_ARG_WITH([pkg-config-dir],[AC_HELP_STRING([--with-pkg-config-dir],[specify
 	     the place where pc files will be found])],PKG_DEFAULT_PATH="$withval",
 	     PKG_DEFAULT_PATH="${libdir}/pkgconfig:${datadir}/pkgconfig")
