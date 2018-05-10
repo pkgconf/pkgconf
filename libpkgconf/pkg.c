@@ -244,6 +244,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	size_t lineno = 0;
 
 	pkg = calloc(sizeof(pkgconf_pkg_t), 1);
+	pkg->owner = client;
 	pkg->filename = strdup(filename);
 	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg, pathbuf, sizeof pathbuf), true);
 
@@ -450,7 +451,6 @@ pkgconf_pkg_ref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	if (pkg->owner != NULL && pkg->owner != client)
 		PKGCONF_TRACE(client, "WTF: client %p refers to package %p owned by other client %p", client, pkg, pkg->owner);
 
-	pkg->owner = client;
 	pkg->refcount++;
 	PKGCONF_TRACE(client, "refcount@%p: %d", pkg, pkg->refcount);
 
