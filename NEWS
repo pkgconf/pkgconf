@@ -8,6 +8,10 @@ Changes from 1.4.2 to 1.5.0:
   - pkgconf now supports the proposed Requires.internal pkg-config extension,
     by merging it with the Requires.private list (there is no functional difference
     between the two in our resolver implementation)
+  - Support for cross-compilation personalities have been added.  To make use of this
+    functionality, create a file in the new personality.d directory that sits inside
+    the pkgconfig directory.  The personality file format is described in
+    pc-personality(5). (#166)
   - Support for Haiku has been added, including interpretation of BELIBRARIES and
     other toolchain specifics. (#180)
   - Testsuite support can be disabled when building with Meson. (#175)
