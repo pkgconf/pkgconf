@@ -33,7 +33,7 @@ AC_SYS_LARGEFILE
 AC_ARG_WITH([personality-dir],[AC_HELP_STRING([--with-personality-dir],[specify
 	     the place where cross-compile personality files will be found])],
 	     PERSONALITY_PATH="$withval",
-	     PERSONALITY_PATH="${datadir}/pkgconfig/personality.d:${etcdir}/pkgconfig/personality.d")
+	     PERSONALITY_PATH="${datadir}/pkgconfig/personality.d:${sysconfdir}/pkgconfig/personality.d")
 
 AC_SUBST([PERSONALITY_PATH])
 
