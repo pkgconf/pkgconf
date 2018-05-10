@@ -131,7 +131,7 @@ personality_fragment_func(pkgconf_cross_personality_t *p, const char *keyword, c
 	(void) lineno;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) p + offset);
-	pkgconf_fragment_parse(NULL, dest, NULL, value);
+	pkgconf_path_split(value, dest, false);
 }
 
 /* keep in alphabetical order! */
@@ -199,7 +199,8 @@ load_personality_with_path(const char *path, const char *triplet)
 		return NULL;
 
 	p = calloc(sizeof(pkgconf_cross_personality_t), 1);
-	p->name = strdup(triplet);
+	if (triplet != NULL)
+		p->name = strdup(triplet);
 	pkgconf_parser_parse(f, p, personality_parser_ops, personality_warn_func, pathbuf);
 
 	return p;
@@ -222,12 +223,12 @@ pkgconf_cross_personality_find(const char *triplet)
 	pkgconf_node_t *n;
 	pkgconf_cross_personality_t *out = NULL;
 
-	if (!valid_triplet(triplet))
-		return NULL;
-
 	out = load_personality_with_path(triplet, NULL);
 	if (out != NULL)
 		return out;
+
+	if (!valid_triplet(triplet))
+		return NULL;
 
 	pkgconf_path_split(PERSONALITY_PATH, &plist, true);
 

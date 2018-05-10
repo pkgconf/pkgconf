@@ -220,6 +220,7 @@ PKGCONF_API void pkgconf_client_dir_list_build(pkgconf_client_t *client, const p
 
 /* personality.c */
 PKGCONF_API const pkgconf_cross_personality_t *pkgconf_cross_personality_default(void);
+PKGCONF_API pkgconf_cross_personality_t *pkgconf_cross_personality_find(const char *triplet);
 
 #define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((unsigned int)(c)))
 #define PKGCONF_IS_OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
