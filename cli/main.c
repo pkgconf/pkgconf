@@ -66,6 +66,7 @@
 #define PKG_EXISTS			(((uint64_t) 1) << 40)
 #define PKG_MSVC_SYNTAX			(((uint64_t) 1) << 41)
 #define PKG_INTERNAL_CFLAGS		(((uint64_t) 1) << 42)
+#define PKG_DUMP_PERSONALITY		(((uint64_t) 1) << 43)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -637,6 +638,9 @@ usage(void)
 	printf("  --relocate=path                   relocates a path and exits (mostly for testsuite)\n");
 	printf("  --dont-relocate-paths             disables path relocation support\n");
 
+	printf("\ncross-compilation personality support:\n\n");
+	printf("  --dump-personality                dumps details concerning selected personality\n");
+
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
 	printf("  --atleast-version                 require a specific version of a module\n");
@@ -694,6 +698,42 @@ relocate_path(const char *path)
 	pkgconf_path_relocate(buf, sizeof buf);
 
 	printf("%s\n", buf);
+}
+
+static void
+dump_personality(const pkgconf_cross_personality_t *p)
+{
+	pkgconf_node_t *n;
+
+	printf("Triplet: %s\n", p->name);
+
+	if (p->sysroot_dir)
+		printf("SysrootDir: %s\n", p->sysroot_dir);
+
+	printf("DefaultSearchPaths: ");
+	PKGCONF_FOREACH_LIST_ENTRY(p->dir_list.head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+		printf("%s ", pn->path);
+	}
+
+	printf("\n");
+	printf("SystemIncludePaths: ");
+	PKGCONF_FOREACH_LIST_ENTRY(p->filter_includedirs.head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+		printf("%s ", pn->path);
+	}
+
+	printf("\n");
+	printf("SystemLibraryPaths: ");
+	PKGCONF_FOREACH_LIST_ENTRY(p->filter_libdirs.head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+		printf("%s ", pn->path);
+	}
+
+	printf("\n");
 }
 
 int
@@ -781,6 +821,7 @@ main(int argc, char *argv[])
 		{ "msvc-syntax", no_argument, &want_flags, PKG_MSVC_SYNTAX },
 		{ "fragment-filter", required_argument, NULL, 50 },
 		{ "internal-cflags", no_argument, &want_flags, PKG_INTERNAL_CFLAGS },
+		{ "dump-personality", no_argument, &want_flags, PKG_DUMP_PERSONALITY },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -843,6 +884,12 @@ main(int argc, char *argv[])
 		default:
 			break;
 		}
+	}
+
+	if ((want_flags & PKG_DUMP_PERSONALITY) == PKG_DUMP_PERSONALITY)
+	{
+		dump_personality(personality);
+		return EXIT_SUCCESS;
 	}
 
 	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX)
