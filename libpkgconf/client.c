@@ -354,7 +354,7 @@ pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t linen
 	size_t len;
 	va_list va;
 
-	if (client == NULL)
+	if (client == NULL || client->trace_handler == NULL)
 		return false;
 
 	len = snprintf(errbuf, sizeof errbuf, "%s:" SIZE_FMT_SPECIFIER " [%s]: ", filename, lineno, funcname);
