@@ -13,6 +13,7 @@ ADD_LIBRARY(libpkgconf SHARED
     dependency.c
     fileio.c
     fragment.c
+    parser.c
     path.c
     personality.c
     pkg.c

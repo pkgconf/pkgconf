@@ -236,6 +236,26 @@ static const pkgconf_pkg_validity_check_t pkgconf_pkg_validations[] = {
 	{"Version", offsetof(pkgconf_pkg_t, version)},
 };
 
+static const pkgconf_parser_operand_func_t pkg_parser_funcs[] = {
+	[':'] = (pkgconf_parser_operand_func_t) pkgconf_pkg_parser_keyword_set,
+	['='] = (pkgconf_parser_operand_func_t) pkgconf_pkg_parser_value_set
+};
+
+static void pkg_warn_func(pkgconf_pkg_t *pkg, const char *fmt, ...) PRINTFLIKE(2, 3);
+
+static void
+pkg_warn_func(pkgconf_pkg_t *pkg, const char *fmt, ...)
+{
+	char buf[PKGCONF_ITEM_SIZE];
+	va_list va;
+
+	va_start(va, fmt);
+	vsnprintf(buf, sizeof buf, fmt, va);
+	va_end(va);
+
+	pkgconf_warn(pkg->owner, "%s", buf);
+}
+
 static bool
 pkgconf_pkg_validate(const pkgconf_client_t *client, const pkgconf_pkg_t *pkg)
 {
@@ -273,9 +293,7 @@ pkgconf_pkg_t *
 pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *f)
 {
 	pkgconf_pkg_t *pkg;
-	char readbuf[PKGCONF_BUFSIZE];
 	char *idptr;
-	size_t lineno = 0;
 
 	pkg = calloc(sizeof(pkgconf_pkg_t), 1);
 	pkg->owner = client;
@@ -298,73 +316,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	if (idptr)
 		*idptr = '\0';
 
-	while (pkgconf_fgetline(readbuf, PKGCONF_BUFSIZE, f) != NULL)
-	{
-		char op, *p, *key, *value;
-		bool warned_key_whitespace = false, warned_value_whitespace = false;
-
-		lineno++;
-
-		PKGCONF_TRACE(client, "%s:" SIZE_FMT_SPECIFIER " > [%s]", filename, lineno, readbuf);
-
-		p = readbuf;
-		while (*p && (isalpha((unsigned int)*p) || isdigit((unsigned int)*p) || *p == '_' || *p == '.'))
-			p++;
-
-		key = readbuf;
-		if (!isalpha((unsigned int)*key) && !isdigit((unsigned int)*p))
-			continue;
-
-		while (*p && isspace((unsigned int)*p))
-		{
-			if (!warned_key_whitespace)
-			{
-				pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: whitespace encountered while parsing key section\n",
-					pkg->filename, lineno);
-				warned_key_whitespace = true;
-			}
-
-			/* set to null to avoid trailing spaces in key */
-			*p = '\0';
-			p++;
-		}
-
-		op = *p;
-		*p = '\0';
-		p++;
-
-		while (*p && isspace((unsigned int)*p))
-			p++;
-
-		value = p;
-		p = value + (strlen(value) - 1);
-		while (*p && isspace((unsigned int) *p) && p > value)
-		{
-			if (!warned_value_whitespace && op == '=')
-			{
-				pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: trailing whitespace encountered while parsing value section\n",
-					pkg->filename, lineno);
-				warned_value_whitespace = true;
-			}
-
-			*p = '\0';
-			p--;
-		}
-
-		switch (op)
-		{
-		case ':':
-			pkgconf_pkg_parser_keyword_set(pkg, lineno, key, value);
-			break;
-		case '=':
-			pkgconf_pkg_parser_value_set(pkg, lineno, key, value);
-			break;
-		default:
-			break;
-		}
-	}
-
-	fclose(f);
+	pkgconf_parser_parse(f, pkg, pkg_parser_funcs, (pkgconf_parser_warn_func_t) pkg_warn_func, pkg->filename);
 
 	if (!pkgconf_pkg_validate(client, pkg))
 	{

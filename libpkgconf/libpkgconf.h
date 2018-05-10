@@ -248,7 +248,6 @@ PKGCONF_API const pkgconf_cross_personality_t *pkgconf_cross_personality_default
 #define PKGCONF_PKG_ERRF_PACKAGE_CONFLICT	0x4
 #define PKGCONF_PKG_ERRF_DEPGRAPH_BREAK		0x8
 
-/* pkg.c */
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
 #define PRINTFLIKE(fmtarg, firstvararg) \
         __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
@@ -259,6 +258,13 @@ PKGCONF_API const pkgconf_cross_personality_t *pkgconf_cross_personality_default
 #define DEPRECATED
 #endif /* defined(__INTEL_COMPILER) || defined(__GNUC__) */
 
+/* parser.c */
+typedef void (*pkgconf_parser_operand_func_t)(void *data, const size_t lineno, const char *key, const char *value);
+typedef void (*pkgconf_parser_warn_func_t)(void *data, const char *fmt, ...);
+
+PKGCONF_API void pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, const char *filename);
+
+/* pkg.c */
 PKGCONF_API bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 PKGCONF_API bool pkgconf_warn(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 PKGCONF_API bool pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t lineno, const char *funcname, const char *format, ...) PRINTFLIKE(5, 6);
