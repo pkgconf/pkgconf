@@ -639,6 +639,7 @@ usage(void)
 	printf("  --dont-relocate-paths             disables path relocation support\n");
 
 	printf("\ncross-compilation personality support:\n\n");
+	printf("  --personality=triplet|filename    sets the personality to 'triplet' or a file named 'filename'\n");
 	printf("  --dump-personality                dumps details concerning selected personality\n");
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
@@ -741,6 +742,7 @@ main(int argc, char *argv[])
 {
 	int ret;
 	pkgconf_list_t pkgq = PKGCONF_LIST_INITIALIZER;
+	pkgconf_list_t dir_list = PKGCONF_LIST_INITIALIZER;
 	char *builddir;
 	char *sysroot_dir;
 	char *env_traverse_depth;
@@ -751,7 +753,7 @@ main(int argc, char *argv[])
 	char *logfile_arg = NULL;
 	char *want_env_prefix = NULL;
 	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
-	const pkgconf_cross_personality_t *personality;
+	pkgconf_cross_personality_t *personality;
 
 	want_flags = 0;
 
@@ -822,6 +824,7 @@ main(int argc, char *argv[])
 		{ "fragment-filter", required_argument, NULL, 50 },
 		{ "internal-cflags", no_argument, &want_flags, PKG_INTERNAL_CFLAGS },
 		{ "dump-personality", no_argument, &want_flags, PKG_DUMP_PERSONALITY },
+		{ "personality", required_argument, NULL, 53 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -832,7 +835,6 @@ main(int argc, char *argv[])
 	}
 
 	personality = pkgconf_cross_personality_default();
-	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
 
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
@@ -863,7 +865,7 @@ main(int argc, char *argv[])
 			logfile_arg = pkg_optarg;
 			break;
 		case 42:
-			pkgconf_path_add(pkg_optarg, &pkg_client.dir_list, true);
+			pkgconf_path_add(pkg_optarg, &dir_list, true);
 			break;
 		case 43:
 			pkgconf_client_set_prefix_varname(&pkg_client, pkg_optarg);
@@ -877,6 +879,9 @@ main(int argc, char *argv[])
 		case 50:
 			want_fragment_filter = pkg_optarg;
 			break;
+		case 53:
+			personality = pkgconf_cross_personality_find(pkg_optarg);
+			break;
 		case '?':
 		case ':':
 			return EXIT_FAILURE;
@@ -886,11 +891,17 @@ main(int argc, char *argv[])
 		}
 	}
 
+	pkgconf_path_copy_list(&personality->dir_list, &dir_list);
+	pkgconf_path_free(&dir_list);
+
 	if ((want_flags & PKG_DUMP_PERSONALITY) == PKG_DUMP_PERSONALITY)
 	{
 		dump_personality(personality);
 		return EXIT_SUCCESS;
 	}
+
+	/* now, bring up the client.  settings are preserved since the client is prealloced */
+	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
 
 	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX)
 		want_render_ops = msvc_renderer_get();
