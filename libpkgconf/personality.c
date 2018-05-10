@@ -107,10 +107,102 @@ valid_triplet(const char *triplet)
 	return true;
 }
 
+typedef void (*personality_keyword_func_t)(pkgconf_cross_personality_t *p, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value);
+typedef struct {
+	const char *keyword;
+	const personality_keyword_func_t func;
+	const ptrdiff_t offset;
+} personality_keyword_pair_t;
+
+static void
+personality_copy_func(pkgconf_cross_personality_t *p, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
+{
+	(void) keyword;
+	(void) lineno;
+
+	char **dest = (char **)((char *) p + offset);
+	*dest = strdup(value);
+}
+
+static void
+personality_fragment_func(pkgconf_cross_personality_t *p, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
+{
+	(void) keyword;
+	(void) lineno;
+
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) p + offset);
+	pkgconf_fragment_parse(NULL, dest, NULL, value);
+}
+
+/* keep in alphabetical order! */
+static const personality_keyword_pair_t personality_keyword_pairs[] = {
+	{"DefaultSearchPaths", personality_fragment_func, offsetof(pkgconf_cross_personality_t, dir_list)},
+	{"SysrootDir", personality_copy_func, offsetof(pkgconf_cross_personality_t, sysroot_dir)},
+	{"SystemIncludePaths", personality_fragment_func, offsetof(pkgconf_cross_personality_t, filter_includedirs)},
+	{"SystemLibraryPaths", personality_fragment_func, offsetof(pkgconf_cross_personality_t, filter_libdirs)},
+	{"Triplet", personality_copy_func, offsetof(pkgconf_cross_personality_t, name)},
+};
+
+static int
+personality_keyword_pair_cmp(const void *key, const void *ptr)
+{
+	const personality_keyword_pair_t *pair = ptr;
+	return strcasecmp(key, pair->keyword);
+}
+
+static void
+personality_keyword_set(pkgconf_cross_personality_t *p, const size_t lineno, const char *keyword, char *value)
+{
+	const personality_keyword_pair_t *pair = bsearch(keyword,
+		personality_keyword_pairs, PKGCONF_ARRAY_SIZE(personality_keyword_pairs),
+		sizeof(personality_keyword_pair_t), personality_keyword_pair_cmp);
+
+	if (pair == NULL || pair->func == NULL)
+		return;
+
+	pair->func(p, keyword, lineno, pair->offset, value);
+}
+
+static const pkgconf_parser_operand_func_t personality_parser_ops[] = {
+	[':'] = (pkgconf_parser_operand_func_t) personality_keyword_set
+};
+
+static void personality_warn_func(void *p, const char *fmt, ...) PRINTFLIKE(2, 3);
+
+static void
+personality_warn_func(void *p, const char *fmt, ...)
+{
+	va_list va;
+
+	(void) p;
+
+	va_start(va, fmt);
+	vfprintf(stderr, fmt, va);
+	va_end(va);
+}
+
 static pkgconf_cross_personality_t *
 load_personality_with_path(const char *path, const char *triplet)
 {
-	return NULL;
+	char pathbuf[PKGCONF_ITEM_SIZE];
+	FILE *f;
+	pkgconf_cross_personality_t *p;
+
+	/* if triplet is null, assume that path is a direct path to the personality file */
+	if (triplet != NULL)
+		snprintf(pathbuf, sizeof pathbuf, "%s/%s.personality", path, triplet);
+	else
+		strlcpy(pathbuf, path, sizeof pathbuf);
+
+	f = fopen(pathbuf, "r");
+	if (f == NULL)
+		return NULL;
+
+	p = calloc(sizeof(pkgconf_cross_personality_t), 1);
+	p->name = strdup(triplet);
+	pkgconf_parser_parse(f, p, personality_parser_ops, personality_warn_func, pathbuf);
+
+	return p;
 }
 
 /*
@@ -132,6 +224,10 @@ pkgconf_cross_personality_find(const char *triplet)
 
 	if (!valid_triplet(triplet))
 		return NULL;
+
+	out = load_personality_with_path(triplet, NULL);
+	if (out != NULL)
+		return out;
 
 	pkgconf_path_split(PERSONALITY_PATH, &plist, true);
 
