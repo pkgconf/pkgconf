@@ -49,19 +49,19 @@ str_has_suffix(const char *str, const char *suffix)
 	return !strncasecmp(str + str_len - suf_len, suffix, suf_len);
 }
 
-static const char *
-pkg_get_parent_dir(pkgconf_pkg_t *pkg, char *buf, size_t buflen)
+static char *
+pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 {
-	char *pathbuf;
+	char buf[PKGCONF_ITEM_SIZE], *pathbuf;
 
-	pkgconf_strlcpy(buf, pkg->filename, buflen);
+	pkgconf_strlcpy(buf, pkg->filename, sizeof buf);
 	pathbuf = strrchr(buf, PKG_DIR_SEP_S);
 	if (pathbuf == NULL)
 		pathbuf = strrchr(buf, '/');
 	if (pathbuf != NULL)
 		pathbuf[0] = '\0';
 
-	return buf;
+	return strdup(buf);
 }
 
 typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value);
@@ -138,7 +138,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 };
 
 static bool
-pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const size_t lineno, const char *keyword, char *value)
+pkgconf_pkg_parser_keyword_set(pkgconf_pkg_t *pkg, const size_t lineno, const char *keyword, char *value)
 {
 	const pkgconf_pkg_parser_keyword_pair_t *pair = bsearch(keyword,
 		pkgconf_pkg_parser_keyword_funcs, PKGCONF_ARRAY_SIZE(pkgconf_pkg_parser_keyword_funcs),
@@ -147,7 +147,7 @@ pkgconf_pkg_parser_keyword_set(const pkgconf_client_t *client, pkgconf_pkg_t *pk
 	if (pair == NULL || pair->func == NULL)
 		return false;
 
-	pair->func(client, pkg, keyword, lineno, pair->offset, value);
+	pair->func(pkg->owner, pkg, keyword, lineno, pair->offset, value);
 	return true;
 }
 
@@ -186,6 +186,43 @@ determine_prefix(const pkgconf_pkg_t *pkg, char *buf, size_t buflen)
 	pathiter[0] = '\0';
 
 	return buf;
+}
+
+static bool
+pkgconf_pkg_parser_value_set(pkgconf_pkg_t *pkg, const size_t lineno, const char *keyword, char *value)
+{
+	(void) lineno;
+
+	/* Some pc files will use absolute paths for all of their directories
+	 * which is broken when redefining the prefix. We try to outsmart the
+	 * file and rewrite any directory that starts with the same prefix.
+	 */
+	if (pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX && pkg->orig_prefix
+	    && !strncmp(value, pkg->orig_prefix->value, strlen(pkg->orig_prefix->value)))
+	{
+		char newvalue[PKGCONF_ITEM_SIZE];
+
+		pkgconf_strlcpy(newvalue, pkg->prefix->value, sizeof newvalue);
+		pkgconf_strlcat(newvalue, value + strlen(pkg->orig_prefix->value), sizeof newvalue);
+		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, newvalue, false);
+	}
+	else if (strcmp(keyword, pkg->owner->prefix_varname) || !(pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
+		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true);
+	else
+	{
+		char pathbuf[PKGCONF_ITEM_SIZE];
+		const char *relvalue = determine_prefix(pkg, pathbuf, sizeof pathbuf);
+
+		if (relvalue != NULL)
+		{
+			pkg->orig_prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, "orig_prefix", value, true);
+			pkg->prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, relvalue, false);
+		}
+		else
+			pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true);
+	}
+
+	return true;
 }
 
 typedef struct {
@@ -237,18 +274,14 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 {
 	pkgconf_pkg_t *pkg;
 	char readbuf[PKGCONF_BUFSIZE];
-	char pathbuf[PKGCONF_ITEM_SIZE];
-	char original_prefix[PKGCONF_ITEM_SIZE];
-	char prefix[PKGCONF_ITEM_SIZE];
 	char *idptr;
 	size_t lineno = 0;
 
 	pkg = calloc(sizeof(pkgconf_pkg_t), 1);
 	pkg->owner = client;
 	pkg->filename = strdup(filename);
-	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pkg_get_parent_dir(pkg, pathbuf, sizeof pathbuf), true);
-
-	original_prefix[0] = '\0';
+	pkg->pc_filedir = pkg_get_parent_dir(pkg);
+	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pkg->pc_filedir, true);
 
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
@@ -321,37 +354,10 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 		switch (op)
 		{
 		case ':':
-			pkgconf_pkg_parser_keyword_set(client, pkg, lineno, key, value);
+			pkgconf_pkg_parser_keyword_set(pkg, lineno, key, value);
 			break;
 		case '=':
-			/* Some pc files will use absolute paths for all of their directories
-			 * which is broken when redefining the prefix. We try to outsmart the
-			 * file and rewrite any directory that starts with the same prefix.
-			 */
-			if (client->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX && original_prefix[0]
-			    && !strncmp(value, original_prefix, strlen(original_prefix)))
-			{
-				char newvalue[PKGCONF_ITEM_SIZE];
-
-				pkgconf_strlcpy(newvalue, prefix, sizeof newvalue);
-				pkgconf_strlcat(newvalue, value + strlen(original_prefix), sizeof newvalue);
-				pkgconf_tuple_add(client, &pkg->vars, key, newvalue, false);
-			}
-			else if (strcmp(key, client->prefix_varname) || !(client->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
-				pkgconf_tuple_add(client, &pkg->vars, key, value, true);
-			else
-			{
-				const char *relvalue = determine_prefix(pkg, pathbuf, sizeof pathbuf);
-				if (relvalue != NULL)
-				{
-					pkgconf_tuple_add(client, &pkg->vars, "orig_prefix", value, true);
-					pkgconf_tuple_add(client, &pkg->vars, key, relvalue, false);
-					pkgconf_strlcpy(original_prefix, value, sizeof original_prefix);
-					pkgconf_strlcpy(prefix, relvalue, sizeof original_prefix);
-				}
-				else
-					pkgconf_tuple_add(client, &pkg->vars, key, value, true);
-			}
+			pkgconf_pkg_parser_value_set(pkg, lineno, key, value);
 			break;
 		default:
 			break;
@@ -646,7 +652,6 @@ pkgconf_pkg_find_in_registry_key(pkgconf_client_t *client, HKEY hkey, const char
 pkgconf_pkg_t *
 pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 {
-	char pathbuf[PKGCONF_ITEM_SIZE];
 	pkgconf_pkg_t *pkg = NULL;
 	pkgconf_node_t *n;
 	FILE *f;
@@ -665,7 +670,7 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 			pkg = pkgconf_pkg_new_from_file(client, name, f);
 			if (pkg != NULL)
 			{
-				pkgconf_path_add(pkg_get_parent_dir(pkg, pathbuf, sizeof pathbuf), &client->dir_list, true);
+				pkgconf_path_add(pkg->pc_filedir, &client->dir_list, true);
 				return pkg;
 			}
 		}

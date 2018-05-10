@@ -144,6 +144,12 @@ struct pkgconf_pkg_ {
 	unsigned int flags;
 
 	pkgconf_client_t *owner;
+
+	/* these resources are owned by the package and do not need special management,
+	 * under no circumstance attempt to allocate or free objects belonging to these pointers
+	 */
+	pkgconf_tuple_t *orig_prefix;
+	pkgconf_tuple_t *prefix;
 };
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
