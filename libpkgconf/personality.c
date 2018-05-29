@@ -192,7 +192,7 @@ load_personality_with_path(const char *path, const char *triplet)
 	if (triplet != NULL)
 		snprintf(pathbuf, sizeof pathbuf, "%s/%s.personality", path, triplet);
 	else
-		strlcpy(pathbuf, path, sizeof pathbuf);
+		pkgconf_strlcpy(pathbuf, path, sizeof pathbuf);
 
 	f = fopen(pathbuf, "r");
 	if (f == NULL)
