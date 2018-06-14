@@ -29,7 +29,8 @@ tests_init \
 	fragment_quoting_5 \
 	fragment_quoting_7 \
 	msvc_fragment_quoting \
-	msvc_fragment_render_cflags
+	msvc_fragment_render_cflags \
+	tuple_dequote
 
 comments_body()
 {
@@ -265,4 +266,11 @@ msvc_fragment_render_cflags_body()
 	atf_check \
 		-o inline:'/I/test/include/foo /DFOO_STATIC \n' \
 		pkgconf --cflags --static --msvc-syntax foo
+}
+
+tuple_dequote_body()
+{
+	atf_check \
+		-o inline:'-L/test/lib -lfoo \n' \
+		pkgconf --with-path="${selfdir}/lib1" --libs tuple-quoting
 }

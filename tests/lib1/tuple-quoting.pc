@@ -1,4 +1,4 @@
-prefix="/usr"
+prefix="/test"
 libdir=${prefix}/lib
 
 Name: tuple-quoting
