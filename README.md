@@ -7,6 +7,11 @@ development libraries.  It is similar to pkg-config from freedesktop.org.
 other tooling such as compilers and IDEs to discover and use libraries configured by
 pkgconf.
 
+## git repository has moved
+
+Note: due to the recent acquisition of GitHub by Microsoft, we have moved our git
+repository to <https://git.dereferenced.org/pkgconf/pkgconf>.
+
 ## using `pkgconf` with autotools
 
 Implementations of pkg-config, such as pkgconf, are typically used with the
