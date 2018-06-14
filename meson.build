@@ -45,9 +45,15 @@ foreach f : ['libdir', 'datadir']
   default_path += [join_paths(get_option('prefix'), get_option(f), 'pkgconfig')]
 endforeach
 
+personality_path = []
+foreach f : ['libdir', 'datadir']
+  personality_path += [join_paths(get_option('prefix'), get_option(f), 'pkgconfig', 'personality.d')]
+endforeach
+
 cdata.set_quoted('SYSTEM_LIBDIR', join_paths(get_option('prefix'), get_option('libdir')))
 cdata.set_quoted('SYSTEM_INCLUDEDIR', join_paths(get_option('prefix'), get_option('includedir')))
 cdata.set_quoted('PKG_DEFAULT_PATH', ':'.join(default_path))
+cdata.set_quoted('PERSONALITY_PATH', ':'.join(personality_path))
 cdata.set_quoted('PACKAGE_NAME', meson.project_name())
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
 cdata.set_quoted('PACKAGE_BUGREPORT', 'http://github.com/pkgconf/pkgconf/issues')
