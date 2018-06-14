@@ -136,6 +136,30 @@ pkgconf_tuple_find_delete(pkgconf_list_t *list, const char *key)
 	}
 }
 
+static char *
+dequote(const char *value)
+{
+	char *buf = calloc(strlen(value) * 2, 1);
+	char *bptr = buf;
+	const char *i;
+	char quote = 0;
+
+	for (i = value; *i != '\0'; i++)
+	{
+		if (!quote && (*i == '\'' || *i == '"'))
+			quote = *i;
+		else if (*i != quote)
+			*bptr++ = *i;
+		else if (*i == '\\' && *(i + 1) == quote)
+		{
+			i++;
+			*bptr++ = *i;
+		}
+	}
+
+	return buf;
+}
+
 /*
  * !doc
  *
@@ -154,19 +178,24 @@ pkgconf_tuple_find_delete(pkgconf_list_t *list, const char *key)
 pkgconf_tuple_t *
 pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key, const char *value, bool parse)
 {
+	char *dequote_value;
 	pkgconf_tuple_t *tuple = calloc(sizeof(pkgconf_tuple_t), 1);
 
 	pkgconf_tuple_find_delete(list, key);
 
-	PKGCONF_TRACE(client, "adding tuple to @%p: %s => %s (parsed? %d)", list, key, value, parse);
+	dequote_value = dequote(value);
+
+	PKGCONF_TRACE(client, "adding tuple to @%p: %s => %s (parsed? %d)", list, key, dequote_value, parse);
 
 	tuple->key = strdup(key);
 	if (parse)
-		tuple->value = pkgconf_tuple_parse(client, list, value);
+		tuple->value = pkgconf_tuple_parse(client, list, dequote_value);
 	else
-		tuple->value = strdup(value);
+		tuple->value = strdup(dequote_value);
 
 	pkgconf_node_insert(&tuple->iter, tuple, list);
+
+	free(dequote_value);
 
 	return tuple;
 }
