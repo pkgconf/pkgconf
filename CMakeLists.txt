@@ -33,6 +33,8 @@ SET(pkg_config_dir "${libdir}/pkgconfig:${datadir}/pkgconfig" CACHE STRING "spec
 SET(PKGCONFIGDIR "${pkg_config_dir}")
 SET(pkg_default_dir "${PKGCONFIGDIR}")   # c'mon, make up your mind
 
+SET(personality_dir "${libdir}/pkgconfig/personality.d:${datadir}/pkgconfig/personality.d" CACHE STRING "specify the places where personality files will be found")
+
 SET(system_libdir "${libdir}" CACHE STRING "specify the system library directory (default LIBDIR)")
 SET(SYSTEM_LIBDIR "${system_libdir}")
 
@@ -85,6 +87,7 @@ ELSE()
 ENDIF()
 
 INCLUDE_DIRECTORIES(${pkgconf_SOURCE_DIR} ${pkgconf_BINARY_DIR})
+ADD_DEFINITIONS(-DPERSONALITY_PATH=\"${personality_dir}\")
 ADD_DEFINITIONS(-DPKG_DEFAULT_PATH=\"${pkg_default_dir}\")
 ADD_DEFINITIONS(-DSYSTEM_INCLUDEDIR=\"${system_includedir}\")
 ADD_DEFINITIONS(-DSYSTEM_LIBDIR=\"${system_libdir}\")
