@@ -4,6 +4,10 @@ Changes from previous version of pkgconf
 Changes from 1.4.2 to 1.5.0:
 ---------------------------
 
+* Administrative:
+  - The git repository has moved to <https://git.dereferenced.org/pkgconf/pkgconf>,
+    due to the acquisition of GitHub by Microsoft.
+
 * Overall enhancements:
   - pkgconf now supports the proposed Requires.internal pkg-config extension,
     by merging it with the Requires.private list (there is no functional difference
@@ -11,34 +15,37 @@ Changes from 1.4.2 to 1.5.0:
   - Support for cross-compilation personalities have been added.  To make use of this
     functionality, create a file in the new personality.d directory that sits inside
     the pkgconfig directory.  The personality file format is described in
-    pc-personality(5). (#166)
+    pc-personality(5). (github #166)
   - Support for Haiku has been added, including interpretation of BELIBRARIES and
-    other toolchain specifics. (#180)
-  - Testsuite support can be disabled when building with Meson. (#175)
+    other toolchain specifics. (github #180)
+  - Testsuite support can be disabled when building with Meson. (github #175)
+
+* Bug fixes:
+  - tuples are now appropriately dequoted when added by the parser (github #186).
 
 * Various Windows enhancements:
-  - CMake supports building with GCC on Windows. (#179)
-  - Prefix rewriting has been improved. (#177)
+  - CMake supports building with GCC on Windows. (github #179)
+  - Prefix rewriting has been improved. (github #177)
   - PKGCONF_API support has been implemented when building with Meson,
-    allowing Meson to be used to build pkgconf on Windows. (#174)
+    allowing Meson to be used to build pkgconf on Windows. (github #174)
 
 * Documentation fixes:
-  - The manpages have been linted and fixed. (#181, #182, #183)
-  - The description of pkgconf --exists has been corrected. (#173)
+  - The manpages have been linted and fixed. (github #181, #182, #183)
+  - The description of pkgconf --exists has been corrected. (github #173)
 
 Changes from 1.4.1 to 1.4.2:
 ----------------------------
 
 * Bug fixes:
   - ensure pkgconf_dependency_t nodes have a solution marked when satisfied
-    by an indirect provider (#172)
+    by an indirect provider (github #172)
 
 Changes from 1.4.0 to 1.4.1:
 ----------------------------
 
 * Bug fixes:
   - revert some quoting changes because they don't work well with certain
-    GCC edge cases (#168)
+    GCC edge cases (github #168)
 
 * Enhancements:
   - add limited support for --cflags with --msvc-syntax
@@ -162,14 +169,14 @@ Changes from 1.2.0 to 1.3.0:
 * Features:
   - pkgconf --debug now provides a facility for tracing most relevant libpkgconf operations
   - libpkgconf: add warn and trace handlers for warnings
-  - replace realpath() with faster, lighter weight path normalization function (#112)
+  - replace realpath() with faster, lighter weight path normalization function (github #112)
   - pkgconf CLI now emulates pkg-config quoting rules precisely, while allowing direct access
     to the actual fragments via libpkgconf
 
 * Bug fixes:
   - pkg: properly separate static and virtual packages so they are not inappropriately
-    optimized out of the dependency graph (#108)
-  - argvsplit: do not consider ' and " to have similar rules to escape sequences (#111)
+    optimized out of the dependency graph (github #108)
+  - argvsplit: do not consider ' and " to have similar rules to escape sequences (github #111)
   - pkg: strip trailing whitespace when parsing .pc files
 
 * Enhancements:
@@ -177,7 +184,8 @@ Changes from 1.2.0 to 1.3.0:
   - many code fixes spotted by coverity
   - add PKG_CONFIG_DONT_RELOCATE_PATHS and --dont-relocate-paths environment variables to
     disable path relocation feature if needed
-  - remove extra whitespace that was present for compatibility with older pkg-config releases (#113)
+  - remove extra whitespace that was present for compatibility with older pkg-config releases
+    (github #113)
 
 Changes from 1.1.0 to 1.2.0:
 ----------------------------
@@ -220,17 +228,18 @@ Changes from 1.0.1 to 1.1.0:
   - filter duplicate PKG_CONFIG_PATH (and other) entries by inode
 
 * Bug fixes:
-  - fragments: fix another edge case involving empty tokens being concatenated onto previous tokens (#99)
+  - fragments: fix another edge case involving empty tokens being concatenated onto previous tokens
+    (github #99)
   - libpkgconf: remove dependencies on config.h in public headers
 
 Changes from 1.0.0 to 1.0.1:
 ----------------------------
 
 * Enhancements:
-  - new stub implementation of --print-provides (#95)
+  - new stub implementation of --print-provides (github #95)
 
 * Bug fixes:
-  - fragments: fix an edge case involving path-only fragments and PKG_CONFIG_SYSROOT_DIR (#94)
+  - fragments: fix an edge case involving path-only fragments and PKG_CONFIG_SYSROOT_DIR (github #94)
 
 Changes from 0.9.12 to 1.0.0:
 -----------------------------
