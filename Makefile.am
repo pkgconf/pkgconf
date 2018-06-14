@@ -90,6 +90,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/requires-internal-2.pc \
 		tests/lib1/requires-internal-missing.pc \
 		tests/lib1/requires-internal-collision.pc \
+		tests/lib1/tuple-quoting.pc \
 		tests/test_env.sh \
 		$(test_scripts) \
 		doc/conf.py \
