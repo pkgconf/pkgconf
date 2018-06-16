@@ -236,7 +236,7 @@ static const pkgconf_pkg_validity_check_t pkgconf_pkg_validations[] = {
 	{"Version", offsetof(pkgconf_pkg_t, version)},
 };
 
-static const pkgconf_parser_operand_func_t pkg_parser_funcs[] = {
+static const pkgconf_parser_operand_func_t pkg_parser_funcs[256] = {
 	[':'] = (pkgconf_parser_operand_func_t) pkgconf_pkg_parser_keyword_set,
 	['='] = (pkgconf_parser_operand_func_t) pkgconf_pkg_parser_value_set
 };
