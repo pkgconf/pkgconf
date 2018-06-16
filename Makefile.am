@@ -45,6 +45,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/sysroot-dir.pc \
 		tests/lib1/circular-2.pc \
 		tests/lib1/multiline.pc \
+		tests/lib1/multiline-bogus.pc \
 		tests/lib1/tilde-quoting.pc \
 		tests/lib1/circular-3.pc \
 		tests/lib1/no-trailing-newline.pc \

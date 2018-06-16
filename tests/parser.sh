@@ -13,6 +13,7 @@ tests_init \
 	tilde_quoting \
 	paren_quoting \
 	multiline_field \
+	multiline_bogus_header \
 	escaped_backslash \
 	flag_order_1 \
 	flag_order_2 \
@@ -115,6 +116,14 @@ multiline_field_body()
 		-e ignore \
 		-o match:"multiline description" \
 		pkgconf --list-all
+}
+
+multiline_bogus_header_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-s eq:0 \
+		pkgconf --exists multiline-bogus
 }
 
 escaped_backslash_body()
