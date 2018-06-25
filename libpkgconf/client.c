@@ -96,11 +96,15 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	pkgconf_client_set_buildroot_dir(client, NULL);
 	pkgconf_client_set_prefix_varname(client, NULL);
 
-	pkgconf_path_copy_list(&client->filter_libdirs, &personality->filter_libdirs);
-	pkgconf_path_copy_list(&client->filter_includedirs, &personality->filter_includedirs);
+	if(getenv("PKG_CONFIG_SYSTEM_LIBRARY_PATH") == NULL)
+		pkgconf_path_copy_list(&client->filter_libdirs, &personality->filter_libdirs);
+	else
+		pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", NULL, &client->filter_libdirs, false);
 
-	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", NULL, &client->filter_libdirs, false);
-	pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
+	if(getenv("PKG_CONFIG_SYSTEM_INCLUDE_PATH") == NULL)
+		pkgconf_path_copy_list(&client->filter_includedirs, &personality->filter_includedirs);
+	else
+		pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
 
 	/* GCC uses these environment variables to define system include paths, so we should check them. */
 #ifdef __HAIKU__
