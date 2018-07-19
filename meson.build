@@ -104,4 +104,6 @@ endif
 
 install_man('man/pkgconf.1')
 install_man('man/pkg.m4.7')
+install_man('man/pc.5')
+install_man('man/pkgconf-personality.5')
 install_data('pkg.m4', install_dir: 'share/aclocal')
