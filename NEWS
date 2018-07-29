@@ -1,6 +1,14 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.5.2 to 1.5.3:
+----------------------------
+
+* Security fixes:
+  - Fix edge cases involving dequoting zero-length tuples that can lead to a
+    buffer overflow under the right circumstances.  Thanks to A. Wilcox for
+    reporting and supplying a patch.  (MR 3)
+
 Changes from 1.5.1 to 1.5.2:
 ----------------------------
 
