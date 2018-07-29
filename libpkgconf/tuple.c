@@ -139,7 +139,7 @@ pkgconf_tuple_find_delete(pkgconf_list_t *list, const char *key)
 static char *
 dequote(const char *value)
 {
-	char *buf = calloc(strlen(value) * 2, 1);
+	char *buf = calloc((strlen(value) + 1) * 2, 1);
 	char *bptr = buf;
 	const char *i;
 	char quote = 0;
