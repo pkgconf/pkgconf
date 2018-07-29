@@ -28,7 +28,8 @@ tests_init \
 	fragment_collision \
 	malformed_1 \
 	malformed_quoting \
-	explicit_sysroot
+	explicit_sysroot \
+	empty_tuple
 
 case_sensitivity_body()
 {
@@ -246,4 +247,10 @@ explicit_sysroot_body()
 	export PKG_CONFIG_SYSROOT_DIR=/sysroot
 	atf_check -o inline:"/sysroot/usr/share/test\n" \
 		pkgconf --with-path="${selfdir}/lib1" --variable=pkgdatadir explicit-sysroot
+}
+
+empty_tuple_body()
+{
+	atf_check -o inline:"\n" \
+		pkgconf --with-path="${selfdir}/lib1" --cflags empty-tuple
 }
