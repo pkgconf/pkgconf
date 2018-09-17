@@ -188,6 +188,43 @@ determine_prefix(const pkgconf_pkg_t *pkg, char *buf, size_t buflen)
 	return buf;
 }
 
+static void
+remove_additional_separators(char *buf)
+{
+	char *p = buf;
+
+	while (*p) {
+		if (*p == '/') {
+			char *q;
+
+			q = ++p;
+			while (*q && *q == '/')
+				q++;
+
+			if (p != q)
+				memmove (p, q, strlen (q) + 1);
+		} else {
+			p++;
+		}
+	}
+}
+
+static void
+canonicalize_path(char *buf)
+{
+#ifdef _WIN32
+	char *p = buf;
+
+	while (*p) {
+		if (*p == '\\')
+			*p = '/';
+		p++;
+	}
+#endif
+
+	remove_additional_separators(buf);
+}
+
 static bool
 is_path_prefix_equal(const char *path1, const char *path2, size_t path2_len)
 {
@@ -201,7 +238,12 @@ is_path_prefix_equal(const char *path1, const char *path2, size_t path2_len)
 static bool
 pkgconf_pkg_parser_value_set(pkgconf_pkg_t *pkg, const size_t lineno, const char *keyword, char *value)
 {
+	char canonicalized_value[PKGCONF_ITEM_SIZE];
+
 	(void) lineno;
+
+	pkgconf_strlcpy(canonicalized_value, value, sizeof canonicalized_value);
+	canonicalize_path(canonicalized_value);
 
 	/* Some pc files will use absolute paths for all of their directories
 	 * which is broken when redefining the prefix. We try to outsmart the
@@ -213,7 +255,7 @@ pkgconf_pkg_parser_value_set(pkgconf_pkg_t *pkg, const size_t lineno, const char
 		char newvalue[PKGCONF_ITEM_SIZE];
 
 		pkgconf_strlcpy(newvalue, pkg->prefix->value, sizeof newvalue);
-		pkgconf_strlcat(newvalue, value + strlen(pkg->orig_prefix->value), sizeof newvalue);
+		pkgconf_strlcat(newvalue, canonicalized_value + strlen(pkg->orig_prefix->value), sizeof newvalue);
 		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, newvalue, false);
 	}
 	else if (strcmp(keyword, pkg->owner->prefix_varname) || !(pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
@@ -225,7 +267,7 @@ pkgconf_pkg_parser_value_set(pkgconf_pkg_t *pkg, const size_t lineno, const char
 
 		if (relvalue != NULL)
 		{
-			pkg->orig_prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, "orig_prefix", value, true);
+			pkg->orig_prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, "orig_prefix", canonicalized_value, true);
 			pkg->prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, relvalue, false);
 		}
 		else
