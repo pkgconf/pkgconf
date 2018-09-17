@@ -86,3 +86,4 @@
 #mesondefine PKG_DEFAULT_PATH
 #mesondefine SYSTEM_INCLUDEDIR
 #mesondefine SYSTEM_LIBDIR
+#mesondefine PERSONALITY_PATH
