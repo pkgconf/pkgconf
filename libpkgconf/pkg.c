@@ -189,6 +189,16 @@ determine_prefix(const pkgconf_pkg_t *pkg, char *buf, size_t buflen)
 }
 
 static bool
+is_path_prefix_equal(const char *path1, const char *path2, size_t path2_len)
+{
+#ifdef _WIN32
+	return !_strnicmp(path1, path2, path2_len);
+#else
+	return !strncmp(path1, path2, path2_len);
+#endif
+}
+
+static bool
 pkgconf_pkg_parser_value_set(pkgconf_pkg_t *pkg, const size_t lineno, const char *keyword, char *value)
 {
 	(void) lineno;
@@ -198,7 +208,7 @@ pkgconf_pkg_parser_value_set(pkgconf_pkg_t *pkg, const size_t lineno, const char
 	 * file and rewrite any directory that starts with the same prefix.
 	 */
 	if (pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX && pkg->orig_prefix
-	    && !strncmp(value, pkg->orig_prefix->value, strlen(pkg->orig_prefix->value)))
+	    && is_path_prefix_equal(canonicalized_value, pkg->orig_prefix->value, strlen(pkg->orig_prefix->value)))
 	{
 		char newvalue[PKGCONF_ITEM_SIZE];
 
