@@ -17,6 +17,10 @@
 #include <libpkgconf/libpkgconf.h>
 #include <libpkgconf/config.h>
 
+#ifdef _WIN32
+#	define strcasecmp _stricmp
+#endif
+
 static bool default_personality_init = false;
 static pkgconf_cross_personality_t default_personality = {
 	.name = "default",
