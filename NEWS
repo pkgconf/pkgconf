@@ -1,6 +1,13 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.5.3 to 1.5.4:
+----------------------------
+
+* Bug fixes:
+  - fix build on Windows with Meson
+  - fix edge cases for path canonicalization (especially on Windows)
+
 Changes from 1.5.2 to 1.5.3:
 ----------------------------
 
