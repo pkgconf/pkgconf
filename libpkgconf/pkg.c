@@ -1573,17 +1573,21 @@ pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t
 {
 	unsigned int eflag;
 	unsigned int skip_flags = (client->flags & PKGCONF_PKG_PKGF_DONT_FILTER_INTERNAL_CFLAGS) == 0 ? PKGCONF_PKG_DEPF_INTERNAL : 0;
+	pkgconf_list_t frags = PKGCONF_LIST_INITIALIZER;
 
-	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_collect, list, maxdepth, skip_flags);
+	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_collect, &frags, maxdepth, skip_flags);
+
+	if (eflag == PKGCONF_PKG_ERRF_OK && client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
+		eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_private_collect, &frags, maxdepth, skip_flags);
+
 	if (eflag != PKGCONF_PKG_ERRF_OK)
-		pkgconf_fragment_free(list);
-
-	if (client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
 	{
-		eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_private_collect, list, maxdepth, skip_flags);
-		if (eflag != PKGCONF_PKG_ERRF_OK)
-			pkgconf_fragment_free(list);
+		pkgconf_fragment_free(&frags);
+		return eflag;
 	}
+
+	pkgconf_fragment_copy_list(client, list, &frags);
+	pkgconf_fragment_free(&frags);
 
 	return eflag;
 }
