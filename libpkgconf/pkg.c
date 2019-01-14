@@ -64,7 +64,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	return strdup(buf);
 }
 
-typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value);
+typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value);
 typedef struct {
 	const char *keyword;
 	const pkgconf_pkg_parser_keyword_func_t func;
@@ -78,7 +78,7 @@ static int pkgconf_pkg_parser_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
+pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) lineno;
@@ -88,7 +88,7 @@ pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg
 }
 
 static void
-pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
+pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	bool ret = pkgconf_fragment_parse(client, dest, &pkg->vars, value);
@@ -101,7 +101,7 @@ pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *
 }
 
 static void
-pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
+pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) lineno;
@@ -112,7 +112,7 @@ pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t
 
 /* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as an "internal" dependency. */
 static void
-pkgconf_pkg_parser_internal_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
+pkgconf_pkg_parser_internal_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) lineno;
@@ -137,18 +137,19 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"Version", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, version)},
 };
 
-static bool
-pkgconf_pkg_parser_keyword_set(pkgconf_pkg_t *pkg, const size_t lineno, const char *keyword, char *value)
+static void
+pkgconf_pkg_parser_keyword_set(void *opaque, const size_t lineno, const char *keyword, const char *value)
 {
+	pkgconf_pkg_t *pkg = opaque;
+
 	const pkgconf_pkg_parser_keyword_pair_t *pair = bsearch(keyword,
 		pkgconf_pkg_parser_keyword_funcs, PKGCONF_ARRAY_SIZE(pkgconf_pkg_parser_keyword_funcs),
 		sizeof(pkgconf_pkg_parser_keyword_pair_t), pkgconf_pkg_parser_keyword_pair_cmp);
 
 	if (pair == NULL || pair->func == NULL)
-		return false;
+		return;
 
 	pair->func(pkg->owner, pkg, keyword, lineno, pair->offset, value);
-	return true;
 }
 
 static const char *
@@ -235,10 +236,11 @@ is_path_prefix_equal(const char *path1, const char *path2, size_t path2_len)
 #endif
 }
 
-static bool
-pkgconf_pkg_parser_value_set(pkgconf_pkg_t *pkg, const size_t lineno, const char *keyword, char *value)
+static void
+pkgconf_pkg_parser_value_set(void *opaque, const size_t lineno, const char *keyword, const char *value)
 {
 	char canonicalized_value[PKGCONF_ITEM_SIZE];
+	pkgconf_pkg_t *pkg = opaque;
 
 	(void) lineno;
 
@@ -273,8 +275,6 @@ pkgconf_pkg_parser_value_set(pkgconf_pkg_t *pkg, const size_t lineno, const char
 		else
 			pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true);
 	}
-
-	return true;
 }
 
 typedef struct {
@@ -289,8 +289,8 @@ static const pkgconf_pkg_validity_check_t pkgconf_pkg_validations[] = {
 };
 
 static const pkgconf_parser_operand_func_t pkg_parser_funcs[256] = {
-	[':'] = (pkgconf_parser_operand_func_t) pkgconf_pkg_parser_keyword_set,
-	['='] = (pkgconf_parser_operand_func_t) pkgconf_pkg_parser_value_set
+	[':'] = pkgconf_pkg_parser_keyword_set,
+	['='] = pkgconf_pkg_parser_value_set
 };
 
 static void pkg_warn_func(pkgconf_pkg_t *pkg, const char *fmt, ...) PRINTFLIKE(2, 3);
