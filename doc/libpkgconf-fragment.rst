@@ -36,6 +36,16 @@ which is composable, mergeable and reorderable.
    :param bool is_private: Whether the fragment list is a `private` fragment list (static linking).
    :return: nothing
 
+.. c:function:: void pkgconf_fragment_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base)
+
+   Copies a `fragment list` to another `fragment list`, possibly removing a previous copy of the fragments
+   in a process known as `mergeback`.
+
+   :param pkgconf_client_t* client: The pkgconf client being accessed.
+   :param pkgconf_list_t* list: The list the fragments are being added to.
+   :param pkgconf_list_t* base: The list the fragments are being copied from.
+   :return: nothing
+
 .. c:function:: void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func)
 
    Copies a `fragment list` to another `fragment list` which match a user-specified filtering function.
@@ -47,23 +57,25 @@ which is composable, mergeable and reorderable.
    :param void* data: Optional data to pass to the filter function.
    :return: nothing
 
-.. c:function:: size_t pkgconf_fragment_render_len(const pkgconf_list_t *list)
+.. c:function:: size_t pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops)
 
    Calculates the required memory to store a `fragment list` when rendered as a string.
 
    :param pkgconf_list_t* list: The `fragment list` being rendered.
-   :param bool escape: Whether or not to escape special shell characters.
+   :param bool escape: Whether or not to escape special shell characters (deprecated).
+   :param pkgconf_fragment_render_ops_t* ops: An optional ops structure to use for custom renderers, else ``NULL``.
    :return: the amount of bytes required to represent the `fragment list` when rendered
    :rtype: size_t
 
-.. c:function:: void pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen)
+.. c:function:: void pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape, const pkgconf_fragment_render_ops_t *ops)
 
    Renders a `fragment list` into a buffer.
 
    :param pkgconf_list_t* list: The `fragment list` being rendered.
    :param char* buf: The buffer to render the fragment list into.
    :param size_t buflen: The length of the buffer.
-   :param bool escape: Whether or not to escape special shell characters.
+   :param bool escape: Whether or not to escape special shell characters (deprecated).
+   :param pkgconf_fragment_render_ops_t* ops: An optional ops structure to use for custom renderers, else ``NULL``.
    :return: nothing
 
 .. c:function:: char *pkgconf_fragment_render(const pkgconf_list_t *list)
@@ -71,7 +83,8 @@ which is composable, mergeable and reorderable.
    Allocate memory and render a `fragment list` into it.
 
    :param pkgconf_list_t* list: The `fragment list` being rendered.
-   :param bool escape: Whether or not to escape special shell characters.
+   :param bool escape: Whether or not to escape special shell characters (deprecated).
+   :param pkgconf_fragment_render_ops_t* ops: An optional ops structure to use for custom renderers, else ``NULL``.
    :return: An allocated string containing the rendered `fragment list`.
    :rtype: char *
 
