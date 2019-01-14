@@ -361,6 +361,32 @@ pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, cons
 /*
  * !doc
  *
+ * .. c:function:: void pkgconf_fragment_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base)
+ *
+ *    Copies a `fragment list` to another `fragment list`, possibly removing a previous copy of the fragments
+ *    in a process known as `mergeback`.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
+ *    :param pkgconf_list_t* list: The list the fragments are being added to.
+ *    :param pkgconf_list_t* base: The list the fragments are being copied from.
+ *    :return: nothing
+ */
+void
+pkgconf_fragment_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base)
+{
+	pkgconf_node_t *node;
+
+	PKGCONF_FOREACH_LIST_ENTRY(base->head, node)
+	{
+		pkgconf_fragment_t *frag = node->data;
+
+		pkgconf_fragment_copy(client, list, frag, true);
+	}
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func)
  *
  *    Copies a `fragment list` to another `fragment list` which match a user-specified filtering function.
