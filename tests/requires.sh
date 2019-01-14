@@ -14,7 +14,8 @@ tests_init \
 	missing \
 	requires_internal \
 	requires_internal_missing \
-	requires_internal_collision
+	requires_internal_collision \
+	orphaned_requires_private
 
 libs_body()
 {
@@ -111,4 +112,13 @@ requires_internal_collision_body()
 	atf_check \
 		-o inline:"-I/test/local/include/foo \n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags requires-internal-collision
+}
+
+orphaned_requires_private_body()
+{
+	atf_check \
+		-s exit:1 \
+		-e ignore \
+		-o ignore \
+		pkgconf --with-path="${selfdir}/lib1" --cflags --libs orphaned-requires-private
 }
