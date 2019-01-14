@@ -12,7 +12,7 @@ dnl implied.  In no event shall the authors be liable for any damages arising
 dnl from the use of this software.
 
 AC_PREREQ([2.68])
-AC_INIT([pkgconf], [1.5.4], [http://github.com/pkgconf/pkgconf/issues])
+AC_INIT([pkgconf], [1.6.0], [http://github.com/pkgconf/pkgconf/issues])
 AC_CONFIG_SRCDIR([cli/main.c])
 AC_CONFIG_MACRO_DIRS([m4])
 AX_CHECK_COMPILE_FLAG([-Wall], [CFLAGS="$CFLAGS -Wall"])

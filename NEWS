@@ -1,6 +1,21 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.5.4 to 1.6.0:
+----------------------------
+
+* Bug fixes:
+  - Fixed issue where packages which referenced missing packages in
+    Requires.private may have crashed due to memory corruption issues
+    in some circumstances.
+  - Fixed warnings reported by GCC 8 diagnostics.
+
+* Enhancements:
+  - Add LIBPKGCONF_VERSION and LIBPKGCONF_VERSION_STR macros for
+    determining libpkgconf version.
+  - Add pkgconf_fragment_copy_list() to copy a fragment list to
+    another fragment list.
+
 Changes from 1.5.3 to 1.5.4:
 ----------------------------
 
