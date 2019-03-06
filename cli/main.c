@@ -740,21 +740,30 @@ dump_personality(const pkgconf_cross_personality_t *p)
 static pkgconf_cross_personality_t *
 deduce_personality(char *argv[])
 {
-	char *workbuf = strdup(argv[0]), *i;
-	pkgconf_cross_personality_t *out = pkgconf_cross_personality_default(), *deduced;
+	const char *argv0 = argv[0];
+	char *i, *prefix;
+	pkgconf_cross_personality_t *out;
 
-	i = strstr(workbuf, "-pkg");
+	i = strrchr(argv0, '/');
+	if (i != NULL)
+		argv0 = i + 1;
+
+#if defined(_WIN32) || defined(_WIN64)
+	i = strrchr(argv0, '\\');
+	if (i != NULL)
+		argv0 = i + 1;
+#endif
+
+	i = strstr(argv0, "-pkg");
 	if (i == NULL)
-		goto finish;
+		return pkgconf_cross_personality_default();
 
-	*i = 0;
+	prefix = strndup(argv0, i - argv0);
+	out = pkgconf_cross_personality_find(prefix);
+	free(prefix);
+	if (out == NULL)
+		return pkgconf_cross_personality_default();
 
-	deduced = pkgconf_cross_personality_find(workbuf);
-	if (deduced != NULL)
-		out = deduced;
-
-finish:
-	free(workbuf);
 	return out;
 }
 
