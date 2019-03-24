@@ -41,6 +41,10 @@ extern "C" {
 #define PKG_DIR_SEP_S   '/'
 #endif
 
+#ifdef _WIN32
+#define realpath(N,R) _fullpath((R),(N),_MAX_PATH)
+#endif
+
 #define PKGCONF_BUFSIZE	(65535)
 
 typedef enum {

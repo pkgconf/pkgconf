@@ -92,14 +92,9 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 			return;
 		if (S_ISLNK(st.st_mode))
 		{
-			char linkdest[PKGCONF_ITEM_SIZE];
-			ssize_t len;
+			char *linkdest = realpath(path, NULL);
 
-			memset(linkdest, '\0', sizeof linkdest);
-			len = readlink(path, linkdest, sizeof linkdest);
-
-			if (len != -1 && (size_t)len < sizeof(linkdest) &&
-				stat(linkdest, &st) == -1)
+			if (linkdest != NULL && stat(linkdest, &st) == -1)
 				return;
 		}
 		if (path_list_contains_entry(path, dirlist, &st))
