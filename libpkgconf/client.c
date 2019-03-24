@@ -62,8 +62,21 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
 {
 	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &client->dir_list, true);
 
-	if (!(client->flags & PKGCONF_PKG_PKGF_ENV_ONLY) && (pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", NULL, &client->dir_list, true)) < 1)
-		pkgconf_path_copy_list(&client->dir_list, &personality->dir_list);
+	if (!(client->flags & PKGCONF_PKG_PKGF_ENV_ONLY))
+	{
+		pkgconf_list_t dir_list = PKGCONF_LIST_INITIALIZER;
+		const pkgconf_list_t *prepend_list = &personality->dir_list;
+
+		if (getenv("PKG_CONFIG_LIBDIR") != NULL)
+		{
+			/* PKG_CONFIG_LIBDIR= should empty the search path entirely. */
+			(void) pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", NULL, &dir_list, true);
+			prepend_list = &dir_list;
+		}
+
+		pkgconf_path_copy_list(&client->dir_list, prepend_list);
+		pkgconf_path_free(&dir_list);
+	}
 }
 
 /*
