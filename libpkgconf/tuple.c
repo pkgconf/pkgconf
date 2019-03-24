@@ -144,17 +144,18 @@ dequote(const char *value)
 	const char *i;
 	char quote = 0;
 
+	if (*value == '\'' || *value == '"')
+		quote = *value;
+
 	for (i = value; *i != '\0'; i++)
 	{
-		if (!quote && (*i == '\'' || *i == '"'))
-			quote = *i;
-		else if (*i != quote)
-			*bptr++ = *i;
-		else if (*i == '\\' && *(i + 1) == quote)
+		if (*i == '\\' && quote && *(i + 1) == quote)
 		{
 			i++;
 			*bptr++ = *i;
 		}
+		else if (*i != quote)
+			*bptr++ = *i;
 	}
 
 	return buf;
