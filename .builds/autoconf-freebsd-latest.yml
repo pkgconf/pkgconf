@@ -1,0 +1,19 @@
+image: freebsd/latest
+packages:
+  - autoconf
+  - automake
+  - libtool
+  - kyua
+  - atf
+sources:
+  - https://git.sr.ht/~kaniini/pkgconf
+tasks:
+  - autogen: |
+      cd ~/pkgconf
+      sh autogen.sh
+  - configure: |
+      cd ~/pkgconf
+      ./configure
+  - distcheck: |
+      cd ~/pkgconf
+      make distcheck
