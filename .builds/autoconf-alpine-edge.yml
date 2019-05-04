@@ -1,0 +1,23 @@
+image: alpine/edge
+packages:
+  - build-base
+  - autoconf
+  - automake
+  - libtool
+  - kyua
+  - atf
+  - xz
+  - gzip
+sources:
+  - https://git.sr.ht/~kaniini/pkgconf
+tasks:
+  - autogen: |
+      cd ~/pkgconf
+      sh autogen.sh
+  - configure: |
+      cd ~/pkgconf
+      ./configure
+  - distcheck: |
+      cd ~/pkgconf
+      make distcheck
+
