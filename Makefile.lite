@@ -28,10 +28,9 @@ SRCS = \
 	libpkgconf/queue.c		\
 	libpkgconf/tuple.c		\
 	cli/getopt_long.c		\
-	cli/main.c			\
-	cli/renderer-msvc.c
+	cli/main.c
 OBJS = ${SRCS:.c=.o}
-CFLAGS = ${STATIC} -I. -Ilibpkgconf -Icli -DSYSTEM_LIBDIR=\"${SYSTEM_LIBDIR}\" -DSYSTEM_INCLUDEDIR=\"${SYSTEM_INCLUDEDIR}\" -DPERSONALITY_PATH=\"${PERSONALITY_PATH}\" -DPKG_DEFAULT_PATH=\"${PKG_DEFAULT_PATH}\"
+CFLAGS = ${STATIC} -DPKGCONF_LITE -I. -Ilibpkgconf -Icli -DSYSTEM_LIBDIR=\"${SYSTEM_LIBDIR}\" -DSYSTEM_INCLUDEDIR=\"${SYSTEM_INCLUDEDIR}\" -DPKG_DEFAULT_PATH=\"${PKG_DEFAULT_PATH}\"
 STATIC =
 
 all: pkgconf-lite
@@ -53,7 +52,7 @@ clean:
 	rm -f ${OBJS}
 	rm -f pkgconf-lite
 
-preflight: preflight-system-libdir preflight-system-includedir preflight-pkg-default-path preflight-personality-path
+preflight: preflight-system-libdir preflight-system-includedir preflight-pkg-default-path
 
 preflight-system-libdir:
 	@if test -z "${SYSTEM_LIBDIR}"; then		\
@@ -67,16 +66,10 @@ preflight-system-includedir:
 		exit 1;					\
 	fi
 
-preflight-personality-path:
-	@if test -z "${PERSONALITY_PATH}"; then		\
-		echo "PERSONALITY_PATH not set.";	\
-		exit 1;					\
-	fi
-
 preflight-pkg-default-path:
 	@if test -z "${PKG_DEFAULT_PATH}"; then		\
 		echo "PKG_DEFAULT_PATH not set.";	\
 		exit 1;					\
 	fi
 
-.PHONY: preflight preflight-system-libdir preflight-system-includedir preflight-pkg-default-path preflight-personality-path clean
+.PHONY: preflight preflight-system-libdir preflight-system-includedir preflight-pkg-default-path clean

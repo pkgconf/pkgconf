@@ -18,7 +18,9 @@
 #include <libpkgconf/libpkgconf.h>
 #include "libpkgconf/config.h"
 #include "getopt_long.h"
+#ifndef PKGCONF_LITE
 #include "renderer-msvc.h"
+#endif
 #ifdef _WIN32
 #include <io.h>     /* for _setmode() */
 #include <fcntl.h>
@@ -246,6 +248,7 @@ apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int
 	return true;
 }
 
+#ifndef PKGCONF_LITE
 static void
 print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 {
@@ -280,6 +283,7 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int 
 	printf("}\n");
 	return true;
 }
+#endif
 
 static bool
 apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
@@ -638,9 +642,11 @@ usage(void)
 	printf("  --relocate=path                   relocates a path and exits (mostly for testsuite)\n");
 	printf("  --dont-relocate-paths             disables path relocation support\n");
 
+#ifndef PKGCONF_LITE
 	printf("\ncross-compilation personality support:\n\n");
 	printf("  --personality=triplet|filename    sets the personality to 'triplet' or a file named 'filename'\n");
 	printf("  --dump-personality                dumps details concerning selected personality\n");
+#endif
 
 	printf("\nchecking specific pkg-config database entries:\n\n");
 
@@ -676,7 +682,9 @@ usage(void)
 	printf("                                    linking to stdout\n");
 	printf("  --print-provides                  print provided dependencies to stdout\n");
 	printf("  --print-variables                 print all known variables in module to stdout\n");
+#ifndef PKGCONF_LITE
 	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
+#endif
 	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", SYSTEM_INCLUDEDIR);
 	printf("  --keep-system-libs                keep -L%s entries in libs output\n", SYSTEM_LIBDIR);
 	printf("  --path                            show the exact filenames for any matching .pc files\n");
@@ -684,7 +692,9 @@ usage(void)
 	printf("  --internal-cflags                 do not filter 'internal' cflags from output\n");
 
 	printf("\nfiltering output:\n\n");
+#ifndef PKGCONF_LITE
 	printf("  --msvc-syntax                     print translatable fragments in MSVC syntax\n");
+#endif
 	printf("  --fragment-filter=types           filter output fragments to the specified types\n");
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
@@ -701,6 +711,7 @@ relocate_path(const char *path)
 	printf("%s\n", buf);
 }
 
+#ifndef PKGCONF_LITE
 static void
 dump_personality(const pkgconf_cross_personality_t *p)
 {
@@ -766,6 +777,7 @@ deduce_personality(char *argv[])
 
 	return out;
 }
+#endif
 
 int
 main(int argc, char *argv[])
@@ -814,7 +826,9 @@ main(int argc, char *argv[])
 		{ "pure", no_argument, &want_flags, PKG_PURE, },
 		{ "print-requires", no_argument, &want_flags, PKG_REQUIRES, },
 		{ "print-variables", no_argument, &want_flags, PKG_VARIABLES|PKG_PRINT_ERRORS, },
+#ifndef PKGCONF_LITE
 		{ "digraph", no_argument, &want_flags, PKG_DIGRAPH, },
+#endif
 		{ "help", no_argument, &want_flags, PKG_HELP, },
 		{ "env-only", no_argument, &want_flags, PKG_ENV_ONLY, },
 		{ "print-requires-private", no_argument, &want_flags, PKG_REQUIRES_PRIVATE, },
@@ -850,11 +864,15 @@ main(int argc, char *argv[])
 		{ "dont-define-prefix", no_argument, &want_flags, PKG_DONT_DEFINE_PREFIX },
 		{ "dont-relocate-paths", no_argument, &want_flags, PKG_DONT_RELOCATE_PATHS },
 		{ "env", required_argument, NULL, 48 },
+#ifndef PKGCONF_LITE
 		{ "msvc-syntax", no_argument, &want_flags, PKG_MSVC_SYNTAX },
+#endif
 		{ "fragment-filter", required_argument, NULL, 50 },
 		{ "internal-cflags", no_argument, &want_flags, PKG_INTERNAL_CFLAGS },
+#ifndef PKGCONF_LITE
 		{ "dump-personality", no_argument, &want_flags, PKG_DUMP_PERSONALITY },
 		{ "personality", required_argument, NULL, 53 },
+#endif
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -864,7 +882,11 @@ main(int argc, char *argv[])
 		pkgconf_client_set_trace_handler(&pkg_client, error_handler, NULL);
 	}
 
+#ifndef PKGCONF_LITE
 	personality = deduce_personality(argv);
+#else
+	personality = pkgconf_cross_personality_default();
+#endif
 
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
@@ -909,9 +931,11 @@ main(int argc, char *argv[])
 		case 50:
 			want_fragment_filter = pkg_optarg;
 			break;
+#ifndef PKGCONF_LITE
 		case 53:
 			personality = pkgconf_cross_personality_find(pkg_optarg);
 			break;
+#endif
 		case '?':
 		case ':':
 			return EXIT_FAILURE;
@@ -924,17 +948,21 @@ main(int argc, char *argv[])
 	pkgconf_path_copy_list(&personality->dir_list, &dir_list);
 	pkgconf_path_free(&dir_list);
 
+#ifndef PKGCONF_LITE
 	if ((want_flags & PKG_DUMP_PERSONALITY) == PKG_DUMP_PERSONALITY)
 	{
 		dump_personality(personality);
 		return EXIT_SUCCESS;
 	}
+#endif
 
 	/* now, bring up the client.  settings are preserved since the client is prealloced */
 	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
 
+#ifndef PKGCONF_LITE
 	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX)
 		want_render_ops = msvc_renderer_get();
+#endif
 
 	if ((env_traverse_depth = getenv("PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH")) != NULL)
 		maximum_traverse_depth = atoi(env_traverse_depth);
@@ -1291,6 +1319,7 @@ main(int argc, char *argv[])
 		}
 	}
 
+#ifndef PKGCONF_LITE
 	if ((want_flags & PKG_DIGRAPH) == PKG_DIGRAPH)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
@@ -1301,6 +1330,7 @@ main(int argc, char *argv[])
 			goto out;
 		}
 	}
+#endif
 
 	if ((want_flags & PKG_MODVERSION) == PKG_MODVERSION)
 	{

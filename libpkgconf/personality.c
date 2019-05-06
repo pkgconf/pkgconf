@@ -99,6 +99,7 @@ pkgconf_cross_personality_default(void)
 	return &default_personality;
 }
 
+#ifndef PKGCONF_LITE
 static bool
 valid_triplet(const char *triplet)
 {
@@ -249,3 +250,4 @@ finish:
 	pkgconf_path_free(&plist);
 	return out;
 }
+#endif
