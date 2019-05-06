@@ -546,6 +546,7 @@ apply_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, in
 	return true;
 }
 
+#ifndef PKGCONF_LITE
 static void
 print_graph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
@@ -589,6 +590,7 @@ apply_simulate(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int m
 
 	return true;
 }
+#endif
 
 static void
 version(void)
@@ -629,7 +631,9 @@ usage(void)
 	printf("  --silence-errors                  explicitly be silent about errors\n");
 	printf("  --list-all                        list all known packages\n");
 	printf("  --list-package-names              list all known package names\n");
+#ifndef PKGCONF_LITE
 	printf("  --simulate                        simulate walking the calculated dependency graph\n");
+#endif
 	printf("  --no-cache                        do not cache already seen packages when\n");
 	printf("                                    walking the dependency graph\n");
 	printf("  --log-file=filename               write an audit log to a specified file\n");
@@ -849,7 +853,9 @@ main(int argc, char *argv[])
 		{ "silence-errors", no_argument, &want_flags, PKG_SILENCE_ERRORS, },
 		{ "list-all", no_argument, &want_flags, PKG_LIST|PKG_PRINT_ERRORS, },
 		{ "list-package-names", no_argument, &want_flags, PKG_LIST_PACKAGE_NAMES|PKG_PRINT_ERRORS, },
+#ifndef PKGCONF_LITE
 		{ "simulate", no_argument, &want_flags, PKG_SIMULATE, },
+#endif
 		{ "no-cache", no_argument, &want_flags, PKG_NO_CACHE, },
 		{ "print-provides", no_argument, &want_flags, PKG_PROVIDES, },
 		{ "no-provides", no_argument, &want_flags, PKG_NO_PROVIDES, },
@@ -1273,6 +1279,7 @@ main(int argc, char *argv[])
 
 	ret = EXIT_SUCCESS;
 
+#ifndef PKGCONF_LITE
 	if ((want_flags & PKG_SIMULATE) == PKG_SIMULATE)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
@@ -1284,6 +1291,7 @@ main(int argc, char *argv[])
 			goto out;
 		}
 	}
+#endif
 
 	if (!pkgconf_queue_validate(&pkg_client, &pkgq, maximum_traverse_depth))
 	{

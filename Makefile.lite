@@ -32,6 +32,7 @@ SRCS = \
 OBJS = ${SRCS:.c=.o}
 CFLAGS = ${STATIC} -DPKGCONF_LITE -I. -Ilibpkgconf -Icli -DSYSTEM_LIBDIR=\"${SYSTEM_LIBDIR}\" -DSYSTEM_INCLUDEDIR=\"${SYSTEM_INCLUDEDIR}\" -DPKG_DEFAULT_PATH=\"${PKG_DEFAULT_PATH}\"
 STATIC =
+STRIP = strip
 
 all: pkgconf-lite
 
@@ -46,6 +47,7 @@ libpkgconf/config.h:
 
 pkgconf-lite: preflight libpkgconf/config.h ${OBJS}
 	${CC} ${STATIC} -o $@ ${OBJS}
+	${STRIP} $@
 
 clean:
 	rm -f libpkgconf/config.h
