@@ -99,8 +99,10 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	client->error_handler = error_handler;
 	client->auditf = NULL;
 
+#ifndef PKGCONF_LITE
 	if (client->trace_handler == NULL)
 		pkgconf_client_set_trace_handler(client, NULL, NULL);
+#endif
 
 	pkgconf_client_set_error_handler(client, error_handler, error_handler_data);
 	pkgconf_client_set_warn_handler(client, NULL, NULL);
@@ -567,6 +569,7 @@ pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler
 	}
 }
 
+#ifndef PKGCONF_LITE
 /*
  * !doc
  *
@@ -607,3 +610,4 @@ pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler
 		PKGCONF_TRACE(client, "installing default trace handler");
 	}
 }
+#endif

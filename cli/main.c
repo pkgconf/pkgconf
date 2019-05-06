@@ -876,11 +876,13 @@ main(int argc, char *argv[])
 		{ NULL, 0, NULL, 0 }
 	};
 
+#ifndef PKGCONF_LITE
 	if (getenv("PKG_CONFIG_EARLY_TRACE"))
 	{
 		error_msgout = stderr;
 		pkgconf_client_set_trace_handler(&pkg_client, error_handler, NULL);
 	}
+#endif
 
 #ifndef PKGCONF_LITE
 	personality = deduce_personality(argv);
@@ -981,8 +983,10 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_VALIDATE) == PKG_VALIDATE || (want_flags & PKG_DEBUG) == PKG_DEBUG)
 		pkgconf_client_set_warn_handler(&pkg_client, error_handler, NULL);
 
+#ifndef PKGCONF_LITE
 	if ((want_flags & PKG_DEBUG) == PKG_DEBUG)
 		pkgconf_client_set_trace_handler(&pkg_client, error_handler, NULL);
+#endif
 
 	if ((want_flags & PKG_ABOUT) == PKG_ABOUT)
 	{

@@ -278,6 +278,7 @@ PKGCONF_API bool pkgconf_warn(const pkgconf_client_t *client, const char *format
 PKGCONF_API bool pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t lineno, const char *funcname, const char *format, ...) PRINTFLIKE(5, 6);
 PKGCONF_API bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data);
 
+#ifndef PKGCONF_LITE
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
 #define PKGCONF_TRACE(client, ...) do { \
 		pkgconf_trace(client, __FILE__, __LINE__, __PRETTY_FUNCTION__, __VA_ARGS__); \
@@ -286,6 +287,9 @@ PKGCONF_API bool pkgconf_default_error_handler(const char *msg, const pkgconf_cl
 #define PKGCONF_TRACE(client, ...) do { \
 		pkgconf_trace(client, __FILE__, __LINE__, __func__, __VA_ARGS__); \
 	} while (0);
+#endif
+#else
+#define PKGCONF_TRACE(client, ...)
 #endif
 
 PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_ref(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
