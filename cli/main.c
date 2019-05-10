@@ -758,7 +758,7 @@ deduce_personality(char *argv[])
 	if (i == NULL)
 		return pkgconf_cross_personality_default();
 
-	prefix = strndup(argv0, i - argv0);
+	prefix = pkgconf_strndup(argv0, i - argv0);
 	out = pkgconf_cross_personality_find(prefix);
 	free(prefix);
 	if (out == NULL)
