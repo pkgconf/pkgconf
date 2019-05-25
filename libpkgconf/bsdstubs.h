@@ -13,8 +13,8 @@
  * from the use of this software.
  */
 
-#ifndef __BSDSTUBS_H__
-#define __BSDSTUBS_H__
+#ifndef LIBPKGCONF_BSDSTUBS_H
+#define LIBPKGCONF_BSDSTUBS_H
 
 #include <libpkgconf/libpkgconf-api.h>
 

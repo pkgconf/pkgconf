@@ -13,8 +13,8 @@
  * from the use of this software.
  */
 
-#ifndef __STDINC_H
-#define __STDINC_H
+#ifndef LIBPKGCONF_STDINC_H
+#define LIBPKGCONF_STDINC_H
 
 #include <ctype.h>
 #include <stdio.h>

@@ -1,5 +1,5 @@
-#ifndef PKGCONFG_API
-#define PKGCONFG_API
+#ifndef LIBPKGCONF_LIBPKGCONF_API_H
+#define LIBPKGCONF_LIBPKGCONF_API_H
 
 /* Makefile.am specifies visibility using the libtool option -export-symbols-regex '^pkgconf_'
  * Unfortunately, that is not available when building with cmake, so use attributes instead,

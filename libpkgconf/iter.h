@@ -13,8 +13,8 @@
  * from the use of this software.
  */
 
-#ifndef PKGCONF__ITER_H
-#define PKGCONF__ITER_H
+#ifndef LIBPKGCONF_ITER_H
+#define LIBPKGCONF_ITER_H
 
 #ifdef __cplusplus
 extern "C" {

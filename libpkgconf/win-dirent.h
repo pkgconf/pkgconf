@@ -7,8 +7,8 @@
  * under the MIT license.  For all details and documentation, see
  * https://github.com/tronkko/dirent
  */
-#ifndef DIRENT_H
-#define DIRENT_H
+#ifndef LIBPKGCONF_DIRENT_H
+#define LIBPKGCONF_DIRENT_H
 
 /*
  * Include windows.h without Windows Sockets 1.1 to prevent conflicts with
