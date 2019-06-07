@@ -13,9 +13,9 @@
  * from the use of this software.
  */
 
+#include <libpkgconf/config.h>
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
-#include <libpkgconf/config.h>
 
 #if defined(HAVE_CYGWIN_CONV_PATH) && defined(__MSYS__)
 # include <sys/cygwin.h>

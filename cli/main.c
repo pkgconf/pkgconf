@@ -14,9 +14,9 @@
  * from the use of this software.
  */
 
+#include "libpkgconf/config.h"
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
-#include "libpkgconf/config.h"
 #include "getopt_long.h"
 #ifndef PKGCONF_LITE
 #include "renderer-msvc.h"
