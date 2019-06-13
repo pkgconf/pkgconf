@@ -1,7 +1,7 @@
 PROJECT(libpkgconf C)
 
 # Enforce visibiliity restrictions when building shared libraries on Unix.
-SET(CMAKE_CXX_VISIBILITY_PRESET hidden)
+SET(CMAKE_C_VISIBILITY_PRESET hidden)
 ADD_DEFINITIONS(-DLIBPKGCONF_EXPORT)
 
 ADD_LIBRARY(libpkgconf SHARED
