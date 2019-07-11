@@ -95,7 +95,12 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 			char *linkdest = realpath(path, NULL);
 
 			if (linkdest != NULL && stat(linkdest, &st) == -1)
+			{
+				free(linkdest);
 				return;
+			}
+
+			free(linkdest);
 		}
 		if (path_list_contains_entry(path, dirlist, &st))
 			return;
