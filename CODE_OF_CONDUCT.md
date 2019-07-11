@@ -16,7 +16,7 @@ and backgrounds, and we cherish our strength in diversity.
 ## Reporting incidents
 
 Please report any incidents which may be perceived as violations to
-`nenolod+conduct@dereferenced.org`.  Incidents will be investigated and,
+`ariadne+conduct@dereferenced.org`.  Incidents will be investigated and,
 if warranted, acted upon.
 
 
