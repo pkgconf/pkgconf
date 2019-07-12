@@ -31,7 +31,8 @@ tests_init \
 	fragment_quoting_7 \
 	msvc_fragment_quoting \
 	msvc_fragment_render_cflags \
-	tuple_dequote
+	tuple_dequote \
+	version_with_whitespace
 
 comments_body()
 {
@@ -282,4 +283,11 @@ tuple_dequote_body()
 	atf_check \
 		-o inline:'-L/test/lib -lfoo \n' \
 		pkgconf --with-path="${selfdir}/lib1" --libs tuple-quoting
+}
+
+version_with_whitespace_body()
+{
+	atf_check \
+		-o inline:'3.922\n' \
+		pkgconf --with-path="${selfdir}/lib1" --modversion malformed-version
 }
