@@ -1,4 +1,4 @@
-# pkgconf
+# pkgconf [![builds.sr.ht status](https://builds.sr.ht/~kaniini/pkgconf.svg)](https://builds.sr.ht/~kaniini/pkgconf?)
 
 `pkgconf` is a program which helps to configure compiler and linker flags for
 development libraries.  It is similar to pkg-config from freedesktop.org.
@@ -6,11 +6,6 @@ development libraries.  It is similar to pkg-config from freedesktop.org.
 `libpkgconf` is a library which provides access to most of `pkgconf`'s functionality, to allow
 other tooling such as compilers and IDEs to discover and use libraries configured by
 pkgconf.
-
-## git repository has moved
-
-Note: due to the recent acquisition of GitHub by Microsoft, we have moved our git
-repository to <https://git.dereferenced.org/pkgconf/pkgconf>.
 
 ## using `pkgconf` with autotools
 
@@ -122,8 +117,10 @@ to make this determination themselves.
 Release tarballs are available at <https://distfiles.dereferenced.org/pkgconf/>.
 Please only use the tarballs from distfiles.dereferenced.org.
 
-## reporting bugs
+## contacts
 
-See <https://git.dereferenced.org/pkgconf/pkgconf/issues>.
+You can report bugs at <https://todo.sr.ht/~kaniini/pkgconf>.
 
-Also you can contact us at `#pkgconf` at `irc.freenode.net`.
+There is a mailing list at <https://lists.sr.ht/~kaniini/pkgconf>.
+
+You can contact us via IRC at `#pkgconf` at `irc.freenode.net`.
