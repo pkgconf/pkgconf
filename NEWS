@@ -1,6 +1,12 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.6.2 to 1.6.3:
+----------------------------
+
+* Enhancements:
+  - CMake support has been dropped.  Use Meson to build on Windows.
+
 Changes from 1.6.1 to 1.6.2:
 ----------------------------
 

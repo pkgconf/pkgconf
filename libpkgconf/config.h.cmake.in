@@ -1,8 +1,0 @@
-#cmakedefine HAVE_CYGWIN_CONV_PATH
-#cmakedefine HAVE_STRLCAT
-#cmakedefine HAVE_STRLCPY
-#cmakedefine HAVE_STRNDUP
-#cmakedefine HAVE_SYS_STAT_H
-#cmakedefine PACKAGE_BUGREPORT "@PACKAGE_BUGREPORT@"
-#cmakedefine PACKAGE_NAME "@PACKAGE_NAME@"
-#cmakedefine PACKAGE_VERSION "@PACKAGE_VERSION@"
