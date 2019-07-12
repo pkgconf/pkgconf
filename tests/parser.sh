@@ -33,7 +33,8 @@ tests_init \
 	msvc_fragment_render_cflags \
 	tuple_dequote \
 	version_with_whitespace \
-	version_with_whitespace_2
+	version_with_whitespace_2 \
+	version_with_whitespace_diagnostic
 
 comments_body()
 {
@@ -298,4 +299,11 @@ version_with_whitespace_2_body()
 	atf_check \
 		-o inline:'malformed-version = 3.922\n' \
 		pkgconf --with-path="${selfdir}/lib1" --print-provides malformed-version
+}
+
+version_with_whitespace_diagnostic_body()
+{
+	atf_check \
+		-o match:warning \
+		pkgconf --with-path="${selfdir}/lib1" --validate malformed-version
 }
