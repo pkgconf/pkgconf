@@ -1,7 +1,7 @@
 project('pkgconf', 'c',
   version : '1.6.3',
   license : 'ISC',
-  meson_version : '>=0.40')
+  meson_version : '>=0.47')
 
 
 cc = meson.get_compiler('c')
