@@ -4,6 +4,12 @@ Changes from previous version of pkgconf
 Changes from 1.6.2 to 1.6.3:
 ----------------------------
 
+* Bug fixes:
+  - Properly tokenize versions.  Versions cannot logically contain
+    whitespace, as dependency-lists would not properly tokenize if
+    they could.  A diagnostic is generated for malformed version
+    strings containing whitespace when --validate is used.
+
 * Enhancements:
   - CMake support has been dropped.  Use Meson to build on Windows.
 
