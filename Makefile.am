@@ -15,6 +15,7 @@ bin_PROGRAMS = pkgconf
 lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	pkg.m4 \
+		meson.build \
 		libpkgconf/win-dirent.h \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
@@ -93,7 +94,6 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/tuple-quoting.pc \
 		tests/lib1/empty-tuple.pc \
 		tests/lib1/orphaned-requires-private.pc \
-		tests/test_env.sh \
 		$(test_scripts) \
 		doc/conf.py \
 		doc/extract.py \
@@ -110,7 +110,7 @@ EXTRA_DIST =	pkg.m4 \
 		doc/libpkgconf-queue.rst \
 		doc/libpkgconf-tuple.rst
 
-test_scripts=	\
+test_scripts=	tests/meson.build \
 		tests/basic.sh \
 		tests/builtins.sh \
 		tests/conflicts.sh \
