@@ -1,5 +1,5 @@
 project('pkgconf', 'c',
-  version : '1.6.2',
+  version : '1.6.3',
   license : 'ISC',
   meson_version : '>=0.40')
 
@@ -56,7 +56,7 @@ cdata.set_quoted('PKG_DEFAULT_PATH', ':'.join(default_path))
 cdata.set_quoted('PERSONALITY_PATH', ':'.join(personality_path))
 cdata.set_quoted('PACKAGE_NAME', meson.project_name())
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
-cdata.set_quoted('PACKAGE_BUGREPORT', 'http://git.dereferenced.org/pkgconf/pkgconf/issues')
+cdata.set_quoted('PACKAGE_BUGREPORT', 'https://todo.sr.ht/~kaniini/pkgconf')
 cdata.set('abs_top_srcdir', meson.source_root())
 cdata.set('abs_top_builddir', meson.build_root())
 
