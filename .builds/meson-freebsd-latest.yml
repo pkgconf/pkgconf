@@ -1,0 +1,16 @@
+image: freebsd/latest
+packages:
+  - meson
+  - ninja
+  - kyua
+  - atf
+sources:
+  - https://git.sr.ht/~kaniini/pkgconf
+tasks:
+  - configure: |
+      cd ~/pkgconf
+      meson build
+  - distcheck: |
+      cd ~/pkgconf
+      ninja -C build
+      ninja -C build test
