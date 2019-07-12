@@ -1,0 +1,25 @@
+image: fedora/rawhide
+packages:
+  - make
+  - kernel-devel
+  - gcc
+  - gcc-c++
+  - autoconf
+  - automake
+  - libtool
+  - kyua
+  - libatf-sh
+  - xz
+  - gzip
+sources:
+  - https://git.sr.ht/~kaniini/pkgconf
+tasks:
+  - autogen: |
+      cd ~/pkgconf
+      sh autogen.sh
+  - configure: |
+      cd ~/pkgconf
+      ./configure
+  - distcheck: |
+      cd ~/pkgconf
+      make distcheck
