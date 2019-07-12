@@ -88,6 +88,31 @@ pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg
 }
 
 static void
+pkgconf_pkg_parser_version_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+{
+	(void) keyword;
+	(void) lineno;
+	char *p, *i;
+	size_t len;
+	char **dest = (char **)((char *) pkg + offset);
+
+	/* cut at any detected whitespace */
+	p = pkgconf_tuple_parse(client, &pkg->vars, value);
+
+	len = strcspn(p, " \t\r\n");
+	if (len)
+	{
+		i = p + (ptrdiff_t) len;
+		*i = '\0';
+
+		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: malformed version field with whitespace, trimming to [%s]\n", pkg->filename,
+			     lineno, p);
+	}
+
+	*dest = p;
+}
+
+static void
 pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
@@ -134,7 +159,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"Requires", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, required)},
 	{"Requires.internal", pkgconf_pkg_parser_internal_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
 	{"Requires.private", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
-	{"Version", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, version)},
+	{"Version", pkgconf_pkg_parser_version_func, offsetof(pkgconf_pkg_t, version)},
 };
 
 static void
