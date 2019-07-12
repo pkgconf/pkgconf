@@ -30,9 +30,6 @@ Msys|CYGWIN*) PATH_SEP=";";;
 Haiku) LIBRARY_PATH_ENV="BELIBRARIES";;
 esac
 
-prefix="@prefix@"
-exec_prefix="@exec_prefix@"
-datarootdir="@datarootdir@"
 pcpath="@PKG_DEFAULT_PATH@"
 
 tests_init()
