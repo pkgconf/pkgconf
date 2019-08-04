@@ -78,8 +78,8 @@ typedef struct pkgconf_cross_personality_ pkgconf_cross_personality_t;
 #define PKGCONF_FOREACH_LIST_ENTRY_REVERSE(tail, value) \
 	for ((value) = (tail); (value) != NULL; (value) = (value)->prev)
 
-#define LIBPKGCONF_VERSION	10603
-#define LIBPKGCONF_VERSION_STR	"1.6.3"
+#define LIBPKGCONF_VERSION	10990
+#define LIBPKGCONF_VERSION_STR	"1.9.90"
 
 struct pkgconf_fragment_ {
 	pkgconf_node_t iter;
