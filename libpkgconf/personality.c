@@ -248,6 +248,6 @@ pkgconf_cross_personality_find(const char *triplet)
 
 finish:
 	pkgconf_path_free(&plist);
-	return out;
+	return out != NULL ? out : pkgconf_cross_personality_default();
 }
 #endif
