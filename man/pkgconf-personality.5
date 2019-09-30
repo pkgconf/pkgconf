@@ -47,6 +47,7 @@ The property will be set to the text of the value.
 The property will be set to a list of fragments parsed from the text.
 The input text must be in a format that is suitable for passing to a POSIX
 shell without any shell expansions after variable substitution has been done.
+Elements are delimited with a colon.
 .\"
 .El
 .Ss PROPERTY KEYWORDS
@@ -79,8 +80,7 @@ An example .personality file:
 # This is a comment
 Triplet: x86_64-pc-linux-gnu
 SysrootDir: /home/kaniini/sysroot/x86_64-pc-linux-gnu
-DefaultSearchPaths: /home/kaniini/sysroot/x86_64-pc-linux-gnu/lib/pkgconfig \\
-  /home/kaniini/sysroot/x86_64-pc-linux-gnu/share/pkgconfig
+DefaultSearchPaths: /home/kaniini/sysroot/x86_64-pc-linux-gnu/lib/pkgconfig:/home/kaniini/sysroot/x86_64-pc-linux-gnu/share/pkgconfig
 SystemIncludePaths: /home/kaniini/sysroot/x86_64-pc-linux-gnu/include
 SystemLibraryPaths: /home/kaniini/sysroot/x86_64-pc-linux-gnu/lib
 .Ed
