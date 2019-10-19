@@ -69,6 +69,7 @@
 #define PKG_MSVC_SYNTAX			(((uint64_t) 1) << 41)
 #define PKG_INTERNAL_CFLAGS		(((uint64_t) 1) << 42)
 #define PKG_DUMP_PERSONALITY		(((uint64_t) 1) << 43)
+#define PKG_SHARED			(((uint64_t) 1) << 44)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -664,6 +665,7 @@ usage(void)
 	printf("  --maximum-traverse-depth          maximum allowed depth for dependency graph\n");
 	printf("  --static                          be more aggressive when computing dependency graph\n");
 	printf("                                    (for static linking)\n");
+	printf("  --shared                          use a simplified dependency graph (usually default)\n");
 	printf("  --pure                            optimize a static dependency graph as if it were a normal\n");
 	printf("                                    dependency graph\n");
 	printf("  --env-only                        look only for package entries in PKG_CONFIG_PATH\n");
@@ -827,6 +829,7 @@ main(int argc, char *argv[])
 		{ "short-errors", no_argument, &want_flags, PKG_SHORT_ERRORS, },
 		{ "maximum-traverse-depth", required_argument, NULL, 11, },
 		{ "static", no_argument, &want_flags, PKG_STATIC, },
+		{ "shared", no_argument, &want_flags, PKG_SHARED, },
 		{ "pure", no_argument, &want_flags, PKG_PURE, },
 		{ "print-requires", no_argument, &want_flags, PKG_REQUIRES, },
 		{ "print-variables", no_argument, &want_flags, PKG_VARIABLES|PKG_PRINT_ERRORS, },
@@ -1039,6 +1042,9 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_STATIC) == PKG_STATIC)
 		want_client_flags |= (PKGCONF_PKG_PKGF_SEARCH_PRIVATE | PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS);
+
+	if ((want_flags & PKG_SHARED) == PKG_SHARED)
+		want_client_flags &= ~(PKGCONF_PKG_PKGF_SEARCH_PRIVATE | PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS);
 
 	/* if --static and --pure are both specified, then disable merge-back.
 	 * this allows for a --static which searches private modules, but has the same fragment behaviour as if
