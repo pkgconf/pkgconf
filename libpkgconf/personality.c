@@ -120,6 +120,16 @@ typedef struct {
 } personality_keyword_pair_t;
 
 static void
+personality_bool_func(pkgconf_cross_personality_t *p, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
+{
+	(void) keyword;
+	(void) lineno;
+
+	bool *dest = (bool *)((char *) p + offset);
+	*dest = strcasecmp(value, "true") || strcasecmp(value, "yes") || *value == '1';
+}
+
+static void
 personality_copy_func(pkgconf_cross_personality_t *p, const char *keyword, const size_t lineno, const ptrdiff_t offset, char *value)
 {
 	(void) keyword;
@@ -146,6 +156,7 @@ static const personality_keyword_pair_t personality_keyword_pairs[] = {
 	{"SystemIncludePaths", personality_fragment_func, offsetof(pkgconf_cross_personality_t, filter_includedirs)},
 	{"SystemLibraryPaths", personality_fragment_func, offsetof(pkgconf_cross_personality_t, filter_libdirs)},
 	{"Triplet", personality_copy_func, offsetof(pkgconf_cross_personality_t, name)},
+	{"WantDefaultStatic", personality_bool_func, offsetof(pkgconf_cross_personality_t, want_default_static)},
 };
 
 static int

@@ -1040,7 +1040,7 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_IGNORE_CONFLICTS) == PKG_IGNORE_CONFLICTS || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
 		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_CONFLICTS;
 
-	if ((want_flags & PKG_STATIC) == PKG_STATIC)
+	if ((want_flags & PKG_STATIC) == PKG_STATIC || personality->want_default_static)
 		want_client_flags |= (PKGCONF_PKG_PKGF_SEARCH_PRIVATE | PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS);
 
 	if ((want_flags & PKG_SHARED) == PKG_SHARED)

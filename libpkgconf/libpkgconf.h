@@ -202,6 +202,8 @@ struct pkgconf_cross_personality_ {
 	pkgconf_list_t filter_includedirs;
 
 	char *sysroot_dir;
+
+	bool want_default_static;
 };
 
 /* client.c */
