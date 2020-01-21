@@ -1005,18 +1005,8 @@ main(int argc, char *argv[])
 
 	if ((want_flags & PKG_VERSION) == PKG_VERSION)
 	{
-		if (argc > 2)
-		{
-			fprintf(stderr, "%s: --version specified with other options or module names, assuming --modversion.\n", argv[0]);
-
-			want_flags &= ~PKG_VERSION;
-			want_flags |= PKG_MODVERSION;
-		}
-		else
-		{
-			version();
-			return EXIT_SUCCESS;
-		}
+		version();
+		return EXIT_SUCCESS;
 	}
 
 	if ((want_flags & PKG_HELP) == PKG_HELP)
