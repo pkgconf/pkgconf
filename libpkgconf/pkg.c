@@ -99,7 +99,7 @@ pkgconf_pkg_parser_version_func(const pkgconf_client_t *client, pkgconf_pkg_t *p
 	/* cut at any detected whitespace */
 	p = pkgconf_tuple_parse(client, &pkg->vars, value);
 
-	len = strcspn(p, " \t\r\n");
+	len = strcspn(p, " \t");
 	if (len)
 	{
 		i = p + (ptrdiff_t) len;
