@@ -179,7 +179,7 @@ personality_keyword_set(pkgconf_cross_personality_t *p, const size_t lineno, con
 	pair->func(p, keyword, lineno, pair->offset, value);
 }
 
-static const pkgconf_parser_operand_func_t personality_parser_ops[] = {
+static const pkgconf_parser_operand_func_t personality_parser_ops[256] = {
 	[':'] = (pkgconf_parser_operand_func_t) personality_keyword_set
 };
 
