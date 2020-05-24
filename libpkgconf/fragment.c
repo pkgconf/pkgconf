@@ -150,7 +150,8 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 	{
 		char mungebuf[PKGCONF_ITEM_SIZE];
 
-		if (list->tail != NULL && list->tail->data != NULL)
+		if (list->tail != NULL && list->tail->data != NULL &&
+		    !(client->flags & PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS))
 		{
 			pkgconf_fragment_t *parent = list->tail->data;
 

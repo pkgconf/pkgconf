@@ -21,6 +21,10 @@ Changes from 1.6.3 to 1.7.0:
     to specify that static linking should be used by default.
   - Support for the PKG_CONFIG_MSVC_SYNTAX environment variable has
     been added.  Patch by Dan Kegel.
+  - Support for the PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS
+    client flag which disables emulation of freedesktop.org pkg-config
+    fragment merging semantics has been added.
+    Patch by Karen Arutyunov.
 
 Changes from 1.6.2 to 1.6.3:
 ----------------------------
