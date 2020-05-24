@@ -971,7 +971,7 @@ main(int argc, char *argv[])
 	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
 
 #ifndef PKGCONF_LITE
-	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX)
+	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX || getenv("PKG_CONFIG_MSVC_SYNTAX") != NULL)
 		want_render_ops = msvc_renderer_get();
 #endif
 

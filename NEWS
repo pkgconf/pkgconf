@@ -18,6 +18,8 @@ Changes from 1.6.3 to 1.7.0:
   - A new --shared option and WantDefaultStatic cross-compile
     configuration option have been added.  This allows for toolchains
     to specify that static linking should be used by default.
+  - Support for the PKG_CONFIG_MSVC_SYNTAX environment variable has
+    been added.  Patch by Dan Kegel.
 
 Changes from 1.6.2 to 1.6.3:
 ----------------------------
