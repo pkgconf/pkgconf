@@ -13,6 +13,7 @@ Changes from 1.6.3 to 1.7.0:
     responses.
   - Return the default personality if loading a cross-compile
     personality file failed.
+  - Do not complain about newlines when validating package versions.
 
 * Enhancements:
   - A new --shared option and WantDefaultStatic cross-compile
