@@ -28,14 +28,14 @@ foreach h : check_headers
 endforeach
 
 check_functions = [
-  ['HAVE_CYGWIN_CONV_PATH', 'cygwin_conv_path', '#include<sys/cygwin.h>'],
-  ['HAVE_STRLCAT', 'strlcat', '#include<string.h>'],
-  ['HAVE_STRLCPY', 'strlcpy', '#include<string.h>'],
-  ['HAVE_STRNDUP', 'strndup', '#include<string.h>'],
+  ['HAVE_CYGWIN_CONV_PATH', 'cygwin_conv_path', 'sys/cygwin.h'],
+  ['HAVE_STRLCAT', 'strlcat', 'string.h'],
+  ['HAVE_STRLCPY', 'strlcpy', 'string.h'],
+  ['HAVE_STRNDUP', 'strndup', 'string.h'],
 ]
 
 foreach f : check_functions
-  if cc.has_function(f.get(1), prefix : f.get(2))
+  if cc.has_function(f.get(1), prefix : '#include <' + f.get(2) + '>') and cc.has_header_symbol(f.get(2), f.get(1))
     cdata.set(f.get(0), 1)
   endif
 endforeach
