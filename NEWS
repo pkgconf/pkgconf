@@ -1,6 +1,24 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.6.3 to 1.7.0:
+----------------------------
+
+* Bug fixes:
+  - Fix a possible buffer overflow involving newline escaping.
+    Patch by Tobias Stöckmann.
+  - Fix an out of boundary access in the parser.
+    Patch by Tobias Stöckmann.
+  - Fix leakage of strcmp() result value in pkgconf_compare_version()
+    responses.
+  - Return the default personality if loading a cross-compile
+    personality file failed.
+
+* Enhancements:
+  - A new --shared option and WantDefaultStatic cross-compile
+    configuration option have been added.  This allows for toolchains
+    to specify that static linking should be used by default.
+
 Changes from 1.6.2 to 1.6.3:
 ----------------------------
 
