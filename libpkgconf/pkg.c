@@ -860,8 +860,8 @@ pkgconf_compare_version(const char *a, const char *b)
 		}
 
 		ret = strcmp(one, two);
-		if (ret)
-			return ret;
+		if (ret != 0)
+			return ret < 0 ? -1 : 1;
 
 		*str1 = oldch1;
 		*str2 = oldch2;
