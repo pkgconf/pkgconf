@@ -16,6 +16,9 @@ lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	pkg.m4 \
 		meson.build \
+		meson_options.txt \
+		libpkgconf/meson.build \
+		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
