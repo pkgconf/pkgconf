@@ -389,8 +389,9 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	 * strrchr() took us to the last \ in that case, so we just have to see if
 	 * it is followed by a /.  If so, lop it off.
 	 */
-	if ((idptr = strrchr(idptr, '/')) != NULL)
-		idptr++;
+	char *mungeptr;
+	if ((mungeptr = strrchr(idptr, '/')) != NULL)
+		idptr = mungeptr++;
 #endif
 
 	pkg->id = strdup(idptr);

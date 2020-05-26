@@ -1,6 +1,12 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.7.1 to 1.7.2:
+----------------------------
+
+* Bug fixes:
+  - Fix a windows-specific crash relating to path fixups.
+
 Changes from 1.7.0 to 1.7.1:
 ----------------------------
 
