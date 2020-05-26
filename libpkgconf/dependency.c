@@ -237,6 +237,7 @@ pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *dep
 	char *vstart = NULL;
 	char *package = NULL, *version = NULL;
 	char *cnameptr = cmpname;
+	char *cnameend = cmpname + PKGCONF_ITEM_SIZE - 1;
 
 	memset(cmpname, '\0', sizeof cmpname);
 
@@ -304,7 +305,8 @@ pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *dep
 			if (PKGCONF_IS_OPERATOR_CHAR(*ptr))
 			{
 				state = INSIDE_OPERATOR;
-				*cnameptr++ = *ptr;
+				if (cnameptr < cnameend)
+					*cnameptr++ = *ptr;
 			}
 
 			break;
@@ -315,7 +317,7 @@ pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *dep
 				state = AFTER_OPERATOR;
 				compare = pkgconf_pkg_comparator_lookup_by_name(cmpname);
 			}
-			else
+			else if (cnameptr < cnameend)
 				*cnameptr++ = *ptr;
 
 			break;
