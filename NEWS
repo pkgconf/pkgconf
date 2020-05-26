@@ -1,6 +1,17 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.7.0 to 1.7.1:
+----------------------------
+
+* Bug fixes:
+  - Fix a possible out of boundary access in the parser for the
+    cross-compile database.  Patch by Tobias Stöckmann.
+  - Missing files for building with Meson are now included in the
+    tarball.  Patch by Neal Gompa.
+  - Fix calculation of package atoms on Windows with paths that
+    use both directory separator characters.
+
 Changes from 1.6.3 to 1.7.0:
 ----------------------------
 
