@@ -531,8 +531,8 @@ pkgconf_pkg_try_specific_path(pkgconf_client_t *client, const char *path, const 
 
 	PKGCONF_TRACE(client, "trying path: %s for %s", path, name);
 
-	snprintf(locbuf, sizeof locbuf, "%s/%s" PKG_CONFIG_EXT, path, name);
-	snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s/%s-uninstalled" PKG_CONFIG_EXT, path, name);
+	snprintf(locbuf, sizeof locbuf, "%s%c%s" PKG_CONFIG_EXT, path, PKG_DIR_SEP_S, name);
+	snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s%c%s-uninstalled" PKG_CONFIG_EXT, path, PKG_DIR_SEP_S, name);
 
 	if (!(client->flags & PKGCONF_PKG_PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 	{
