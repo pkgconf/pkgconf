@@ -381,12 +381,17 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
 		idptr++;
-#ifdef _WIN32
-	else if ((idptr = strrchr(pkg->filename, '/')) != NULL)
-		idptr++;
-#endif
 	else
 		idptr = pkg->filename;
+
+#ifdef _WIN32
+	/* On Windows, both \ and / are allowed in paths, so we have to chop both.
+	 * strrchr() took us to the last \ in that case, so we just have to see if
+	 * it is followed by a /.  If so, lop it off.
+	 */
+	if ((idptr = strrchr(idptr, '/')) != NULL)
+		idptr++;
+#endif
 
 	pkg->id = strdup(idptr);
 	idptr = strrchr(pkg->id, '.');
