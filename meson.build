@@ -1,5 +1,5 @@
 project('pkgconf', 'c',
-  version : '1.7.1',
+  version : '1.7.2',
   license : 'ISC',
   meson_version : '>=0.47')
 
