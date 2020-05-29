@@ -137,7 +137,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 	if (*string == '\0')
 		return;
 
-	if (!pkgconf_fragment_is_special(string))
+	if (strlen(string) > 1 && !pkgconf_fragment_is_special(string))
 	{
 		frag = calloc(sizeof(pkgconf_fragment_t), 1);
 
