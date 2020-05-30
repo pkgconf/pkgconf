@@ -264,6 +264,7 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 		else if (*(ptr + 1) == '{')
 		{
 			char varname[PKGCONF_ITEM_SIZE];
+			char *vend = varname + PKGCONF_ITEM_SIZE - 1;
 			char *vptr = varname;
 			const char *pptr;
 			char *kv, *parsekv;
@@ -273,7 +274,8 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 			for (pptr = ptr + 2; *pptr != '\0'; pptr++)
 			{
 				if (*pptr != '}')
-					*vptr++ = *pptr;
+					if (vptr < vend)
+						*vptr++ = *pptr;
 				else
 				{
 					*vptr = '\0';
