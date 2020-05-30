@@ -118,9 +118,11 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 		}
 		else switch(*src_iter)
 		{
+#ifndef _WIN32
 			case '\\':
 				escaped = true;
 				break;
+#endif
 
 			case '\"':
 			case '\'':
