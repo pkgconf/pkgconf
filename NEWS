@@ -7,6 +7,9 @@ Changes from 1.7.2 to 1.7.3:
 * Bug fixes:
   - Fix a possible out of boundary write when evaluating dependencies.
     Patch by Tobias Stöckmann.
+  - Fix escaping logic on Windows.  Patch by Vincent Torri.
+  - Fix out of boundary read with a malformed fragment.
+    Patch by Tobias Stöckmann.
 
 Changes from 1.7.1 to 1.7.2:
 ----------------------------
