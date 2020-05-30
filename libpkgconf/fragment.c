@@ -442,8 +442,10 @@ fragment_quote(const pkgconf_fragment_t *frag)
 
 		if ((ptrdiff_t)(dst - out) + 2 > outlen)
 		{
+			ptrdiff_t offset = dst - out;
 			outlen *= 2;
 			out = realloc(out, outlen);
+			dst = out + offset;
 		}
 	}
 
