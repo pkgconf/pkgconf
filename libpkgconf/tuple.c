@@ -274,8 +274,15 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 			for (pptr = ptr + 2; *pptr != '\0'; pptr++)
 			{
 				if (*pptr != '}')
+				{
 					if (vptr < vend)
 						*vptr++ = *pptr;
+					else
+					{
+						*vptr = '\0';
+						break;
+					}
+				}
 				else
 				{
 					*vptr = '\0';
