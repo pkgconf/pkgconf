@@ -8,7 +8,9 @@ Changes from 1.7.2 to 1.7.3:
   - Fix a possible out of boundary write when evaluating dependencies.
     Patch by Tobias Stöckmann.
   - Fix escaping logic on Windows.  Patch by Vincent Torri.
-  - Fix out of boundary read with a malformed fragment.
+  - Fix out of boundary reads and writes with a malformed fragment.
+    Patches by Tobias Stöckmann.
+  - Fix a possible out of boundary write when evaluating tuples.
     Patch by Tobias Stöckmann.
 
 Changes from 1.7.1 to 1.7.2:
