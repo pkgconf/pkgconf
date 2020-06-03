@@ -539,7 +539,8 @@ pkgconf_pkg_try_specific_path(pkgconf_client_t *client, const char *path, const 
 	{
 		PKGCONF_TRACE(client, "found (uninstalled): %s", uninst_locbuf);
 		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f);
-		pkg->flags |= PKGCONF_PKG_PROPF_UNINSTALLED;
+		if (pkg != NULL)
+			pkg->flags |= PKGCONF_PKG_PROPF_UNINSTALLED;
 	}
 	else if ((f = fopen(locbuf, "r")) != NULL)
 	{
