@@ -3,27 +3,6 @@
 /* Define to 1 if you have the `cygwin_conv_path' function. */
 #mesondefine HAVE_CYGWIN_CONV_PATH
 
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#mesondefine HAVE_DLFCN_H
-
-/* Define to 1 if you have the <inttypes.h> header file. */
-#mesondefine HAVE_INTTYPES_H
-
-/* Define to 1 if you have the <memory.h> header file. */
-#mesondefine HAVE_MEMORY_H
-
-/* Define to 1 if you have the <stdint.h> header file. */
-#mesondefine HAVE_STDINT_H
-
-/* Define to 1 if you have the <stdlib.h> header file. */
-#mesondefine HAVE_STDLIB_H
-
-/* Define to 1 if you have the <strings.h> header file. */
-#mesondefine HAVE_STRINGS_H
-
-/* Define to 1 if you have the <string.h> header file. */
-#mesondefine HAVE_STRING_H
-
 /* Define to 1 if you have the `strlcat' function. */
 #mesondefine HAVE_STRLCAT
 
@@ -32,18 +11,6 @@
 
 /* Define to 1 if you have the `strndup' function. */
 #mesondefine HAVE_STRNDUP
-
-/* Define to 1 if you have the <sys/stat.h> header file. */
-#mesondefine HAVE_SYS_STAT_H
-
-/* Define to 1 if you have the <sys/types.h> header file. */
-#mesondefine HAVE_SYS_TYPES_H
-
-/* Define to 1 if you have the <unistd.h> header file. */
-#mesondefine HAVE_UNISTD_H
-
-/* Define to the sub-directory where libtool stores uninstalled libraries. */
-#mesondefine LT_OBJDIR
 
 /* Name of package */
 #mesondefine PACKAGE
