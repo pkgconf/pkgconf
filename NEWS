@@ -1,6 +1,17 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.7.3 to 1.7.4:
+---------------------------
+
+* Bug fixes:
+  - Fix null-dereference crash when pulling a malformed 'uninstalled'
+    .pc file into a dependency tree.  Patch by Tobias Stöckmann.
+
+* Enhancements:
+  - Rewrite DOS paths on native Windows builds that don't use
+    Cygwin/MSYS.
+
 Changes from 1.7.2 to 1.7.3:
 ----------------------------
 
