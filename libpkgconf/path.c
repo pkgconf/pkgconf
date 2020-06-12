@@ -17,7 +17,7 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
-#if defined(HAVE_CYGWIN_CONV_PATH) && defined(__MSYS__)
+#ifdef HAVE_CYGWIN_CONV_PATH
 # include <sys/cygwin.h>
 #endif
 
@@ -320,9 +320,17 @@ normpath(const char *path)
 bool
 pkgconf_path_relocate(char *buf, size_t buflen)
 {
-#if defined(HAVE_CYGWIN_CONV_PATH) && defined(__MSYS__)
+#ifdef _WIN32
+	char *ti;
+#endif
+
+#ifdef HAVE_CYGWIN_CONV_PATH
+	/*
+	 * If we are on Cygwin or MSYS, then we want to convert the virtual path
+	 * to a real DOS path, using cygwin_conv_path().
+	 */
 	ssize_t size;
-	char *tmpbuf, *ti;
+	char *tmpbuf;
 
 	size = cygwin_conv_path(CCP_POSIX_TO_WIN_A, buf, NULL, 0);
 	if (size < 0 || (size_t) size > buflen)
@@ -334,13 +342,6 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 
 	pkgconf_strlcpy(buf, tmpbuf, buflen);
 	free(tmpbuf);
-
-	/* rewrite any backslash arguments for best compatibility */
-	for (ti = buf; *ti != '\0'; ti++)
-	{
-		if (*ti == '\\')
-			*ti = '/';
-	}
 #else
 	char *tmpbuf;
 
@@ -355,6 +356,19 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 
 		pkgconf_strlcpy(buf, tmpbuf, buflen);
 		free(tmpbuf);
+	}
+#endif
+
+#ifdef _WIN32
+	/*
+	 * Rewrite any backslash path delimiters for best compatibility.
+	 * Originally, we did this in cygwin/msys case, but now we build pkgconf
+	 * natively on Windows without cygwin/msys, so do it in all cases.
+	 */
+	for (ti = buf; *ti != '\0'; ti++)
+	{
+		if (*ti == '\\')
+			*ti = '/';
 	}
 #endif
 
