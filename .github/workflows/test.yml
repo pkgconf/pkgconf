@@ -1,0 +1,39 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  msys2:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [
+          { msystem: MINGW64, arch: x86_64},
+          { msystem: MINGW32, arch: i686}
+        ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: setup-msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: true
+          install: >-
+            mingw-w64-${{ matrix.arch }}-meson
+            mingw-w64-${{ matrix.arch }}-ninja
+            mingw-w64-${{ matrix.arch }}-gcc
+
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          # the code assumes msvc style printf atm
+          export CFLAGS=-D__USE_MINGW_ANSI_STDIO=0
+
+          meson -Dtests=false _build
+          meson compile -C _build
