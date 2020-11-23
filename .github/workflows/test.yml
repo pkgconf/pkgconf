@@ -37,3 +37,48 @@ jobs:
 
           meson -Dtests=false _build
           meson compile -C _build
+
+  debian-meson:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bullseye
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Update system and add dependencies
+        run: |
+          apt-get update
+          apt-get install -y kyua atf-sh build-essential meson
+
+      - name: Build
+        run: |
+          meson _build
+          meson compile -C _build
+
+      - name: Run tests
+        run: |
+          meson test -v -C _build
+
+  debian-autotools:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bullseye
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Update system and add dependencies
+        run: |
+          apt-get update
+          apt-get install -y kyua atf-sh build-essential autoconf libtool
+
+      - name: Build
+        run: |
+          ./autogen.sh
+          ./configure
+          make -j9
+
+      - name: Run tests
+        run: |
+          make check
