@@ -8,5 +8,5 @@ install_headers('libpkgconf.h',
   'iter.h',
   'bsdstubs.h',
   'libpkgconf-api.h',
-  subdir : 'libpkgconf')
+  subdir : 'pkgconf/libpkgconf')
 
