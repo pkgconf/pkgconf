@@ -45,7 +45,7 @@ cdata.set('abs_top_builddir', meson.build_root())
 
 subdir('libpkgconf')
 
-libpkgconf = shared_library('pkgconf',
+libpkgconf = library('pkgconf',
   'libpkgconf/argvsplit.c',
   'libpkgconf/audit.c',
   'libpkgconf/bsdstubs.c',
