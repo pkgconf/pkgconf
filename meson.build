@@ -66,6 +66,14 @@ libpkgconf = shared_library('pkgconf',
   soversion : '3',
 )
 
+pkg = import('pkgconfig')
+pkg.generate(libpkgconf,
+  name : 'libpkgconf',
+  description : 'a library for accessing and manipulating development framework configuration',
+  url: 'http://github.com/pkgconf/pkgconf',
+  filebase : 'libpkgconf',
+  subdirs: ['pkgconf'],
+)
 
 pkgconf_exe = executable('pkgconf',
   'cli/main.c',
