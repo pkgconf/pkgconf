@@ -391,7 +391,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	 */
 	char *mungeptr;
 	if ((mungeptr = strrchr(idptr, '/')) != NULL)
-		idptr = mungeptr++;
+		idptr = ++mungeptr;
 #endif
 
 	pkg->id = strdup(idptr);
