@@ -1062,7 +1062,7 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_NO_PROVIDES) == PKG_NO_PROVIDES)
 		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_PROVIDES;
 
-	if ((want_flags & PKG_DONT_DEFINE_PREFIX) == PKG_DONT_DEFINE_PREFIX)
+	if ((want_flags & PKG_DONT_DEFINE_PREFIX) == PKG_DONT_DEFINE_PREFIX  || getenv("PKG_CONFIG_DONT_DEFINE_PREFIX") != NULL)
 		want_client_flags &= ~PKGCONF_PKG_PKGF_REDEFINE_PREFIX;
 
 	if ((want_flags & PKG_INTERNAL_CFLAGS) == PKG_INTERNAL_CFLAGS)
