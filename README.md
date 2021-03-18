@@ -1,4 +1,4 @@
-# pkgconf [![builds.sr.ht status](https://builds.sr.ht/~kaniini/pkgconf.svg)](https://builds.sr.ht/~kaniini/pkgconf?)
+# pkgconf [![test](https://github.com/pkgconf/pkgconf/actions/workflows/test.yml/badge.svg)](https://github.com/pkgconf/pkgconf/actions/workflows/test.yml)
 
 `pkgconf` is a program which helps to configure compiler and linker flags for
 development libraries.  It is similar to pkg-config from freedesktop.org.
