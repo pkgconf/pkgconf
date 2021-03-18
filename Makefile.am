@@ -76,6 +76,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/fragment-collision-intermediary.pc \
 		tests/lib1/fragment-collision-1.pc \
 		tests/lib1/fragment-collision-2.pc \
+		tests/lib1/fragment-comment.pc \
 		tests/lib1/fragment-escaping-1.pc \
 		tests/lib1/fragment-escaping-2.pc \
 		tests/lib1/fragment-escaping-3.pc \

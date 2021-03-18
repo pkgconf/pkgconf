@@ -7,12 +7,23 @@ Changes from 1.7.3 to 1.7.4:
 * Bug fixes:
   - Fix null-dereference crash when pulling a malformed 'uninstalled'
     .pc file into a dependency tree.  Patch by Tobias Stöckmann.
+  - Fix truncation of comment characters when quoted.
+  - Fix handling of .pc module names in --list-all on Windows.
+    Patch by Ryan Scott.
+  - Handle platforms where realpath(3) requires a pre-allocated buffer.
+    Patch by Fabian Groffen.
+  - Fix version whitespace warning.
+    Patch by Christoph Reiter.
 
 * Enhancements:
   - Rewrite DOS paths on native Windows builds that don't use
     Cygwin/MSYS.
   - Add WantDefaultPure cross-compiler personality option.
   - Prefer --static --pure linking on Windows.
+  - Add PKG_CONFIG_DONT_DEFINE_PREFIX environment variable.
+    Patch by Jeff Moguillansky.
+  - Many improvements when building pkgconf with Meson.
+    Patches by Christoph Reiter.
 
 Changes from 1.7.2 to 1.7.3:
 ----------------------------
