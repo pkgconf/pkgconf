@@ -44,6 +44,9 @@ pkgconf_fgetline(char *line, size_t size, FILE *stream)
 				*s++ = c;
 				break;
 			}
+			else
+				*s++ = c;
+
 			quoted = false;
 			continue;
 		}
