@@ -29,6 +29,7 @@ tests_init \
 	fragment_quoting_3 \
 	fragment_quoting_5 \
 	fragment_quoting_7 \
+	fragment_comment \
 	msvc_fragment_quoting \
 	msvc_fragment_render_cflags \
 	tuple_dequote \
@@ -262,6 +263,14 @@ fragment_quoting_7a_body()
 	rm -f test.c test-fragment-quoting-7
 
 	set +x
+}
+
+
+fragment_comment_body()
+{
+	atf_check \
+		-o inline:'kuku=\#ttt \n' \
+		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-comment
 }
 
 msvc_fragment_quoting_body()
