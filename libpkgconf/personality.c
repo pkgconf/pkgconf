@@ -24,6 +24,10 @@
 static bool default_personality_init = false;
 static pkgconf_cross_personality_t default_personality = {
 	.name = "default",
+#ifdef _WIN32
+	.want_default_static = true,
+	.want_default_pure = true,
+#endif
 };
 
 static inline void
