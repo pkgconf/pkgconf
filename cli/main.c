@@ -1015,6 +1015,9 @@ main(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
+	if (getenv("PKG_CONFIG_FDO_SYSROOT_RULES"))
+		want_client_flags |= PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES;
+
 	if ((want_flags & PKG_SHORT_ERRORS) == PKG_SHORT_ERRORS)
 		want_client_flags |= PKGCONF_PKG_PKGF_SIMPLIFY_ERRORS;
 
@@ -1101,7 +1104,17 @@ main(int argc, char *argv[])
 		pkgconf_client_set_buildroot_dir(&pkg_client, builddir);
 
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
+	{
+		const char *destdir;
+
 		pkgconf_client_set_sysroot_dir(&pkg_client, sysroot_dir);
+
+		if ((destdir = getenv("DESTDIR")) != NULL)
+		{
+			if (!strcmp(destdir, sysroot_dir))
+				want_client_flags |= PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES;
+		}
+	}
 
 	/* we have determined what features we want most likely.  in some cases, we override later. */
 	pkgconf_client_set_flags(&pkg_client, want_client_flags);

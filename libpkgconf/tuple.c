@@ -254,8 +254,11 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 	const char *ptr;
 	char *bptr = buf;
 
-	if (*value == '/' && client->sysroot_dir != NULL && strncmp(value, client->sysroot_dir, strlen(client->sysroot_dir)))
-		bptr += pkgconf_strlcpy(buf, client->sysroot_dir, sizeof buf);
+	if (!(client->flags & PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES))
+	{
+		if (*value == '/' && client->sysroot_dir != NULL && strncmp(value, client->sysroot_dir, strlen(client->sysroot_dir)))
+			bptr += pkgconf_strlcpy(buf, client->sysroot_dir, sizeof buf);
+	}
 
 	for (ptr = value; *ptr != '\0' && bptr - buf < PKGCONF_BUFSIZE; ptr++)
 	{
