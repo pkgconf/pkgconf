@@ -94,7 +94,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add kyua atf-sh build-base meson
+          apk add kyua atf build-base meson
 
       - name: Build
         run: |
@@ -116,7 +116,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add kyua atf-sh build-base autoconf libtool
+          apk add kyua atf build-base autoconf libtool
 
       - name: Build
         run: |
