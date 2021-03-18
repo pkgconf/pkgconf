@@ -204,6 +204,7 @@ struct pkgconf_cross_personality_ {
 	char *sysroot_dir;
 
 	bool want_default_static;
+	bool want_default_pure;
 };
 
 /* client.c */

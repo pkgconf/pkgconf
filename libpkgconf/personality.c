@@ -156,6 +156,7 @@ static const personality_keyword_pair_t personality_keyword_pairs[] = {
 	{"SystemIncludePaths", personality_fragment_func, offsetof(pkgconf_cross_personality_t, filter_includedirs)},
 	{"SystemLibraryPaths", personality_fragment_func, offsetof(pkgconf_cross_personality_t, filter_libdirs)},
 	{"Triplet", personality_copy_func, offsetof(pkgconf_cross_personality_t, name)},
+	{"WantDefaultPure", personality_bool_func, offsetof(pkgconf_cross_personality_t, want_default_pure)},
 	{"WantDefaultStatic", personality_bool_func, offsetof(pkgconf_cross_personality_t, want_default_static)},
 };
 
