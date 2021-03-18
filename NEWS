@@ -11,6 +11,8 @@ Changes from 1.7.3 to 1.7.4:
 * Enhancements:
   - Rewrite DOS paths on native Windows builds that don't use
     Cygwin/MSYS.
+  - Add WantDefaultPure cross-compiler personality option.
+  - Prefer --static --pure linking on Windows.
 
 Changes from 1.7.2 to 1.7.3:
 ----------------------------
