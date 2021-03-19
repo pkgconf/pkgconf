@@ -17,10 +17,6 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
-#ifdef HAVE_CYGWIN_CONV_PATH
-# include <sys/cygwin.h>
-#endif
-
 #if defined(HAVE_SYS_STAT_H) && ! defined(_WIN32)
 # include <sys/stat.h>
 # define PKGCONF_CACHE_INODES
@@ -306,7 +302,7 @@ normpath(const char *path)
  *
  * .. c:function:: bool pkgconf_path_relocate(char *buf, size_t buflen)
  *
- *    Relocates a path, possibly calling normpath() or cygwin_conv_path() on it.
+ *    Relocates a path, possibly calling normpath() on it.
  *
  *    :param char* buf: The path to relocate.
  *    :param size_t buflen: The buffer length the path is contained in.
@@ -320,25 +316,6 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 	char *ti;
 #endif
 
-#ifdef HAVE_CYGWIN_CONV_PATH
-	/*
-	 * If we are on Cygwin or MSYS, then we want to convert the virtual path
-	 * to a real DOS path, using cygwin_conv_path().
-	 */
-	ssize_t size;
-	char *tmpbuf;
-
-	size = cygwin_conv_path(CCP_POSIX_TO_WIN_A, buf, NULL, 0);
-	if (size < 0 || (size_t) size > buflen)
-		return false;
-
-	tmpbuf = malloc(size);
-	if (cygwin_conv_path(CCP_POSIX_TO_WIN_A, buf, tmpbuf, size))
-		return false;
-
-	pkgconf_strlcpy(buf, tmpbuf, buflen);
-	free(tmpbuf);
-#else
 	char *tmpbuf;
 
 	if ((tmpbuf = normpath(buf)) != NULL)
@@ -353,7 +330,6 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 		pkgconf_strlcpy(buf, tmpbuf, buflen);
 		free(tmpbuf);
 	}
-#endif
 
 #ifdef _WIN32
 	/*

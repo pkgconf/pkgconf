@@ -1,8 +1,5 @@
 /* libpkgconf/config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define to 1 if you have the `cygwin_conv_path' function. */
-#mesondefine HAVE_CYGWIN_CONV_PATH
-
 /* Define to 1 if you have the `strlcat' function. */
 #mesondefine HAVE_STRLCAT
 

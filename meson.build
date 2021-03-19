@@ -10,7 +10,6 @@ cc = meson.get_compiler('c')
 cdata = configuration_data()
 
 check_functions = [
-  ['HAVE_CYGWIN_CONV_PATH', 'cygwin_conv_path', 'sys/cygwin.h'],
   ['HAVE_STRLCAT', 'strlcat', 'string.h'],
   ['HAVE_STRLCPY', 'strlcpy', 'string.h'],
   ['HAVE_STRNDUP', 'strndup', 'string.h'],
