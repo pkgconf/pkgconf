@@ -214,6 +214,37 @@ determine_prefix(const pkgconf_pkg_t *pkg, char *buf, size_t buflen)
 	return buf;
 }
 
+/*
+ * Takes a real path and converts it to a pkgconf value. This means normalizing
+ * directory separators and escaping things (only spaces covered atm).
+ *
+ * This is useful for things like prefix/pcfiledir which might get injected
+ * at runtime and are not sourced from the .pc file.
+ *
+ * "C:\foo bar\baz" -> "C:/foo\ bar/baz"
+ * "/foo bar/baz" -> "/foo\ bar/baz"
+ */
+static char *
+convert_path_to_value(const char *path)
+{
+	char *buf = calloc((strlen(path) + 1) * 2, 1);
+	char *bptr = buf;
+	const char *i;
+
+	for (i = path; *i != '\0'; i++)
+	{
+		if (*i == PKG_DIR_SEP_S)
+			*bptr++ = '/';
+		else if (*i == ' ') {
+			*bptr++ = '\\';
+			*bptr++ = *i;
+		} else
+			*bptr++ = *i;
+	}
+
+	return buf;
+}
+
 static void
 remove_additional_separators(char *buf)
 {
@@ -238,16 +269,6 @@ remove_additional_separators(char *buf)
 static void
 canonicalize_path(char *buf)
 {
-#ifdef _WIN32
-	char *p = buf;
-
-	while (*p) {
-		if (*p == '\\')
-			*p = '/';
-		p++;
-	}
-#endif
-
 	remove_additional_separators(buf);
 }
 
@@ -294,8 +315,10 @@ pkgconf_pkg_parser_value_set(void *opaque, const size_t lineno, const char *keyw
 
 		if (relvalue != NULL)
 		{
+			char *prefix_value = convert_path_to_value(relvalue);
 			pkg->orig_prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, "orig_prefix", canonicalized_value, true);
-			pkg->prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, relvalue, false);
+			pkg->prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, prefix_value, false);
+			free(prefix_value);
 		}
 		else
 			pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true);
@@ -376,7 +399,10 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	pkg->owner = client;
 	pkg->filename = strdup(filename);
 	pkg->pc_filedir = pkg_get_parent_dir(pkg);
-	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pkg->pc_filedir, true);
+
+	char *pc_filedir_value = convert_path_to_value(pkg->pc_filedir);
+	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pc_filedir_value, true);
+	free(pc_filedir_value);
 
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
