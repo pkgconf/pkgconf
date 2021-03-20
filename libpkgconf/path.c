@@ -355,18 +355,5 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 	}
 #endif
 
-#ifdef _WIN32
-	/*
-	 * Rewrite any backslash path delimiters for best compatibility.
-	 * Originally, we did this in cygwin/msys case, but now we build pkgconf
-	 * natively on Windows without cygwin/msys, so do it in all cases.
-	 */
-	for (ti = buf; *ti != '\0'; ti++)
-	{
-		if (*ti == '\\')
-			*ti = '/';
-	}
-#endif
-
 	return true;
 }
