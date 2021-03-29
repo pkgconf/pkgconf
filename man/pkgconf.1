@@ -51,6 +51,10 @@ Ignore
 rules in modules.
 .It Fl -env-only
 Learn about pkgconf's configuration strictly from environmental variables.
+.It Fl -validate Ar package ...
+Validate specific
+.Sq .pc
+files for correctness.
 .It Fl -maximum-traverse-depth Ns = Ns Ar DEPTH
 Impose a limit on the allowed depth in the dependency graph.
 For example, a depth of 2 will restrict the resolver from acting on child
