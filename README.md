@@ -119,8 +119,8 @@ Please only use the tarballs from distfiles.dereferenced.org.
 
 ## contacts
 
-You can report bugs at <https://todo.sr.ht/~kaniini/pkgconf>.
+You can report bugs at <https://github.com/pkgconf/pkgconf/issues>.
 
 There is a mailing list at <https://lists.sr.ht/~kaniini/pkgconf>.
 
-You can contact us via IRC at `#pkgconf` at `irc.freenode.net`.
+You can contact us via IRC at `#pkgconf` at `irc.oftc.net`.
