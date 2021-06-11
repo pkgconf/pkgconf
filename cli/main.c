@@ -802,6 +802,7 @@ main(int argc, char *argv[])
 	char *want_env_prefix = NULL;
 	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
 	pkgconf_cross_personality_t *personality;
+	bool opened_error_msgout = false;
 
 	want_flags = 0;
 
@@ -1027,8 +1028,10 @@ main(int argc, char *argv[])
 	error_msgout = stderr;
 	if ((want_flags & PKG_ERRORS_ON_STDOUT) == PKG_ERRORS_ON_STDOUT)
 		error_msgout = stdout;
-	if ((want_flags & PKG_SILENCE_ERRORS) == PKG_SILENCE_ERRORS)
+	if ((want_flags & PKG_SILENCE_ERRORS) == PKG_SILENCE_ERRORS) {
 		error_msgout = fopen(PATH_DEV_NULL, "w");
+		opened_error_msgout = true;
+	}
 
 	if ((want_flags & PKG_IGNORE_CONFLICTS) == PKG_IGNORE_CONFLICTS || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
 		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_CONFLICTS;
@@ -1459,6 +1462,8 @@ out:
 
 	if (logfile_out != NULL)
 		fclose(logfile_out);
+	if (opened_error_msgout)
+		fclose(error_msgout);
 
 	return ret;
 }
