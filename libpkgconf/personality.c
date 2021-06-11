@@ -103,6 +103,14 @@ pkgconf_cross_personality_default(void)
 	return &default_personality;
 }
 
+void
+pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *personality)
+{
+	pkgconf_path_free(&personality->dir_list);
+	pkgconf_path_free(&personality->filter_libdirs);
+	pkgconf_path_free(&personality->filter_includedirs);
+}
+
 #ifndef PKGCONF_LITE
 static bool
 valid_triplet(const char *triplet)
