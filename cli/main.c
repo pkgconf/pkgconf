@@ -1454,6 +1454,7 @@ out_println:
 		printf("\n");
 
 out:
+	pkgconf_cross_personality_deinit(personality);
 	pkgconf_client_deinit(&pkg_client);
 
 	if (logfile_out != NULL)
