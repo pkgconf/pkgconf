@@ -297,7 +297,11 @@ pkgconf_pkg_parser_value_set(void *opaque, const size_t lineno, const char *keyw
 	 * which is broken when redefining the prefix. We try to outsmart the
 	 * file and rewrite any directory that starts with the same prefix.
 	 */
-	if (pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX && pkg->orig_prefix
+	if (strcmp(keyword, pkg->owner->prefix_varname) || !(pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
+	{
+		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true);
+	}
+	else if (pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX && pkg->orig_prefix
 	    && is_path_prefix_equal(canonicalized_value, pkg->orig_prefix->value, strlen(pkg->orig_prefix->value)))
 	{
 		char newvalue[PKGCONF_ITEM_SIZE];
@@ -306,8 +310,6 @@ pkgconf_pkg_parser_value_set(void *opaque, const size_t lineno, const char *keyw
 		pkgconf_strlcat(newvalue, canonicalized_value + strlen(pkg->orig_prefix->value), sizeof newvalue);
 		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, newvalue, false);
 	}
-	else if (strcmp(keyword, pkg->owner->prefix_varname) || !(pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
-		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true);
 	else
 	{
 		char pathbuf[PKGCONF_ITEM_SIZE];
@@ -317,7 +319,7 @@ pkgconf_pkg_parser_value_set(void *opaque, const size_t lineno, const char *keyw
 		{
 			char *prefix_value = convert_path_to_value(relvalue);
 			pkg->orig_prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, "orig_prefix", canonicalized_value, true);
-			pkg->prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, prefix_value, false);
+			pkgconf_tuple_add_global(pkg->owner, keyword, prefix_value);
 			free(prefix_value);
 		}
 		else
