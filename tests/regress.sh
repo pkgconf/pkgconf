@@ -112,7 +112,7 @@ libs_never_mergeback_body()
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
 		-o inline:"-L/test/bar/lib -lfoo1 \n" \
-		pkgconf --libs prefix-foo1	
+		pkgconf --libs prefix-foo1
 	atf_check \
 		-o inline:"-L/test/bar/lib -lfoo1 -lfoo2 \n" \
 		pkgconf --libs prefix-foo1 prefix-foo2
@@ -160,9 +160,9 @@ isystem_munge_order_body()
 
 isystem_munge_sysroot_body()
 {
-	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR='/test'
+	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="${selfdir}"
 	atf_check \
-		-o match:"-isystem /test/opt/bad/include" \
+		-o match:"-isystem ${selfdir}/opt/bad/include" \
 		pkgconf --cflags isystem
 }
 
@@ -176,9 +176,9 @@ idirafter_munge_order_body()
 
 idirafter_munge_sysroot_body()
 {
-	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR='/test'
+	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="${selfdir}"
 	atf_check \
-		-o match:"-idirafter /test/opt/bad/include" \
+		-o match:"-idirafter ${selfdir}/opt/bad/include" \
 		pkgconf --cflags idirafter
 }
 
@@ -195,20 +195,16 @@ pcpath_body()
 	export PKG_CONFIG_PATH="${selfdir}/lib2"
 	atf_check \
 		-o inline:"-fPIC -I/test/include/foo \n" \
-		pkgconf --cflags ${selfdir}/lib3/bar.pc	
+		pkgconf --cflags ${selfdir}/lib3/bar.pc
 }
 
 sysroot_munge_body()
 {
-	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="/sysroot"
+	sed "s|/sysroot/|${selfdir}/|g" ${selfdir}/lib1/sysroot-dir.pc > ${selfdir}/lib1/sysroot-dir-selfdir.pc
+	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="${selfdir}"
 	atf_check \
-		-o inline:"-L/sysroot/lib -lfoo \n" \
-		pkgconf --libs sysroot-dir
-
-	export PKG_CONFIG_SYSROOT_DIR="/sysroot2"
-	atf_check \
-		-o inline:"-L/sysroot2/sysroot/lib -lfoo \n" \
-		pkgconf --libs sysroot-dir
+		-o inline:"-L${selfdir}/lib -lfoo \n" \
+		pkgconf --libs sysroot-dir-selfdir
 }
 
 virtual_variable_body()
@@ -244,8 +240,8 @@ malformed_quoting_body()
 
 explicit_sysroot_body()
 {
-	export PKG_CONFIG_SYSROOT_DIR=/sysroot
-	atf_check -o inline:"/sysroot/usr/share/test\n" \
+	export PKG_CONFIG_SYSROOT_DIR=${selfdir}
+	atf_check -o inline:"${selfdir}/usr/share/test\n" \
 		pkgconf --with-path="${selfdir}/lib1" --variable=pkgdatadir explicit-sysroot
 }
 
