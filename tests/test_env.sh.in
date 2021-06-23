@@ -24,7 +24,7 @@ done
 selfdir="@abs_top_srcdir@/tests"
 LIBRARY_PATH_ENV="LIBRARY_PATH"
 PATH_SEP=":"
-SYSROOT_DIR="${selfdir}/test"
+SYSROOT_DIR="${selfdir}"
 case "$(uname -s)" in
 Haiku) LIBRARY_PATH_ENV="BELIBRARIES";;
 esac

@@ -406,6 +406,16 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pc_filedir_value, true);
 	free(pc_filedir_value);
 
+	/* If pc_filedir is outside of sysroot_dir, clear pc_filedir
+	/* See https://github.com/pkgconf/pkgconf/issues/213
+	 */
+	if (client->sysroot_dir && strncmp(pkg->pc_filedir, client->sysroot_dir, strlen(client->sysroot_dir)))
+	{
+		free(client->sysroot_dir);
+		client->sysroot_dir = NULL;
+		pkgconf_client_set_sysroot_dir(client, NULL);
+	}
+
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
 		idptr++;
