@@ -407,7 +407,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	free(pc_filedir_value);
 
 	/* If pc_filedir is outside of sysroot_dir, clear pc_filedir
-	/* See https://github.com/pkgconf/pkgconf/issues/213
+	 * See https://github.com/pkgconf/pkgconf/issues/213
 	 */
 	if (client->sysroot_dir && strncmp(pkg->pc_filedir, client->sysroot_dir, strlen(client->sysroot_dir)))
 	{
