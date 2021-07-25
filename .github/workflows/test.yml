@@ -71,7 +71,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apt-get update
-          apt-get install -y kyua atf-sh build-essential autoconf libtool
+          apt-get install -y kyua atf-sh build-essential autoconf libtool xz
 
       - name: Build
         run: |
@@ -116,7 +116,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add kyua atf build-base autoconf automake libtool
+          apk add kyua atf build-base autoconf automake libtool xz
 
       - name: Build
         run: |
