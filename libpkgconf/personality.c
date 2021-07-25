@@ -96,8 +96,8 @@ pkgconf_cross_personality_default(void)
 
 	build_default_search_path(&default_personality.dir_list);
 
-	pkgconf_path_split(SYSTEM_LIBDIR, &default_personality.filter_libdirs, true);
-	pkgconf_path_split(SYSTEM_INCLUDEDIR, &default_personality.filter_includedirs, true);
+	pkgconf_path_split(SYSTEM_LIBDIR, &default_personality.filter_libdirs, false);
+	pkgconf_path_split(SYSTEM_INCLUDEDIR, &default_personality.filter_includedirs, false);
 
 	default_personality_init = true;
 	return &default_personality;
