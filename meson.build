@@ -48,7 +48,7 @@ libtype = get_option('default_library')
 if libtype == 'static'
   build_static = '-DPKGCONFIG_IS_STATIC'
 else
-  build_static = ''
+  build_static = '-DPKGCONFIG_IS_NOT_STATIC'
 endif
 
 libpkgconf = library('pkgconf',
