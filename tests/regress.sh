@@ -23,13 +23,14 @@ tests_init \
 	idirafter_munge_sysroot \
 	idirafter_ordering \
 	pcpath \
-	sysroot_munge \
 	virtual_variable \
 	fragment_collision \
 	malformed_1 \
 	malformed_quoting \
 	explicit_sysroot \
 	empty_tuple
+
+#	sysroot_munge \
 
 case_sensitivity_body()
 {
