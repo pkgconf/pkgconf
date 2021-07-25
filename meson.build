@@ -44,6 +44,13 @@ cdata.set('abs_top_builddir', meson.build_root())
 
 subdir('libpkgconf')
 
+libtype = get_option('default_library')
+if libtype == 'static'
+  build_static = '-DPKGCONFIG_IS_STATIC'
+else
+  build_static = ''
+endif
+
 libpkgconf = library('pkgconf',
   'libpkgconf/argvsplit.c',
   'libpkgconf/audit.c',
@@ -59,7 +66,7 @@ libpkgconf = library('pkgconf',
   'libpkgconf/pkg.c',
   'libpkgconf/queue.c',
   'libpkgconf/tuple.c',
-  c_args: '-DLIBPKGCONF_EXPORT',
+  c_args: ['-DLIBPKGCONF_EXPORT', build_static],
   install : true,
   version : '3.0.0',
   soversion : '3',
@@ -72,13 +79,16 @@ pkg.generate(libpkgconf,
   url: 'http://github.com/pkgconf/pkgconf',
   filebase : 'libpkgconf',
   subdirs: ['pkgconf'],
+  extra_cflags : build_static
 )
+
 
 pkgconf_exe = executable('pkgconf',
   'cli/main.c',
   'cli/getopt_long.c',
   'cli/renderer-msvc.c',
   link_with : libpkgconf,
+  c_args: build_static,
   install : true)
 
 if get_option('tests')
