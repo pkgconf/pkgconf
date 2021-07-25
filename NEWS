@@ -1,8 +1,37 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.7.4 to 1.8.0:
+----------------------------
+
+* This is the last planned maintenance branch.  I see pkgconf as basically
+  a finished tool at this point, and very few people were ultimately interested
+  in libpkgconf.  So, from here on out, it will just be bug fixes only and
+  very minor enhancements.
+
+* Bug fixes:
+  - Improved path handling on Windows to conform to what the MSYS2
+    and Cygwin teams were already modifying pkgconf to do.
+    Patches by Christoph Reiter.
+  - Fix a minor memory leak relating to cross-personalities.
+    Patch by Stone Tickle.
+  - Fix static builds for Windows on Meson.
+    Patch by Alexander Neumann.
+  - Fix some edge cases with --redefine-prefix.
+    Patch by midipix.
+  - Do not prepend sysroot_dir if the .pc file does not exist in the
+    sysroot.
+    Patch by Sandro Mani.
+  - Do not perform path filtering on default system include and library
+    path lists.  This fixes consistency with other mechanisms that modify
+    these path lists.
+
+* Enhancements:
+  - Document the --validate option in the manpage.
+    Patch by orbea.
+
 Changes from 1.7.3 to 1.7.4:
----------------------------
+----------------------------
 
 * Bug fixes:
   - Fix null-dereference crash when pulling a malformed 'uninstalled'
