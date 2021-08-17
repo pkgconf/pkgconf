@@ -950,8 +950,8 @@ main(int argc, char *argv[])
 #endif
 		case '?':
 		case ':':
-			return EXIT_FAILURE;
-			break;
+			ret = EXIT_FAILURE;
+			goto out;
 		default:
 			break;
 		}
@@ -1001,19 +1001,25 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_ABOUT) == PKG_ABOUT)
 	{
 		about();
-		return EXIT_SUCCESS;
+
+		ret = EXIT_SUCCESS;
+		goto out;
 	}
 
 	if ((want_flags & PKG_VERSION) == PKG_VERSION)
 	{
 		version();
-		return EXIT_SUCCESS;
+
+		ret = EXIT_SUCCESS;
+		goto out;
 	}
 
 	if ((want_flags & PKG_HELP) == PKG_HELP)
 	{
 		usage();
-		return EXIT_SUCCESS;
+
+		ret = EXIT_SUCCESS;
+		goto out;
 	}
 
 	if (getenv("PKG_CONFIG_FDO_SYSROOT_RULES"))
@@ -1128,21 +1134,25 @@ main(int argc, char *argv[])
 	if (required_pkgconfig_version != NULL)
 	{
 		if (pkgconf_compare_version(PACKAGE_VERSION, required_pkgconfig_version) >= 0)
-			return EXIT_SUCCESS;
+			ret = EXIT_SUCCESS;
+		else
+			ret = EXIT_FAILURE;
 
-		return EXIT_FAILURE;
+		goto out;
 	}
 
 	if ((want_flags & PKG_LIST) == PKG_LIST)
 	{
 		pkgconf_scan_all(&pkg_client, NULL, print_list_entry);
-		return EXIT_SUCCESS;
+		ret = EXIT_SUCCESS;
+		goto out;
 	}
 
 	if ((want_flags & PKG_LIST_PACKAGE_NAMES) == PKG_LIST_PACKAGE_NAMES)
 	{
 		pkgconf_scan_all(&pkg_client, NULL, print_package_entry);
-		return EXIT_SUCCESS;
+		ret = EXIT_SUCCESS;
+		goto out;
 	}
 
 	if (logfile_arg == NULL)
@@ -1175,14 +1185,20 @@ main(int argc, char *argv[])
 			{
 				if (want_flags & PKG_PRINT_ERRORS)
 					pkgconf_error(&pkg_client, "Package '%s' was not found\n", pkgiter->package);
-				return EXIT_FAILURE;
+
+				ret = EXIT_FAILURE;
+				goto out;
 			}
 
 			if (pkgconf_compare_version(pkg->version, required_module_version) >= 0)
-				return EXIT_SUCCESS;
+			{
+				ret = EXIT_SUCCESS;
+				goto out;
+			}
 		}
 
-		return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
+		goto out;
 	}
 	else if (required_exact_module_version != NULL)
 	{
@@ -1205,14 +1221,20 @@ main(int argc, char *argv[])
 			{
 				if (want_flags & PKG_PRINT_ERRORS)
 					pkgconf_error(&pkg_client, "Package '%s' was not found\n", pkgiter->package);
-				return EXIT_FAILURE;
+
+				ret = EXIT_FAILURE;
+				goto out;
 			}
 
 			if (pkgconf_compare_version(pkg->version, required_exact_module_version) == 0)
-				return EXIT_SUCCESS;
+			{
+				ret = EXIT_SUCCESS;
+				goto out;
+			}
 		}
 
-		return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
+		goto out;
 	}
 	else if (required_max_module_version != NULL)
 	{
@@ -1235,14 +1257,20 @@ main(int argc, char *argv[])
 			{
 				if (want_flags & PKG_PRINT_ERRORS)
 					pkgconf_error(&pkg_client, "Package '%s' was not found\n", pkgiter->package);
-				return EXIT_FAILURE;
+
+				ret = EXIT_FAILURE;
+				goto out;
 			}
 
 			if (pkgconf_compare_version(pkg->version, required_max_module_version) <= 0)
-				return EXIT_SUCCESS;
+			{
+				ret = EXIT_SUCCESS;
+				goto out;
+			}
 		}
 
-		return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
+		goto out;
 	}
 
 	while (1)
