@@ -1286,7 +1286,8 @@ main(int argc, char *argv[])
 	if (pkgq.head == NULL)
 	{
 		fprintf(stderr, "Please specify at least one package name on the command line.\n");
-		return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
+		goto out;
 	}
 
 	ret = EXIT_SUCCESS;
