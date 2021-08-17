@@ -1451,13 +1451,12 @@ main(int argc, char *argv[])
 		}
 	}
 
-	pkgconf_queue_free(&pkgq);
-
 out_println:
 	if (want_flags & (PKG_CFLAGS|PKG_LIBS))
 		printf("\n");
 
 out:
+	pkgconf_queue_free(&pkgq);
 	pkgconf_cross_personality_deinit(personality);
 	pkgconf_client_deinit(&pkg_client);
 
