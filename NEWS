@@ -1,6 +1,15 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.8.0 to 1.8.1:
+----------------------------
+
+* Bug fixes:
+  - Resolved several memory leaks with edge cases when using libpkgconf
+    directly.
+  - pkgconf CLI now consistently frees libpkgconf resources under all
+    circumstances.
+
 Changes from 1.7.4 to 1.8.0:
 ----------------------------
 
