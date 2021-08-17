@@ -115,6 +115,18 @@ pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	pkgconf_node_delete(&pkg->cache_iter, &client->pkg_cache);
 }
 
+static inline void
+clear_dependency_matches(pkgconf_list_t *list)
+{
+	pkgconf_node_t *iter;
+
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
+	{
+		pkgconf_dependency_t *dep = iter->data;
+		dep->match = NULL;
+	}
+}
+
 /*
  * !doc
  *
@@ -131,10 +143,22 @@ pkgconf_cache_free(pkgconf_client_t *client)
 {
 	pkgconf_node_t *iter, *iter2;
 
+	/* first we clear cached match pointers */
+	PKGCONF_FOREACH_LIST_ENTRY(client->pkg_cache.head, iter)
+	{
+		pkgconf_pkg_t *pkg = iter->data;
+
+		clear_dependency_matches(&pkg->required);
+		clear_dependency_matches(&pkg->requires_private);
+		clear_dependency_matches(&pkg->provides);
+		clear_dependency_matches(&pkg->conflicts);
+	}
+
+	/* now forcibly free everything */
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(client->pkg_cache.head, iter2, iter)
 	{
 		pkgconf_pkg_t *pkg = iter->data;
-		pkgconf_pkg_unref(client, pkg);
+		pkgconf_pkg_free(client, pkg);
 	}
 
 	memset(&client->pkg_cache, 0, sizeof client->pkg_cache);
