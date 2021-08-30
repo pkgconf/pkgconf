@@ -41,7 +41,7 @@ to improve this behaviour.
 As of the 1.1 series, pkgconf also fully implements support for `Provides` rules,
 while pkg-config does not.  pkg-config only provides the `--print-provides` functionality
 as a stub.  There are other intentional implementation differences in pkgconf's dependency
-resolver verses pkg-config's dependency resolver in terms of completeness and correctness,
+resolver versus pkg-config's dependency resolver in terms of completeness and correctness,
 such as, for example, how `Conflicts` rules are processed.
 
 ## linker flags optimization
