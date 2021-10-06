@@ -439,3 +439,33 @@ pkgconf_dependency_parse(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_l
 	pkgconf_dependency_parse_str(client, deplist, kvdepends, flags);
 	free(kvdepends);
 }
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_dependency_t *pkgconf_dependency_copy(pkgconf_client_t *client, const pkgconf_dependency_t *dep)
+ *
+ *    Copies a dependency node to a new one.
+ *
+ *    :param pkgconf_client_t* client: The client object that will own this dependency.
+ *    :param pkgconf_dependency_t* dep: The dependency node to copy.
+ *    :return: a pointer to a new dependency node, else NULL
+ */
+pkgconf_dependency_t *
+pkgconf_dependency_copy(pkgconf_client_t *client, const pkgconf_dependency_t *dep)
+{
+	pkgconf_dependency_t *new_dep;
+
+	new_dep = calloc(sizeof(pkgconf_dependency_t), 1);
+	new_dep->package = strdup(dep->package);
+
+	if (dep->version != NULL)
+		new_dep->version = strdup(dep->version);
+
+	new_dep->compare = dep->compare;
+	new_dep->flags = dep->flags;
+	new_dep->owner = client;
+	new_dep->refcount = 0;
+
+	return pkgconf_dependency_ref(client, new_dep);
+}

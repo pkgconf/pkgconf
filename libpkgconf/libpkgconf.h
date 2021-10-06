@@ -327,6 +327,7 @@ PKGCONF_API void pkgconf_dependency_free_one(pkgconf_dependency_t *dep);
 PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_add(pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare, unsigned int flags);
 PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_ref(pkgconf_client_t *client, pkgconf_dependency_t *dep);
 PKGCONF_API void pkgconf_dependency_unref(pkgconf_client_t *client, pkgconf_dependency_t *dep);
+PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_copy(pkgconf_client_t *client, const pkgconf_dependency_t *dep);
 
 /* argvsplit.c */
 PKGCONF_API int pkgconf_argv_split(const char *src, int *argc, char ***argv);
