@@ -73,7 +73,7 @@ find_colliding_dependency(const pkgconf_dependency_t *dep, const pkgconf_list_t 
 }
 
 static inline pkgconf_dependency_t *
-add_or_replace_dependency_node(const pkgconf_client_t *client, pkgconf_dependency_t *dep, pkgconf_list_t *list)
+add_or_replace_dependency_node(pkgconf_client_t *client, pkgconf_dependency_t *dep, pkgconf_list_t *list)
 {
 	char depbuf[PKGCONF_ITEM_SIZE];
 	pkgconf_dependency_t *dep2 = find_colliding_dependency(dep, list);
@@ -119,7 +119,7 @@ add_or_replace_dependency_node(const pkgconf_client_t *client, pkgconf_dependenc
 }
 
 static inline pkgconf_dependency_t *
-pkgconf_dependency_addraw(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare, unsigned int flags)
+pkgconf_dependency_addraw(pkgconf_client_t *client, pkgconf_list_t *list, const char *package, size_t package_sz, const char *version, size_t version_sz, pkgconf_pkg_comparator_t compare, unsigned int flags)
 {
 	pkgconf_dependency_t *dep;
 
@@ -154,7 +154,7 @@ pkgconf_dependency_addraw(const pkgconf_client_t *client, pkgconf_list_t *list, 
  *    :rtype: pkgconf_dependency_t *
  */
 pkgconf_dependency_t *
-pkgconf_dependency_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare, unsigned int flags)
+pkgconf_dependency_add(pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare, unsigned int flags)
 {
 	if (version != NULL)
 		return pkgconf_dependency_addraw(client, list, package, strlen(package), version, strlen(version), compare, flags);
@@ -286,7 +286,7 @@ pkgconf_dependency_free(pkgconf_list_t *list)
  *    :return: nothing
  */
 void
-pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *depends, unsigned int flags)
+pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *depends, unsigned int flags)
 {
 	parse_state_t state = OUTSIDE_MODULE;
 	pkgconf_pkg_comparator_t compare = PKGCONF_CMP_ANY;
@@ -432,7 +432,7 @@ pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *dep
  *    :return: nothing
  */
 void
-pkgconf_dependency_parse(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist, const char *depends, unsigned int flags)
+pkgconf_dependency_parse(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist, const char *depends, unsigned int flags)
 {
 	char *kvdepends = pkgconf_tuple_parse(client, &pkg->vars, depends);
 

@@ -319,12 +319,12 @@ PKGCONF_API pkgconf_pkg_t *pkgconf_scan_all(pkgconf_client_t *client, void *ptr,
 
 /* parse.c */
 PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *path, FILE *f);
-PKGCONF_API void pkgconf_dependency_parse_str(const pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *depends, unsigned int flags);
-PKGCONF_API void pkgconf_dependency_parse(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends, unsigned int flags);
+PKGCONF_API void pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *depends, unsigned int flags);
+PKGCONF_API void pkgconf_dependency_parse(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist_head, const char *depends, unsigned int flags);
 PKGCONF_API void pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail);
 PKGCONF_API void pkgconf_dependency_free(pkgconf_list_t *list);
 PKGCONF_API void pkgconf_dependency_free_one(pkgconf_dependency_t *dep);
-PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare, unsigned int flags);
+PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_add(pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare, unsigned int flags);
 PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_ref(pkgconf_client_t *client, pkgconf_dependency_t *dep);
 PKGCONF_API void pkgconf_dependency_unref(pkgconf_client_t *client, pkgconf_dependency_t *dep);
 

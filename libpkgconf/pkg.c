@@ -64,7 +64,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	return strdup(buf);
 }
 
-typedef void (*pkgconf_pkg_parser_keyword_func_t)(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value);
+typedef void (*pkgconf_pkg_parser_keyword_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value);
 typedef struct {
 	const char *keyword;
 	const pkgconf_pkg_parser_keyword_func_t func;
@@ -78,7 +78,7 @@ static int pkgconf_pkg_parser_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) lineno;
@@ -88,7 +88,7 @@ pkgconf_pkg_parser_tuple_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg
 }
 
 static void
-pkgconf_pkg_parser_version_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) lineno;
@@ -113,7 +113,7 @@ pkgconf_pkg_parser_version_func(const pkgconf_client_t *client, pkgconf_pkg_t *p
 }
 
 static void
-pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	bool ret = pkgconf_fragment_parse(client, dest, &pkg->vars, value);
@@ -126,7 +126,7 @@ pkgconf_pkg_parser_fragment_func(const pkgconf_client_t *client, pkgconf_pkg_t *
 }
 
 static void
-pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) lineno;
@@ -137,7 +137,7 @@ pkgconf_pkg_parser_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t
 
 /* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as an "internal" dependency. */
 static void
-pkgconf_pkg_parser_internal_dependency_func(const pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) lineno;
