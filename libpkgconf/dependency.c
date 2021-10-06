@@ -92,7 +92,7 @@ add_or_replace_dependency_node(const pkgconf_client_t *client, pkgconf_dependenc
 		{
 			PKGCONF_TRACE(client, "dropping dependency [%s]@%p because of collision", depbuf, dep);
 
-			free(dep);
+			pkgconf_dependency_unref(dep->owner, dep);
 			return NULL;
 		}
 		else if (dep2->flags && dep->flags == 0)
@@ -100,7 +100,7 @@ add_or_replace_dependency_node(const pkgconf_client_t *client, pkgconf_dependenc
 			PKGCONF_TRACE(client, "dropping dependency [%s]@%p because of collision", depbuf2, dep2);
 
 			pkgconf_node_delete(&dep2->iter, list);
-			free(dep2);
+			pkgconf_dependency_unref(dep2->owner, dep2);
 		}
 		else
 			/* If both dependencies have equal strength, we keep both, because of situations like:
@@ -115,7 +115,7 @@ add_or_replace_dependency_node(const pkgconf_client_t *client, pkgconf_dependenc
 	PKGCONF_TRACE(client, "added dependency [%s] to list @%p; flags=%x", dependency_to_str(dep, depbuf, sizeof depbuf), list, dep->flags);
 	pkgconf_node_insert_tail(&dep->iter, dep, list);
 
-	return dep;
+	return pkgconf_dependency_ref(dep->owner, dep);
 }
 
 static inline pkgconf_dependency_t *
@@ -131,6 +131,8 @@ pkgconf_dependency_addraw(const pkgconf_client_t *client, pkgconf_list_t *list, 
 
 	dep->compare = compare;
 	dep->flags = flags;
+	dep->owner = client;
+	dep->refcount = 0;
 
 	return add_or_replace_dependency_node(client, dep, list);
 }
@@ -205,6 +207,48 @@ pkgconf_dependency_free_one(pkgconf_dependency_t *dep)
 /*
  * !doc
  *
+ * .. c:function:: pkgconf_dependency_t *pkgconf_dependency_ref(pkgconf_client_t *owner, pkgconf_dependency_t *dep)
+ *
+ *    Increases a dependency node's refcount.
+ *
+ *    :param pkgconf_client_t* owner: The client object which owns the memory of this dependency node.
+ *    :param pkgconf_dependency_t* dep: The dependency to increase the refcount of.
+ *    :return: the dependency node on success, else NULL
+ */
+pkgconf_dependency_t *
+pkgconf_dependency_ref(pkgconf_client_t *client, pkgconf_dependency_t *dep)
+{
+	if (client != dep->owner)
+		return NULL;
+
+	dep->refcount++;
+	return dep;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_dependency_unref(pkgconf_client_t *owner, pkgconf_dependency_t *dep)
+ *
+ *    Decreases a dependency node's refcount and frees it if necessary.
+ *
+ *    :param pkgconf_client_t* owner: The client object which owns the memory of this dependency node.
+ *    :param pkgconf_dependency_t* dep: The dependency to decrease the refcount of.
+ *    :return: nothing
+ */
+void
+pkgconf_dependency_unref(pkgconf_client_t *client, pkgconf_dependency_t *dep)
+{
+	if (client != dep->owner)
+		return;
+
+	if (--dep->refcount <= 0)
+		pkgconf_dependency_free_one(dep);
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void pkgconf_dependency_free(pkgconf_list_t *list)
  *
  *    Release a dependency list and it's child dependency nodes.
@@ -222,7 +266,7 @@ pkgconf_dependency_free(pkgconf_list_t *list)
 		pkgconf_dependency_t *dep = node->data;
 
 		pkgconf_node_delete(&dep->iter, list);
-		pkgconf_dependency_free_one(dep);
+		pkgconf_dependency_unref(dep->owner, dep);
 	}
 }
 
