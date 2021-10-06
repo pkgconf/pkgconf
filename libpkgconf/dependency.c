@@ -180,6 +180,31 @@ pkgconf_dependency_append(pkgconf_list_t *list, pkgconf_dependency_t *tail)
 /*
  * !doc
  *
+ * .. c:function:: void pkgconf_dependency_free_one(pkgconf_dependency_t *dep)
+ *
+ *    Frees a dependency node.
+ *
+ *    :param pkgconf_dependency_t* dep: The dependency node to free.
+ *    :return: nothing
+ */
+void
+pkgconf_dependency_free_one(pkgconf_dependency_t *dep)
+{
+	if (dep->match != NULL)
+		pkgconf_pkg_unref(dep->match->owner, dep->match);
+
+	if (dep->package != NULL)
+		free(dep->package);
+
+	if (dep->version != NULL)
+		free(dep->version);
+
+	free(dep);
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void pkgconf_dependency_free(pkgconf_list_t *list)
  *
  *    Release a dependency list and it's child dependency nodes.
@@ -196,16 +221,8 @@ pkgconf_dependency_free(pkgconf_list_t *list)
 	{
 		pkgconf_dependency_t *dep = node->data;
 
-		if (dep->match != NULL)
-			pkgconf_pkg_unref(dep->match->owner, dep->match);
-
-		if (dep->package != NULL)
-			free(dep->package);
-
-		if (dep->version != NULL)
-			free(dep->version);
-
-		free(dep);
+		pkgconf_node_delete(&dep->iter, list);
+		pkgconf_dependency_free_one(dep);
 	}
 }
 
