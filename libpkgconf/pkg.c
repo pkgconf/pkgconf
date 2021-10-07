@@ -1463,7 +1463,7 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 		if (pkgdep == NULL)
 			continue;
 
-		if (pkgdep->flags & PKGCONF_PKG_PROPF_SEEN)
+		if (pkgdep->serial == client->serial)
 		{
 			pkgconf_pkg_unref(client, pkgdep);
 			continue;
@@ -1477,9 +1477,8 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 
 		pkgconf_audit_log_dependency(client, pkgdep, depnode);
 
-		pkgdep->flags |= PKGCONF_PKG_PROPF_SEEN;
+		pkgdep->serial = client->serial;
 		eflags |= pkgconf_pkg_traverse(client, pkgdep, func, data, depth - 1, skip_flags);
-		pkgdep->flags &= ~PKGCONF_PKG_PROPF_SEEN;
 		pkgconf_pkg_unref(client, pkgdep);
 	}
 
@@ -1561,6 +1560,8 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 
 	if (maxdepth == 0)
 		return eflags;
+
+	++client->serial;
 
 	PKGCONF_TRACE(client, "%s: level %d", root->id, maxdepth);
 
