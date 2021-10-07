@@ -208,20 +208,20 @@ libs_intermediary_body()
 		pkgconf --libs intermediary-1 intermediary-2
 }
 
-libs_circular1_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-lcircular-1 -lcircular-2 -lcircular-3 \n" \
-		pkgconf --libs circular-1
-}
-
 libs_circular2_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
 		-o inline:"-lcircular-3 -lcircular-1 -lcircular-2 \n" \
-		pkgconf --libs circular-3
+		pkgconf --libs circular-2
+}
+
+libs_circular1_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-lcircular-2 -lcircular-3 -lcircular-1 \n" \
+		pkgconf --libs circular-1
 }
 
 libs_circular_directpc_body()
