@@ -82,6 +82,14 @@ it to do.
 We will reject bugs like this, and if you choose to violate our [Code of Conduct](CODE_OF_CONDUCT.md)
 by demanding we fix your non-bug, we will fix the problem by banning you from the repo instead.
 
+## debug output
+
+Please use only the stable interfaces to query pkg-config.  Do not screen-scrape the
+output from `--debug`: this is sent to `stderr` for a reason, it is not intended to be
+scraped.  The `--debug` output is **not** a stable interface, and should **never** be
+depended on as a source of information.  If you need a stable interface to query pkg-config
+which is not covered, please get in touch.
+
 ## compiling `pkgconf` and `libpkgconf` on UNIX
 
 pkgconf is basically compiled the same way any other autotools-based project is
