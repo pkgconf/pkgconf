@@ -78,6 +78,12 @@ dep_libpkgconf = declare_dependency(
   include_directories : include_directories('.'),
 )
 
+# If we have a new enough meson override the dependency so that only
+# `dependency('libpkgconf')` is required from the consumer
+if meson.version().version_compare('>= 0.54.0')
+  meson.override_dependency('libpkgconf', dep_libpkgconf)
+endif
+
 pkg = import('pkgconfig')
 pkg.generate(libpkgconf,
   name : 'libpkgconf',
