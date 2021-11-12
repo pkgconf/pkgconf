@@ -72,6 +72,12 @@ libpkgconf = library('pkgconf',
   soversion : '3',
 )
 
+# For other projects using libpkgconfig as a subproject
+dep_libpkgconf = declare_dependency(
+  link_with : libpkgconf,
+  include_directories : include_directories('.'),
+)
+
 pkg = import('pkgconfig')
 pkg.generate(libpkgconf,
   name : 'libpkgconf',
