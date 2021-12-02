@@ -7,6 +7,10 @@ pipeline:
       - meson _build
       - meson compile -C _build
       - meson test -v -C _build
+    when:
+      matrix:
+        IMAGE: debian
+        BUILD: meson
 
   debian-autotools:
     image: debian
@@ -17,6 +21,10 @@ pipeline:
       - ./configure
       - make -j
       - make distcheck
+    when:
+      matrix:
+        IMAGE: debian
+        BUILD: autotools
 
   alpine-meson:
     image: alpine
@@ -25,6 +33,10 @@ pipeline:
       - meson _build
       - meson compile -C _build
       - meson test -v -C _build
+    when:
+      matrix:
+        IMAGE: alpine
+        BUILD: meson
 
   alpine-autotools:
     image: alpine
@@ -34,3 +46,15 @@ pipeline:
       - ./configure
       - make -j
       - make distcheck
+    when:
+      matrix:
+        IMAGE: alpine
+        BUILD: autotools
+
+matrix:
+  IMAGE:
+    - debian
+    - alpine
+  BUILD:
+    - meson
+    - autotools
