@@ -1,0 +1,36 @@
+pipeline:
+  debian-meson:
+    image: debian
+    commands:
+      - apt-get update
+      - apt-get install -y kyua atf-sh build-essential meson
+      - meson _build
+      - meson compile -C _build
+      - meson test -v -C _build
+
+  debian-autotools:
+    image: debian
+    commands:
+      - apt-get update
+      - apt-get install -y kyua atf-sh build-essential autoconf libtool
+      - ./autogen.sh
+      - ./configure
+      - make -j
+      - make distcheck
+
+  alpine-meson:
+    image: alpine
+    commands:
+      - apk add -U --no-cache kyua atf build-base meson
+      - meson _build
+      - meson compile -C _build
+      - meson test -v -C _build
+
+  alpine-autotools:
+    image: alpine
+    commands:
+      - apk add -U --no-cache kyua atf build-base autoconf automake libtool xz gzip
+      - ./autogen.sh
+      - ./configure
+      - make -j
+      - make distcheck
