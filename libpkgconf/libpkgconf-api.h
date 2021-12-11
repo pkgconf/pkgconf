@@ -2,8 +2,7 @@
 #define LIBPKGCONF_LIBPKGCONF_API_H
 
 /* Makefile.am specifies visibility using the libtool option -export-symbols-regex '^pkgconf_'
- * Unfortunately, that is not available when building with cmake, so use attributes instead,
- * in a way that doesn't depend on any cmake magic.
+ * Unfortunately, that is not available when building with meson, so use attributes instead.
  */
 #if defined(PKGCONFIG_IS_STATIC)
 # define PKGCONF_API

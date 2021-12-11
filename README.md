@@ -111,17 +111,15 @@ flags like so:
     $ make
     $ sudo make install
 
-## compiling `pkgconf` and `libpkgconf` with CMake (usually for Windows)
+## compiling `pkgconf` and `libpkgconf` with Meson (usually for Windows)
 
-pkgconf is compiled using CMake on Windows.  In theory, you could also use CMake to build
-on UNIX, but this is not recommended at this time as it pkgconf is typically built much earlier
-than CMake.
+pkgconf is compiled using [Meson](https://mesonbuild.com) on Windows. In theory, you could also use
+Meson to build on UNIX, but this is not recommended at this time as it pkgconf is typically built
+much earlier than Meson.
 
-    $ mkdir build
-    $ cd build
-    $ cmake ..
-    $ make
-    $ sudo make install
+    $ meson setup build -Dtests=false
+    $ meson compile -C build
+    $ meson install -C build
 
 There are a few defines such as SYSTEM_LIBDIR, PKGCONFIGDIR and SYSTEM_INCLUDEDIR.
 However, on Windows, the default PKGCONFIGDIR value is usually overridden at runtime based
