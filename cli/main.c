@@ -85,7 +85,7 @@ FILE *error_msgout = NULL;
 FILE *logfile_out = NULL;
 
 static bool
-error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
+error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 {
 	(void) client;
 	(void) data;

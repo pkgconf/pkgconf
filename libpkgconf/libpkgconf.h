@@ -167,7 +167,7 @@ struct pkgconf_pkg_ {
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
 typedef void (*pkgconf_pkg_traverse_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data);
 typedef bool (*pkgconf_queue_apply_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth);
-typedef bool (*pkgconf_error_handler_func_t)(const char *msg, const pkgconf_client_t *client, const void *data);
+typedef bool (*pkgconf_error_handler_func_t)(const char *msg, const pkgconf_client_t *client, void *data);
 
 struct pkgconf_client_ {
 	pkgconf_list_t dir_list;
@@ -289,7 +289,7 @@ PKGCONF_API void pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_
 PKGCONF_API bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 PKGCONF_API bool pkgconf_warn(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 PKGCONF_API bool pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t lineno, const char *funcname, const char *format, ...) PRINTFLIKE(5, 6);
-PKGCONF_API bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data);
+PKGCONF_API bool pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, void *data);
 
 #ifndef PKGCONF_LITE
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
