@@ -401,7 +401,7 @@ pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t linen
  *    :rtype: bool
  */
 bool
-pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, const void *data)
+pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 {
 	(void) msg;
 	(void) client;
