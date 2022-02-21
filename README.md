@@ -3,9 +3,9 @@
 `pkgconf` is a program which helps to configure compiler and linker flags for
 development libraries.  It is similar to pkg-config from freedesktop.org.
 
-`libpkgconf` is a library which provides access to most of `pkgconf`'s functionality, to allow
-other tooling such as compilers and IDEs to discover and use libraries configured by
-pkgconf.
+`libpkgconf` is a library which provides access to most of `pkgconf`'s functionality, 
+to allow other tooling such as compilers and IDEs to discover and use libraries 
+configured by pkgconf.
 
 ## using `pkgconf` with autotools
 
@@ -71,16 +71,17 @@ do let us know, but also make sure that the .pc files are valid and follow the r
 the [pkg-config tutorial][fd-tut], as most likely fixing them to follow the specified
 rules will solve the problem.
 
-Additionally, **we do not consider pkgconf doing what you tell it to do, when pkg-config
-fails to do so, to be a bug**.
+Additionally, **we do not consider pkgconf doing what you tell it to do, in cases for 
+which pkg-config fails to do so, to be a bug**.
 
 If, for example, you use environment variables such as `PKG_CONFIG_SYSTEM_[INCLUDE|LIBRARY]_PATH`
 and then find yourself surprised that `pkgconf` is stripping `-I` and `-L` flags relating
-to those paths, it's not a `pkgconf` problem -- `pkgconf` is doing exactly what you told
+to those paths, it is not a `pkgconf` problem -- `pkgconf` is doing exactly what you told
 it to do.
 
-We will reject bugs like this, and if you choose to violate our [Code of Conduct](CODE_OF_CONDUCT.md)
-by demanding we fix your non-bug, we will fix the problem by banning you from the repo instead.
+We will reject bugs like this, and if someone insists on fixing such a non-bug, this 
+constitutes a violation of our [Code of Conduct](CODE_OF_CONDUCT.md), which may be 
+addressed by banning from this repository.
 
 ## debug output
 
@@ -114,8 +115,8 @@ flags like so:
 ## compiling `pkgconf` and `libpkgconf` with CMake (usually for Windows)
 
 pkgconf is compiled using CMake on Windows.  In theory, you could also use CMake to build
-on UNIX, but this is not recommended at this time as it pkgconf is typically built much earlier
-than CMake.
+on UNIX, but this is not recommended at this time as it pkgconf is typically built much 
+earlier than CMake.
 
     $ mkdir build
     $ cd build
