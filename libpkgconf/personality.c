@@ -21,7 +21,13 @@
 #	define strcasecmp _stricmp
 #endif
 
-static bool default_personality_init = false;
+/*
+ * Increment each time the default personality is inited, decrement each time
+ * it's deinited. Whenever it is 0, then the deinit frees the personality. In
+ * that case an additional call to init will create it anew.
+ */
+static unsigned default_personality_init = 0;
+
 static pkgconf_cross_personality_t default_personality = {
 	.name = "default",
 #ifdef _WIN32
@@ -85,30 +91,47 @@ build_default_search_path(pkgconf_list_t* dirlist)
  *
  *    Returns the default cross-compile personality.
  *
+ *    Not thread safe.
+ *
  *    :rtype: pkgconf_cross_personality_t*
  *    :return: the default cross-compile personality
  */
 pkgconf_cross_personality_t *
 pkgconf_cross_personality_default(void)
 {
-	if (default_personality_init)
+	if (default_personality_init) {
+		++default_personality_init;
 		return &default_personality;
+	}
 
 	build_default_search_path(&default_personality.dir_list);
 
 	pkgconf_path_split(SYSTEM_LIBDIR, &default_personality.filter_libdirs, false);
 	pkgconf_path_split(SYSTEM_INCLUDEDIR, &default_personality.filter_includedirs, false);
 
-	default_personality_init = true;
+	++default_personality_init;
 	return &default_personality;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *)
+ *
+ *    Decrements the count of default cross personality instances.
+ *
+ *    Not thread safe.
+ *
+ *    :rtype: void
+ */
 void
 pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *personality)
 {
-	pkgconf_path_free(&personality->dir_list);
-	pkgconf_path_free(&personality->filter_libdirs);
-	pkgconf_path_free(&personality->filter_includedirs);
+    if (--default_personality_init == 0) {
+        pkgconf_path_free(&personality->dir_list);
+        pkgconf_path_free(&personality->filter_libdirs);
+        pkgconf_path_free(&personality->filter_includedirs);
+    }
 }
 
 #ifndef PKGCONF_LITE
