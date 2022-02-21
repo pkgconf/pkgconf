@@ -13,6 +13,9 @@ check_functions = [
   ['HAVE_STRLCAT', 'strlcat', 'string.h'],
   ['HAVE_STRLCPY', 'strlcpy', 'string.h'],
   ['HAVE_STRNDUP', 'strndup', 'string.h'],
+  ['HAVE_STRDUP', 'strdup', 'string.h'],
+  ['HAVE_STRNCASECMP', 'strncasecmp', 'strings.h'],
+  ['HAVE_STRCASECMP', 'strcasecmp', 'strings.h'],
 ]
 
 foreach f : check_functions
