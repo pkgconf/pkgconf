@@ -35,6 +35,14 @@ typedef struct {
 #define PKGCONF_LIST_INITIALIZER		{ NULL, NULL, 0 }
 
 static inline void
+pkgconf_list_zero(pkgconf_list_t *list)
+{
+	list->head = NULL;
+	list->tail = NULL;
+	list->length = 0;
+}
+
+static inline void
 pkgconf_node_insert(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 {
 	pkgconf_node_t *tnode;
