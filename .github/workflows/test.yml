@@ -41,7 +41,7 @@ jobs:
   debian-meson:
     runs-on: ubuntu-latest
     container:
-      image: debian:bullseye
+      image: debian:testing
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
   debian-autotools:
     runs-on: ubuntu-latest
     container:
-      image: debian:bullseye
+      image: debian:testing
     steps:
       - name: Checkout
         uses: actions/checkout@v2
