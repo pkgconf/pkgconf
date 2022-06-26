@@ -98,6 +98,8 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/tuple-quoting.pc \
 		tests/lib1/empty-tuple.pc \
 		tests/lib1/orphaned-requires-private.pc \
+		tests/lib1/sysroot-dir-2.pc \
+		tests/lib1/sysroot-dir-3.pc \
 		$(test_scripts) \
 		doc/conf.py \
 		doc/extract.py \
