@@ -113,6 +113,9 @@ pkgconf_queue_collect_dependents(pkgconf_client_t *client, pkgconf_pkg_t *pkg, v
 	pkgconf_node_t *node;
 	pkgconf_pkg_t *world = data;
 
+	if (pkg == world)
+		return;
+
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
 		pkgconf_dependency_t *flattened_dep;
