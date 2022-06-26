@@ -792,7 +792,7 @@ main(int argc, char *argv[])
 	char *logfile_arg = NULL;
 	char *want_env_prefix = NULL;
 	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
-	pkgconf_cross_personality_t *personality;
+	pkgconf_cross_personality_t *personality = NULL;
 	bool opened_error_msgout = false;
 
 	want_flags = 0;
@@ -885,12 +885,6 @@ main(int argc, char *argv[])
 	}
 #endif
 
-#ifndef PKGCONF_LITE
-	personality = deduce_personality(argv);
-#else
-	personality = pkgconf_cross_personality_default();
-#endif
-
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
 		switch (ret)
@@ -946,6 +940,14 @@ main(int argc, char *argv[])
 		default:
 			break;
 		}
+	}
+
+	if (personality == NULL) {
+#ifndef PKGCONF_LITE
+		personality = deduce_personality(argv);
+#else
+		personality = pkgconf_cross_personality_default();
+#endif
 	}
 
 	pkgconf_path_copy_list(&personality->dir_list, &dir_list);
