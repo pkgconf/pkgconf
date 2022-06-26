@@ -269,7 +269,7 @@ pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queu
 		return false;
 
 	/* the world dependency set is flattened after it is returned from pkgconf_queue_verify */
-	if (!func(client, &world, data, 2))
+	if (!func(client, &world, data, maxdepth))
 	{
 		pkgconf_pkg_free(client, &world);
 		return false;
