@@ -107,13 +107,131 @@ pkgconf_queue_free(pkgconf_list_t *list)
 	}
 }
 
+static void
+pkgconf_queue_collect_dependents(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+{
+	pkgconf_node_t *node;
+	pkgconf_pkg_t *world = data;
+
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
+	{
+		pkgconf_dependency_t *flattened_dep;
+
+		flattened_dep = pkgconf_dependency_copy(client, node->data);
+
+		pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
+	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
+	{
+		pkgconf_dependency_t *flattened_dep;
+
+		flattened_dep = pkgconf_dependency_copy(client, node->data);
+
+		pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->requires_private);
+	}
+}
+
+static int
+dep_sort_cmp(const void *a, const void *b)
+{
+	const pkgconf_dependency_t *depA = *(void **) a;
+	const pkgconf_dependency_t *depB = *(void **) b;
+
+	return depB->match->hits - depA->match->hits;
+}
+
+static inline void
+flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
+{
+	pkgconf_node_t *node;
+	pkgconf_dependency_t **deps = NULL;
+	size_t dep_count = 0, i;
+
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+	{
+		pkgconf_dependency_t *dep = node->data;
+		pkgconf_pkg_t *pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
+
+		if (pkg->serial == client->serial)
+			continue;
+
+		if (dep->match == NULL)
+		{
+			PKGCONF_TRACE(client, "WTF: unmatched dependency %p <%s>", dep, dep->package);
+			abort();
+		}
+
+		/* for virtuals, we need to check to see if there are dupes */
+		for (i = 0; i < dep_count; i++)
+		{
+			pkgconf_dependency_t *other_dep = deps[i];
+
+			PKGCONF_TRACE(client, "dedup %s = %s?", dep->package, other_dep->package);
+
+			if (!strcmp(dep->package, other_dep->package))
+			{
+				PKGCONF_TRACE(client, "skipping, %zu deps", dep_count);
+				goto next;
+			}
+		}
+
+		pkg->serial = client->serial;
+
+		/* copy to the deps table */
+		dep_count++;
+		deps = pkgconf_reallocarray(deps, dep_count, sizeof (void *));
+		deps[dep_count - 1] = dep;
+
+		PKGCONF_TRACE(client, "added %s to dep table", dep->package);
+
+next:
+	}
+
+	qsort(deps, dep_count, sizeof (void *), dep_sort_cmp);
+
+	/* zero the list and start readding */
+	pkgconf_list_zero(list);
+
+	for (i = 0; i < dep_count; i++)
+	{
+		pkgconf_dependency_t *dep = deps[i];
+
+		memset(&dep->iter, '\0', sizeof (dep->iter));
+		pkgconf_node_insert(&dep->iter, dep, list);
+
+		PKGCONF_TRACE(client, "slot %zu: dep %s matched to %p<%s> hits %lu", i, dep->package, dep->match, dep->match == NULL ? "NULL" : dep->match->id, dep->match->hits);
+	}
+
+	free(deps);
+}
+
 static inline unsigned int
 pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth)
 {
+	unsigned int result;
+
 	if (!pkgconf_queue_compile(client, world, list))
 		return PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
 
-	return pkgconf_pkg_verify_graph(client, world, maxdepth);
+	/* collect all the dependencies */
+	result = pkgconf_pkg_traverse(client, world, pkgconf_queue_collect_dependents, world, maxdepth, 0);
+	if (result != PKGCONF_PKG_ERRF_OK)
+		return result;
+
+	/* flatten the dependency set using serials.
+	 * we copy the dependencies to a vector, and then erase the list.
+	 * then we copy them back to the list.
+	 */
+	++client->serial;
+
+	PKGCONF_TRACE(client, "flattening requires deps");
+	flatten_dependency_set(client, &world->required);
+
+	PKGCONF_TRACE(client, "flattening requires.private deps");
+	flatten_dependency_set(client, &world->requires_private);
+
+	return PKGCONF_PKG_ERRF_OK;
 }
 
 /*
@@ -148,7 +266,8 @@ pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queu
 	if (pkgconf_queue_verify(client, &world, list, maxdepth) != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	if (!func(client, &world, data, maxdepth))
+	/* the world dependency set is flattened after it is returned from pkgconf_queue_verify */
+	if (!func(client, &world, data, 2))
 	{
 		pkgconf_pkg_free(client, &world);
 		return false;

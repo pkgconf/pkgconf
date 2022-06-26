@@ -467,5 +467,8 @@ pkgconf_dependency_copy(pkgconf_client_t *client, const pkgconf_dependency_t *de
 	new_dep->owner = client;
 	new_dep->refcount = 0;
 
+	if (dep->match != NULL)
+		new_dep->match = pkgconf_pkg_ref(client, dep->match);
+
 	return pkgconf_dependency_ref(client, new_dep);
 }
