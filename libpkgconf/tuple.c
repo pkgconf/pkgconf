@@ -330,15 +330,19 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 	 *
 	 * Finally, we call pkgconf_path_relocate() to clean the path of spurious elements.
 	 */
+	const char *sysroot_dir = pkgconf_tuple_find(client, vars, "pc_sysrootdir");
+	if (sysroot_dir == NULL)
+		sysroot_dir = client->sysroot_dir;
+
 	if (*buf == '/' &&
-	    client->sysroot_dir != NULL &&
-	    strcmp(client->sysroot_dir, "/") != 0 &&
-	    strlen(buf) > strlen(client->sysroot_dir) &&
-	    strstr(buf + strlen(client->sysroot_dir), client->sysroot_dir) != NULL)
+	    sysroot_dir != NULL &&
+	    strcmp(sysroot_dir, "/") != 0 &&
+	    strlen(buf) > strlen(sysroot_dir) &&
+	    strstr(buf + strlen(sysroot_dir), sysroot_dir) != NULL)
 	{
 		char cleanpath[PKGCONF_ITEM_SIZE];
 
-		pkgconf_strlcpy(cleanpath, buf + strlen(client->sysroot_dir), sizeof cleanpath);
+		pkgconf_strlcpy(cleanpath, buf + strlen(sysroot_dir), sizeof cleanpath);
 		pkgconf_path_relocate(cleanpath, sizeof cleanpath);
 
 		return strdup(cleanpath);
