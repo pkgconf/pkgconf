@@ -9,6 +9,9 @@
 /* Define to 1 if you have the `strndup' function. */
 #mesondefine HAVE_STRNDUP
 
+/* Define to 1 if you have the `reallocarray' function. */
+#mesondefine HAVE_REALLOCARRAY
+
 /* Name of package */
 #mesondefine PACKAGE
 
