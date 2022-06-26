@@ -156,6 +156,9 @@ flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
 
+		if (pkg == NULL)
+			continue;
+
 		if (pkg->serial == client->serial)
 			continue;
 
