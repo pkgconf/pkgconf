@@ -25,6 +25,7 @@ extern "C" {
 PKGCONF_API extern size_t pkgconf_strlcpy(char *dst, const char *src, size_t siz);
 PKGCONF_API extern size_t pkgconf_strlcat(char *dst, const char *src, size_t siz);
 PKGCONF_API extern char *pkgconf_strndup(const char *src, size_t len);
+PKGCONF_API extern void *pkgconf_reallocarray(void *ptr, size_t m, size_t n);
 
 #ifdef __cplusplus
 }

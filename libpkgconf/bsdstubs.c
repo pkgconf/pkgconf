@@ -137,3 +137,23 @@ pkgconf_strndup(const char *src, size_t len)
 {
 	return strndup(src, len);
 }
+
+#ifndef HAVE_REALLOCARRAY
+void *
+reallocarray(void *ptr, size_t m, size_t n)
+{
+	if (n && m > -1 / n)
+	{
+		errno = ENOMEM;
+		return 0;
+	}
+
+	return realloc(ptr, m * n);
+}
+#endif
+
+void *
+pkgconf_reallocarray(void *ptr, size_t m, size_t n)
+{
+	return reallocarray(ptr, m, n);
+}
