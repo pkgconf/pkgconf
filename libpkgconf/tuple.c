@@ -218,10 +218,6 @@ char *
 pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key)
 {
 	pkgconf_node_t *node;
-	char *res;
-
-	if ((res = pkgconf_tuple_find_global(client, key)) != NULL)
-		return res;
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
@@ -231,7 +227,7 @@ pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const c
 			return tuple->value;
 	}
 
-	return NULL;
+	return pkgconf_tuple_find_global(client, key);
 }
 
 /*
