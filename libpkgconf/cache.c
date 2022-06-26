@@ -128,7 +128,7 @@ pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	pkg->flags |= PKGCONF_PKG_PROPF_CACHED;
 
 	++client->cache_count;
-	client->cache_table = reallocarray(client->cache_table,
+	client->cache_table = pkgconf_reallocarray(client->cache_table,
 		client->cache_count, sizeof (void *));
 	client->cache_table[client->cache_count - 1] = pkg;
 
@@ -181,7 +181,7 @@ pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	}
 
 	client->cache_count--;
-	client->cache_table = reallocarray(client->cache_table,
+	client->cache_table = pkgconf_reallocarray(client->cache_table,
 		client->cache_count, sizeof(void *));
 }
 
@@ -214,7 +214,7 @@ pkgconf_cache_free(pkgconf_client_t *client)
 	pkgconf_pkg_t **cache_table;
 	size_t i, count;
 
-	cache_table = reallocarray(NULL, client->cache_count, sizeof (void *));
+	cache_table = pkgconf_reallocarray(NULL, client->cache_count, sizeof (void *));
 	memcpy(cache_table, client->cache_table,
 		client->cache_count * sizeof (void *));
 
