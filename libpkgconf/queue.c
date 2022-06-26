@@ -191,7 +191,7 @@ flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 
 		PKGCONF_TRACE(client, "added %s to dep table", dep->package);
 
-next:
+next:;
 	}
 
 	qsort(deps, dep_count, sizeof (void *), dep_sort_cmp);
