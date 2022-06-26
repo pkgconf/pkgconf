@@ -72,7 +72,7 @@ libs_cflags_version_multiple_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-I/test/include/foo -fPIC -L/test/lib -lbar -lfoo \n" \
+		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lbar -lfoo \n" \
 		pkgconf --cflags --libs 'foo > 1.2 bar >= 1.3'
 }
 
@@ -80,7 +80,7 @@ libs_cflags_version_multiple_coma_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-I/test/include/foo -fPIC -L/test/lib -lbar -lfoo \n" \
+		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lbar -lfoo \n" \
 		pkgconf --cflags --libs 'foo > 1.2,bar >= 1.3'
 }
 

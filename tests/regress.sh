@@ -223,7 +223,7 @@ virtual_variable_body()
 
 fragment_collision_body()
 {
-	atf_check -o inline:"-D_BAZ -D_BAR -D_FOO -D_THREAD_SAFE -pthread \n" \
+	atf_check -o inline:"-D_BAZ -D_FOO -D_BAR -D_THREAD_SAFE -pthread \n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-collision
 }
 
