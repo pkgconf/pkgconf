@@ -1,4 +1,4 @@
-prefix=/sysroot/usr
+prefix=${pc_sysrootdir}/usr
 includedir=${prefix}/include
 libdir=${prefix}/lib
 
