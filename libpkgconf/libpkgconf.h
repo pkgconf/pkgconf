@@ -160,6 +160,8 @@ struct pkgconf_pkg_ {
 	pkgconf_tuple_t *prefix;
 
 	uint64_t serial;
+
+	size_t hits;
 };
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
