@@ -346,16 +346,6 @@ apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	return true;
 }
 
-static void
-print_variable(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *variable)
-{
-	const char *var;
-
-	var = pkgconf_tuple_find(client, &pkg->vars, variable);
-	if (var != NULL)
-		printf("%s", var);
-}
-
 static bool
 apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, int maxdepth)
 {
@@ -366,11 +356,12 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, i
 	{
 		pkgconf_dependency_t *dep = iter->data;
 		pkgconf_pkg_t *pkg = dep->match;
+		const char *var;
 
-		if (iter->prev != NULL)
-			printf(" ");
+		var = pkgconf_tuple_find(client, &pkg->vars, variable);
 
-		print_variable(client, pkg, variable);
+		if (var != NULL)
+			printf("%s%s", iter->prev != NULL ? " " : "", var);
 	}
 
 	printf("\n");
