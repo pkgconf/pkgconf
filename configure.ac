@@ -22,7 +22,7 @@ AX_CHECK_COMPILE_FLAG([-std=gnu99], [CFLAGS="$CFLAGS -std=gnu99"], [
 	AX_CHECK_COMPILE_FLAG([-std=c99], [CFLAGS="$CFLAGS -std=c99"])
 ])
 AC_CONFIG_HEADERS([libpkgconf/config.h])
-AC_CHECK_FUNCS([strlcpy strlcat strndup])
+AC_CHECK_FUNCS([strlcpy strlcat strndup reallocarray])
 AC_CHECK_HEADERS([sys/stat.h])
 AM_INIT_AUTOMAKE([foreign dist-xz subdir-objects])
 AM_SILENT_RULES([yes])
