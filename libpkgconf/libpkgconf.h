@@ -128,8 +128,6 @@ struct pkgconf_path_ {
 #define PKGCONF_PKG_PROPF_VIRTUAL		0x10
 
 struct pkgconf_pkg_ {
-	pkgconf_node_t cache_iter;
-
 	int refcount;
 	char *id;
 	char *filename;
@@ -171,7 +169,6 @@ typedef bool (*pkgconf_error_handler_func_t)(const char *msg, const pkgconf_clie
 
 struct pkgconf_client_ {
 	pkgconf_list_t dir_list;
-	pkgconf_list_t pkg_cache;
 
 	pkgconf_list_t filter_libdirs;
 	pkgconf_list_t filter_includedirs;
@@ -198,6 +195,9 @@ struct pkgconf_client_ {
 	bool already_sent_notice;
 
 	uint64_t serial;
+
+	pkgconf_pkg_t **cache_table;
+	size_t cache_count;
 };
 
 struct pkgconf_cross_personality_ {
