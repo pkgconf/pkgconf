@@ -17,6 +17,8 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+#include <assert.h>
+
 /*
  * !doc
  *
@@ -514,6 +516,8 @@ pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	if (pkg->pc_filedir != NULL)
 		free(pkg->pc_filedir);
 
+	/* We shouldn't be trying to free this if someone is still holding a reference to it */
+	assert(pkg->refcount == 0);
 	free(pkg);
 }
 

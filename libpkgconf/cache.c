@@ -233,7 +233,7 @@ pkgconf_cache_free(pkgconf_client_t *client)
 	for (i = 0, count = client->cache_count; i < count; i++)
 	{
 		pkgconf_pkg_t *pkg = cache_table[i];
-		pkgconf_pkg_free(client, pkg);
+		pkgconf_pkg_unref(client, pkg);
 	}
 	free(cache_table);
 
