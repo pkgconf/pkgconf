@@ -1,6 +1,6 @@
 pipeline:
   debian-meson:
-    image: debian
+    image: debian:testing
     commands:
       - apt-get update
       - apt-get install -y kyua atf-sh build-essential meson
@@ -13,7 +13,7 @@ pipeline:
         BUILD: meson
 
   debian-autotools:
-    image: debian
+    image: debian:testing
     commands:
       - apt-get update
       - apt-get install -y kyua atf-sh build-essential autoconf libtool
