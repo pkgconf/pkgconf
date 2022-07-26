@@ -61,6 +61,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib3/bar.pc \
 		tests/lib1/conflicts.pc \
 		tests/lib1/omg-uninstalled.pc \
+		tests/lib1/omg-sysroot-uninstalled.pc \
 		tests/lib1/isystem.pc \
 		tests/lib1/idirafter.pc \
 		tests/lib1/idirafter-ordering.pc \
