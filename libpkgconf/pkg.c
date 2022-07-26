@@ -387,18 +387,19 @@ pkgconf_pkg_validate(const pkgconf_client_t *client, const pkgconf_pkg_t *pkg)
 /*
  * !doc
  *
- * .. c:function:: pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f)
+ * .. c:function:: pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f, unsigned int flags)
  *
  *    Parse a .pc file into a pkgconf_pkg_t object structure.
  *
  *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
  *    :param char* filename: The filename of the package file (including full path).
  *    :param FILE* f: The file object to read from.
+ *    :param uint flags: The flags to use when parsing.
  *    :returns: A ``pkgconf_pkg_t`` object which contains the package data.
  *    :rtype: pkgconf_pkg_t *
  */
 pkgconf_pkg_t *
-pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *f)
+pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *f, unsigned int flags)
 {
 	pkgconf_pkg_t *pkg;
 	char *idptr;
@@ -407,6 +408,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	pkg->owner = client;
 	pkg->filename = strdup(filename);
 	pkg->pc_filedir = pkg_get_parent_dir(pkg);
+	pkg->flags = flags;
 
 	char *pc_filedir_value = convert_path_to_value(pkg->pc_filedir);
 	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pc_filedir_value, true, pkg->flags);
@@ -579,14 +581,12 @@ pkgconf_pkg_try_specific_path(pkgconf_client_t *client, const char *path, const 
 	if (!(client->flags & PKGCONF_PKG_PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
 	{
 		PKGCONF_TRACE(client, "found (uninstalled): %s", uninst_locbuf);
-		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f);
-		if (pkg != NULL)
-			pkg->flags |= PKGCONF_PKG_PROPF_UNINSTALLED;
+		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f, PKGCONF_PKG_PROPF_UNINSTALLED);
 	}
 	else if ((f = fopen(locbuf, "r")) != NULL)
 	{
 		PKGCONF_TRACE(client, "found: %s", locbuf);
-		pkg = pkgconf_pkg_new_from_file(client, locbuf, f);
+		pkg = pkgconf_pkg_new_from_file(client, locbuf, f, 0);
 	}
 
 	return pkg;
@@ -624,7 +624,7 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 		if (f == NULL)
 			continue;
 
-		pkg = pkgconf_pkg_new_from_file(client, filebuf, f);
+		pkg = pkgconf_pkg_new_from_file(client, filebuf, f, 0);
 		if (pkg != NULL)
 		{
 			if (func(pkg, data))
@@ -744,7 +744,7 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 
 			PKGCONF_TRACE(client, "%s is a file", name);
 
-			pkg = pkgconf_pkg_new_from_file(client, name, f);
+			pkg = pkgconf_pkg_new_from_file(client, name, f, 0);
 			if (pkg != NULL)
 			{
 				pkgconf_path_add(pkg->pc_filedir, &client->dir_list, true);
