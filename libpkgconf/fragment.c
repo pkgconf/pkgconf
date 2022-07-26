@@ -93,15 +93,18 @@ pkgconf_fragment_is_special(const char *string)
 }
 
 static inline void
-pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen, const char *source, const char *sysroot_dir)
+pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen, const char *source, const char *sysroot_dir, unsigned int flags)
 {
 	*buf = '\0';
 
-	if (sysroot_dir == NULL)
-		sysroot_dir = pkgconf_tuple_find_global(client, "pc_sysrootdir");
+	if (!(flags & PKGCONF_PKG_PROPF_UNINSTALLED) || (client->flags & PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES))
+	{
+		if (sysroot_dir == NULL)
+			sysroot_dir = pkgconf_tuple_find_global(client, "pc_sysrootdir");
 
-	if (sysroot_dir != NULL && pkgconf_fragment_should_munge(source, sysroot_dir))
-		pkgconf_strlcat(buf, sysroot_dir, buflen);
+		if (sysroot_dir != NULL && pkgconf_fragment_should_munge(source, sysroot_dir))
+			pkgconf_strlcat(buf, sysroot_dir, buflen);
+	}
 
 	pkgconf_strlcat(buf, source, buflen);
 
@@ -110,27 +113,28 @@ pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen,
 }
 
 static inline char *
-pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source)
+pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source, unsigned int flags)
 {
 	char mungebuf[PKGCONF_ITEM_SIZE];
-	pkgconf_fragment_munge(client, mungebuf, sizeof mungebuf, source, client->sysroot_dir);
+	pkgconf_fragment_munge(client, mungebuf, sizeof mungebuf, source, client->sysroot_dir, flags);
 	return strdup(mungebuf);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string)
+ * .. c:function:: void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
  *
  *    Adds a `fragment` of text to a `fragment list`, possibly modifying the fragment if a sysroot is set.
  *
  *    :param pkgconf_client_t* client: The pkgconf client being accessed.
  *    :param pkgconf_list_t* list: The fragment list.
  *    :param char* string: The string of text to add as a fragment to the fragment list.
+ *    :param uint flags: Parsing-related flags for the package.
  *    :return: nothing
  */
 void
-pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string)
+pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
 {
 	pkgconf_fragment_t *frag;
 
@@ -142,7 +146,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 		frag = calloc(sizeof(pkgconf_fragment_t), 1);
 
 		frag->type = *(string + 1);
-		frag->data = pkgconf_fragment_copy_munged(client, string + 2);
+		frag->data = pkgconf_fragment_copy_munged(client, string + 2, flags);
 
 		PKGCONF_TRACE(client, "added fragment {%c, '%s'} to list @%p", frag->type, frag->data, list);
 	}
@@ -161,7 +165,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 				size_t len;
 				char *newdata;
 
-				pkgconf_fragment_munge(client, mungebuf, sizeof mungebuf, string, NULL);
+				pkgconf_fragment_munge(client, mungebuf, sizeof mungebuf, string, NULL, flags);
 
 				len = strlen(parent->data) + strlen(mungebuf) + 2;
 				newdata = malloc(len);
@@ -686,6 +690,8 @@ pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkg
 
 	for (i = 0; i < argc; i++)
 	{
+		PKGCONF_TRACE(client, "processing %s", argv[i]);
+
 		if (argv[i] == NULL)
 		{
 			PKGCONF_TRACE(client, "parsed fragment string is inconsistent: argc = %d while argv[%d] == NULL", argc, i);
@@ -694,7 +700,7 @@ pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkg
 			return false;
 		}
 
-		pkgconf_fragment_add(client, list, argv[i]);
+		pkgconf_fragment_add(client, list, argv[i], flags);
 	}
 
 	pkgconf_argv_free(argv);

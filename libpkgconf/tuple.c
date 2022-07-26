@@ -225,13 +225,13 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 
 	dequote_value = dequote(value);
 
-	PKGCONF_TRACE(client, "adding tuple to @%p: %s => %s (parsed? %d)", list, key, dequote_value, parse);
-
 	tuple->key = strdup(key);
 	if (parse)
 		tuple->value = pkgconf_tuple_parse(client, list, dequote_value, flags);
 	else
 		tuple->value = strdup(dequote_value);
+
+	PKGCONF_TRACE(client, "adding tuple to @%p: %s => %s (parsed? %d)", list, key, tuple->value, parse);
 
 	pkgconf_node_insert(&tuple->iter, tuple, list);
 
@@ -290,7 +290,8 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 	const char *ptr;
 	char *bptr = buf;
 
-	if (!(client->flags & PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES))
+	if (!(client->flags & PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES) &&
+		(!(flags & PKGCONF_PKG_PROPF_UNINSTALLED) || (client->flags & PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES)))
 	{
 		if (*value == '/' && client->sysroot_dir != NULL && strncmp(value, client->sysroot_dir, strlen(client->sysroot_dir)))
 			bptr += pkgconf_strlcpy(buf, client->sysroot_dir, sizeof buf);
@@ -328,6 +329,8 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 					break;
 				}
 			}
+
+			PKGCONF_TRACE(client, "lookup tuple %s", varname);
 
 			ptr += (pptr - ptr);
 			kv = pkgconf_tuple_find_global(client, varname);

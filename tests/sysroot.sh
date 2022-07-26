@@ -8,6 +8,7 @@ tests_init \
 	do_not_eat_slash \
 	do_not_duplicate_sysroot_dir \
 	uninstalled \
+	uninstalled_pkgconf1 \
 	uninstalled_fdo
 
 do_not_eat_slash_body()
@@ -70,7 +71,18 @@ uninstalled_body()
 	export PKG_CONFIG_SYSROOT_DIR="/sysroot"
 
 	atf_check \
-		-o inline:"-lomg \n" \
+		-o inline:"-L/test/lib -lomg \n" \
+		pkgconf --libs omg
+}
+
+uninstalled_pkgconf1_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	export PKG_CONFIG_SYSROOT_DIR="/sysroot"
+	export PKG_CONFIG_PKGCONF1_SYSROOT_RULES="1"
+
+	atf_check \
+		-o inline:"-L/sysroot/test/lib -lomg \n" \
 		pkgconf --libs omg
 }
 
@@ -81,6 +93,6 @@ uninstalled_fdo_body()
 	export PKG_CONFIG_FDO_SYSROOT_RULES="1"
 
 	atf_check \
-		-o inline:"-L/sysroot/test/lib -lomg \n" \
+		-o inline:"-L/test/lib -lomg \n" \
 		pkgconf --libs omg
 }

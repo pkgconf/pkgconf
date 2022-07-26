@@ -1018,6 +1018,9 @@ main(int argc, char *argv[])
 	if (getenv("PKG_CONFIG_FDO_SYSROOT_RULES"))
 		want_client_flags |= PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES;
 
+	if (getenv("PKG_CONFIG_PKGCONF1_SYSROOT_RULES"))
+		want_client_flags |= PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES;
+
 	if ((want_flags & PKG_SHORT_ERRORS) == PKG_SHORT_ERRORS)
 		want_client_flags |= PKGCONF_PKG_PKGF_SIMPLIFY_ERRORS;
 
