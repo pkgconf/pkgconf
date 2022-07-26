@@ -235,6 +235,7 @@ pkgconf_cache_free(pkgconf_client_t *client)
 		pkgconf_pkg_t *pkg = cache_table[i];
 		pkgconf_pkg_free(client, pkg);
 	}
+	free(cache_table);
 
 	PKGCONF_TRACE(client, "cleared package cache");
 }
