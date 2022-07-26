@@ -663,15 +663,16 @@ pkgconf_fragment_free(pkgconf_list_t *list)
  *    :param pkgconf_client_t* client: The pkgconf client being accessed.
  *    :param pkgconf_list_t* list: The `fragment list` to add the fragment entries to.
  *    :param pkgconf_list_t* vars: A list of variables to use for variable substitution.
+ *    :param uint flags: Any parsing flags to be aware of.
  *    :param char* value: The string to parse into fragments.
  *    :return: true on success, false on parse error
  */
 bool
-pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value)
+pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
 {
 	int i, ret, argc;
 	char **argv;
-	char *repstr = pkgconf_tuple_parse(client, vars, value);
+	char *repstr = pkgconf_tuple_parse(client, vars, value, flags);
 
 	PKGCONF_TRACE(client, "post-subst: [%s] -> [%s]", value, repstr);
 

@@ -346,7 +346,7 @@ typedef struct pkgconf_fragment_render_ops_ {
 } pkgconf_fragment_render_ops_t;
 
 typedef bool (*pkgconf_fragment_filter_func_t)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data);
-PKGCONF_API bool pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value);
+PKGCONF_API bool pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags);
 PKGCONF_API void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string);
 PKGCONF_API void pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private);
 PKGCONF_API void pkgconf_fragment_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base);
@@ -362,9 +362,9 @@ PKGCONF_API bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client,
 PKGCONF_API char *pkgconf_fgetline(char *line, size_t size, FILE *stream);
 
 /* tuple.c */
-PKGCONF_API pkgconf_tuple_t *pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *parent, const char *key, const char *value, bool parse);
+PKGCONF_API pkgconf_tuple_t *pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *parent, const char *key, const char *value, bool parse, unsigned int flags);
 PKGCONF_API char *pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key);
-PKGCONF_API char *pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *list, const char *value);
+PKGCONF_API char *pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *list, const char *value, unsigned int flags);
 PKGCONF_API void pkgconf_tuple_free(pkgconf_list_t *list);
 PKGCONF_API void pkgconf_tuple_free_entry(pkgconf_tuple_t *tuple, pkgconf_list_t *list);
 PKGCONF_API void pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *value);

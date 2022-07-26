@@ -434,7 +434,7 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 void
 pkgconf_dependency_parse(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist, const char *depends, unsigned int flags)
 {
-	char *kvdepends = pkgconf_tuple_parse(client, &pkg->vars, depends);
+	char *kvdepends = pkgconf_tuple_parse(client, &pkg->vars, depends, pkg->flags);
 
 	pkgconf_dependency_parse_str(client, deplist, kvdepends, flags);
 	free(kvdepends);

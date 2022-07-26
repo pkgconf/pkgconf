@@ -92,7 +92,7 @@ pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, cons
 	(void) lineno;
 
 	char **dest = (char **)((char *) pkg + offset);
-	*dest = pkgconf_tuple_parse(client, &pkg->vars, value);
+	*dest = pkgconf_tuple_parse(client, &pkg->vars, value, pkg->flags);
 }
 
 static void
@@ -105,7 +105,7 @@ pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, co
 	char **dest = (char **)((char *) pkg + offset);
 
 	/* cut at any detected whitespace */
-	p = pkgconf_tuple_parse(client, &pkg->vars, value);
+	p = pkgconf_tuple_parse(client, &pkg->vars, value, pkg->flags);
 
 	len = strcspn(p, " \t");
 	if (len != strlen(p))
@@ -124,7 +124,7 @@ static void
 pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
-	bool ret = pkgconf_fragment_parse(client, dest, &pkg->vars, value);
+	bool ret = pkgconf_fragment_parse(client, dest, &pkg->vars, value, pkg->flags);
 
 	if (!ret)
 	{
@@ -312,10 +312,10 @@ pkgconf_pkg_parser_value_set(void *opaque, const size_t lineno, const char *keyw
 
 		pkgconf_strlcpy(newvalue, pkg->prefix->value, sizeof newvalue);
 		pkgconf_strlcat(newvalue, canonicalized_value + strlen(pkg->orig_prefix->value), sizeof newvalue);
-		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, newvalue, false);
+		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, newvalue, false, pkg->flags);
 	}
 	else if (strcmp(keyword, pkg->owner->prefix_varname) || !(pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
-		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true);
+		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true, pkg->flags);
 	else
 	{
 		char pathbuf[PKGCONF_ITEM_SIZE];
@@ -324,12 +324,12 @@ pkgconf_pkg_parser_value_set(void *opaque, const size_t lineno, const char *keyw
 		if (relvalue != NULL)
 		{
 			char *prefix_value = convert_path_to_value(relvalue);
-			pkg->orig_prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, "orig_prefix", canonicalized_value, true);
-			pkg->prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, prefix_value, false);
+			pkg->orig_prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, "orig_prefix", canonicalized_value, true, pkg->flags);
+			pkg->prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, prefix_value, false, pkg->flags);
 			free(prefix_value);
 		}
 		else
-			pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true);
+			pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true, pkg->flags);
 	}
 }
 
@@ -409,7 +409,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	pkg->pc_filedir = pkg_get_parent_dir(pkg);
 
 	char *pc_filedir_value = convert_path_to_value(pkg->pc_filedir);
-	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pc_filedir_value, true);
+	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pc_filedir_value, true, pkg->flags);
 	free(pc_filedir_value);
 
 	/* If pc_filedir is outside of sysroot_dir, override sysroot_dir for this
@@ -417,7 +417,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	 * See https://github.com/pkgconf/pkgconf/issues/213
 	 */
 	if (client->sysroot_dir && strncmp(pkg->pc_filedir, client->sysroot_dir, strlen(client->sysroot_dir)))
-		pkgconf_tuple_add(client, &pkg->vars, "pc_sysrootdir", "", false);
+		pkgconf_tuple_add(client, &pkg->vars, "pc_sysrootdir", "", false, pkg->flags);
 
 	/* make module id */
 	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
