@@ -113,7 +113,7 @@ add_or_replace_dependency_node(pkgconf_client_t *client, pkgconf_dependency_t *d
 	}
 
 	PKGCONF_TRACE(client, "added dependency [%s] to list @%p; flags=%x", dependency_to_str(dep, depbuf, sizeof depbuf), list, dep->flags);
-	pkgconf_node_insert_tail(&dep->iter, dep, list);
+	pkgconf_node_insert_tail(&dep->iter, pkgconf_dependency_ref(dep->owner, dep), list);
 
 	return pkgconf_dependency_ref(dep->owner, dep);
 }
@@ -357,7 +357,8 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 
 			if (state == OUTSIDE_MODULE)
 			{
-				pkgconf_dependency_addraw(client, deplist_head, package, package_sz, NULL, 0, compare, flags);
+				pkgconf_dependency_t *dep = pkgconf_dependency_addraw(client, deplist_head, package, package_sz, NULL, 0, compare, flags);
+				pkgconf_dependency_unref(dep->owner, dep);
 
 				compare = PKGCONF_CMP_ANY;
 				package_sz = 0;
@@ -401,7 +402,8 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 				version_sz = ptr - vstart;
 				state = OUTSIDE_MODULE;
 
-				pkgconf_dependency_addraw(client, deplist_head, package, package_sz, version, version_sz, compare, flags);
+				pkgconf_dependency_t *dep = pkgconf_dependency_addraw(client, deplist_head, package, package_sz, version, version_sz, compare, flags);
+				pkgconf_dependency_unref(dep->owner, dep);
 
 				compare = PKGCONF_CMP_ANY;
 				cnameptr = cmpname;
