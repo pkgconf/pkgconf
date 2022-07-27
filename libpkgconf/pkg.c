@@ -1466,6 +1466,8 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 		if (eflags_local != PKGCONF_PKG_ERRF_OK && !(client->flags & PKGCONF_PKG_PKGF_SKIP_ERRORS))
 		{
 			pkgconf_pkg_report_graph_error(client, parent, pkgdep, depnode, eflags_local);
+			if (pkgdep != NULL)
+				pkgconf_pkg_unref(client, pkgdep);
 			continue;
 		}
 		if (pkgdep == NULL)
