@@ -16,6 +16,8 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+#include <assert.h>
+
 /*
  * !doc
  *
@@ -244,8 +246,9 @@ pkgconf_dependency_unref(pkgconf_client_t *client, pkgconf_dependency_t *dep)
 		return;
 
 	dep->refcount--;
+	assert(dep->refcount >= 0);
 	PKGCONF_TRACE(client, "%s: refcount@%p: %d", dep->package, dep, dep->refcount);
-	if (dep->refcount <= 0)
+	if (dep->refcount == 0)
 		pkgconf_dependency_free_one(dep);
 }
 
