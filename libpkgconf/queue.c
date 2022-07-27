@@ -272,24 +272,28 @@ pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queu
 		.realname = "virtual world package",
 		.flags = PKGCONF_PKG_PROPF_STATIC | PKGCONF_PKG_PROPF_VIRTUAL,
 	};
+	bool ret = false;
 
 	/* if maxdepth is one, then we will not traverse deeper than our virtual package. */
 	if (!maxdepth)
 		maxdepth = -1;
 
 	if (pkgconf_queue_verify(client, &world, list, maxdepth) != PKGCONF_PKG_ERRF_OK)
-		return false;
+	{
+		goto out;
+	}
 
 	/* the world dependency set is flattened after it is returned from pkgconf_queue_verify */
 	if (!func(client, &world, data, maxdepth))
 	{
-		pkgconf_pkg_free(client, &world);
-		return false;
+		goto out;
 	}
 
-	pkgconf_pkg_free(client, &world);
 
-	return true;
+	ret = true;
+out:
+	pkgconf_pkg_free(client, &world);
+	return ret;
 }
 
 /*
