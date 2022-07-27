@@ -186,18 +186,6 @@ pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 		client->cache_count, sizeof(void *));
 }
 
-static inline void
-clear_dependency_matches(pkgconf_list_t *list)
-{
-	pkgconf_node_t *iter;
-
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
-	{
-		pkgconf_dependency_t *dep = iter->data;
-		dep->match = NULL;
-	}
-}
-
 /*
  * !doc
  *
@@ -224,18 +212,12 @@ pkgconf_cache_free(pkgconf_client_t *client)
 	{
 		pkgconf_pkg_t *pkg = cache_table[i];
 
-		clear_dependency_matches(&pkg->required);
-		clear_dependency_matches(&pkg->requires_private);
-		clear_dependency_matches(&pkg->provides);
-		clear_dependency_matches(&pkg->conflicts);
+		pkgconf_dependency_free(&pkg->required);
+		pkgconf_dependency_free(&pkg->requires_private);
+		pkgconf_dependency_free(&pkg->provides);
+		pkgconf_dependency_free(&pkg->conflicts);
 	}
 
-	/* now forcibly free everything */
-	for (i = 0, count = client->cache_count; i < count; i++)
-	{
-		pkgconf_pkg_t *pkg = cache_table[i];
-		pkgconf_pkg_unref(client, pkg);
-	}
 	free(cache_table);
 
 	PKGCONF_TRACE(client, "cleared package cache");
