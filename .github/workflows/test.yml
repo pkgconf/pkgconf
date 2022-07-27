@@ -60,6 +60,30 @@ jobs:
         run: |
           meson test -v -C _build
 
+  debian-meson-asan:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:testing
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Update system and add dependencies
+        run: |
+          apt-get update
+          apt-get install -y kyua atf-sh build-essential meson
+
+      - name: Build
+        run: |
+          meson _build -Db_sanitize=address
+          meson compile -C _build
+
+      - name: Run tests
+        run: |
+          meson test -v -C _build
+        env:
+          ASAN_OPTIONS: "exitcode=7"
+
   debian-autotools:
     runs-on: ubuntu-latest
     container:

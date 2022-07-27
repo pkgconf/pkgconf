@@ -12,6 +12,21 @@ pipeline:
         IMAGE: debian
         BUILD: meson
 
+  debian-meson-asan:
+    image: debian:testing
+    environment:
+      - ASAN_OPTIONS="exitcode=7"
+    commands:
+      - apt-get update
+      - apt-get install -y kyua atf-sh build-essential meson
+      - meson _build -Db_sanitize=address
+      - meson compile -C _build
+      - meson test -v -C _build
+    when:
+      matrix:
+        IMAGE: debian
+        BUILD: meson
+
   debian-autotools:
     image: debian:testing
     commands:
