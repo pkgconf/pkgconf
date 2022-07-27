@@ -167,6 +167,7 @@ pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	if (slot == NULL)
 		return;
 
+	pkg->flags &= ~PKGCONF_PKG_PROPF_CACHED;
 	*slot = NULL;
 
 	qsort(client->cache_table, client->cache_count,
