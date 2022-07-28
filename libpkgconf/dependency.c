@@ -197,6 +197,9 @@ pkgconf_dependency_free_one(pkgconf_dependency_t *dep)
 	if (dep->match != NULL)
 		pkgconf_pkg_unref(dep->match->owner, dep->match);
 
+	if (dep->parent != NULL)
+		pkgconf_pkg_unref(dep->match->owner, dep->parent);
+
 	if (dep->package != NULL)
 		free(dep->package);
 
