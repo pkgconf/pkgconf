@@ -4,7 +4,7 @@ pipeline:
     commands:
       - apt-get update
       - apt-get install -y kyua atf-sh build-essential meson
-      - meson _build
+      - meson _build -Dwerror=true
       - meson compile -C _build
       - meson test -v -C _build
     when:
@@ -30,7 +30,7 @@ pipeline:
     image: alpine
     commands:
       - apk add -U --no-cache kyua atf build-base meson
-      - meson _build
+      - meson _build -Dwerror=true
       - meson compile -C _build
       - meson test -v -C _build
     when:
