@@ -9,6 +9,9 @@ cc = meson.get_compiler('c')
 add_project_arguments(
   '-D_BSD_SOURCE',
   '-D_DEFAULT_SOURCE',
+  cc.get_supported_arguments(
+    '-Wimplicit-function-declaration',
+  ),
   language : 'c',
 )
 
