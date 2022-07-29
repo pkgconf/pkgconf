@@ -29,7 +29,7 @@ check_functions = [
 ]
 
 foreach f : check_functions
-  if cc.has_function(f[1], prefix : '#define _BSD_SOURCE\n#include <' + f[2] + '>') and cc.has_header_symbol(f[2], f[1], prefix : '#define _BSD_SOURCE')
+  if cc.has_function(f[1], prefix : '#define _BSD_SOURCE\n#include <@0@>'.format(f[2])) and cc.has_header_symbol(f[2], f[1], prefix : '#define _BSD_SOURCE')
     cdata.set(f[0], 1)
   endif
 endforeach
