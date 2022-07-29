@@ -19,18 +19,18 @@ add_project_arguments(
 cdata = configuration_data()
 
 check_functions = [
-  ['HAVE_STRLCAT', 'strlcat', 'string.h'],
-  ['HAVE_STRLCPY', 'strlcpy', 'string.h'],
-  ['HAVE_STRNDUP', 'strndup', 'string.h'],
-  ['HAVE_STRDUP', 'strdup', 'string.h'],
-  ['HAVE_STRNCASECMP', 'strncasecmp', 'strings.h'],
-  ['HAVE_STRCASECMP', 'strcasecmp', 'strings.h'],
-  ['HAVE_REALLOCARRAY', 'reallocarray', 'stdlib.h'],
+  ['strlcat', 'string.h'],
+  ['strlcpy', 'string.h'],
+  ['strndup', 'string.h'],
+  ['strdup', 'string.h'],
+  ['strncasecmp', 'strings.h'],
+  ['strcasecmp', 'strings.h'],
+  ['reallocarray', 'stdlib.h'],
 ]
 
 foreach f : check_functions
-  if cc.has_function(f[1], prefix : '#define _BSD_SOURCE\n#include <@0@>'.format(f[2])) and cc.has_header_symbol(f[2], f[1], prefix : '#define _BSD_SOURCE')
-    cdata.set(f[0], 1)
+  if cc.has_function(f[0], prefix : '#define _BSD_SOURCE\n#include <@0@>'.format(f[1])) and cc.has_header_symbol(f[1], f[0], prefix : '#define _BSD_SOURCE')
+    cdata.set('HAVE_@0@'.format(f[0].to_upper().underscorify()), 1)
   endif
 endforeach
 
