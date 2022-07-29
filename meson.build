@@ -51,8 +51,8 @@ cdata.set_quoted('PERSONALITY_PATH', ':'.join(personality_path))
 cdata.set_quoted('PACKAGE_NAME', meson.project_name())
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
 cdata.set_quoted('PACKAGE_BUGREPORT', 'https://todo.sr.ht/~kaniini/pkgconf')
-cdata.set('abs_top_srcdir', meson.source_root())
-cdata.set('abs_top_builddir', meson.build_root())
+cdata.set('abs_top_srcdir', meson.current_source_dir())
+cdata.set('abs_top_builddir', meson.current_build_dir())
 
 
 subdir('libpkgconf')
@@ -119,8 +119,7 @@ pkgconf_exe = executable('pkgconf',
 if get_option('tests')
   kyua_exe = find_program('kyua')
   atf_sh_exe = find_program('atf-sh')
-  test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + join_paths(meson.build_root(), 'Kyuafile'), '--build-root=' + meson.build_root()])
-
+  test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + join_paths(meson.current_build_dir(), 'Kyuafile'), '--build-root=' + meson.current_build_dir()])
 
   configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
   subdir('tests')
