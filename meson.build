@@ -119,9 +119,8 @@ pkgconf_exe = executable('pkgconf',
 if get_option('tests')
   kyua_exe = find_program('kyua')
   atf_sh_exe = find_program('atf-sh')
-  test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + join_paths(meson.current_build_dir(), 'Kyuafile'), '--build-root=' + meson.current_build_dir()])
-
-  configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
+  kyuafile = configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
+  test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile', kyuafile, '--build-root', meson.current_build_dir()])
   subdir('tests')
 endif
 
