@@ -1,27 +1,36 @@
 project('pkgconf', 'c',
   version : '1.8.0',
   license : 'ISC',
-  meson_version : '>=0.47')
-
+  meson_version : '>=0.47',
+  default_options : ['c_std=c99'],
+)
 
 cc = meson.get_compiler('c')
 
+add_project_arguments(
+  '-D_BSD_SOURCE',
+  '-D_DEFAULT_SOURCE',
+  cc.get_supported_arguments(
+    '-Wimplicit-function-declaration',
+  ),
+  language : 'c',
+)
 
 cdata = configuration_data()
 
 check_functions = [
-  ['HAVE_STRLCAT', 'strlcat', 'string.h'],
-  ['HAVE_STRLCPY', 'strlcpy', 'string.h'],
-  ['HAVE_STRNDUP', 'strndup', 'string.h'],
-  ['HAVE_STRDUP', 'strdup', 'string.h'],
-  ['HAVE_STRNCASECMP', 'strncasecmp', 'strings.h'],
-  ['HAVE_STRCASECMP', 'strcasecmp', 'strings.h'],
-  ['HAVE_REALLOCARRAY', 'reallocarray', 'stdlib.h'],
+  ['strlcat', 'string.h'],
+  ['strlcpy', 'string.h'],
+  ['strndup', 'string.h'],
+  ['strdup', 'string.h'],
+  ['strncasecmp', 'strings.h'],
+  ['strcasecmp', 'strings.h'],
+  ['reallocarray', 'stdlib.h'],
 ]
 
 foreach f : check_functions
-  if cc.has_function(f.get(1), prefix : '#define _BSD_SOURCE\n#include <' + f.get(2) + '>') and cc.has_header_symbol(f.get(2), f.get(1), prefix : '#define _BSD_SOURCE')
-    cdata.set(f.get(0), 1)
+  if cc.has_function(f[0], prefix : '#define _BSD_SOURCE\n#include <@0@>'.format(f[1])) and cc.has_header_symbol(f[1], f[0], prefix : '#define _BSD_SOURCE')
+    cdata.set('HAVE_@0@'.format(f[0].to_upper().underscorify()), 1)
   endif
 endforeach
 
@@ -42,8 +51,8 @@ cdata.set_quoted('PERSONALITY_PATH', ':'.join(personality_path))
 cdata.set_quoted('PACKAGE_NAME', meson.project_name())
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
 cdata.set_quoted('PACKAGE_BUGREPORT', 'https://todo.sr.ht/~kaniini/pkgconf')
-cdata.set('abs_top_srcdir', meson.source_root())
-cdata.set('abs_top_builddir', meson.build_root())
+cdata.set('abs_top_srcdir', meson.current_source_dir())
+cdata.set('abs_top_builddir', meson.current_build_dir())
 
 
 subdir('libpkgconf')
@@ -110,10 +119,8 @@ pkgconf_exe = executable('pkgconf',
 if get_option('tests')
   kyua_exe = find_program('kyua')
   atf_sh_exe = find_program('atf-sh')
-  test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile=' + join_paths(meson.build_root(), 'Kyuafile'), '--build-root=' + meson.build_root()])
-
-
-  configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
+  kyuafile = configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
+  test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile', kyuafile, '--build-root', meson.current_build_dir()])
   subdir('tests')
 endif
 

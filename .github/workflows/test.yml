@@ -53,7 +53,7 @@ jobs:
 
       - name: Build
         run: |
-          meson _build
+          meson _build -Dwerror=true
           meson compile -C _build
 
       - name: Run tests
@@ -98,7 +98,7 @@ jobs:
 
       - name: Build
         run: |
-          meson _build
+          meson _build -Dwerror=true
           meson compile -C _build
 
       - name: Run tests
