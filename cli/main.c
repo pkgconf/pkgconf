@@ -1183,17 +1183,21 @@ main(int argc, char *argv[])
 					pkgconf_error(&pkg_client, "Package '%s' was not found\n", pkgiter->package);
 
 				ret = EXIT_FAILURE;
-				goto out;
+				goto cleanup;
 			}
 
 			if (pkgconf_compare_version(pkg->version, required_module_version) >= 0)
 			{
 				ret = EXIT_SUCCESS;
-				goto out;
+				goto cleanup;
 			}
 		}
 
 		ret = EXIT_FAILURE;
+cleanup:
+		if (pkg)
+			pkgconf_pkg_unref(&pkg_client, pkg);
+		pkgconf_dependency_free(&deplist);
 		goto out;
 	}
 	else if (required_exact_module_version != NULL)
@@ -1219,17 +1223,21 @@ main(int argc, char *argv[])
 					pkgconf_error(&pkg_client, "Package '%s' was not found\n", pkgiter->package);
 
 				ret = EXIT_FAILURE;
-				goto out;
+				goto cleanup2;
 			}
 
 			if (pkgconf_compare_version(pkg->version, required_exact_module_version) == 0)
 			{
 				ret = EXIT_SUCCESS;
-				goto out;
+				goto cleanup2;
 			}
 		}
 
 		ret = EXIT_FAILURE;
+cleanup2:
+		if (pkg)
+			pkgconf_pkg_unref(&pkg_client, pkg);
+		pkgconf_dependency_free(&deplist);
 		goto out;
 	}
 	else if (required_max_module_version != NULL)
@@ -1255,17 +1263,21 @@ main(int argc, char *argv[])
 					pkgconf_error(&pkg_client, "Package '%s' was not found\n", pkgiter->package);
 
 				ret = EXIT_FAILURE;
-				goto out;
+				goto cleanup3;
 			}
 
 			if (pkgconf_compare_version(pkg->version, required_max_module_version) <= 0)
 			{
 				ret = EXIT_SUCCESS;
-				goto out;
+				goto cleanup3;
 			}
 		}
 
 		ret = EXIT_FAILURE;
+cleanup3:
+		if (pkg)
+			pkgconf_pkg_unref(&pkg_client, pkg);
+		pkgconf_dependency_free(&deplist);
 		goto out;
 	}
 
