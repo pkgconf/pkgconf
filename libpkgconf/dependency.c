@@ -113,9 +113,16 @@ add_or_replace_dependency_node(pkgconf_client_t *client, pkgconf_dependency_t *d
 	}
 
 	PKGCONF_TRACE(client, "added dependency [%s] to list @%p; flags=%x", dependency_to_str(dep, depbuf, sizeof depbuf), list, dep->flags);
-	pkgconf_node_insert_tail(&dep->iter, dep, list);
+	pkgconf_node_insert_tail(&dep->iter, pkgconf_dependency_ref(dep->owner, dep), list);
 
-	return pkgconf_dependency_ref(dep->owner, dep);
+	/* This dependency is intentionally unowned.
+	 *
+	 * Internally we have no use for the returned type, and usually just
+	 * discard it. However, there is a publig pkgconf_dependency_add
+	 * function, which references this return value before returning it,
+	 * giving ownership at that point.
+	 */
+	return dep;
 }
 
 static inline pkgconf_dependency_t *
@@ -156,10 +163,10 @@ pkgconf_dependency_addraw(pkgconf_client_t *client, pkgconf_list_t *list, const 
 pkgconf_dependency_t *
 pkgconf_dependency_add(pkgconf_client_t *client, pkgconf_list_t *list, const char *package, const char *version, pkgconf_pkg_comparator_t compare, unsigned int flags)
 {
-	if (version != NULL)
-		return pkgconf_dependency_addraw(client, list, package, strlen(package), version, strlen(version), compare, flags);
-
-	return pkgconf_dependency_addraw(client, list, package, strlen(package), NULL, 0, compare, flags);
+	pkgconf_dependency_t *dep;
+	dep = pkgconf_dependency_addraw(client, list, package, strlen(package), version,
+					version != NULL ? strlen(version) : 0, compare, flags);
+	return pkgconf_dependency_ref(dep->owner, dep);
 }
 
 /*
