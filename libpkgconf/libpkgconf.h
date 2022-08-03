@@ -298,11 +298,11 @@ PKGCONF_API bool pkgconf_default_error_handler(const char *msg, const pkgconf_cl
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
 #define PKGCONF_TRACE(client, ...) do { \
 		pkgconf_trace(client, __FILE__, __LINE__, __PRETTY_FUNCTION__, __VA_ARGS__); \
-	} while (0);
+	} while (0)
 #else
 #define PKGCONF_TRACE(client, ...) do { \
 		pkgconf_trace(client, __FILE__, __LINE__, __func__, __VA_ARGS__); \
-	} while (0);
+	} while (0)
 #endif
 #else
 #define PKGCONF_TRACE(client, ...)
