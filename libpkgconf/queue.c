@@ -160,7 +160,7 @@ flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 			continue;
 
 		if (pkg->serial == client->serial)
-			continue;
+			goto next;
 
 		if (dep->match == NULL)
 		{
@@ -190,8 +190,8 @@ flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 		deps[dep_count - 1] = dep;
 
 		PKGCONF_TRACE(client, "added %s to dep table", dep->package);
-
-next:;
+next:
+		pkgconf_pkg_unref(client, pkg);
 	}
 
 	qsort(deps, dep_count, sizeof (void *), dep_sort_cmp);
