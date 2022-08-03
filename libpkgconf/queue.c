@@ -194,6 +194,9 @@ next:
 		pkgconf_pkg_unref(client, pkg);
 	}
 
+	if (deps == NULL)
+		return;
+
 	qsort(deps, dep_count, sizeof (void *), dep_sort_cmp);
 
 	/* zero the list and start readding */
