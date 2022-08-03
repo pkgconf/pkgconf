@@ -98,6 +98,8 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	client->error_handler_data = error_handler_data;
 	client->error_handler = error_handler;
 	client->auditf = NULL;
+	client->cache_table = NULL;
+	client->cache_count = 0;
 
 #ifndef PKGCONF_LITE
 	if (client->trace_handler == NULL)

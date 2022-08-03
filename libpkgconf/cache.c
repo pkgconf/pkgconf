@@ -16,6 +16,8 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+#include <assert.h>
+
 /*
  * !doc
  *
@@ -86,6 +88,9 @@ cache_dump(const pkgconf_client_t *client)
 pkgconf_pkg_t *
 pkgconf_cache_lookup(pkgconf_client_t *client, const char *id)
 {
+	if (client->cache_table == NULL)
+		return NULL;
+
 	pkgconf_pkg_t **pkg;
 
 	pkg = bsearch(id, client->cache_table,
@@ -150,6 +155,9 @@ pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 void
 pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
+	if (client->cache_table == NULL)
+		return;
+
 	if (pkg == NULL)
 		return;
 
@@ -181,8 +189,16 @@ pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	}
 
 	client->cache_count--;
-	client->cache_table = pkgconf_reallocarray(client->cache_table,
-		client->cache_count, sizeof(void *));
+	if (client->cache_count > 0)
+	{
+		client->cache_table = pkgconf_reallocarray(client->cache_table,
+			client->cache_count, sizeof(void *));
+	}
+	else
+	{
+		free(client->cache_table);
+		client->cache_table = NULL;
+	}
 }
 
 static inline void
@@ -211,6 +227,9 @@ clear_dependency_matches(pkgconf_list_t *list)
 void
 pkgconf_cache_free(pkgconf_client_t *client)
 {
+	if (client->cache_table == NULL)
+		return;
+
 	pkgconf_pkg_t **cache_table;
 	size_t i, count;
 
@@ -235,6 +254,10 @@ pkgconf_cache_free(pkgconf_client_t *client)
 		pkgconf_pkg_t *pkg = cache_table[i];
 		pkgconf_pkg_free(client, pkg);
 	}
+	free(cache_table);
+	free(client->cache_table);
+	client->cache_table = NULL;
+	client->cache_count = 0;
 
 	PKGCONF_TRACE(client, "cleared package cache");
 }
