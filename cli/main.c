@@ -1337,7 +1337,7 @@ main(int argc, char *argv[])
 	}
 
 	if ((want_flags & PKG_VALIDATE) == PKG_VALIDATE)
-		return 0;
+		goto out;
 
 	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
