@@ -261,6 +261,7 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
 bool
 pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, void *data)
 {
+	bool ret = false;
 	pkgconf_pkg_t world = {
 		.id = "virtual:world",
 		.realname = "virtual world package",
@@ -272,18 +273,17 @@ pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queu
 		maxdepth = -1;
 
 	if (pkgconf_queue_verify(client, &world, list, maxdepth) != PKGCONF_PKG_ERRF_OK)
-		return false;
+		goto cleanup;
 
 	/* the world dependency set is flattened after it is returned from pkgconf_queue_verify */
 	if (!func(client, &world, data, maxdepth))
-	{
-		pkgconf_pkg_free(client, &world);
-		return false;
-	}
+		goto cleanup;
 
+	ret = true;
+
+cleanup:
 	pkgconf_pkg_free(client, &world);
-
-	return true;
+	return ret;
 }
 
 /*
