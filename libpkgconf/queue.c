@@ -116,22 +116,27 @@ pkgconf_queue_collect_dependents(pkgconf_client_t *client, pkgconf_pkg_t *pkg, v
 	if (pkg == world)
 		return;
 
-	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
+	if (!(pkg->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE))
 	{
-		pkgconf_dependency_t *flattened_dep;
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
+		{
+			pkgconf_dependency_t *flattened_dep;
 
-		flattened_dep = pkgconf_dependency_copy(client, node->data);
+			flattened_dep = pkgconf_dependency_copy(client, node->data);
 
-		pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
+			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
+		}
 	}
-
-	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
+	else
 	{
-		pkgconf_dependency_t *flattened_dep;
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
+		{
+			pkgconf_dependency_t *flattened_dep;
 
-		flattened_dep = pkgconf_dependency_copy(client, node->data);
+			flattened_dep = pkgconf_dependency_copy(client, node->data);
 
-		pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->requires_private);
+			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->requires_private);
+		}
 	}
 }
 
