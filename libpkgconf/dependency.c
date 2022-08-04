@@ -279,6 +279,8 @@ pkgconf_dependency_free(pkgconf_list_t *list)
 		pkgconf_node_delete(&dep->iter, list);
 		pkgconf_dependency_unref(dep->owner, dep);
 	}
+
+	pkgconf_list_zero(list);
 }
 
 /*
