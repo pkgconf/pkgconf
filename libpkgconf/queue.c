@@ -116,22 +116,27 @@ pkgconf_queue_collect_dependents(pkgconf_client_t *client, pkgconf_pkg_t *pkg, v
 	if (pkg == world)
 		return;
 
-	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
+	if (!(pkg->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE))
 	{
-		pkgconf_dependency_t *flattened_dep;
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
+		{
+			pkgconf_dependency_t *flattened_dep;
 
-		flattened_dep = pkgconf_dependency_copy(client, node->data);
+			flattened_dep = pkgconf_dependency_copy(client, node->data);
 
-		pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
+			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
+		}
 	}
-
-	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
+	else
 	{
-		pkgconf_dependency_t *flattened_dep;
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
+		{
+			pkgconf_dependency_t *flattened_dep;
 
-		flattened_dep = pkgconf_dependency_copy(client, node->data);
+			flattened_dep = pkgconf_dependency_copy(client, node->data);
 
-		pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->requires_private);
+			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->requires_private);
+		}
 	}
 }
 
@@ -147,11 +152,11 @@ dep_sort_cmp(const void *a, const void *b)
 static inline void
 flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 {
-	pkgconf_node_t *node;
+	pkgconf_node_t *node, *next;
 	pkgconf_dependency_t **deps = NULL;
 	size_t dep_count = 0, i;
 
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
@@ -160,7 +165,11 @@ flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 			continue;
 
 		if (pkg->serial == client->serial)
-			continue;
+		{
+			pkgconf_node_delete(node, list);
+			pkgconf_dependency_unref(client, dep);
+			goto next;
+		}
 
 		if (dep->match == NULL)
 		{
@@ -190,9 +199,12 @@ flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 		deps[dep_count - 1] = dep;
 
 		PKGCONF_TRACE(client, "added %s to dep table", dep->package);
-
-next:;
+next:
+		pkgconf_pkg_unref(client, pkg);
 	}
+
+	if (deps == NULL)
+		return;
 
 	qsort(deps, dep_count, sizeof (void *), dep_sort_cmp);
 
@@ -261,6 +273,7 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
 bool
 pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, void *data)
 {
+	bool ret = false;
 	pkgconf_pkg_t world = {
 		.id = "virtual:world",
 		.realname = "virtual world package",
@@ -272,18 +285,17 @@ pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queu
 		maxdepth = -1;
 
 	if (pkgconf_queue_verify(client, &world, list, maxdepth) != PKGCONF_PKG_ERRF_OK)
-		return false;
+		goto cleanup;
 
 	/* the world dependency set is flattened after it is returned from pkgconf_queue_verify */
 	if (!func(client, &world, data, maxdepth))
-	{
-		pkgconf_pkg_free(client, &world);
-		return false;
-	}
+		goto cleanup;
 
+	ret = true;
+
+cleanup:
 	pkgconf_pkg_free(client, &world);
-
-	return true;
+	return ret;
 }
 
 /*

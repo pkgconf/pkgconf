@@ -451,7 +451,8 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 		return NULL;
 	}
 
-	pkgconf_dependency_add(client, &pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL, 0);
+	pkgconf_dependency_t *dep = pkgconf_dependency_add(client, &pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL, 0);
+	pkgconf_dependency_unref(dep->owner, dep);
 
 	return pkgconf_pkg_ref(client, pkg);
 }
@@ -536,7 +537,7 @@ pkgconf_pkg_ref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 		PKGCONF_TRACE(client, "WTF: client %p refers to package %p owned by other client %p", client, pkg, pkg->owner);
 
 	pkg->refcount++;
-	PKGCONF_TRACE(client, "refcount@%p: %d", pkg, pkg->refcount);
+	PKGCONF_TRACE(client, "%s refcount@%p: %d", pkg->id, pkg, pkg->refcount);
 
 	return pkg;
 }
@@ -559,7 +560,7 @@ pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 		PKGCONF_TRACE(client, "WTF: client %p unrefs package %p owned by other client %p", client, pkg, pkg->owner);
 
 	pkg->refcount--;
-	PKGCONF_TRACE(pkg->owner, "refcount@%p: %d", pkg, pkg->refcount);
+	PKGCONF_TRACE(pkg->owner, "%s refcount@%p: %d", pkg->id, pkg, pkg->refcount);
 
 	if (pkg->refcount <= 0)
 		pkgconf_pkg_free(pkg->owner, pkg);
@@ -1444,9 +1445,9 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 	unsigned int skip_flags)
 {
 	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
-	pkgconf_node_t *node;
+	pkgconf_node_t *node, *next;
 
-	PKGCONF_FOREACH_LIST_ENTRY(deplist->head, node)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(deplist->head, next, node)
 	{
 		unsigned int eflags_local = PKGCONF_PKG_ERRF_OK;
 		pkgconf_dependency_t *depnode = node->data;
@@ -1469,21 +1470,26 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 		if (pkgdep->serial == client->serial)
 		{
 			pkgdep->hits++;
-			pkgconf_pkg_unref(client, pkgdep);
-			continue;
+			/* In this case we have a circular reference.
+			 * We break that by deleteing the circular node from the
+			 * the list, so that we dont create a situation where
+			 * memory is leaked due to circular ownership.
+			 * i.e: A owns B owns A
+			 */
+			pkgconf_node_delete(node, deplist);
+			pkgconf_dependency_unref(client, depnode);
+			goto next;
 		}
 
 		if (skip_flags && (depnode->flags & skip_flags) == skip_flags)
-		{
-			pkgconf_pkg_unref(client, pkgdep);
-			continue;
-		}
+			goto next;
 
 		pkgconf_audit_log_dependency(client, pkgdep, depnode);
 
 		pkgdep->hits++;
 		pkgdep->serial = client->serial;
 		eflags |= pkgconf_pkg_traverse_main(client, pkgdep, func, data, depth - 1, skip_flags);
+next:
 		pkgconf_pkg_unref(client, pkgdep);
 	}
 

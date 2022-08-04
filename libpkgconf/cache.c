@@ -16,6 +16,8 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+#include <assert.h>
+
 /*
  * !doc
  *
@@ -86,6 +88,9 @@ cache_dump(const pkgconf_client_t *client)
 pkgconf_pkg_t *
 pkgconf_cache_lookup(pkgconf_client_t *client, const char *id)
 {
+	if (client->cache_table == NULL)
+		return NULL;
+
 	pkgconf_pkg_t **pkg;
 
 	pkg = bsearch(id, client->cache_table,
@@ -150,6 +155,9 @@ pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 void
 pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
+	if (client->cache_table == NULL)
+		return;
+
 	if (pkg == NULL)
 		return;
 
@@ -167,6 +175,8 @@ pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	if (slot == NULL)
 		return;
 
+	(*slot)->flags &= ~PKGCONF_PKG_PROPF_CACHED;
+	pkgconf_pkg_unref(client, *slot);
 	*slot = NULL;
 
 	qsort(client->cache_table, client->cache_count,
@@ -181,19 +191,15 @@ pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	}
 
 	client->cache_count--;
-	client->cache_table = pkgconf_reallocarray(client->cache_table,
-		client->cache_count, sizeof(void *));
-}
-
-static inline void
-clear_dependency_matches(pkgconf_list_t *list)
-{
-	pkgconf_node_t *iter;
-
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
+	if (client->cache_count > 0)
 	{
-		pkgconf_dependency_t *dep = iter->data;
-		dep->match = NULL;
+		client->cache_table = pkgconf_reallocarray(client->cache_table,
+			client->cache_count, sizeof(void *));
+	}
+	else
+	{
+		free(client->cache_table);
+		client->cache_table = NULL;
 	}
 }
 
@@ -211,30 +217,15 @@ clear_dependency_matches(pkgconf_list_t *list)
 void
 pkgconf_cache_free(pkgconf_client_t *client)
 {
-	pkgconf_pkg_t **cache_table;
-	size_t i, count;
+	if (client->cache_table == NULL)
+		return;
 
-	cache_table = pkgconf_reallocarray(NULL, client->cache_count, sizeof (void *));
-	memcpy(cache_table, client->cache_table,
-		client->cache_count * sizeof (void *));
+	while (client->cache_count > 0)
+		pkgconf_cache_remove(client, client->cache_table[0]);
 
-	/* first we clear cached match pointers */
-	for (i = 0, count = client->cache_count; i < count; i++)
-	{
-		pkgconf_pkg_t *pkg = cache_table[i];
-
-		clear_dependency_matches(&pkg->required);
-		clear_dependency_matches(&pkg->requires_private);
-		clear_dependency_matches(&pkg->provides);
-		clear_dependency_matches(&pkg->conflicts);
-	}
-
-	/* now forcibly free everything */
-	for (i = 0, count = client->cache_count; i < count; i++)
-	{
-		pkgconf_pkg_t *pkg = cache_table[i];
-		pkgconf_pkg_free(client, pkg);
-	}
+	free(client->cache_table);
+	client->cache_table = NULL;
+	client->cache_count = 0;
 
 	PKGCONF_TRACE(client, "cleared package cache");
 }
