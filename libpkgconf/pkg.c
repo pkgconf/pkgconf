@@ -537,7 +537,7 @@ pkgconf_pkg_ref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 		PKGCONF_TRACE(client, "WTF: client %p refers to package %p owned by other client %p", client, pkg, pkg->owner);
 
 	pkg->refcount++;
-	PKGCONF_TRACE(client, "refcount@%p: %d", pkg, pkg->refcount);
+	PKGCONF_TRACE(client, "%s refcount@%p: %d", pkg->id, pkg, pkg->refcount);
 
 	return pkg;
 }
@@ -560,7 +560,7 @@ pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 		PKGCONF_TRACE(client, "WTF: client %p unrefs package %p owned by other client %p", client, pkg, pkg->owner);
 
 	pkg->refcount--;
-	PKGCONF_TRACE(pkg->owner, "refcount@%p: %d", pkg, pkg->refcount);
+	PKGCONF_TRACE(pkg->owner, "%s refcount@%p: %d", pkg->id, pkg, pkg->refcount);
 
 	if (pkg->refcount <= 0)
 		pkgconf_pkg_free(pkg->owner, pkg);
