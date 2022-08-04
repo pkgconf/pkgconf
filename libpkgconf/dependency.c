@@ -229,6 +229,7 @@ pkgconf_dependency_ref(pkgconf_client_t *client, pkgconf_dependency_t *dep)
 		return NULL;
 
 	dep->refcount++;
+	PKGCONF_TRACE(client, "%s refcount@%p: %d", dep->package, dep, dep->refcount);
 	return dep;
 }
 
@@ -249,7 +250,10 @@ pkgconf_dependency_unref(pkgconf_client_t *client, pkgconf_dependency_t *dep)
 	if (client != dep->owner)
 		return;
 
-	if (--dep->refcount <= 0)
+	--dep->refcount;
+	PKGCONF_TRACE(client, "%s refcount@%p: %d", dep->package, dep, dep->refcount);
+
+	if (dep->refcount <= 0)
 		pkgconf_dependency_free_one(dep);
 }
 
