@@ -152,11 +152,11 @@ dep_sort_cmp(const void *a, const void *b)
 static inline void
 flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 {
-	pkgconf_node_t *node;
+	pkgconf_node_t *node, *next;
 	pkgconf_dependency_t **deps = NULL;
 	size_t dep_count = 0, i;
 
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
@@ -165,7 +165,11 @@ flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 			continue;
 
 		if (pkg->serial == client->serial)
+		{
+			pkgconf_node_delete(node, list);
+			pkgconf_dependency_unref(client, dep);
 			goto next;
+		}
 
 		if (dep->match == NULL)
 		{
