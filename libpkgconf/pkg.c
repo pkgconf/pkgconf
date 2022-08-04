@@ -1445,9 +1445,9 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 	unsigned int skip_flags)
 {
 	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
-	pkgconf_node_t *node;
+	pkgconf_node_t *node, *next;
 
-	PKGCONF_FOREACH_LIST_ENTRY(deplist->head, node)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(deplist->head, next, node)
 	{
 		unsigned int eflags_local = PKGCONF_PKG_ERRF_OK;
 		pkgconf_dependency_t *depnode = node->data;
@@ -1470,6 +1470,14 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 		if (pkgdep->serial == client->serial)
 		{
 			pkgdep->hits++;
+			/* In this case we have a circular reference.
+			 * We break that by deleteing the circular node from the
+			 * the list, so that we dont create a situation where
+			 * memory is leaked due to circular ownership.
+			 * i.e: A owns B owns A
+			 */
+			pkgconf_node_delete(node, deplist);
+			pkgconf_dependency_unref(client, depnode);
 			goto next;
 		}
 
