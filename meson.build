@@ -12,6 +12,7 @@ add_project_arguments(
   '-D_DEFAULT_SOURCE',
   cc.get_supported_arguments(
     '-Wimplicit-function-declaration',
+    '-Wmisleading-indentation',
   ),
   language : 'c',
 )
