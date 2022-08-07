@@ -28,6 +28,10 @@ Changes from 1.8.0 to 1.9.0:
   - SYSROOT rules are no longer applied to `-uninstalled` packages by
     default.  Use `PKG_CONFIG_PKGCONF1_SYSROOT_RULES` for legacy behavior.
 
+* A new `--license` selector has been added to the pkgconf CLI.  This uses
+  SPDX expressions which can be set as the `License` field in `.pc` files.
+  See the `pc(5)` manpage for more information.
+
 * The canonical location for pkgconf maintenance going forward is
   <https://gitea.treehouse.systems/ariadne/pkgconf>.  This is presently
   mirrored to GitHub for user convenience, but that mirroring will
