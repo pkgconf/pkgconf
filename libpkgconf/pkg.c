@@ -162,6 +162,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"Description", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, description)},
 	{"LIBS", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs)},
 	{"LIBS.private", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs_private)},
+	{"License", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, license)},
 	{"Name", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, realname)},
 	{"Provides", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, provides)},
 	{"Requires", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, required)},
