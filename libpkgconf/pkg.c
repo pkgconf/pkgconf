@@ -1477,7 +1477,8 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 			 * memory is leaked due to circular ownership.
 			 * i.e: A owns B owns A
 			 */
-			PKGCONF_TRACE(client, "breaking circular reference: %s", depnode->package);
+			pkgconf_warn(client, "%s: breaking circular reference (%s -> %s -> %s)\n",
+				     parent->id, parent->id, pkgdep->id, parent->id);
 
 			pkgconf_node_delete(node, deplist);
 			pkgconf_dependency_unref(client, depnode);
