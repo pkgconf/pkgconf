@@ -1470,12 +1470,15 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 		if (pkgdep->serial == client->serial)
 		{
 			pkgdep->hits++;
+
 			/* In this case we have a circular reference.
 			 * We break that by deleteing the circular node from the
 			 * the list, so that we dont create a situation where
 			 * memory is leaked due to circular ownership.
 			 * i.e: A owns B owns A
 			 */
+			PKGCONF_TRACE(client, "breaking circular reference: %s", depnode->package);
+
 			pkgconf_node_delete(node, deplist);
 			pkgconf_dependency_unref(client, depnode);
 			goto next;
