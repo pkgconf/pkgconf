@@ -212,16 +212,16 @@ libs_circular2_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-lcircular-3 -lcircular-1 -lcircular-2 \n" \
-		pkgconf --libs circular-2
+		-o inline:"circular-1: breaking circular reference (circular-1 -> circular-2 -> circular-1)\n" \
+		pkgconf circular-2 --validate
 }
 
 libs_circular1_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-lcircular-2 -lcircular-3 -lcircular-1 \n" \
-		pkgconf --libs circular-1
+		-o inline:"circular-3: breaking circular reference (circular-3 -> circular-1 -> circular-3)\n" \
+		pkgconf circular-1 --validate
 }
 
 libs_circular_directpc_body()
