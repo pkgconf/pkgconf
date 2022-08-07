@@ -1162,7 +1162,7 @@ main(int argc, char *argv[])
 
 	if (required_module_version != NULL)
 	{
-		pkgconf_pkg_t *pkg;
+		pkgconf_pkg_t *pkg = NULL;
 		pkgconf_node_t *node;
 		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
 
@@ -1195,14 +1195,14 @@ main(int argc, char *argv[])
 
 		ret = EXIT_FAILURE;
 cleanup:
-		if (pkg)
+		if (pkg != NULL)
 			pkgconf_pkg_unref(&pkg_client, pkg);
 		pkgconf_dependency_free(&deplist);
 		goto out;
 	}
 	else if (required_exact_module_version != NULL)
 	{
-		pkgconf_pkg_t *pkg;
+		pkgconf_pkg_t *pkg = NULL;
 		pkgconf_node_t *node;
 		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
 
@@ -1235,14 +1235,14 @@ cleanup:
 
 		ret = EXIT_FAILURE;
 cleanup2:
-		if (pkg)
+		if (pkg != NULL)
 			pkgconf_pkg_unref(&pkg_client, pkg);
 		pkgconf_dependency_free(&deplist);
 		goto out;
 	}
 	else if (required_max_module_version != NULL)
 	{
-		pkgconf_pkg_t *pkg;
+		pkgconf_pkg_t *pkg = NULL;
 		pkgconf_node_t *node;
 		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
 
@@ -1275,7 +1275,7 @@ cleanup2:
 
 		ret = EXIT_FAILURE;
 cleanup3:
-		if (pkg)
+		if (pkg != NULL)
 			pkgconf_pkg_unref(&pkg_client, pkg);
 		pkgconf_dependency_free(&deplist);
 		goto out;
