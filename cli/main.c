@@ -70,6 +70,7 @@
 #define PKG_INTERNAL_CFLAGS		(((uint64_t) 1) << 42)
 #define PKG_DUMP_PERSONALITY		(((uint64_t) 1) << 43)
 #define PKG_SHARED			(((uint64_t) 1) << 44)
+#define PKG_DUMP_LICENSE		(((uint64_t) 1) << 45)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -585,6 +586,32 @@ apply_simulate(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int m
 #endif
 
 static void
+print_license(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+{
+	(void) client;
+	(void) data;
+
+	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+		return;
+
+	/* NOASSERTION is the default when the license is unknown, per SPDX spec § 3.15 */
+	printf("%s: %s\n", pkg->id, pkg->license != NULL ? pkg->license : "NOASSERTION");
+}
+
+static bool
+apply_license(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
+{
+	int eflag;
+
+	eflag = pkgconf_pkg_traverse(client, world, print_license, data, maxdepth, 0);
+
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+		return false;
+
+	return true;
+}
+
+static void
 version(void)
 {
 	printf("%s\n", PACKAGE_VERSION);
@@ -687,6 +714,7 @@ usage(void)
 	printf("  --path                            show the exact filenames for any matching .pc files\n");
 	printf("  --modversion                      print the specified module's version to stdout\n");
 	printf("  --internal-cflags                 do not filter 'internal' cflags from output\n");
+	printf("  --license                         print the specified module's license to stdout if known\n");
 
 	printf("\nfiltering output:\n\n");
 #ifndef PKGCONF_LITE
@@ -874,6 +902,7 @@ main(int argc, char *argv[])
 		{ "dump-personality", no_argument, &want_flags, PKG_DUMP_PERSONALITY },
 		{ "personality", required_argument, NULL, 53 },
 #endif
+		{ "license", no_argument, &want_flags, PKG_DUMP_LICENSE },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -1350,6 +1379,12 @@ cleanup3:
 
 	if ((want_flags & PKG_VALIDATE) == PKG_VALIDATE)
 		goto out;
+
+	if ((want_flags & PKG_DUMP_LICENSE) == PKG_DUMP_LICENSE)
+	{
+		pkgconf_queue_apply(&pkg_client, &pkgq, apply_license, maximum_traverse_depth, &ret);
+		goto out;
+	}
 
 	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
