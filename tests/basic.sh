@@ -29,6 +29,8 @@ tests_init \
 	libs_circular_directpc \
 	libs_static \
 	libs_static_ordering \
+	license_isc \
+	license_noassertion \
 	pkg_config_path \
 	nolibs \
 	nocflags \
@@ -306,4 +308,18 @@ single_depth_selectors_body()
 	atf_check \
 		-o inline:"foo\n" \
 		pkgconf --with-path=${selfdir}/lib3 --print-requires bar
+}
+
+license_isc_body()
+{
+	atf_check \
+		-o inline:"foo: ISC\n" \
+		pkgconf --with-path=${selfdir}/lib1 --license foo
+}
+
+license_noassertion_body()
+{
+	atf_check \
+		-o inline:"bar: NOASSERTION\nfoo: ISC\n" \
+		pkgconf --with-path=${selfdir}/lib1 --license bar
 }
