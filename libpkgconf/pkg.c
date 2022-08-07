@@ -965,6 +965,7 @@ static pkgconf_pkg_t pkgconf_virtual = {
 	.description = "virtual package defining pkgconf API version supported",
 	.url = PACKAGE_BUGREPORT,
 	.version = PACKAGE_VERSION,
+	.license = "ISC",
 	.flags = PKGCONF_PKG_PROPF_STATIC,
 	.vars = {
 		.head = &(pkgconf_node_t){
