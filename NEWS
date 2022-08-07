@@ -1,14 +1,37 @@
 Changes from previous version of pkgconf
 ========================================
 
-Changes from 1.8.0 to 1.8.1:
+Changes from 1.8.0 to 1.9.0:
 ----------------------------
+
+* pkgconf 1.9.0 is the first testing release in the pkgconf 2.0 development
+  series.  While it is believed to be suitable for production, there may be
+  bugs due to the overall redesign of the solver and other initiatives.
+  Additionally, a future release of pkgconf plans will have additional ABI
+  breaks for the libpkgconf library before the pkgconf 2.0 release is cut.
+
+* There is now a new solver that is designed to provide higher performance
+  with complicated graphs, which works by flattening the dependency graph
+  into a smaller set of dependencies.  This graph can then be evaluated
+  instead of the original dependency graph without having to visit every
+  edge in the graph.
+
+  NOTE: This solver, while providing significant performance improvements,
+  does so, at the cost of changed behavior for some edge cases (such as
+  circular dependencies).
 
 * Bug fixes:
   - Resolved several memory leaks with edge cases when using libpkgconf
     directly.
   - pkgconf CLI now consistently frees libpkgconf resources under all
     circumstances.
+  - SYSROOT rules are no longer applied to `-uninstalled` packages by
+    default.  Use `PKG_CONFIG_PKGCONF1_SYSROOT_RULES` for legacy behavior.
+
+* The canonical location for pkgconf maintenance going forward is
+  <https://gitea.treehouse.systems/ariadne/pkgconf>.  This is presently
+  mirrored to GitHub for user convenience, but that mirroring will
+  be terminated at some point (due to GitHub Copilot).
 
 Changes from 1.7.4 to 1.8.0:
 ----------------------------
