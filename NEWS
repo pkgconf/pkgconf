@@ -1,6 +1,16 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.9.1 to 1.9.2:
+----------------------------
+
+* Do not try to break dependency cycles across dependency lists.  This causes
+  the solved graph to sometimes miss required dependency nodes because the
+  solver detected an incorrect dependency cycle.
+
+* New API: pkgconf_queue_solve(), which replaces pkgconf_queue_apply().
+  pkgconf_queue_apply is now deprecated and should not be used in new code.
+
 Changes from 1.9.0 to 1.9.1:
 ----------------------------
 
