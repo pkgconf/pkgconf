@@ -527,6 +527,9 @@ pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	if (pkg->pc_filedir != NULL)
 		free(pkg->pc_filedir);
 
+	if (pkg->license != NULL)
+		free(pkg->license);
+
 	free(pkg);
 }
 
