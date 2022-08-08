@@ -31,6 +31,7 @@ tests_init \
 	libs_static_ordering \
 	license_isc \
 	license_noassertion \
+	modversion_noflatten \
 	pkg_config_path \
 	nolibs \
 	nocflags \
@@ -322,4 +323,11 @@ license_noassertion_body()
 	atf_check \
 		-o inline:"bar: NOASSERTION\nfoo: ISC\n" \
 		pkgconf --with-path=${selfdir}/lib1 --license bar
+}
+
+modversion_noflatten_body()
+{
+	atf_check \
+		-o inline:"1.3\n" \
+		pkgconf --with-path=${selfdir}/lib1 --modversion bar
 }
