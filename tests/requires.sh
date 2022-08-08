@@ -87,7 +87,7 @@ missing_body()
 	atf_check \
 		-s exit:1 \
 		-e ignore \
-		-o inline:"\n" \
+		-o ignore \
 		pkgconf --cflags missing-require
 }
 
