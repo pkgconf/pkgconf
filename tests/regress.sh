@@ -28,7 +28,8 @@ tests_init \
 	malformed_1 \
 	malformed_quoting \
 	explicit_sysroot \
-	empty_tuple
+	empty_tuple \
+	solver_requires_private_debounce
 
 #	sysroot_munge \
 
@@ -250,4 +251,10 @@ empty_tuple_body()
 {
 	atf_check -o inline:"\n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags empty-tuple
+}
+
+solver_requires_private_debounce_body()
+{
+	atf_check -o inline:"-I/metapackage-1 -I/metapackage-2 -lmetapackage-1 -lmetapackage-2 \n" \
+		pkgconf --with-path="${selfdir}/lib1" --cflags --libs metapackage
 }
