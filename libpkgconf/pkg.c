@@ -1622,7 +1622,8 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 	int maxdepth,
 	unsigned int skip_flags)
 {
-	client->serial++;
+	if (root->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+		client->serial++;
 
 	return pkgconf_pkg_traverse_main(client, root, func, data, maxdepth, skip_flags);
 }
