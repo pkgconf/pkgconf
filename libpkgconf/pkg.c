@@ -154,6 +154,17 @@ pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pk
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_INTERNAL);
 }
 
+/* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as an "internal" dependency. */
+static void
+pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+{
+	(void) keyword;
+	(void) lineno;
+
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_PRIVATE);
+}
+
 /* keep this in alphabetical order */
 static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[] = {
 	{"CFLAGS", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, cflags)},
@@ -167,7 +178,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"Provides", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, provides)},
 	{"Requires", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, required)},
 	{"Requires.internal", pkgconf_pkg_parser_internal_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
-	{"Requires.private", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
+	{"Requires.private", pkgconf_pkg_parser_private_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
 	{"Version", pkgconf_pkg_parser_version_func, offsetof(pkgconf_pkg_t, version)},
 };
 
@@ -1478,12 +1489,20 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 			 * the list, so that we dont create a situation where
 			 * memory is leaked due to circular ownership.
 			 * i.e: A owns B owns A
+			 *
+			 * TODO(ariadne): Breaking circular references between Requires and Requires.private
+			 * lists causes problems.  Find a way to refactor the Requires.private list out.
 			 */
-			pkgconf_warn(client, "%s: breaking circular reference (%s -> %s -> %s)\n",
-				     parent->id, parent->id, pkgdep->id, parent->id);
+			if (!(depnode->flags & PKGCONF_PKG_DEPF_PRIVATE) &&
+			    !(parent->flags & PKGCONF_PKG_PROPF_VIRTUAL))
+			{
+				pkgconf_warn(client, "%s: breaking circular reference (%s -> %s -> %s)\n",
+					     parent->id, parent->id, pkgdep->id, parent->id);
 
-			pkgconf_node_delete(node, deplist);
-			pkgconf_dependency_unref(client, depnode);
+				pkgconf_node_delete(node, deplist);
+				pkgconf_dependency_unref(client, depnode);
+			}
+
 			goto next;
 		}
 

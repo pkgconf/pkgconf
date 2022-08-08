@@ -266,6 +266,7 @@ PKGCONF_API void pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *p
 #define PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES         0x10000
 
 #define PKGCONF_PKG_DEPF_INTERNAL		0x1
+#define PKGCONF_PKG_DEPF_PRIVATE		0x2
 
 #define PKGCONF_PKG_ERRF_OK			0x0
 #define PKGCONF_PKG_ERRF_PACKAGE_NOT_FOUND	0x1
