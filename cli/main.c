@@ -822,6 +822,11 @@ main(int argc, char *argv[])
 	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
 	pkgconf_cross_personality_t *personality = NULL;
 	bool opened_error_msgout = false;
+	pkgconf_pkg_t world = {
+		.id = "virtual:world",
+		.realname = "virtual world package",
+		.flags = PKGCONF_PKG_PROPF_STATIC | PKGCONF_PKG_PROPF_VIRTUAL,
+	};
 
 	want_flags = 0;
 
@@ -1130,6 +1135,12 @@ main(int argc, char *argv[])
 	if ((builddir = getenv("PKG_CONFIG_TOP_BUILD_DIR")) != NULL)
 		pkgconf_client_set_buildroot_dir(&pkg_client, builddir);
 
+	if ((want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
+		(want_flags & PKG_CFLAGS) == PKG_CFLAGS)
+	{
+		want_client_flags |= PKGCONF_PKG_PKGF_SEARCH_PRIVATE;
+	}
+
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
 	{
 		const char *destdir;
@@ -1350,86 +1361,62 @@ cleanup3:
 
 	ret = EXIT_SUCCESS;
 
+	if (!pkgconf_queue_solve(&pkg_client, &pkgq, &world, maximum_traverse_depth))
+	{
+		ret = EXIT_FAILURE;
+		goto out;
+	}
+
 #ifndef PKGCONF_LITE
 	if ((want_flags & PKG_SIMULATE) == PKG_SIMULATE)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ERRORS);
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_simulate, -1, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
+		apply_simulate(&pkg_client, &world, NULL, -1);
 	}
 #endif
-
-	if (!pkgconf_queue_validate(&pkg_client, &pkgq, maximum_traverse_depth))
-	{
-		ret = EXIT_FAILURE;
-		goto out;
-	}
 
 	if ((want_flags & PKG_VALIDATE) == PKG_VALIDATE)
 		goto out;
 
 	if ((want_flags & PKG_DUMP_LICENSE) == PKG_DUMP_LICENSE)
 	{
-		pkgconf_queue_apply(&pkg_client, &pkgq, apply_license, maximum_traverse_depth, &ret);
+		apply_license(&pkg_client, &world, &ret, maximum_traverse_depth);
 		goto out;
 	}
 
 	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
 		ret = EXIT_FAILURE;
-		pkgconf_queue_apply(&pkg_client, &pkgq, apply_uninstalled, maximum_traverse_depth, &ret);
+		apply_uninstalled(&pkg_client, &world, &ret, maximum_traverse_depth);
 		goto out;
 	}
 
 	if (want_env_prefix != NULL)
 	{
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_env, maximum_traverse_depth, want_env_prefix))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
-
+		apply_env(&pkg_client, &world, want_env_prefix, maximum_traverse_depth);
 		want_flags = 0;
 	}
 
 	if ((want_flags & PKG_PROVIDES) == PKG_PROVIDES)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_provides, maximum_traverse_depth, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
+		apply_provides(&pkg_client, &world, NULL, maximum_traverse_depth);
 	}
 
 #ifndef PKGCONF_LITE
 	if ((want_flags & PKG_DIGRAPH) == PKG_DIGRAPH)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_digraph, maximum_traverse_depth, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
+		apply_digraph(&pkg_client, &world, NULL, maximum_traverse_depth);
 	}
 #endif
 
 	if ((want_flags & PKG_MODVERSION) == PKG_MODVERSION)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_modversion, maximum_traverse_depth, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
+		apply_modversion(&pkg_client, &world, NULL, maximum_traverse_depth);
 	}
 
 	if ((want_flags & PKG_PATH) == PKG_PATH)
@@ -1437,22 +1424,13 @@ cleanup3:
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_path, maximum_traverse_depth, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
+		apply_path(&pkg_client, &world, NULL, maximum_traverse_depth);
 	}
 
 	if ((want_flags & PKG_VARIABLES) == PKG_VARIABLES)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variables, maximum_traverse_depth, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
+		apply_variables(&pkg_client, &world, NULL, maximum_traverse_depth);
 	}
 
 	if (want_variable)
@@ -1460,62 +1438,32 @@ cleanup3:
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_variable, maximum_traverse_depth, want_variable))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
+		apply_variable(&pkg_client, &world, want_variable, maximum_traverse_depth);
 	}
 
 	if ((want_flags & PKG_REQUIRES) == PKG_REQUIRES)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires, maximum_traverse_depth, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
+		apply_requires(&pkg_client, &world, NULL, maximum_traverse_depth);
 	}
 
 	if ((want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
-
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_requires_private, maximum_traverse_depth, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out;
-		}
-
-		pkgconf_client_set_flags(&pkg_client, want_client_flags);
+		apply_requires_private(&pkg_client, &world, NULL, maximum_traverse_depth);
 	}
 
 	if ((want_flags & PKG_CFLAGS))
 	{
-		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
-
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_cflags, maximum_traverse_depth, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out_println;
-		}
-
-		pkgconf_client_set_flags(&pkg_client, want_client_flags);
+		apply_cflags(&pkg_client, &world, NULL, maximum_traverse_depth);
 	}
 
 	if ((want_flags & PKG_LIBS))
 	{
-		if (!pkgconf_queue_apply(&pkg_client, &pkgq, apply_libs, maximum_traverse_depth, NULL))
-		{
-			ret = EXIT_FAILURE;
-			goto out_println;
-		}
+		apply_libs(&pkg_client, &world, NULL, maximum_traverse_depth);
 	}
 
-out_println:
 	if (want_flags & (PKG_CFLAGS|PKG_LIBS))
 		printf("\n");
 
