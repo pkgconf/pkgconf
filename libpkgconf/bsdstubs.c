@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <string.h>
+#include <errno.h>
 
 #include <libpkgconf/bsdstubs.h>
 #include <libpkgconf/config.h>
