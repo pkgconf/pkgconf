@@ -1105,17 +1105,11 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_INTERNAL_CFLAGS) == PKG_INTERNAL_CFLAGS)
 		want_client_flags |= PKGCONF_PKG_PKGF_DONT_FILTER_INTERNAL_CFLAGS;
 
-#ifdef XXX_NOTYET
 	/* if these selectors are used, it means that we are inquiring about a single package.
 	 * so signal to libpkgconf that we do not want to use the dependency resolver for more than one level,
 	 * and also limit the SAT problem to a single package.
-	 *
-	 * i disabled this because too many upstream maintainers are still invoking pkg-config correctly to have
-	 * the more sane behaviour as default.  use --maximum-traverse-depth=1 or PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH
-	 * environment variable to get the same results in meantime.
 	 */
-	if ((want_flags & PKG_EXISTS) == 0 &&
-		((want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
+	if (((want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
 		(want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
 		(want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
 		(want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
@@ -1126,7 +1120,6 @@ main(int argc, char *argv[])
 		maximum_package_count = 1;
 		maximum_traverse_depth = 1;
 	}
-#endif
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
 		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
