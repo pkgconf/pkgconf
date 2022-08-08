@@ -1,6 +1,16 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.9.0 to 1.9.1:
+----------------------------
+
+* Skip graph flattening and traversal for query types which only make sense
+  for a single pkg-config module.
+
+  The old solver walked these graphs with --maximum-traverse-depth=1 in
+  these cases, but this is no longer helpful because the graph is flattened
+  by the new solver.
+
 Changes from 1.8.0 to 1.9.0:
 ----------------------------
 
