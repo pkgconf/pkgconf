@@ -1141,6 +1141,11 @@ main(int argc, char *argv[])
 		want_client_flags |= PKGCONF_PKG_PKGF_SEARCH_PRIVATE;
 	}
 
+	if ((want_flags & PKG_CFLAGS))
+	{
+		want_client_flags |= PKGCONF_PKG_PKGF_SEARCH_PRIVATE;
+	}
+
 	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
 	{
 		const char *destdir;
