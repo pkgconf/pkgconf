@@ -137,6 +137,8 @@ struct pkgconf_pkg_ {
 	char *url;
 	char *pc_filedir;
 	char *license;
+	char *maintainer;
+	char *copyright;
 
 	pkgconf_list_t libs;
 	pkgconf_list_t libs_private;
