@@ -1136,12 +1136,7 @@ main(int argc, char *argv[])
 		pkgconf_client_set_buildroot_dir(&pkg_client, builddir);
 
 	if ((want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
-		(want_flags & PKG_CFLAGS) == PKG_CFLAGS)
-	{
-		want_client_flags |= PKGCONF_PKG_PKGF_SEARCH_PRIVATE;
-	}
-
-	if ((want_flags & PKG_CFLAGS))
+		(want_flags & PKG_CFLAGS))
 	{
 		want_client_flags |= PKGCONF_PKG_PKGF_SEARCH_PRIVATE;
 	}
