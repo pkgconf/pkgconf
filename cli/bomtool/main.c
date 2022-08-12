@@ -23,6 +23,10 @@
 #define PKG_ABOUT			(((uint64_t) 1) << 2)
 #define PKG_HELP			(((uint64_t) 1) << 3)
 
+static const char *spdx_version = "SPDX-2.2";
+static const char *bom_license = "CC0-1.0";
+static const char *document_ref = "SPDXRef-DOCUMENT";
+
 static pkgconf_client_t pkg_client;
 static uint64_t want_flags;
 static size_t maximum_package_count = 0;
@@ -38,9 +42,168 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 	return true;
 }
 
+static const char *
+sbom_spdx_identity(pkgconf_pkg_t *pkg)
+{
+	static char buf[PKGCONF_ITEM_SIZE];
+
+	snprintf(buf, sizeof buf, "%sC64%s", pkg->id, pkg->version);
+
+	return buf;
+}
+
+static const char *
+sbom_name(pkgconf_pkg_t *world)
+{
+	static char buf[PKGCONF_BUFSIZE];
+	pkgconf_node_t *node;
+
+	pkgconf_strlcpy(buf, "SBOM-SPDX", sizeof buf);
+
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, node)
+	{
+		pkgconf_dependency_t *dep = node->data;
+		pkgconf_pkg_t *match = dep->match;
+
+		if (!dep->match)
+			continue;
+
+		pkgconf_strlcat(buf, "-", sizeof buf);
+		pkgconf_strlcat(buf, sbom_spdx_identity(match), sizeof buf);
+	}
+
+	return buf;
+}
+
+static void
+write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
+{
+	(void) client;
+	(void) world;
+
+	printf("SPDXVersion: %s\n", spdx_version);
+	printf("DataLicense: %s\n", bom_license);
+	printf("SPDXID: %s\n", document_ref);
+	printf("DocumentName: %s\n", sbom_name(world));
+	printf("DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION);
+	printf("Creator: Tool: bomtool %s\n", PACKAGE_VERSION);
+	printf("Created: -\n");
+
+	printf("\n\n");
+}
+
+static const char *
+sbom_identity(pkgconf_pkg_t *pkg)
+{
+	static char buf[PKGCONF_ITEM_SIZE];
+
+	snprintf(buf, sizeof buf, "%s@%s", pkg->id, pkg->version);
+
+	return buf;
+}
+
+static void
+write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
+{
+	(void) client;
+	(void) unused;
+
+	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+		return;
+
+	printf("##### Package: %s\n\n", sbom_identity(pkg));
+
+	printf("PackageName: %s\n", sbom_identity(pkg));
+	printf("SPDXID: SPDXRef-Package-%s\n", sbom_spdx_identity(pkg));
+	printf("PackageVersion: %s\n", pkg->version);
+	printf("PackageDownloadLocation: NOASSERTION\n");
+	printf("PackageVerificationCode: NOASSERTION\n");
+
+	/* XXX: What about projects? */
+	if (pkg->maintainer != NULL)
+		printf("PackageSupplier: Person: %s\n", pkg->maintainer);
+
+	if (pkg->url != NULL)
+		printf("PackageHomePage: %s\n", pkg->url);
+
+	printf("PackageLicenseDeclared: %s\n", pkg->license != NULL ? pkg->license : "NOASSERTION");
+
+	if (pkg->copyright != NULL)
+		printf("PackageCopyrightText: <text>%s</text>\n", pkg->copyright);
+
+	if (pkg->description != NULL)
+		printf("PackageSummary: <text>%s</text>\n", pkg->description);
+
+	printf("\n\n");
+}
+
+static void
+write_sbom_relationships(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
+{
+	(void) client;
+	(void) unused;
+
+	char baseref[PKGCONF_ITEM_SIZE];
+	pkgconf_node_t *node;
+
+	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+		return;
+
+	snprintf(baseref, sizeof baseref, "SPDXRef-Package-%sC64%s", pkg->id, pkg->version);
+
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
+	{
+		pkgconf_dependency_t *dep = node->data;
+		pkgconf_pkg_t *match = dep->match;
+
+		if (!dep->match)
+			continue;
+
+		printf("Relationship: SPDXRef-Package-%s DEPENDENCY_OF %s\n", sbom_spdx_identity(match), baseref);
+	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
+	{
+		pkgconf_dependency_t *dep = node->data;
+		pkgconf_pkg_t *match = dep->match;
+
+		if (!dep->match)
+			continue;
+
+		printf("Relationship: SPDXRef-Package-%s DEV_DEPENDENCY_OF %s\n", sbom_spdx_identity(match), baseref);
+	}
+
+	if (pkg->required.head != NULL || pkg->requires_private.head != NULL)
+		printf("\n\n");
+}
+
 static bool
 generate_sbom_from_world(pkgconf_client_t *client, pkgconf_pkg_t *world)
 {
+	int eflag;
+	pkgconf_node_t *node;
+
+	write_sbom_header(client, world);
+
+	eflag = pkgconf_pkg_traverse(client, world, write_sbom_package, NULL, maximum_traverse_depth, 0);
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+		return false;
+
+	eflag = pkgconf_pkg_traverse(client, world, write_sbom_relationships, NULL, maximum_traverse_depth, 0);
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+		return false;
+
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, node)
+	{
+		pkgconf_dependency_t *dep = node->data;
+		pkgconf_pkg_t *match = dep->match;
+
+		if (!dep->match)
+			continue;
+
+		printf("Relationship: %s DESCRIBES SPDXRef-Package-%s\n", document_ref, sbom_spdx_identity(match));
+	}
+
 	return true;
 }
 
@@ -86,7 +249,6 @@ main(int argc, char *argv[])
 {
 	int ret = EXIT_SUCCESS;
 	pkgconf_list_t pkgq = PKGCONF_LIST_INITIALIZER;
-	pkgconf_list_t dir_list = PKGCONF_LIST_INITIALIZER;
 	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
 	pkgconf_cross_personality_t *personality = pkgconf_cross_personality_default();
 	pkgconf_pkg_t world = {
