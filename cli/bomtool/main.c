@@ -87,7 +87,6 @@ write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
 	printf("DocumentName: %s\n", sbom_name(world));
 	printf("DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION);
 	printf("Creator: Tool: bomtool %s\n", PACKAGE_VERSION);
-	printf("Created: -\n");
 
 	printf("\n\n");
 }
