@@ -5,7 +5,8 @@ libdir=@libdir@
 
 Name: libpkgconf
 Description: a library for accessing and manipulating development framework configuration
-URL: http://github.com/pkgconf/pkgconf
+URL: https://gitea.treehouse.systems/ariadne/pkgconf
+License: ISC
 Version: @PACKAGE_VERSION@
 CFlags: -I${includedir}/pkgconf
 Libs: -L${libdir} -lpkgconf
