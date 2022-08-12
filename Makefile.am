@@ -11,7 +11,7 @@ nodist_pkgconfig_DATA  = libpkgconf.pc
 
 AM_CFLAGS = -DPERSONALITY_PATH=\"$(personality_dir)\" -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
 
-bin_PROGRAMS = pkgconf
+bin_PROGRAMS = pkgconf bomtool
 lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	pkg.m4 \
@@ -171,6 +171,12 @@ pkgconf_CPPFLAGS = -Ilibpkgconf -Icli
 noinst_HEADERS   = \
 	cli/getopt_long.h			\
 	cli/renderer-msvc.h
+
+bomtool_LDADD    = libpkgconf.la
+bomtool_SOURCES  = \
+	cli/bomtool/main.c				\
+	cli/getopt_long.c
+bomtool_CPPFLAGS = -Ilibpkgconf -Icli -Icli/bomtool
 
 dist_doc_DATA = README.md AUTHORS
 
