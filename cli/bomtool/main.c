@@ -158,6 +158,7 @@ write_sbom_relationships(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unu
 		if (!dep->match)
 			continue;
 
+		printf("Relationship: %s DEPENDS_ON SPDXRef-Package-%s\n", baseref, sbom_spdx_identity(match));
 		printf("Relationship: SPDXRef-Package-%s DEPENDENCY_OF %s\n", sbom_spdx_identity(match), baseref);
 	}
 
@@ -169,6 +170,7 @@ write_sbom_relationships(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unu
 		if (!dep->match)
 			continue;
 
+		printf("Relationship: %s DEPENDS_ON SPDXRef-Package-%s\n", baseref, sbom_spdx_identity(match));
 		printf("Relationship: SPDXRef-Package-%s DEV_DEPENDENCY_OF %s\n", sbom_spdx_identity(match), baseref);
 	}
 
