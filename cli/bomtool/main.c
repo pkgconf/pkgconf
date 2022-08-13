@@ -250,7 +250,7 @@ main(int argc, char *argv[])
 {
 	int ret = EXIT_SUCCESS;
 	pkgconf_list_t pkgq = PKGCONF_LIST_INITIALIZER;
-	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
+	unsigned int want_client_flags = PKGCONF_PKG_PKGF_SEARCH_PRIVATE;
 	pkgconf_cross_personality_t *personality = pkgconf_cross_personality_default();
 	pkgconf_pkg_t world = {
 		.id = "virtual:world",
