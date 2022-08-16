@@ -167,7 +167,7 @@ pkgconf_SOURCES  = \
 	cli/main.c				\
 	cli/getopt_long.c			\
 	cli/renderer-msvc.c
-pkgconf_CPPFLAGS = -Ilibpkgconf -Icli
+pkgconf_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli
 noinst_HEADERS   = \
 	cli/getopt_long.h			\
 	cli/renderer-msvc.h
@@ -176,7 +176,7 @@ bomtool_LDADD    = libpkgconf.la
 bomtool_SOURCES  = \
 	cli/bomtool/main.c				\
 	cli/getopt_long.c
-bomtool_CPPFLAGS = -Ilibpkgconf -Icli -Icli/bomtool
+bomtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/bomtool
 
 dist_doc_DATA = README.md AUTHORS
 
