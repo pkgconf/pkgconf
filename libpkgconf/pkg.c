@@ -852,8 +852,8 @@ pkgconf_compare_version(const char *a, const char *b)
 	pkgconf_strlcpy(buf1, a, sizeof buf1);
 	pkgconf_strlcpy(buf2, b, sizeof buf2);
 
-	one = str1 = buf1;
-	two = str2 = buf2;
+	one = buf1;
+	two = buf2;
 
 	while (*one || *two)
 	{
