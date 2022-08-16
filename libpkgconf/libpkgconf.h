@@ -384,6 +384,7 @@ PKGCONF_API bool pkgconf_queue_solve(pkgconf_client_t *client, pkgconf_list_t *l
 PKGCONF_API void pkgconf_queue_free(pkgconf_list_t *list);
 PKGCONF_API bool pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, void *data);
 PKGCONF_API bool pkgconf_queue_validate(pkgconf_client_t *client, pkgconf_list_t *list, int maxdepth);
+PKGCONF_API void pkgconf_solution_free(pkgconf_client_t *client, pkgconf_pkg_t *world);
 
 /* cache.c */
 PKGCONF_API pkgconf_pkg_t *pkgconf_cache_lookup(pkgconf_client_t *client, const char *id);

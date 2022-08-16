@@ -258,13 +258,36 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
 /*
  * !doc
  *
+ * .. c:function:: void pkgconf_solution_free(pkgconf_client_t *client, pkgconf_pkg_t *world, int maxdepth)
+ *
+ *    Removes references to package nodes contained in a solution.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param pkgconf_pkg_t* world: The root for the generated dependency graph.  Should have PKGCONF_PKG_PROPF_VIRTUAL flag.
+ *    :returns: nothing
+ */
+void
+pkgconf_solution_free(pkgconf_client_t *client, pkgconf_pkg_t *world)
+{
+	(void) client;
+
+	if (world->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+	{
+		pkgconf_dependency_free(&world->required);
+		pkgconf_dependency_free(&world->requires_private);
+	}
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: bool pkgconf_queue_solve(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_pkg_t *world, int maxdepth)
  *
  *    Solves and flattens the dependency graph for the supplied dependency list.
  *
  *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
  *    :param pkgconf_list_t* list: The list of dependency requests to consider.
- *    :param pkgconf_pkg_t* world: The root for the generated dependency graph, provided by the caller.  Should have PKGCONF_PKG_PKGF_VIRTUAL flag.
+ *    :param pkgconf_pkg_t* world: The root for the generated dependency graph, provided by the caller.  Should have PKGCONF_PKG_PROPF_VIRTUAL flag.
  *    :param int maxdepth: The maximum allowed depth for the dependency resolver.  A depth of -1 means unlimited.
  *    :returns: true if the dependency resolver found a solution, otherwise false.
  *    :rtype: bool
