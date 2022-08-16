@@ -160,7 +160,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 			pkgconf_fragment_t *parent = list->tail->data;
 
 			/* only attempt to merge 'special' fragments together */
-			if (!parent->type && pkgconf_fragment_is_unmergeable(parent->data))
+			if (!parent->type && parent->data != NULL && pkgconf_fragment_is_unmergeable(parent->data))
 			{
 				size_t len;
 				char *newdata;
