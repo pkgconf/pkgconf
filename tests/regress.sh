@@ -8,6 +8,7 @@ tests_init \
 	depgraph_break_2 \
 	depgraph_break_3 \
 	define_variable \
+	define_variable_override \
 	variable \
 	keep_system_libs \
 	libs \
@@ -70,6 +71,13 @@ define_variable_body()
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check -o inline:"\\\${libdir}/typelibdir\n" \
 		pkgconf --variable=typelibdir --define-variable='libdir=\${libdir}' typelibdir
+}
+
+define_variable_override_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check -o inline:"/test\n" \
+		pkgconf --variable=prefix --define-variable='prefix=/test' typelibdir
 }
 
 variable_body()
