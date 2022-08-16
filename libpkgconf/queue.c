@@ -213,10 +213,13 @@ next:
 	{
 		pkgconf_dependency_t *dep = deps[i];
 
+		if (dep->match == NULL)
+			continue;
+
 		memset(&dep->iter, '\0', sizeof (dep->iter));
 		pkgconf_node_insert(&dep->iter, dep, list);
 
-		PKGCONF_TRACE(client, "slot %zu: dep %s matched to %p<%s> hits %lu", i, dep->package, dep->match, dep->match == NULL ? "NULL" : dep->match->id, dep->match->hits);
+		PKGCONF_TRACE(client, "slot %zu: dep %s matched to %p<%s> hits %lu", i, dep->package, dep->match, dep->match->id, dep->match->hits);
 	}
 
 	free(deps);
