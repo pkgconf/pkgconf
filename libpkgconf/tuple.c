@@ -48,6 +48,22 @@ pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *
 	pkgconf_tuple_add(client, &client->global_vars, key, value, false, 0);
 }
 
+static pkgconf_tuple_t *
+lookup_global_tuple(const pkgconf_client_t *client, const char *key)
+{
+	pkgconf_node_t *node;
+
+	PKGCONF_FOREACH_LIST_ENTRY(client->global_vars.head, node)
+	{
+		pkgconf_tuple_t *tuple = node->data;
+
+		if (!strcmp(tuple->key, key))
+			return tuple;
+	}
+
+	return NULL;
+}
+
 /*
  * !doc
  *
@@ -63,17 +79,13 @@ pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *
 char *
 pkgconf_tuple_find_global(const pkgconf_client_t *client, const char *key)
 {
-	pkgconf_node_t *node;
+	pkgconf_tuple_t *tuple;
 
-	PKGCONF_FOREACH_LIST_ENTRY(client->global_vars.head, node)
-	{
-		pkgconf_tuple_t *tuple = node->data;
+	tuple = lookup_global_tuple(client, key);
+	if (tuple == NULL)
+		return NULL;
 
-		if (!strcmp(tuple->key, key))
-			return tuple->value;
-	}
-
-	return NULL;
+	return tuple->value;
 }
 
 /*
@@ -108,13 +120,18 @@ pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv)
 {
 	char *workbuf = strdup(kv);
 	char *value;
+	pkgconf_tuple_t *tuple;
 
 	value = strchr(workbuf, '=');
 	if (value == NULL)
 		goto out;
 
 	*value++ = '\0';
-	pkgconf_tuple_add_global(client, workbuf, value);
+
+	tuple = pkgconf_tuple_add(client, &client->global_vars, workbuf, value, false, 0);
+	if (tuple != NULL)
+		tuple->flags = PKGCONF_PKG_TUPLEF_OVERRIDE;
+
 out:
 	free(workbuf);
 }
@@ -257,6 +274,11 @@ char *
 pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key)
 {
 	pkgconf_node_t *node;
+	pkgconf_tuple_t *global_tuple;
+
+	global_tuple = lookup_global_tuple(client, key);
+	if (global_tuple != NULL && global_tuple->flags & PKGCONF_PKG_TUPLEF_OVERRIDE)
+		return global_tuple->value;
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
@@ -266,7 +288,10 @@ pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const c
 			return tuple->value;
 	}
 
-	return pkgconf_tuple_find_global(client, key);
+	if (global_tuple != NULL)
+		return global_tuple->value;
+
+	return NULL;
 }
 
 /*

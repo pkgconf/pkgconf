@@ -111,7 +111,11 @@ struct pkgconf_tuple_ {
 
 	char *key;
 	char *value;
+
+	unsigned int flags;
 };
+
+#define PKGCONF_PKG_TUPLEF_OVERRIDE		0x1
 
 struct pkgconf_path_ {
 	pkgconf_node_t lnode;
