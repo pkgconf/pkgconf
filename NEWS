@@ -1,6 +1,15 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.9.2 to 1.9.3:
+----------------------------
+
+* Fix a bunch of minor code issues pointed out using Clang static analyzer.
+
+* New API: pkgconf_solution_free(), which frees a compiled solution graph.
+
+* Fix behavior when overriding global variables with `--define-variable`.
+
 Changes from 1.9.1 to 1.9.2:
 ----------------------------
 
