@@ -356,6 +356,7 @@ main(int argc, char *argv[])
 	}
 
 out:
+	pkgconf_solution_free(&pkg_client, &world);
 	pkgconf_queue_free(&pkgq);
 	pkgconf_cross_personality_deinit(personality);
 	pkgconf_client_deinit(&pkg_client);
