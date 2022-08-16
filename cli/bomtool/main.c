@@ -338,6 +338,7 @@ main(int argc, char *argv[])
 	{
 		fprintf(stderr, "Please specify at least one package name on the command line.\n");
 		ret = EXIT_FAILURE;
+		goto out;
 	}
 
 	ret = EXIT_SUCCESS;
