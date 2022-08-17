@@ -1,7 +1,7 @@
 project('pkgconf', 'c',
   version : '1.9.3',
   license : 'ISC',
-  meson_version : '>=0.47',
+  meson_version : '>=0.49',
   default_options : ['c_std=c99'],
 )
 
@@ -117,13 +117,12 @@ pkgconf_exe = executable('pkgconf',
   c_args: build_static,
   install : true)
 
-if get_option('tests')
-  kyua_exe = find_program('kyua')
-  atf_sh_exe = find_program('atf-sh')
-  kyuafile = configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
-  test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile', kyuafile, '--build-root', meson.current_build_dir()])
-  subdir('tests')
-endif
+with_tests = get_option('tests')
+kyua_exe = find_program('kyua', required : with_tests, disabler : true)
+atf_sh_exe = find_program('atf-sh', required : with_tests, disabler : true)
+kyuafile = configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
+test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile', kyuafile, '--build-root', meson.current_build_dir()])
+subdir('tests')
 
 install_man('man/pkgconf.1')
 install_man('man/pkg.m4.7')
