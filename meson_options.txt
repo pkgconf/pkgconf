@@ -1,3 +1,5 @@
-option('tests', type: 'boolean', value: true,
-  description: 'Build tests which depends upon the kyua framework'
+option(
+  'tests',
+  type: 'feature',
+  description: 'Build tests which depends upon the kyua framework',
 )
