@@ -19,5 +19,4 @@ tests = [
 # yuck
 foreach test : tests
   configure_file(input: test + '.sh', output: test, copy: true)
-  run_command('chmod', '755', join_paths(meson.build_root(), 'tests', test))
 endforeach
