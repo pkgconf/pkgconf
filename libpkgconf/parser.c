@@ -44,10 +44,18 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 		lineno++;
 
 		p = readbuf;
+		while (*p && isspace((unsigned int)*p))
+			p++;
+		if (*p && p != readbuf)
+		{
+			warnfunc(data, "%s:" SIZE_FMT_SPECIFIER ": warning: whitespace encountered while parsing key section\n",
+				filename, lineno);
+			warned_key_whitespace = true;
+		}
+		key = p;
 		while (*p && (isalpha((unsigned int)*p) || isdigit((unsigned int)*p) || *p == '_' || *p == '.'))
 			p++;
 
-		key = readbuf;
 		if (!isalpha((unsigned int)*key) && !isdigit((unsigned int)*p))
 			continue;
 
@@ -89,7 +97,6 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 			*p = '\0';
 			p--;
 		}
-
 		if (ops[(unsigned char) op])
 			ops[(unsigned char) op](data, lineno, key, value);
 	}
