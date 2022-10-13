@@ -35,7 +35,7 @@ jobs:
           # the code assumes msvc style printf atm
           export CFLAGS=-D__USE_MINGW_ANSI_STDIO=0
 
-          meson -Dtests=false _build
+          meson -Dtests=disabled _build
           meson compile -C _build
 
   debian-meson:
