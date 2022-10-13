@@ -798,7 +798,7 @@ out:
  *
  *    :param char* a: The first version to compare in the pair.
  *    :param char* b: The second version to compare in the pair.
- *    :return: -1 if the first version is greater, 0 if both versions are equal, 1 if the second version is greater.
+ *    :return: -1 if the first version is less than, 0 if both versions are equal, 1 if the second version is less than.
  *    :rtype: int
  */
 int
@@ -813,10 +813,10 @@ pkgconf_compare_version(const char *a, const char *b)
 
 	/* optimization: if version matches then it's the same version. */
 	if (a == NULL)
-		return 1;
+		return -1;
 
 	if (b == NULL)
-		return -1;
+		return 1;
 
 	if (!strcasecmp(a, b))
 		return 0;
@@ -837,9 +837,9 @@ pkgconf_compare_version(const char *a, const char *b)
 		if (*one == '~' || *two == '~')
 		{
 			if (*one != '~')
-				return -1;
-			if (*two != '~')
 				return 1;
+			if (*two != '~')
+				return -1;
 
 			one++;
 			two++;
