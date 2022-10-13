@@ -76,7 +76,7 @@ routines.
 
    :param char* a: The first version to compare in the pair.
    :param char* b: The second version to compare in the pair.
-   :return: -1 if the first version is greater, 0 if both versions are equal, 1 if the second version is greater.
+   :return: -1 if the first version is less than, 0 if both versions are equal, 1 if the second version is less than.
    :rtype: int
 
 .. c:function:: pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name)
