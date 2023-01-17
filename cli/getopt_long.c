@@ -383,21 +383,23 @@ getopt_internal(int nargc, char * const *nargv, const char *options,
 	 * string begins with a '+'.
 	 */
 	posixly_correct = (getenv("POSIXLY_CORRECT") != NULL);
+	if(strcmp(options,"") != 0)
+	{
 #ifdef GNU_COMPATIBLE
-	if (*options == '-')
-		flags |= FLAG_ALLARGS;
-	else if (posixly_correct || *options == '+')
-		flags &= ~FLAG_PERMUTE;
+		if (*options == '-')
+			flags |= FLAG_ALLARGS;
+		else if (posixly_correct || *options == '+')
+			flags &= ~FLAG_PERMUTE;
 #else
-	if (posixly_correct || *options == '+')
-		flags &= ~FLAG_PERMUTE;
-	else if (*options == '-')
-		flags |= FLAG_ALLARGS;
+		if (posixly_correct || *options == '+')
+			flags &= ~FLAG_PERMUTE;
+		else if (*options == '-')
+			flags |= FLAG_ALLARGS;
 #endif
 
-	if (*options == '+' || *options == '-')
-		options++;
-
+		if (*options == '+' || *options == '-')
+			options++;
+	}
 	/*
 	 * XXX Some GNU programs (like cvs) set pkg_optind to 0 instead of
 	 * XXX using pkg_optreset.  Work around this braindamage.
