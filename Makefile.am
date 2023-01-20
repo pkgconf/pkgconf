@@ -22,6 +22,7 @@ EXTRA_DIST =	pkg.m4 \
 		libpkgconf/win-dirent.h \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
+		tests/lib1/billion-laughs.pc \
 		tests/lib1/dos-lineendings.pc \
 		tests/lib1/paren-quoting.pc \
 		tests/lib1/argv-parse-3.pc \
