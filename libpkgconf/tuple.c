@@ -293,12 +293,23 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 				}
 			}
 
+			PKGCONF_TRACE(client, "lookup tuple %s", varname);
+
+			size_t remain = PKGCONF_BUFSIZE - (bptr - buf);
 			ptr += (pptr - ptr);
 			kv = pkgconf_tuple_find_global(client, varname);
 			if (kv != NULL)
 			{
-				strncpy(bptr, kv, PKGCONF_BUFSIZE - (bptr - buf));
-				bptr += strlen(kv);
+				size_t nlen = pkgconf_strlcpy(bptr, kv, remain);
+				if (nlen > remain)
+				{
+					pkgconf_warn(client, "warning: truncating very long variable to 64KB\n");
+
+					bptr = buf + (PKGCONF_BUFSIZE - 1);
+					break;
+				}
+
+				bptr += nlen;
 			}
 			else
 			{
@@ -306,12 +317,21 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 
 				if (kv != NULL)
 				{
+					size_t nlen;
+
 					parsekv = pkgconf_tuple_parse(client, vars, kv);
-
-					strncpy(bptr, parsekv, PKGCONF_BUFSIZE - (bptr - buf));
-					bptr += strlen(parsekv);
-
+					nlen = pkgconf_strlcpy(bptr, parsekv, remain);
 					free(parsekv);
+
+					if (nlen > remain)
+					{
+						pkgconf_warn(client, "warning: truncating very long variable to 64KB\n");
+
+						bptr = buf + (PKGCONF_BUFSIZE - 1);
+						break;
+					}
+
+					bptr += nlen;
 				}
 			}
 		}
