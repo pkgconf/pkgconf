@@ -30,7 +30,8 @@ tests_init \
 	malformed_quoting \
 	explicit_sysroot \
 	empty_tuple \
-	solver_requires_private_debounce
+	solver_requires_private_debounce \
+	billion_laughs
 
 #	sysroot_munge \
 
@@ -265,4 +266,10 @@ solver_requires_private_debounce_body()
 {
 	atf_check -o inline:"-I/metapackage-1 -I/metapackage-2 -lmetapackage-1 -lmetapackage-2 \n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags --libs metapackage
+}
+
+billion_laughs_body()
+{
+	atf_check -o inline:"warning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\n" \
+		pkgconf --with-path="${selfdir}/lib1" --validate billion-laughs
 }
