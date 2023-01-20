@@ -28,7 +28,8 @@ tests_init \
 	malformed_1 \
 	malformed_quoting \
 	explicit_sysroot \
-	empty_tuple
+	empty_tuple \
+	billion_laughs
 
 #	sysroot_munge \
 
@@ -250,4 +251,10 @@ empty_tuple_body()
 {
 	atf_check -o inline:"\n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags empty-tuple
+}
+
+billion_laughs_body()
+{
+	atf_check -o inline:"warning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\n" \
+		pkgconf --with-path="${selfdir}/lib1" --validate billion-laughs
 }
