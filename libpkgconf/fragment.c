@@ -146,8 +146,27 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 		frag = calloc(sizeof(pkgconf_fragment_t), 1);
 
 		frag->type = *(string + 1);
-		frag->data = pkgconf_fragment_copy_munged(client, string + 2, flags);
 
+		if ((client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS) &&
+		    (frag->type == 'l') && (*(string + 2) != ':'))
+		{
+			size_t len;
+			char *newdata;
+
+			len = strlen(string + 2) + strlen(":lib") + strlen(".a") + 3;
+			newdata = malloc(len);
+
+			pkgconf_strlcpy(newdata, ":lib", len);
+			pkgconf_strlcat(newdata, string + 2, len);
+			pkgconf_strlcat(newdata, ".a", len);
+
+			frag->data = pkgconf_fragment_copy_munged(client, newdata, flags);
+
+			free(newdata);
+		}
+		else
+			frag->data = pkgconf_fragment_copy_munged(client, string + 2, flags);
+ 
 		PKGCONF_TRACE(client, "added fragment {%c, '%s'} to list @%p", frag->type, frag->data, list);
 	}
 	else
