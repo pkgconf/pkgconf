@@ -184,7 +184,7 @@ flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
 
 			if (!strcmp(dep->package, other_dep->package))
 			{
-				PKGCONF_TRACE(client, "skipping, %zu deps", dep_count);
+				PKGCONF_TRACE(client, "skipping, "SIZE_FMT_SPECIFIER" deps", dep_count);
 				goto next;
 			}
 		}
@@ -219,7 +219,7 @@ next:
 		memset(&dep->iter, '\0', sizeof (dep->iter));
 		pkgconf_node_insert(&dep->iter, dep, list);
 
-		PKGCONF_TRACE(client, "slot %zu: dep %s matched to %p<%s> hits %lu", i, dep->package, dep->match, dep->match->id, dep->match->hits);
+		PKGCONF_TRACE(client, "slot "SIZE_FMT_SPECIFIER": dep %s matched to %p<%s> hits "SIZE_FMT_SPECIFIER, i, dep->package, dep->match, dep->match->id, dep->match->hits);
 	}
 
 	free(deps);

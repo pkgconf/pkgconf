@@ -66,7 +66,7 @@ cache_dump(const pkgconf_client_t *client)
 	{
 		const pkgconf_pkg_t *pkg = client->cache_table[i];
 
-		PKGCONF_TRACE(client, "%zu: %p(%s)",
+		PKGCONF_TRACE(client, SIZE_FMT_SPECIFIER": %p(%s)",
 			i, pkg, pkg == NULL ? "NULL" : pkg->id);
 	}
 }
