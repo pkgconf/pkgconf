@@ -1492,7 +1492,7 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 		if (pkgdep == NULL)
 			continue;
 
-		if (pkgdep->serial == client->serial)
+		if (pkgdep->serial == client->serial && !(parent->flags & PKGCONF_PKG_PROPF_VIRTUAL))
 		{
 			pkgdep->hits++;
 
