@@ -80,7 +80,7 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 		if (escaped)
 		{
 			/* POSIX: only \CHAR is special inside a double quote if CHAR is {$, `, ", \, newline}. */
-			if (quote)
+			if (quote == '"')
 			{
 				if (!(*src_iter == '$' || *src_iter == '`' || *src_iter == '"' || *src_iter == '\\'))
 					*dst_iter++ = '\\';
@@ -91,12 +91,12 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 			{
 				/* If we are outside a quoted string/char, an escaped space is usually used to
 				   preserve spaces in file names. */
-				if (*src_iter != ' ')
+				if (!(*src_iter == '$' || *src_iter == '`' || *src_iter == '"' || *src_iter == '\\' || *src_iter == ' '))
 					*dst_iter++ = '\\';
 
 				*dst_iter++ = *src_iter;
 			}
-            
+
 			escaped = false;
 		}
 		else if (quote)
