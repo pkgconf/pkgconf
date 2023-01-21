@@ -1382,41 +1382,41 @@ cleanup3:
 
 	if ((want_flags & PKG_DUMP_LICENSE) == PKG_DUMP_LICENSE)
 	{
-		apply_license(&pkg_client, &world, &ret, maximum_traverse_depth);
+		apply_license(&pkg_client, &world, &ret, 2);
 		goto out;
 	}
 
 	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
 		ret = EXIT_FAILURE;
-		apply_uninstalled(&pkg_client, &world, &ret, maximum_traverse_depth);
+		apply_uninstalled(&pkg_client, &world, &ret, 2);
 		goto out;
 	}
 
 	if (want_env_prefix != NULL)
 	{
-		apply_env(&pkg_client, &world, want_env_prefix, maximum_traverse_depth);
+		apply_env(&pkg_client, &world, want_env_prefix, 2);
 		want_flags = 0;
 	}
 
 	if ((want_flags & PKG_PROVIDES) == PKG_PROVIDES)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_provides(&pkg_client, &world, NULL, maximum_traverse_depth);
+		apply_provides(&pkg_client, &world, NULL, 2);
 	}
 
 #ifndef PKGCONF_LITE
 	if ((want_flags & PKG_DIGRAPH) == PKG_DIGRAPH)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_digraph(&pkg_client, &world, NULL, maximum_traverse_depth);
+		apply_digraph(&pkg_client, &world, NULL, 2);
 	}
 #endif
 
 	if ((want_flags & PKG_MODVERSION) == PKG_MODVERSION)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_modversion(&pkg_client, &world, NULL, maximum_traverse_depth);
+		apply_modversion(&pkg_client, &world, NULL, 2);
 	}
 
 	if ((want_flags & PKG_PATH) == PKG_PATH)
@@ -1424,13 +1424,13 @@ cleanup3:
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
-		apply_path(&pkg_client, &world, NULL, maximum_traverse_depth);
+		apply_path(&pkg_client, &world, NULL, 2);
 	}
 
 	if ((want_flags & PKG_VARIABLES) == PKG_VARIABLES)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_variables(&pkg_client, &world, NULL, maximum_traverse_depth);
+		apply_variables(&pkg_client, &world, NULL, 2);
 	}
 
 	if (want_variable)
@@ -1438,20 +1438,20 @@ cleanup3:
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
-		apply_variable(&pkg_client, &world, want_variable, maximum_traverse_depth);
+		apply_variable(&pkg_client, &world, want_variable, 2);
 	}
 
 	if ((want_flags & PKG_REQUIRES) == PKG_REQUIRES)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_requires(&pkg_client, &world, NULL, maximum_traverse_depth);
+		apply_requires(&pkg_client, &world, NULL, 2);
 	}
 
 	if ((want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		apply_requires_private(&pkg_client, &world, NULL, maximum_traverse_depth);
+		apply_requires_private(&pkg_client, &world, NULL, 2);
 	}
 
 	if ((want_flags & PKG_CFLAGS))
