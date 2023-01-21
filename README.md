@@ -119,7 +119,7 @@ pkgconf is compiled using [Meson](https://mesonbuild.com) on Windows. In theory,
 Meson to build on UNIX, but this is not recommended at this time as it pkgconf is typically built
 much earlier than Meson.
 
-    $ meson setup build -Dtests=false
+    $ meson setup build -Dtests=disabled
     $ meson compile -C build
     $ meson install -C build
 
