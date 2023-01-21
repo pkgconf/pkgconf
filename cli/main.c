@@ -1456,7 +1456,7 @@ cleanup3:
 
 	if ((want_flags & PKG_CFLAGS))
 	{
-		apply_cflags(&pkg_client, &world, NULL, maximum_traverse_depth);
+		apply_cflags(&pkg_client, &world, NULL, 2);
 	}
 
 	if ((want_flags & PKG_LIBS))
@@ -1479,7 +1479,7 @@ cleanup3:
 			}
 		}
 
-		apply_libs(&pkg_client, &world, NULL, maximum_traverse_depth);
+		apply_libs(&pkg_client, &world, NULL, 2);
 	}
 
 	if (want_flags & (PKG_CFLAGS|PKG_LIBS))
