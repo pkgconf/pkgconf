@@ -531,7 +531,8 @@ fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool e
 			free(quoted);
 		}
 
-		*bptr++ = ' ';
+		if (node->next != NULL)
+			*bptr++ = ' ';
 	}
 
 	*bptr = '\0';
