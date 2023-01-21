@@ -176,7 +176,7 @@ exists_version_bad3_body()
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
 		-s exit:1 \
-		pkgconf --exists 'tilde <= 1.0.0'
+		pkgconf --exists 'tilde >= 1.0.0'
 }
 
 exists_body()
@@ -190,7 +190,7 @@ exists2_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		pkgconf --exists 'tilde >= 1.0.0'
+		pkgconf --exists 'tilde <= 1.0.0'
 }
 
 exists3_body()
