@@ -69,7 +69,7 @@ private_duplication_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-lprivate -lfoo -lbaz -lzee -lfoo -lbar\n" \
+		-o inline:"-lprivate -lbaz -lzee -lbar -lfoo -lfoo\n" \
 		pkgconf --static --libs-only-l private-libs-duplication
 }
 
