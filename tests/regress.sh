@@ -98,7 +98,7 @@ keep_system_libs_body()
 		pkgconf --libs-only-L cflags-libs-only
 
 	atf_check \
-		-o inline:"-L/test/local/lib \n" \
+		-o inline:"-L/test/local/lib\n" \
 		pkgconf --libs-only-L --keep-system-libs cflags-libs-only
 }
 
@@ -106,7 +106,7 @@ libs_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/local/lib -lfoo \n" \
+		-o inline:"-L/test/local/lib -lfoo\n" \
 		pkgconf --libs cflags-libs-only
 }
 
@@ -114,7 +114,7 @@ libs_only_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/local/lib -lfoo \n" \
+		-o inline:"-L/test/local/lib -lfoo\n" \
 		pkgconf --libs-only-L --libs-only-l cflags-libs-only
 }
 
@@ -122,10 +122,10 @@ libs_never_mergeback_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/bar/lib -lfoo1 \n" \
+		-o inline:"-L/test/bar/lib -lfoo1\n" \
 		pkgconf --libs prefix-foo1
 	atf_check \
-		-o inline:"-L/test/bar/lib -lfoo1 -lfoo2 \n" \
+		-o inline:"-L/test/bar/lib -lfoo1 -lfoo2\n" \
 		pkgconf --libs prefix-foo1 prefix-foo2
 }
 
@@ -133,7 +133,7 @@ cflags_only_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-I/test/local/include/foo \n" \
+		-o inline:"-I/test/local/include/foo\n" \
 		pkgconf --cflags-only-I --cflags-only-other cflags-libs-only
 }
 
@@ -141,7 +141,7 @@ cflags_never_mergeback_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-I/test/bar/include/foo -DBAR -fPIC -DFOO \n" \
+		-o inline:"-I/test/bar/include/foo -DBAR -fPIC -DFOO\n" \
 		pkgconf --cflags prefix-foo1 prefix-foo2
 }
 
@@ -165,7 +165,7 @@ isystem_munge_order_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-isystem /opt/bad/include -isystem /opt/bad2/include \n" \
+		-o inline:"-isystem /opt/bad/include -isystem /opt/bad2/include\n" \
 		pkgconf --cflags isystem
 }
 
@@ -181,7 +181,7 @@ idirafter_munge_order_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-idirafter /opt/bad/include -idirafter /opt/bad2/include \n" \
+		-o inline:"-idirafter /opt/bad/include -idirafter /opt/bad2/include\n" \
 		pkgconf --cflags idirafter
 }
 
@@ -197,7 +197,7 @@ idirafter_ordering_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-I/opt/bad/include1 -idirafter -I/opt/bad/include2 -I/opt/bad/include3 \n" \
+		-o inline:"-I/opt/bad/include1 -idirafter -I/opt/bad/include2 -I/opt/bad/include3\n" \
 		pkgconf --cflags idirafter-ordering
 }
 
@@ -205,7 +205,7 @@ pcpath_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib2"
 	atf_check \
-		-o inline:"-fPIC -I/test/include/foo \n" \
+		-o inline:"-fPIC -I/test/include/foo\n" \
 		pkgconf --cflags ${selfdir}/lib3/bar.pc
 }
 
@@ -214,7 +214,7 @@ sysroot_munge_body()
 	sed "s|/sysroot/|${selfdir}/|g" ${selfdir}/lib1/sysroot-dir.pc > ${selfdir}/lib1/sysroot-dir-selfdir.pc
 	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="${selfdir}"
 	atf_check \
-		-o inline:"-L${selfdir}/lib -lfoo \n" \
+		-o inline:"-L${selfdir}/lib -lfoo\n" \
 		pkgconf --libs sysroot-dir-selfdir
 }
 
@@ -233,7 +233,7 @@ virtual_variable_body()
 
 fragment_collision_body()
 {
-	atf_check -o inline:"-D_BAZ -D_FOO -D_BAR -D_THREAD_SAFE -pthread \n" \
+	atf_check -o inline:"-D_BAZ -D_FOO -D_BAR -D_THREAD_SAFE -pthread\n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-collision
 }
 
@@ -264,7 +264,7 @@ empty_tuple_body()
 
 solver_requires_private_debounce_body()
 {
-	atf_check -o inline:"-I/metapackage-1 -I/metapackage-2 -lmetapackage-1 -lmetapackage-2 \n" \
+	atf_check -o inline:"-I/metapackage-1 -I/metapackage-2 -lmetapackage-1 -lmetapackage-2\n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags --libs metapackage
 }
 
