@@ -17,6 +17,13 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+/*
+ * !doc
+ *
+ * libpkgconf `personality` module
+ * =========================
+ */
+
 #ifdef _WIN32
 #	define strcasecmp _stricmp
 #endif
