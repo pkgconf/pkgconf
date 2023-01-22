@@ -5,22 +5,14 @@ libpkgconf `pkg` module
 The `pkg` module provides dependency resolution services and the overall `.pc` file parsing
 routines.
 
-.. c:function:: void pkgconf_pkg_dir_list_build(pkgconf_client_t *client)
-
-   Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is set on the client,
-   then only the ``PKG_CONFIG_PATH`` environment variable will be used, otherwise both the
-   ``PKG_CONFIG_PATH`` and ``PKG_CONFIG_LIBDIR`` environment variables will be used.
-
-   :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
-   :return: nothing
-
-.. c:function:: pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f)
+.. c:function:: pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f, unsigned int flags)
 
    Parse a .pc file into a pkgconf_pkg_t object structure.
 
    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
    :param char* filename: The filename of the package file (including full path).
    :param FILE* f: The file object to read from.
+   :param uint flags: The flags to use when parsing.
    :returns: A ``pkgconf_pkg_t`` object which contains the package data.
    :rtype: pkgconf_pkg_t *
 
@@ -126,7 +118,7 @@ routines.
    :return: On success, ``PKGCONF_PKG_ERRF_OK`` (0), else an error code.
    :rtype: unsigned int
 
-.. c:function:: unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth)
+.. c:function:: unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int skip_flags)
 
    Walk and resolve the dependency graph up to `maxdepth` levels.
 
@@ -135,6 +127,7 @@ routines.
    :param pkgconf_pkg_traverse_func_t func: A traversal function to call for each resolved node in the dependency graph.
    :param void* data: An opaque pointer to data to be passed to the traversal function.
    :param int maxdepth: The maximum depth to walk the dependency graph for.  -1 means infinite recursion.
+   :param uint skip_flags: Skip over dependency nodes containing the specified flags.  A setting of 0 skips no dependency nodes.
    :return: ``PKGCONF_PKG_ERRF_OK`` on success, else an error code.
    :rtype: unsigned int
 

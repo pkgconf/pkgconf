@@ -33,10 +33,31 @@ Using the `queue` module functions is the recommended way of working with depend
    :param pkgconf_list_t* list: The dependency resolution queue to release.
    :return: nothing
 
+.. c:function:: void pkgconf_solution_free(pkgconf_client_t *client, pkgconf_pkg_t *world, int maxdepth)
+
+   Removes references to package nodes contained in a solution.
+
+   :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+   :param pkgconf_pkg_t* world: The root for the generated dependency graph.  Should have PKGCONF_PKG_PROPF_VIRTUAL flag.
+   :returns: nothing
+
+.. c:function:: bool pkgconf_queue_solve(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_pkg_t *world, int maxdepth)
+
+   Solves and flattens the dependency graph for the supplied dependency list.
+
+   :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+   :param pkgconf_list_t* list: The list of dependency requests to consider.
+   :param pkgconf_pkg_t* world: The root for the generated dependency graph, provided by the caller.  Should have PKGCONF_PKG_PROPF_VIRTUAL flag.
+   :param int maxdepth: The maximum allowed depth for the dependency resolver.  A depth of -1 means unlimited.
+   :returns: true if the dependency resolver found a solution, otherwise false.
+   :rtype: bool
+
 .. c:function:: void pkgconf_queue_apply(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_queue_apply_func_t func, int maxdepth, void *data)
 
    Attempt to compile a dependency resolution queue into a dependency resolution problem, then attempt to solve the problem and
    feed the solution to a callback function if a complete dependency graph is found.
+
+   This function should not be used in new code.  Use pkgconf_queue_solve instead.
 
    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
    :param pkgconf_list_t* list: The list of dependency requests to consider.

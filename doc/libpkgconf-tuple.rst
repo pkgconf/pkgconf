@@ -64,13 +64,14 @@ attached to a given client object.
    :return: the value of the variable or ``NULL``
    :rtype: char *
 
-.. c:function:: char *pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const char *value)
+.. c:function:: char *pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const char *value, unsigned int flags)
 
    Parse an expression for variable substitution.
 
    :param pkgconf_client_t* client: The pkgconf client object to access.
    :param pkgconf_list_t* list: The variable list to search for variables (along side the global variable list).
    :param char* value: The ``key=value`` string to parse.
+   :param uint flags: Any flags to consider while parsing.
    :return: the variable data with any variables substituted
    :rtype: char *
 

@@ -9,21 +9,32 @@ in parallel.
 Client objects are not thread safe, in other words, a client object should not be shared across
 thread boundaries.
 
-.. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler)
+.. c:function:: void pkgconf_client_dir_list_build(pkgconf_client_t *client)
+
+   Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is set on the client,
+   then only the ``PKG_CONFIG_PATH`` environment variable will be used, otherwise both the
+   ``PKG_CONFIG_PATH`` and ``PKG_CONFIG_LIBDIR`` environment variables will be used.
+
+   :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
+   :return: nothing
+
+.. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
 
    Initialise a pkgconf client object.
 
    :param pkgconf_client_t* client: The client to initialise.
    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
    :param void* error_handler_data: user data passed to optional error handler
+   :param pkgconf_cross_personality_t* personality: the cross-compile personality to use for defaults
    :return: nothing
 
-.. c:function:: pkgconf_client_t* pkgconf_client_new(pkgconf_error_handler_func_t error_handler)
+.. c:function:: pkgconf_client_t* pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
 
    Allocate and initialise a pkgconf client object.
 
    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
    :param void* error_handler_data: user data passed to optional error handler
+   :param pkgconf_cross_personality_t* personality: cross-compile personality to use
    :return: A pkgconf client object.
    :rtype: pkgconf_client_t*
 
@@ -97,11 +108,14 @@ thread boundaries.
    :return: true if the warn handler processed the message, else false.
    :rtype: bool
 
-.. c:function:: bool pkgconf_trace(const pkgconf_client_t *client, const char *format, ...)
+.. c:function:: bool pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t len, const char *funcname, const char *format, ...)
 
    Report a message to a client-registered trace handler.
 
    :param pkgconf_client_t* client: The pkgconf client object to report the trace message to.
+   :param char* filename: The file the function is in.
+   :param size_t lineno: The line number currently being executed.
+   :param char* funcname: The function name to use.
    :param char* format: A printf-style format string to use for formatting the trace message.
    :return: true if the trace handler processed the message, else false.
    :rtype: bool

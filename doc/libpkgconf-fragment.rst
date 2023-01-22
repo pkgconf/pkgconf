@@ -6,13 +6,14 @@ The `fragment` module provides low-level management and rendering of fragment li
 `fragment list` contains various `fragments` of text (such as ``-I /usr/include``) in a matter
 which is composable, mergeable and reorderable.
 
-.. c:function:: void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string)
+.. c:function:: void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
 
    Adds a `fragment` of text to a `fragment list`, possibly modifying the fragment if a sysroot is set.
 
    :param pkgconf_client_t* client: The pkgconf client being accessed.
    :param pkgconf_list_t* list: The fragment list.
    :param char* string: The string of text to add as a fragment to the fragment list.
+   :param uint flags: Parsing-related flags for the package.
    :return: nothing
 
 .. c:function:: bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag)
@@ -110,5 +111,6 @@ which is composable, mergeable and reorderable.
    :param pkgconf_client_t* client: The pkgconf client being accessed.
    :param pkgconf_list_t* list: The `fragment list` to add the fragment entries to.
    :param pkgconf_list_t* vars: A list of variables to use for variable substitution.
+   :param uint flags: Any parsing flags to be aware of.
    :param char* value: The string to parse into fragments.
    :return: true on success, false on parse error
