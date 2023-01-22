@@ -25,12 +25,12 @@ variables.
    :return: number of path nodes added to the path list
    :rtype: size_t
 
-.. c:function:: size_t pkgconf_path_build_from_environ(const char *environ, const char *fallback, pkgconf_list_t *dirlist)
+.. c:function:: size_t pkgconf_path_build_from_environ(const char *envvarname, const char *fallback, pkgconf_list_t *dirlist)
 
    Adds the paths specified in an environment variable to a path list.  If the environment variable is not set,
    an optional default set of paths is added.
 
-   :param char* environ: The environment variable to look up.
+   :param char* envvarname: The environment variable to look up.
    :param char* fallback: The fallback paths to use if the environment variable is not set.
    :param pkgconf_list_t* dirlist: The path list to add the path nodes to.
    :param bool filter: Whether to perform duplicate filtering.
@@ -45,6 +45,14 @@ variables.
    :param pkgconf_list_t* dirlist: The path list to check the path against.
    :return: true if the path list has a matching prefix, otherwise false
    :rtype: bool
+
+.. c:function:: void pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_t *src)
+
+   Copies a path list to another path list.
+
+   :param pkgconf_list_t* dst: The path list to copy to.
+   :param pkgconf_list_t* src: The path list to copy from.
+   :return: nothing
 
 .. c:function:: void pkgconf_path_free(pkgconf_list_t *dirlist)
 
