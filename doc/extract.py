@@ -70,21 +70,21 @@ def extract_comments(filename):
             while True:
                 char = source_file.read(1)
                 if not char:
-                    if state is 3 or state is 4:
+                    if state == 3 or state == 4:
                         raise UnterminatedCommentError()
-                    if state is 2:
+                    if state == 2:
                         # Was in single line comment. Create comment.
                         comment = Comment(current_comment, line_counter, False)
                         comments.append(comment)
                     return comments
-                if state is 0:
+                if state == 0:
                     # Waiting for comment start character or beginning of
                     # string.
                     if char == '/':
                         state = 1
                     elif char == '"':
                         state = 5
-                elif state is 1:
+                elif state == 1:
                     # Found comment start character, classify next character and
                     # determine if single or multiline comment.
                     if char == '/':
@@ -94,7 +94,7 @@ def extract_comments(filename):
                         state = 3
                     else:
                         state = 0
-                elif state is 2:
+                elif state == 2:
                     # In single line comment, read characters until EOL.
                     if char == '\n':
                         comment = Comment(current_comment, line_counter, False)
@@ -103,14 +103,14 @@ def extract_comments(filename):
                         state = 0
                     else:
                         current_comment += char
-                elif state is 3:
+                elif state == 3:
                     # In multi-line comment, add characters until '*'
                     # encountered.
                     if char == '*':
                         state = 4
                     else:
                         current_comment += char
-                elif state is 4:
+                elif state == 4:
                     # In multi-line comment with asterisk found. Determine if
                     # comment is ending.
                     if char == '/':
@@ -125,13 +125,13 @@ def extract_comments(filename):
                         if char != '*':
                             current_comment += char
                             state = 3
-                elif state is 5:
+                elif state == 5:
                     # In string literal, expect literal end or escape char.
                     if char == '"':
                         state = 0
                     elif char == '\\':
                         state = 6
-                elif state is 6:
+                elif state == 6:
                     # In string literal, escaping current char.
                     state = 5
                 if char == '\n':
