@@ -1,6 +1,26 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.9.3 to 1.9.4:
+----------------------------
+
+* Fix a buffer overflow vulnerability involving very large variable expansions.
+  CVE-2023-24056
+
+* Fix a bunch of minor regressions with the solver.
+
+* Create separate solutions for `--cflags` and `--libs` when `--static` is not
+  used.
+
+* Remove final trailing whitespace in pkgconf_fragment_render_buf().
+
+* Revert broken pkg.m4 change involving querying module versions in
+  PKG_CHECK_MODULES.
+
+* Fix handling of tildes in version strings.
+
+* Various C99 formatting string fixes involving SIZE_FMT_SPECIFIER.
+
 Changes from 1.9.2 to 1.9.3:
 ----------------------------
 
