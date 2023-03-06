@@ -89,11 +89,6 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 			}
 			else
 			{
-				/* If we are outside a quoted string/char, an escaped space is usually used to
-				   preserve spaces in file names. */
-				if (!(*src_iter == '$' || *src_iter == '`' || *src_iter == '"' || *src_iter == '\\' || *src_iter == ' '))
-					*dst_iter++ = '\\';
-
 				*dst_iter++ = *src_iter;
 			}
 

@@ -142,7 +142,7 @@ quoted_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-DQUOTED=\\\"bla\\\"\n" \
+		-o inline:"-DQUOTED=\\\"bla\\\" -DA=\\\"escaped\\ string\\\'\\ literal\\\" -DB=\\\\\\1\$ -DC=bla\n" \
 		pkgconf --cflags quotes
 }
 
