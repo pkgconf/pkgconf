@@ -7,4 +7,4 @@ Name: quotes
 Description: A testing pkg-config file
 Version: 1.2.3
 Libs: -L${libdir} -lfoo
-Cflags: -DQUOTED=\"bla\"
+Cflags: -DQUOTED=\"bla\" -DA=\"escaped\ string\'\ \literal\" -DB="\1\$" -DC='bla'
