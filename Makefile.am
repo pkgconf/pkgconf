@@ -135,7 +135,8 @@ test_scripts=	tests/meson.build \
 		tests/sysroot.sh \
 		tests/version.sh
 
-check_SCRIPTS=	$(test_scripts:.sh=)
+test_sh = $(filter-out tests/meson.build, $(test_scripts))
+check_SCRIPTS = $(test_sh:.sh=)
 
 SUFFIXES=	.sh
 
