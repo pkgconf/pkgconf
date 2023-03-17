@@ -407,7 +407,8 @@ apply_env(pkgconf_client_t *client, pkgconf_pkg_t *world, void *env_prefix_p, in
 	char workbuf[PKGCONF_ITEM_SIZE];
 
 	for (it = want_env_prefix; *it != '\0'; it++)
-		if (!isalpha(*it) && !isdigit(*it))
+		if (!isalpha((unsigned char)*it) &&
+		    !isdigit((unsigned char)*it))
 			return false;
 
 	snprintf(workbuf, sizeof workbuf, "%s_CFLAGS", want_env_prefix);
@@ -1327,7 +1328,7 @@ cleanup3:
 		if (maximum_package_count > 0 && pkgq.length > maximum_package_count)
 			break;
 
-		while (isspace((unsigned int)package[0]))
+		while (isspace((unsigned char)package[0]))
 			package++;
 
 		/* skip empty packages */

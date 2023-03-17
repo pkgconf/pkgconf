@@ -857,9 +857,9 @@ pkgconf_compare_version(const char *a, const char *b)
 
 	while (*one || *two)
 	{
-		while (*one && !isalnum((unsigned int)*one) && *one != '~')
+		while (*one && !isalnum((unsigned char)*one) && *one != '~')
 			one++;
-		while (*two && !isalnum((unsigned int)*two) && *two != '~')
+		while (*two && !isalnum((unsigned char)*two) && *two != '~')
 			two++;
 
 		if (*one == '~' || *two == '~')
@@ -880,22 +880,22 @@ pkgconf_compare_version(const char *a, const char *b)
 		str1 = one;
 		str2 = two;
 
-		if (isdigit((unsigned int)*str1))
+		if (isdigit((unsigned char)*str1))
 		{
-			while (*str1 && isdigit((unsigned int)*str1))
+			while (*str1 && isdigit((unsigned char)*str1))
 				str1++;
 
-			while (*str2 && isdigit((unsigned int)*str2))
+			while (*str2 && isdigit((unsigned char)*str2))
 				str2++;
 
 			isnum = true;
 		}
 		else
 		{
-			while (*str1 && isalpha((unsigned int)*str1))
+			while (*str1 && isalpha((unsigned char)*str1))
 				str1++;
 
-			while (*str2 && isalpha((unsigned int)*str2))
+			while (*str2 && isalpha((unsigned char)*str2))
 				str2++;
 
 			isnum = false;

@@ -148,7 +148,7 @@ valid_triplet(const char *triplet)
 	const char *c = triplet;
 
 	for (; *c; c++)
-		if (!isalnum(*c) && *c != '-' && *c != '_')
+		if (!isalnum((unsigned char)*c) && *c != '-' && *c != '_')
 			return false;
 
 	return true;
