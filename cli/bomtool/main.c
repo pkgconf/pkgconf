@@ -309,7 +309,7 @@ main(int argc, char *argv[])
 		if (maximum_package_count > 0 && pkgq.length > maximum_package_count)
 			break;
 
-		while (isspace((unsigned int)package[0]))
+		while (isspace((unsigned char)package[0]))
 			package++;
 
 		/* skip empty packages */

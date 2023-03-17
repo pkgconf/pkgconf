@@ -249,7 +249,7 @@ PKGCONF_API pkgconf_cross_personality_t *pkgconf_cross_personality_default(void)
 PKGCONF_API pkgconf_cross_personality_t *pkgconf_cross_personality_find(const char *triplet);
 PKGCONF_API void pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *personality);
 
-#define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((unsigned int)(c)))
+#define PKGCONF_IS_MODULE_SEPARATOR(c) ((c) == ',' || isspace ((unsigned char)(c)))
 #define PKGCONF_IS_OPERATOR_CHAR(c) ((c) == '<' || (c) == '>' || (c) == '!' || (c) == '=')
 
 #define PKGCONF_PKG_PKGF_NONE				0x0000

@@ -44,7 +44,7 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 		lineno++;
 
 		p = readbuf;
-		while (*p && isspace((unsigned int)*p))
+		while (*p && isspace((unsigned char)*p))
 			p++;
 		if (*p && p != readbuf)
 		{
@@ -53,13 +53,14 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 			warned_key_whitespace = true;
 		}
 		key = p;
-		while (*p && (isalpha((unsigned int)*p) || isdigit((unsigned int)*p) || *p == '_' || *p == '.'))
+		while (*p && (isalpha((unsigned char)*p) || isdigit((unsigned char)*p) || *p == '_' || *p == '.'))
 			p++;
 
-		if (!isalpha((unsigned int)*key) && !isdigit((unsigned int)*p))
+		if (!isalpha((unsigned char)*key) &&
+		    !isdigit((unsigned char)*p))
 			continue;
 
-		while (*p && isspace((unsigned int)*p))
+		while (*p && isspace((unsigned char)*p))
 		{
 			if (!warned_key_whitespace)
 			{
@@ -80,12 +81,12 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 			p++;
 		}
 
-		while (*p && isspace((unsigned int)*p))
+		while (*p && isspace((unsigned char)*p))
 			p++;
 
 		value = p;
 		p = value + (strlen(value) - 1);
-		while (*p && isspace((unsigned int) *p) && p > value)
+		while (*p && isspace((unsigned char) *p) && p > value)
 		{
 			if (!warned_value_whitespace && op == '=')
 			{
