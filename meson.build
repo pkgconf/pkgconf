@@ -30,8 +30,12 @@ check_functions = [
 ]
 
 foreach f : check_functions
+  name = f[0].to_upper().underscorify())
   if cc.has_function(f[0], prefix : '#define _BSD_SOURCE\n#include <@0@>'.format(f[1])) and cc.has_header_symbol(f[1], f[0], prefix : '#define _BSD_SOURCE')
-    cdata.set('HAVE_@0@'.format(f[0].to_upper().underscorify()), 1)
+    cdata.set('HAVE_@0@'.format(name), 1)
+    cdata.set('HAVE_DECL_@0@'.format(name), 1)
+  else
+    cdata.set('HAVE_DECL_@0@'.format(name), 0)
   endif
 endforeach
 
