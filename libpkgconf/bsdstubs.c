@@ -25,7 +25,7 @@
 #include <libpkgconf/bsdstubs.h>
 #include <libpkgconf/config.h>
 
-#ifndef HAVE_STRLCPY
+#if !HAVE_DECL_STRLCPY
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters
  * will be copied.  Always NUL terminates (unless siz == 0).
@@ -58,7 +58,7 @@ strlcpy(char *dst, const char *src, size_t siz)
 }
 #endif
 
-#ifndef HAVE_STRLCAT
+#if !HAVE_DECL_STRLCAT
 /*
  * Appends src to string dst of size siz (unlike strncat, siz is the
  * full size of dst, not space left).  At most siz-1 characters
@@ -107,7 +107,7 @@ strlcat(char *dst, const char *src, size_t siz)
  * from the use of this software.
  */
 
-#ifndef HAVE_STRNDUP
+#if !HAVE_DECL_STRNDUP
 /*
  * Creates a memory buffer and copies at most 'len' characters to it.
  * If 'len' is less than the length of the source string, truncation occured.
@@ -139,7 +139,7 @@ pkgconf_strndup(const char *src, size_t len)
 	return strndup(src, len);
 }
 
-#ifndef HAVE_REALLOCARRAY
+#if !HAVE_DECL_REALLOCARRAY
 void *
 reallocarray(void *ptr, size_t m, size_t n)
 {
