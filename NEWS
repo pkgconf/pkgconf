@@ -1,6 +1,26 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.9.4 to 1.9.5:
+----------------------------
+
+* Fix incorrect assumptions involving the use of ctype(3) functions.
+  Patch by Taylor R Campbell.
+
+* Fix detection of provided functions on autoconf.
+  Patches by Harmen Stoppels.
+
+* Fix deletion of tests/meson.build by the autoconf build system.
+  Patch by h30032433.
+
+* Fix quoting rules in argvsplit.c.
+  Patch by huyubiao.
+
+* Update libpkgconf documentation and documentation building scripts.
+  Patches by Andrew Shadura.
+
+* Enforce maximum package count correctly for --modversion.
+
 Changes from 1.9.3 to 1.9.4:
 ----------------------------
 
