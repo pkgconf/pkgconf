@@ -1325,7 +1325,7 @@ cleanup3:
 		/* check if there is a limit to the number of packages allowed to be included, if so and we have hit
 		 * the limit, stop adding packages to the queue.
 		 */
-		if (maximum_package_count > 0 && pkgq.length > maximum_package_count)
+		if (maximum_package_count > 0 && pkgq.length >= maximum_package_count)
 			break;
 
 		while (isspace((unsigned char)package[0]))
