@@ -58,6 +58,10 @@ cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
 cdata.set_quoted('PACKAGE_BUGREPORT', 'https://todo.sr.ht/~kaniini/pkgconf')
 cdata.set('abs_top_srcdir', meson.current_source_dir())
 cdata.set('abs_top_builddir', meson.current_build_dir())
+# required by tests/test_env.sh.in (autoconf)
+cdata.set_quoted('prefix', get_option('prefix'))
+cdata.set_quoted('exec_prefix', get_option('prefix'))
+cdata.set_quoted('datarootdir', join_paths(get_option('prefix'), 'share'))
 
 
 subdir('libpkgconf')
