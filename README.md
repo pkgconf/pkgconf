@@ -96,6 +96,7 @@ which is not covered, please get in touch.
 pkgconf is basically compiled the same way any other autotools-based project is
 compiled:
 
+    $ ./autogen.sh
     $ ./configure
     $ make
     $ sudo make install
