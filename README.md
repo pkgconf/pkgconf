@@ -137,8 +137,8 @@ to make this determination themselves.
 
 ## release tarballs
 
-Release tarballs are available at <https://distfiles.dereferenced.org/pkgconf/>.
-Please only use the tarballs from distfiles.dereferenced.org.
+Release tarballs are available at <https://distfiles.ariadne.space/pkgconf/>.
+Please only use the tarballs from distfiles.ariadne.space.
 
 ## contacts
 
