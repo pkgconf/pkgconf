@@ -3,3 +3,8 @@ option(
   type: 'feature',
   description: 'Build tests which depends upon the kyua framework',
 )
+option(
+  'python',
+  type: 'feature',
+  description: 'Build Python bindings',
+)

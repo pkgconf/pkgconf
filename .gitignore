@@ -31,3 +31,8 @@ core
 /pkgconf-profile
 
 Makefile
+
+.venv/
+.vscode/
+dist/
+__pycache__/

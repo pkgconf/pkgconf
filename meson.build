@@ -1,9 +1,11 @@
 project('pkgconf', 'c',
   version : '1.9.5',
   license : 'ISC',
-  meson_version : '>=0.49',
+  meson_version : '>=0.64',
   default_options : ['c_std=c99'],
 )
+
+fs = import('fs')
 
 cc = meson.get_compiler('c')
 
@@ -94,6 +96,7 @@ libpkgconf = library('pkgconf',
 dep_libpkgconf = declare_dependency(
   link_with : libpkgconf,
   include_directories : include_directories('.'),
+  compile_args: [build_static],
 )
 
 # If we have a new enough meson override the dependency so that only
@@ -125,8 +128,12 @@ with_tests = get_option('tests')
 kyua_exe = find_program('kyua', required : with_tests, disabler : true)
 atf_sh_exe = find_program('atf-sh', required : with_tests, disabler : true)
 kyuafile = configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
-test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile', kyuafile, '--build-root', meson.current_build_dir()])
 subdir('tests')
+test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile', kyuafile, '--build-root', meson.current_build_dir()], depends: test_file)
+
+if get_option('python').allowed()
+  subdir('python')
+endif
 
 install_man('man/pkgconf.1')
 install_man('man/pkg.m4.7')

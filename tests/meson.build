@@ -18,5 +18,5 @@ tests = [
 
 # yuck
 foreach test : tests
-  test_file = configure_file(input: test + '.sh', output: test, copy: true)
+  test_file = fs.copyfile(test + '.sh', test)
 endforeach
