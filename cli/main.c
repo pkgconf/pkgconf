@@ -1326,7 +1326,16 @@ cleanup3:
 		 * the limit, stop adding packages to the queue.
 		 */
 		if (maximum_package_count > 0 && pkgq.length >= maximum_package_count)
+		{
+			if ((want_flags & PKG_MODVERSION) == PKG_MODVERSION)
+			{
+				fprintf(stderr, "pkgconf: --modversion requested with multiple packages, output would be ambiguous\n");
+				ret = EXIT_FAILURE;
+				goto out;
+			}
+
 			break;
+		}
 
 		while (isspace((unsigned char)package[0]))
 			package++;
