@@ -144,7 +144,7 @@ dep_sort_cmp(const void *a, const void *b)
 	const pkgconf_dependency_t *depA = *(void **) a;
 	const pkgconf_dependency_t *depB = *(void **) b;
 
-	return depB->match->hits - depA->match->hits;
+	return depB->match->identifier - depA->match->identifier;
 }
 
 static inline void
@@ -219,7 +219,7 @@ next:
 		memset(&dep->iter, '\0', sizeof (dep->iter));
 		pkgconf_node_insert(&dep->iter, dep, list);
 
-		PKGCONF_TRACE(client, "slot "SIZE_FMT_SPECIFIER": dep %s matched to %p<%s> hits "SIZE_FMT_SPECIFIER, i, dep->package, dep->match, dep->match->id, dep->match->hits);
+		PKGCONF_TRACE(client, "slot "SIZE_FMT_SPECIFIER": dep %s matched to %p<%s> id "SIZE_FMT_SPECIFIER, i, dep->package, dep->match, dep->match->id, dep->match->identifier);
 	}
 
 	free(deps);

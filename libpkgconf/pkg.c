@@ -1494,7 +1494,7 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 
 		if (pkgdep->serial == client->serial && !(parent->flags & PKGCONF_PKG_PROPF_VIRTUAL))
 		{
-			pkgdep->hits++;
+			pkgdep->identifier = ++client->identifier;
 
 			/* In this case we have a circular reference.
 			 * We break that by deleteing the circular node from the
@@ -1523,7 +1523,7 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 
 		pkgconf_audit_log_dependency(client, pkgdep, depnode);
 
-		pkgdep->hits++;
+		pkgdep->identifier = ++client->identifier;
 		pkgdep->serial = client->serial;
 		eflags |= pkgconf_pkg_traverse_main(client, pkgdep, func, data, depth - 1, skip_flags);
 next:

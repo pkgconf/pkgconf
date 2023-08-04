@@ -167,8 +167,7 @@ struct pkgconf_pkg_ {
 	pkgconf_tuple_t *prefix;
 
 	uint64_t serial;
-
-	size_t hits;
+	uint64_t identifier;
 };
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
@@ -204,6 +203,7 @@ struct pkgconf_client_ {
 	bool already_sent_notice;
 
 	uint64_t serial;
+	uint64_t identifier;
 
 	pkgconf_pkg_t **cache_table;
 	size_t cache_count;
