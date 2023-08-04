@@ -112,7 +112,7 @@ pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 	}
 #endif
 
-	pkgconf_node_insert_tail(&node->lnode, node, dirlist);
+	pkgconf_node_insert(&node->lnode, node, dirlist);
 }
 
 /*
