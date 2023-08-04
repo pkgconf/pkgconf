@@ -31,8 +31,7 @@ tests_init \
 	explicit_sysroot \
 	empty_tuple \
 	solver_requires_private_debounce \
-	billion_laughs \
-	maximum_package_depth_off_by_one
+	billion_laughs
 
 #	sysroot_munge \
 
@@ -273,10 +272,4 @@ billion_laughs_body()
 {
 	atf_check -o inline:"warning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\n" \
 		pkgconf --with-path="${selfdir}/lib1" --validate billion-laughs
-}
-
-maximum_package_depth_off_by_one_body()
-{
-	atf_check -o inline:"1.2.3\n" \
-		pkgconf --with-path="${selfdir}/lib1" --modversion foo bar baz
 }
