@@ -1,6 +1,22 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 1.9.5 to 2.0.0:
+----------------------------
+
+* When flattening the dependency graph, retain the latest seen edges
+  rather than the earliest.
+
+* Fix a long-standing bug where the dependency resolution queue was
+  evaluated in reverse.  This bug masked the aforementioned dependency
+  flattening bug in many cases.
+
+* Fix handling of --with-path, which was appending paths to the search
+  list rather than prepending them as intended.
+
+* Error when --modversion is requested with more than one package, as
+  the output is ambiguous.
+
 Changes from 1.9.4 to 1.9.5:
 ----------------------------
 
