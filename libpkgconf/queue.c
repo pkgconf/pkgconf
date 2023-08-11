@@ -29,11 +29,6 @@
  * Using the `queue` module functions is the recommended way of working with dependency graphs.
  */
 
-typedef struct {
-	pkgconf_node_t iter;
-	char *package;
-} pkgconf_queue_t;
-
 /*
  * !doc
  *
