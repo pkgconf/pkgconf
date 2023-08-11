@@ -76,6 +76,7 @@ static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
 
 static uint64_t want_flags;
+static int verbosity = 0;
 static int maximum_traverse_depth = 2000;
 static size_t maximum_package_count = 0;
 
@@ -300,8 +301,12 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, i
 		pkgconf_dependency_t *dep = iter->data;
 		pkgconf_pkg_t *pkg = dep->match;
 
-		if (pkg->version != NULL)
+		if (pkg->version != NULL) {
+			if (verbosity)
+				printf("%s: ", pkg->id);
+
 			printf("%s\n", pkg->version);
+		}
 	}
 
 	return true;
@@ -643,6 +648,7 @@ usage(void)
 	printf("  --help                            this message\n");
 	printf("  --about                           print pkgconf version and license to stdout\n");
 	printf("  --version                         print supported pkg-config version to stdout\n");
+	printf("  --verbose                         print additional information\n");
 	printf("  --atleast-pkgconfig-version       check whether or not pkgconf is compatible\n");
 	printf("                                    with a specified pkg-config version\n");
 	printf("  --errors-to-stdout                print all errors on stdout instead of stderr\n");
@@ -909,6 +915,7 @@ main(int argc, char *argv[])
 		{ "personality", required_argument, NULL, 53 },
 #endif
 		{ "license", no_argument, &want_flags, PKG_DUMP_LICENSE },
+		{ "verbose", no_argument, NULL, 55 },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -968,6 +975,9 @@ main(int argc, char *argv[])
 			personality = pkgconf_cross_personality_find(pkg_optarg);
 			break;
 #endif
+		case 55:
+			verbosity++;
+			break;
 		case '?':
 		case ':':
 			ret = EXIT_FAILURE;
