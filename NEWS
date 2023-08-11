@@ -1,6 +1,23 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.0.0 to 2.0.1:
+----------------------------
+
+* The behavior of --modversion was largely reverted back to the traditional
+  pkg-config behavior, but still operates on a solved dependency graph.
+
+  The order of --modversion output is based on the dependency resolution
+  queue which is passed to the solver, which itself generally maps to the
+  order of the constrants provided on the command line.
+
+* A new flag, --verbose, has been added.  When used with `--modversion`, it
+  is possible to disambiguate which version belongs to which module:
+
+    % pkgconf --modversion --verbose foo bar
+    foo: 1.2.3
+    bar: 1.3
+
 Changes from 1.9.5 to 2.0.0:
 ----------------------------
 
