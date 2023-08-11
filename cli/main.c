@@ -1119,13 +1119,16 @@ main(int argc, char *argv[])
 		(want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
 		(want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
 		(want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
-		(want_flags & PKG_MODVERSION) == PKG_MODVERSION ||
 		(want_flags & PKG_PATH) == PKG_PATH ||
 		want_variable != NULL))
 	{
 		maximum_package_count = 1;
 		maximum_traverse_depth = 1;
 	}
+
+	/* we also want to walk only the flattened dependencies if we are requesting --modversion. */
+	if ((want_flags & PKG_MODVERSION) == PKG_MODVERSION)
+		maximum_traverse_depth = 1;
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
 		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
