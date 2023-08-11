@@ -289,23 +289,32 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int 
 #endif
 
 static bool
-apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
+apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
 {
-	pkgconf_node_t *iter;
+	pkgconf_node_t *queue_iter;
+	pkgconf_list_t *pkgq = data;
 	(void) client;
-	(void) unused;
 	(void) maxdepth;
 
-	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(pkgq->head, queue_iter)
 	{
-		pkgconf_dependency_t *dep = iter->data;
-		pkgconf_pkg_t *pkg = dep->match;
+		pkgconf_node_t *world_iter;
+		pkgconf_queue_t *queue_node = queue_iter->data;
 
-		if (pkg->version != NULL) {
-			if (verbosity)
-				printf("%s: ", pkg->id);
+		PKGCONF_FOREACH_LIST_ENTRY(world->required.head, world_iter)
+		{
+			pkgconf_dependency_t *dep = world_iter->data;
+			pkgconf_pkg_t *pkg = dep->match;
 
-			printf("%s\n", pkg->version);
+			if (strncmp(pkg->id, queue_node->package, strlen(pkg->id)))
+				continue;
+
+			if (pkg->version != NULL) {
+				if (verbosity)
+					printf("%s: ", pkg->id);
+
+				printf("%s\n", pkg->version);
+			}
 		}
 	}
 
@@ -1430,7 +1439,7 @@ cleanup3:
 	if ((want_flags & PKG_MODVERSION) == PKG_MODVERSION)
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_modversion(&pkg_client, &world, NULL, 2);
+		apply_modversion(&pkg_client, &world, &pkgq, 2);
 	}
 
 	if ((want_flags & PKG_PATH) == PKG_PATH)
