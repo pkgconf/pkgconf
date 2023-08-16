@@ -288,6 +288,34 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int 
 }
 #endif
 
+static void
+print_modversion(pkgconf_pkg_t *world, pkgconf_queue_t *queue_node)
+{
+	pkgconf_node_t *world_iter;
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, world_iter)
+	{
+		pkgconf_node_t *provided_iter;
+		pkgconf_dependency_t *dep = world_iter->data;
+		pkgconf_pkg_t *pkg = dep->match;
+
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->provides.head, provided_iter)
+		{
+			pkgconf_dependency_t *provided_dep = provided_iter->data;
+
+			if (strcmp(provided_dep->package, queue_node->package))
+				continue;
+
+			if (pkg->version != NULL) {
+				if (verbosity)
+					printf("%s: ", pkg->id);
+
+				printf("%s\n", pkg->version);
+				return;
+			}
+		}
+	}
+}
+
 static bool
 apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
 {
@@ -298,24 +326,7 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkgq->head, queue_iter)
 	{
-		pkgconf_node_t *world_iter;
-		pkgconf_queue_t *queue_node = queue_iter->data;
-
-		PKGCONF_FOREACH_LIST_ENTRY(world->required.head, world_iter)
-		{
-			pkgconf_dependency_t *dep = world_iter->data;
-			pkgconf_pkg_t *pkg = dep->match;
-
-			if (strncmp(pkg->id, queue_node->package, strlen(pkg->id)))
-				continue;
-
-			if (pkg->version != NULL) {
-				if (verbosity)
-					printf("%s: ", pkg->id);
-
-				printf("%s\n", pkg->version);
-			}
-		}
+		print_modversion(world, queue_iter->data);
 	}
 
 	return true;
