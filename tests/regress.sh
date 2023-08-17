@@ -23,6 +23,7 @@ tests_init \
 	idirafter_munge_order \
 	idirafter_munge_sysroot \
 	idirafter_ordering \
+	modversion_uninstalled \
 	pcpath \
 	virtual_variable \
 	fragment_collision \
@@ -272,4 +273,10 @@ billion_laughs_body()
 {
 	atf_check -o inline:"warning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\n" \
 		pkgconf --with-path="${selfdir}/lib1" --validate billion-laughs
+}
+
+modversion_uninstalled_body()
+{
+	atf_check -o inline:"1.2.3\n" \
+		pkgconf --with-path="${selfdir}/lib1" --modversion omg
 }
