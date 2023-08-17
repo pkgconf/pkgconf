@@ -607,6 +607,9 @@ pkgconf_pkg_try_specific_path(pkgconf_client_t *client, const char *path, const 
 	{
 		PKGCONF_TRACE(client, "found (uninstalled): %s", uninst_locbuf);
 		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f, PKGCONF_PKG_PROPF_UNINSTALLED);
+
+		pkgconf_dependency_t *provides_dep = pkgconf_dependency_add(client, &pkg->provides, strdup(name), pkg->version, PKGCONF_CMP_EQUAL, 0);
+		pkgconf_dependency_unref(provides_dep->owner, provides_dep);
 	}
 	else if ((f = fopen(locbuf, "r")) != NULL)
 	{
