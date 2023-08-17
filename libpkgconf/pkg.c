@@ -457,6 +457,13 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	if (idptr)
 		*idptr = '\0';
 
+	if (pkg->flags & PKGCONF_PKG_PROPF_UNINSTALLED)
+	{
+		idptr = strrchr(pkg->id, '-');
+		if (idptr)
+			*idptr = '\0';
+	}
+
 	pkgconf_parser_parse(f, pkg, pkg_parser_funcs, (pkgconf_parser_warn_func_t) pkg_warn_func, pkg->filename);
 
 	if (!pkgconf_pkg_validate(client, pkg))
