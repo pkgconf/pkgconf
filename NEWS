@@ -1,6 +1,14 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.0.1 to 2.0.2:
+----------------------------
+
+* Fix long-standing bug where package identifiers for "uninstalled"
+  packages incorrectly included the "-uninstalled" suffix.
+
+  This was exposed by the recent change to `--modversion` in 2.0.1.
+
 Changes from 2.0.0 to 2.0.1:
 ----------------------------
 
