@@ -306,7 +306,7 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int
 			pkgconf_dependency_t *dep = world_iter->data;
 			pkgconf_pkg_t *pkg = dep->match;
 
-			if (strncmp(pkg->id, queue_node->package, strlen(pkg->id)))
+			if (strcmp(pkg->why, queue_node->package))
 				continue;
 
 			if (pkg->version != NULL) {
@@ -315,6 +315,8 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int
 
 				printf("%s\n", pkg->version);
 			}
+
+			break;
 		}
 	}
 
