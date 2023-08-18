@@ -149,6 +149,7 @@ struct pkgconf_pkg_ {
 	char *license;
 	char *maintainer;
 	char *copyright;
+	char *why;
 
 	pkgconf_list_t libs;
 	pkgconf_list_t libs_private;

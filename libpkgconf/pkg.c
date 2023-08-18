@@ -546,6 +546,9 @@ pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	if (pkg->copyright != NULL)
 		free(pkg->copyright);
 
+	if (pkg->why != NULL)
+		free(pkg->why);
+
 	free(pkg);
 }
 
@@ -1398,19 +1401,24 @@ pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pk
 			return NULL;
 		}
 
-		return pkgconf_pkg_scan_providers(client, pkgdep, eflags);
-	}
-
-	if (pkg->id == NULL)
-		pkg->id = strdup(pkgdep->package);
-
-	if (pkgconf_pkg_comparator_impls[pkgdep->compare](pkg->version, pkgdep->version) != true)
-	{
-		if (eflags != NULL)
-			*eflags |= PKGCONF_PKG_ERRF_PACKAGE_VER_MISMATCH;
+		pkg = pkgconf_pkg_scan_providers(client, pkgdep, eflags);
 	}
 	else
-		pkgdep->match = pkgconf_pkg_ref(client, pkg);
+	{
+		if (pkg->id == NULL)
+			pkg->id = strdup(pkgdep->package);
+
+		if (pkgconf_pkg_comparator_impls[pkgdep->compare](pkg->version, pkgdep->version) != true)
+		{
+			if (eflags != NULL)
+				*eflags |= PKGCONF_PKG_ERRF_PACKAGE_VER_MISMATCH;
+		}
+		else
+			pkgdep->match = pkgconf_pkg_ref(client, pkg);
+	}
+
+	if (pkg != NULL)
+		pkg->why = strdup(pkgdep->package);
 
 	return pkg;
 }
