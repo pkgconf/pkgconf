@@ -23,6 +23,9 @@ tests_init \
 	idirafter_munge_order \
 	idirafter_munge_sysroot \
 	idirafter_ordering \
+	modversion_common_prefix \
+	modversion_fullpath \
+	modversion_provides \
 	modversion_uninstalled \
 	pcpath \
 	virtual_variable \
@@ -273,6 +276,24 @@ billion_laughs_body()
 {
 	atf_check -o inline:"warning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\n" \
 		pkgconf --with-path="${selfdir}/lib1" --validate billion-laughs
+}
+
+modversion_common_prefix_body()
+{
+	atf_check -o inline:"foo: 1.2.3\nfoobar: 3.2.1\n" \
+		pkgconf --with-path="${selfdir}/lib1" --modversion --verbose foo foobar
+}
+
+modversion_fullpath_body()
+{
+	atf_check -o inline:"1.2.3\n" \
+		pkgconf --modversion "${selfdir}/lib1/foo.pc"
+}
+
+modversion_provides_body()
+{
+	atf_check -o inline:"1.2.3\n" \
+		pkgconf --with-path="${selfdir}/lib1" --modversion unavailable
 }
 
 modversion_uninstalled_body()
