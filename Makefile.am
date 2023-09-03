@@ -27,6 +27,8 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/paren-quoting.pc \
 		tests/lib1/argv-parse-3.pc \
 		tests/lib1/foo.pc \
+		tests/lib1/foobar.pc \
+		tests/lib1/unavailable-provider.pc \
 		tests/lib1/prefix-foo1.pc \
 		tests/lib1/argv-parse.pc \
 		tests/lib1/framework-1.pc \
