@@ -1,6 +1,15 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.0.2 to 2.0.3:
+----------------------------
+
+* Fix some edge-cases with the new `--modversion` implementation
+  and add additional regression tests.
+  Patch by Colin Gillespie.
+
+* Fix some format specifiers to use PRIu64 in debug tracing.
+
 Changes from 2.0.1 to 2.0.2:
 ----------------------------
 
