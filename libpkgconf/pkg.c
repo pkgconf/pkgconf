@@ -1417,7 +1417,7 @@ pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pk
 			pkgdep->match = pkgconf_pkg_ref(client, pkg);
 	}
 
-	if (pkg != NULL)
+	if (pkg != NULL && pkg->why == NULL)
 		pkg->why = strdup(pkgdep->package);
 
 	return pkg;
