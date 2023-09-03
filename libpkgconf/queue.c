@@ -214,7 +214,7 @@ next:
 		memset(&dep->iter, '\0', sizeof (dep->iter));
 		pkgconf_node_insert(&dep->iter, dep, list);
 
-		PKGCONF_TRACE(client, "slot "SIZE_FMT_SPECIFIER": dep %s matched to %p<%s> id "SIZE_FMT_SPECIFIER, i, dep->package, dep->match, dep->match->id, dep->match->identifier);
+		PKGCONF_TRACE(client, "slot "SIZE_FMT_SPECIFIER": dep %s matched to %p<%s> id %"PRIu64, i, dep->package, dep->match, dep->match->id, dep->match->identifier);
 	}
 
 	free(deps);

@@ -16,6 +16,7 @@
 #ifndef LIBPKGCONF__LIBPKGCONF_H
 #define LIBPKGCONF__LIBPKGCONF_H
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stddef.h>
