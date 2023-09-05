@@ -1341,7 +1341,8 @@ cleanup3:
 
 	while (1)
 	{
-		const char *package = argv[pkg_optind];
+		char *package = argv[pkg_optind];
+		char *end;
 
 		if (package == NULL)
 			break;
@@ -1360,6 +1361,10 @@ cleanup3:
 			pkg_optind++;
 			continue;
 		}
+
+		end = package + strlen(package) - 1;
+		while(end > package && isspace((unsigned char)end[0])) end--;
+		end[1] = '\0';
 
 		if (argv[pkg_optind + 1] == NULL || !PKGCONF_IS_OPERATOR_CHAR(*(argv[pkg_optind + 1])))
 		{
