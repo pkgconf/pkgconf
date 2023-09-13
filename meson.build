@@ -49,8 +49,18 @@ foreach f : ['libdir', 'datadir']
   personality_path += [join_paths(get_option('prefix'), get_option(f), 'pkgconfig', 'personality.d')]
 endforeach
 
-cdata.set_quoted('SYSTEM_LIBDIR', join_paths(get_option('prefix'), get_option('libdir')))
-cdata.set_quoted('SYSTEM_INCLUDEDIR', join_paths(get_option('prefix'), get_option('includedir')))
+SYSTEM_LIBDIR = get_option('with-system-libdir')
+if SYSTEM_LIBDIR != ''
+  cdata.set_quoted('SYSTEM_LIBDIR', SYSTEM_LIBDIR)
+else
+  cdata.set_quoted('SYSTEM_LIBDIR', join_paths(get_option('prefix'), get_option('libdir')))
+endif
+SYSTEM_INCLUDEDIR = get_option('with-system-includedir')
+if SYSTEM_INCLUDEDIR != ''
+  cdata.set_quoted('SYSTEM_INCLUDEDIR', SYSTEM_INCLUDEDIR)
+else
+  cdata.set_quoted('SYSTEM_INCLUDEDIR', join_paths(get_option('prefix'), get_option('includedir')))
+endif
 cdata.set_quoted('PKG_DEFAULT_PATH', ':'.join(default_path))
 cdata.set_quoted('PERSONALITY_PATH', ':'.join(personality_path))
 cdata.set_quoted('PACKAGE_NAME', meson.project_name())
