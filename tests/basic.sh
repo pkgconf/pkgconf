@@ -259,6 +259,9 @@ pkg_config_path_body()
 	atf_check \
 		-o inline:"-L/test/lib -lbar -lfoo\n" \
 		pkgconf --libs bar
+	atf_check \
+		-o inline:"-fPIC -I/test/include/foo -DFOO_STATIC\n" \
+		pkgconf --cflags --static foo
 }
 
 with_path_body()
