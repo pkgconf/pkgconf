@@ -272,6 +272,12 @@ with_path_body()
 	atf_check \
 		-o inline:"-L/test/lib -lbar -lfoo\n" \
 		pkgconf --with-path=${selfdir}/lib1 --with-path=${selfdir}/lib2 --libs bar
+	atf_check \
+		-o inline:"-fPIC -I/test/include/foo -DFOO_STATIC\n" \
+		pkgconf --with-path=${selfdir}/lib1 --with-path=${selfdir}/lib2 --cflags --static foo
+	atf_check \
+		-o inline:"-fPIC -I/test/include/foo\n" \
+		pkgconf --with-path=${selfdir}/lib2 --with-path=${selfdir}/lib1 --cflags --static foo
 }
 
 nolibs_body()
