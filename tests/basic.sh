@@ -29,16 +29,16 @@ tests_init \
 	libs_circular_directpc \
 	libs_static \
 	libs_static_ordering \
-	license_isc \
-	license_noassertion \
-	modversion_noflatten \
 	pkg_config_path \
+	with_path \
 	nolibs \
 	nocflags \
 	arbitary_path \
-	with_path \
 	relocatable \
-	single_depth_selectors
+	single_depth_selectors \
+	license_isc \
+	license_noassertion \
+	modversion_noflatten
 
 noargs_body()
 {
