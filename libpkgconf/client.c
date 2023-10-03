@@ -65,13 +65,14 @@ pkgconf_client_dir_list_add(pkgconf_client_t *client, const pkgconf_list_t *dir_
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_client_dir_list_build(pkgconf_client_t *client)
+ * .. c:function:: void pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
  *
  *    Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is set on the client,
  *    then only the ``PKG_CONFIG_PATH`` environment variable will be used, otherwise both the
  *    ``PKG_CONFIG_PATH`` and ``PKG_CONFIG_LIBDIR`` environment variables will be used.
  *
  *    :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
+ *    :param pkgconf_cross_personality_t* personality: the cross-compile personality to use
  *    :return: nothing
  */
 void
