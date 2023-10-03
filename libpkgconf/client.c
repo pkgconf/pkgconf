@@ -48,6 +48,23 @@ trace_path_list(const pkgconf_client_t *client, const char *desc, pkgconf_list_t
 /*
  * !doc
  *
+ * .. c:function:: void pkgconf_client_dir_list_add(pkgconf_client_t *client, const pkgconf_list_t *dir_list)
+ *
+ *    Add to package search paths.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
+ *    :param const pkgconf_list_t *dir_list: The list of directories to be added.
+ *    :return: nothing
+ */
+void
+pkgconf_client_dir_list_add(pkgconf_client_t *client, const pkgconf_list_t *dir_list)
+{
+	pkgconf_path_copy_list(&client->dir_list, dir_list);
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void pkgconf_client_dir_list_build(pkgconf_client_t *client)
  *
  *    Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is set on the client,

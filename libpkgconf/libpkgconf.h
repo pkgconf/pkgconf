@@ -250,6 +250,7 @@ PKGCONF_API pkgconf_error_handler_func_t pkgconf_client_get_error_handler(const 
 PKGCONF_API void pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data);
 PKGCONF_API pkgconf_error_handler_func_t pkgconf_client_get_trace_handler(const pkgconf_client_t *client);
 PKGCONF_API void pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler_func_t trace_handler, void *trace_handler_data);
+PKGCONF_API void pkgconf_client_dir_list_add(pkgconf_client_t *client, const pkgconf_list_t *dir_list);
 PKGCONF_API void pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality);
 
 /* personality.c */
