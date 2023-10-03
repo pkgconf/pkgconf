@@ -31,6 +31,7 @@ tests_init \
 	libs_static_ordering \
 	pkg_config_path \
 	with_path \
+	pkg_config_path_and_with_path \
 	nolibs \
 	nocflags \
 	arbitary_path \
@@ -278,6 +279,17 @@ with_path_body()
 	atf_check \
 		-o inline:"-fPIC -I/test/include/foo\n" \
 		pkgconf --with-path=${selfdir}/lib2 --with-path=${selfdir}/lib1 --cflags --static foo
+}
+
+pkg_config_path_and_with_path_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib2"
+	atf_check \
+		-o inline:"-fPIC -I/test/include/foo\n" \
+		pkgconf --cflags --static foo
+	atf_check \
+		-o inline:"-fPIC -I/test/include/foo -DFOO_STATIC\n" \
+		pkgconf --with-path=${selfdir}/lib1 --cflags --static foo
 }
 
 nolibs_body()
