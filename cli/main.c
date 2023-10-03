@@ -827,7 +827,7 @@ main(int argc, char *argv[])
 {
 	int ret;
 	pkgconf_list_t pkgq = PKGCONF_LIST_INITIALIZER;
-	pkgconf_list_t prependend_dir_list = PKGCONF_LIST_INITIALIZER;
+	pkgconf_list_t prepended_dir_list = PKGCONF_LIST_INITIALIZER;
 	char *builddir;
 	char *sysroot_dir;
 	char *env_traverse_depth;
@@ -967,7 +967,7 @@ main(int argc, char *argv[])
 			logfile_arg = pkg_optarg;
 			break;
 		case 42:
-			pkgconf_path_add(pkg_optarg, &prependend_dir_list, true);
+			pkgconf_path_add(pkg_optarg, &prepended_dir_list, true);
 			break;
 		case 43:
 			pkgconf_client_set_prefix_varname(&pkg_client, pkg_optarg);
@@ -1010,7 +1010,7 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_DUMP_PERSONALITY) == PKG_DUMP_PERSONALITY)
 	{
 		dump_personality(personality);
-		pkgconf_path_free(&prependend_dir_list);
+		pkgconf_path_free(&prepended_dir_list);
 		return EXIT_SUCCESS;
 	}
 #endif
@@ -1019,8 +1019,8 @@ main(int argc, char *argv[])
 	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
 
 	/* user-supplied dirs come first */
-	pkgconf_client_dir_list_add(&pkg_client, &prependend_dir_list);
-	pkgconf_path_free(&prependend_dir_list);
+	pkgconf_client_dir_list_add(&pkg_client, &prepended_dir_list);
+	pkgconf_path_free(&prepended_dir_list);
 
 #ifndef PKGCONF_LITE
 	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX || getenv("PKG_CONFIG_MSVC_SYNTAX") != NULL)
