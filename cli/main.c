@@ -1019,7 +1019,7 @@ main(int argc, char *argv[])
 	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
 
 	/* user-supplied dirs come first */
-	pkgconf_client_dir_list_add(&pkg_client, &prepended_dir_list);
+	pkgconf_path_copy_list(&pkg_client.dir_list, &prepended_dir_list);
 	pkgconf_path_free(&prepended_dir_list);
 
 #ifndef PKGCONF_LITE
