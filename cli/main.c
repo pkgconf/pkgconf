@@ -967,7 +967,7 @@ main(int argc, char *argv[])
 			logfile_arg = pkg_optarg;
 			break;
 		case 42:
-			pkgconf_path_add(pkg_optarg, &dir_list, true);
+			pkgconf_path_prepend(pkg_optarg, &dir_list, true);
 			break;
 		case 43:
 			pkgconf_client_set_prefix_varname(&pkg_client, pkg_optarg);

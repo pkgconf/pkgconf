@@ -58,6 +58,51 @@ path_list_contains_entry(const char *text, pkgconf_list_t *dirlist)
  * variables.
  */
 
+static pkgconf_path_t *
+prepare_path_node(const char *text, pkgconf_list_t *dirlist, bool filter)
+{
+	pkgconf_path_t *node;
+	char path[PKGCONF_ITEM_SIZE];
+
+	pkgconf_strlcpy(path, text, sizeof path);
+	pkgconf_path_relocate(path, sizeof path);
+
+#ifdef PKGCONF_CACHE_INODES
+	struct stat st;
+
+	if (filter)
+	{
+		if (lstat(path, &st) == -1)
+			return NULL;
+		if (S_ISLNK(st.st_mode))
+		{
+			char pathbuf[PKGCONF_ITEM_SIZE * 4];
+			char *linkdest = realpath(path, pathbuf);
+
+			if (linkdest != NULL && stat(linkdest, &st) == -1)
+				return NULL;
+		}
+		if (path_list_contains_entry(path, dirlist, &st))
+			return NULL;
+	}
+#else
+	if (filter && path_list_contains_entry(path, dirlist))
+		return NULL;
+#endif
+
+	node = calloc(sizeof(pkgconf_path_t), 1);
+	node->path = strdup(path);
+
+#ifdef PKGCONF_CACHE_INODES
+	if (filter) {
+		node->handle_path = (void *)(intptr_t) st.st_ino;
+		node->handle_device = (void *)(intptr_t) st.st_dev;
+	}
+#endif
+
+	return node;
+}
+
 /*
  * !doc
  *
@@ -73,44 +118,31 @@ path_list_contains_entry(const char *text, pkgconf_list_t *dirlist)
 void
 pkgconf_path_add(const char *text, pkgconf_list_t *dirlist, bool filter)
 {
-	pkgconf_path_t *node;
-	char path[PKGCONF_ITEM_SIZE];
-
-	pkgconf_strlcpy(path, text, sizeof path);
-	pkgconf_path_relocate(path, sizeof path);
-
-#ifdef PKGCONF_CACHE_INODES
-	struct stat st;
-
-	if (filter)
-	{
-		if (lstat(path, &st) == -1)
-			return;
-		if (S_ISLNK(st.st_mode))
-		{
-			char pathbuf[PKGCONF_ITEM_SIZE * 4];
-			char *linkdest = realpath(path, pathbuf);
-
-			if (linkdest != NULL && stat(linkdest, &st) == -1)
-				return;
-		}
-		if (path_list_contains_entry(path, dirlist, &st))
-			return;
-	}
-#else
-	if (filter && path_list_contains_entry(path, dirlist))
+	pkgconf_path_t *node = prepare_path_node(text, dirlist, filter);
+	if (node == NULL)
 		return;
-#endif
 
-	node = calloc(sizeof(pkgconf_path_t), 1);
-	node->path = strdup(path);
+	pkgconf_node_insert_tail(&node->lnode, node, dirlist);
+}
 
-#ifdef PKGCONF_CACHE_INODES
-	if (filter) {
-		node->handle_path = (void *)(intptr_t) st.st_ino;
-		node->handle_device = (void *)(intptr_t) st.st_dev;
-	}
-#endif
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_path_prepend(const char *text, pkgconf_list_t *dirlist)
+ *
+ *    Prepends a path node to a path list.  If the path is already in the list, do nothing.
+ *
+ *    :param char* text: The path text to add as a path node.
+ *    :param pkgconf_list_t* dirlist: The path list to add the path node to.
+ *    :param bool filter: Whether to perform duplicate filtering.
+ *    :return: nothing
+ */
+void
+pkgconf_path_prepend(const char *text, pkgconf_list_t *dirlist, bool filter)
+{
+	pkgconf_path_t *node = prepare_path_node(text, dirlist, filter);
+	if (node == NULL)
+		return;
 
 	pkgconf_node_insert(&node->lnode, node, dirlist);
 }
