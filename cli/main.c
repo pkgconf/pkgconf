@@ -265,14 +265,14 @@ print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	{
 		pkgconf_dependency_t *dep = node->data;
 
-		printf("\"%s\" -- \"%s\" [fontname=Sans fontsize=8]\n", dep->package, pkg->id);
+		printf("\"%s\" -> \"%s\" [fontname=Sans fontsize=8]\n", pkg->id, dep->package);
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
 
-		printf("\"%s\" -- \"%s\" [fontname=Sans fontsize=8 color=gray]\n", dep->package, pkg->id);
+		printf("\"%s\" -> \"%s\" [fontname=Sans fontsize=8 color=gray]\n", pkg->id, dep->package);
 	}
 }
 
@@ -281,7 +281,7 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int 
 {
 	int eflag;
 
-	printf("graph deptree {\n");
+	printf("digraph deptree {\n");
 	printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
 	printf("node [fontname=Sans fontsize=8]\n");
 
