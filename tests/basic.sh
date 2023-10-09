@@ -29,6 +29,7 @@ tests_init \
 	libs_circular_directpc \
 	libs_static \
 	libs_static_ordering \
+	libs_metapackage \
 	license_isc \
 	license_noassertion \
 	modversion_noflatten \
@@ -248,6 +249,14 @@ libs_static_ordering_body()
 	atf_check \
 		-o inline:"-L/test/lib -lbar -lfoo\n" \
 		pkgconf --libs foo bar
+}
+
+libs_metapackage_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-L/test/lib -lbar -lfoo\n" \
+		pkgconf --static --libs metapackage-3
 }
 
 pkg_config_path_body()
