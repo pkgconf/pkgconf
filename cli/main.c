@@ -71,6 +71,7 @@
 #define PKG_DUMP_PERSONALITY		(((uint64_t) 1) << 43)
 #define PKG_SHARED			(((uint64_t) 1) << 44)
 #define PKG_DUMP_LICENSE		(((uint64_t) 1) << 45)
+#define PKG_SOLUTION			(((uint64_t) 1) << 46)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -292,6 +293,25 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int 
 
 	printf("}\n");
 	return true;
+}
+
+static void
+print_solution_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
+{
+	(void) client;
+	(void) unused;
+
+	printf("%s (%"PRIu64")\n", pkg->id, pkg->identifier);
+}
+
+static bool
+apply_print_solution(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
+{
+	int eflag;
+
+	eflag = pkgconf_pkg_traverse(client, world, print_solution_node, unused, maxdepth, 0);
+
+	return eflag == PKGCONF_PKG_ERRF_OK;
 }
 #endif
 
@@ -733,6 +753,7 @@ usage(void)
 	printf("  --print-variables                 print all known variables in module to stdout\n");
 #ifndef PKGCONF_LITE
 	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
+	printf("  --solution                        print dependency graph solution in a simple format\n");
 #endif
 	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", SYSTEM_INCLUDEDIR);
 	printf("  --keep-system-libs                keep -L%s entries in libs output\n", SYSTEM_LIBDIR);
@@ -885,6 +906,7 @@ main(int argc, char *argv[])
 		{ "print-variables", no_argument, &want_flags, PKG_VARIABLES|PKG_PRINT_ERRORS, },
 #ifndef PKGCONF_LITE
 		{ "digraph", no_argument, &want_flags, PKG_DIGRAPH, },
+		{ "solution", no_argument, &want_flags, PKG_SOLUTION, },
 #endif
 		{ "help", no_argument, &want_flags, PKG_HELP, },
 		{ "env-only", no_argument, &want_flags, PKG_ENV_ONLY, },
@@ -1447,6 +1469,12 @@ cleanup3:
 	{
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 		apply_digraph(&pkg_client, &world, NULL, 2);
+	}
+
+	if ((want_flags & PKG_SOLUTION) == PKG_SOLUTION)
+	{
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
+		apply_print_solution(&pkg_client, &world, NULL, 2);
 	}
 #endif
 
