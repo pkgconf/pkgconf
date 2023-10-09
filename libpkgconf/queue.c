@@ -117,7 +117,10 @@ pkgconf_queue_collect_dependents(pkgconf_client_t *client, pkgconf_pkg_t *pkg, v
 
 		flattened_dep = pkgconf_dependency_copy(client, node->data);
 
-		pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
+		if ((client->flags & PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE) != PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE)
+			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
+		else
+			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->requires_private);
 	}
 
 	if (client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE)
