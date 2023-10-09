@@ -267,6 +267,13 @@ print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 
 		printf("\"%s\" -- \"%s\" [fontname=Sans fontsize=8]\n", dep->package, pkg->id);
 	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
+	{
+		pkgconf_dependency_t *dep = node->data;
+
+		printf("\"%s\" -- \"%s\" [fontname=Sans fontsize=8 color=gray]\n", dep->package, pkg->id);
+	}
 }
 
 static bool
