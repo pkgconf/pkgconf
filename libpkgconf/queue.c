@@ -113,9 +113,10 @@ pkgconf_queue_collect_dependents(pkgconf_client_t *client, pkgconf_pkg_t *pkg, v
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
+		pkgconf_dependency_t *parent_dep = node->data;
 		pkgconf_dependency_t *flattened_dep;
 
-		flattened_dep = pkgconf_dependency_copy(client, node->data);
+		flattened_dep = pkgconf_dependency_copy(client, parent_dep);
 
 		if ((client->flags & PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE) != PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE)
 			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
@@ -127,9 +128,10 @@ pkgconf_queue_collect_dependents(pkgconf_client_t *client, pkgconf_pkg_t *pkg, v
 	{
 		PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
 		{
+			pkgconf_dependency_t *parent_dep = node->data;
 			pkgconf_dependency_t *flattened_dep;
 
-			flattened_dep = pkgconf_dependency_copy(client, node->data);
+			flattened_dep = pkgconf_dependency_copy(client, parent_dep);
 
 			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->requires_private);
 		}
