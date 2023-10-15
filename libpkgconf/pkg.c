@@ -1487,6 +1487,8 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
 	pkgconf_node_t *node, *next;
 
+	parent->flags |= PKGCONF_PKG_PKGF_ANCESTOR;
+
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(deplist->head, next, node)
 	{
 		unsigned int eflags_local = PKGCONF_PKG_ERRF_OK;
@@ -1507,7 +1509,7 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 		if (pkgdep == NULL)
 			continue;
 
-		if (pkgdep->serial == client->serial && !(parent->flags & PKGCONF_PKG_PROPF_VIRTUAL))
+		if((pkgdep->flags & PKGCONF_PKG_PKGF_ANCESTOR) != 0)
 		{
 			pkgdep->identifier = ++client->identifier;
 
@@ -1544,6 +1546,8 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 next:
 		pkgconf_pkg_unref(client, pkgdep);
 	}
+
+	parent->flags &= ~PKGCONF_PKG_PKGF_ANCESTOR;
 
 	return eflags;
 }

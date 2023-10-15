@@ -278,6 +278,7 @@ PKGCONF_API void pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *p
 #define PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS	0x4000
 #define PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES		0x8000
 #define PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES         0x10000
+#define PKGCONF_PKG_PKGF_ANCESTOR                       0x20000
 
 #define PKGCONF_PKG_DEPF_INTERNAL		0x1
 #define PKGCONF_PKG_DEPF_PRIVATE		0x2
