@@ -228,11 +228,17 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
 {
 	unsigned int result;
 
-	if (!pkgconf_queue_compile(client, world, list))
+
+	pkgconf_pkg_t initial_world = {
+		.id = "virtual:world",
+		.realname = "virtual world package",
+		.flags = PKGCONF_PKG_PROPF_STATIC | PKGCONF_PKG_PROPF_VIRTUAL,
+	};
+	if (!pkgconf_queue_compile(client, &initial_world, list))
 		return PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
 
 	/* collect all the dependencies */
-	result = pkgconf_pkg_traverse(client, world, pkgconf_queue_collect_dependents, world, maxdepth, 0);
+	result = pkgconf_pkg_traverse(client, &initial_world, pkgconf_queue_collect_dependents, world, maxdepth, 0);
 	if (result != PKGCONF_PKG_ERRF_OK)
 		return result;
 
