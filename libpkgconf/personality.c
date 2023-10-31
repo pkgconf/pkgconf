@@ -241,17 +241,19 @@ personality_warn_func(void *p, const char *fmt, ...)
 }
 
 static pkgconf_cross_personality_t *
-load_personality_with_path(const char *path, const char *triplet)
+load_personality_with_path(const char *path, const char *triplet, bool datadir)
 {
 	char pathbuf[PKGCONF_ITEM_SIZE];
 	FILE *f;
 	pkgconf_cross_personality_t *p;
 
 	/* if triplet is null, assume that path is a direct path to the personality file */
-	if (triplet != NULL)
-		snprintf(pathbuf, sizeof pathbuf, "%s/%s.personality", path, triplet);
-	else
+	if (triplet == NULL)
 		pkgconf_strlcpy(pathbuf, path, sizeof pathbuf);
+	else if (datadir)
+		snprintf(pathbuf, sizeof pathbuf, "%s/pkgconfig/personality.d/%s.personality", path, triplet);
+	else
+		snprintf(pathbuf, sizeof pathbuf, "%s/%s.personality", path, triplet);
 
 	f = fopen(pathbuf, "r");
 	if (f == NULL)
@@ -281,13 +283,43 @@ pkgconf_cross_personality_find(const char *triplet)
 	pkgconf_list_t plist = PKGCONF_LIST_INITIALIZER;
 	pkgconf_node_t *n;
 	pkgconf_cross_personality_t *out = NULL;
+#if ! defined(_WIN32) && ! defined(__HAIKU__)
+	char pathbuf[PKGCONF_ITEM_SIZE];
+	const char *envvar;
+#endif
 
-	out = load_personality_with_path(triplet, NULL);
+	out = load_personality_with_path(triplet, NULL, false);
 	if (out != NULL)
 		return out;
 
 	if (!valid_triplet(triplet))
 		return NULL;
+
+#if ! defined(_WIN32) && ! defined(__HAIKU__)
+	envvar = getenv("XDG_DATA_HOME");
+	if (envvar != NULL)
+		pkgconf_path_add(envvar, &plist, true);
+	else {
+		envvar = getenv("HOME");
+		if (envvar != NULL) {
+			pkgconf_strlcpy(pathbuf, envvar, sizeof pathbuf);
+			pkgconf_strlcat(pathbuf, "/.local/share", sizeof pathbuf);
+			pkgconf_path_add(pathbuf, &plist, true);
+		}
+	}
+
+	pkgconf_path_build_from_environ("XDG_DATA_DIRS", "/usr/local/share" PKG_CONFIG_PATH_SEP_S "/usr/share", &plist, true);
+
+	PKGCONF_FOREACH_LIST_ENTRY(plist.head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+
+		out = load_personality_with_path(pn->path, triplet, true);
+		if (out != NULL)
+			goto finish;
+	}
+	pkgconf_path_free(&plist);
+#endif
 
 	pkgconf_path_split(PERSONALITY_PATH, &plist, true);
 
@@ -295,7 +327,7 @@ pkgconf_cross_personality_find(const char *triplet)
 	{
 		pkgconf_path_t *pn = n->data;
 
-		out = load_personality_with_path(pn->path, triplet);
+		out = load_personality_with_path(pn->path, triplet, false);
 		if (out != NULL)
 			goto finish;
 	}
