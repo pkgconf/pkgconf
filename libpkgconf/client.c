@@ -161,7 +161,7 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 pkgconf_client_t *
 pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
 {
-	pkgconf_client_t *out = calloc(sizeof(pkgconf_client_t), 1);
+	pkgconf_client_t *out = calloc(1, sizeof(pkgconf_client_t));
 	pkgconf_client_init(out, error_handler, error_handler_data, personality);
 	return out;
 }

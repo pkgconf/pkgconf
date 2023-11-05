@@ -143,7 +143,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 
 	if (strlen(string) > 1 && !pkgconf_fragment_is_special(string))
 	{
-		frag = calloc(sizeof(pkgconf_fragment_t), 1);
+		frag = calloc(1, sizeof(pkgconf_fragment_t));
 
 		frag->type = *(string + 1);
 		frag->data = pkgconf_fragment_copy_munged(client, string + 2, flags);
@@ -192,7 +192,7 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 			}
 		}
 
-		frag = calloc(sizeof(pkgconf_fragment_t), 1);
+		frag = calloc(1, sizeof(pkgconf_fragment_t));
 
 		frag->type = 0;
 		frag->data = strdup(string);
@@ -353,7 +353,7 @@ pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, cons
 	else if (!is_private && !pkgconf_fragment_can_merge_back(base, client->flags, is_private) && (pkgconf_fragment_lookup(list, base) != NULL))
 		return;
 
-	frag = calloc(sizeof(pkgconf_fragment_t), 1);
+	frag = calloc(1, sizeof(pkgconf_fragment_t));
 
 	frag->type = base->type;
 	frag->merged = base->merged;
@@ -427,7 +427,7 @@ fragment_quote(const pkgconf_fragment_t *frag)
 	if (frag->data == NULL)
 		return NULL;
 
-	out = dst = calloc(outlen, 1);
+	out = dst = calloc(1, outlen);
 
 	for (; *src; src++)
 	{
