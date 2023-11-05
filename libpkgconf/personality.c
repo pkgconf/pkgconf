@@ -257,7 +257,7 @@ load_personality_with_path(const char *path, const char *triplet)
 	if (f == NULL)
 		return NULL;
 
-	p = calloc(sizeof(pkgconf_cross_personality_t), 1);
+	p = calloc(1, sizeof(pkgconf_cross_personality_t));
 	if (triplet != NULL)
 		p->name = strdup(triplet);
 	pkgconf_parser_parse(f, p, personality_parser_ops, personality_warn_func, pathbuf);

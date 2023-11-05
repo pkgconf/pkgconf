@@ -156,7 +156,7 @@ pkgconf_tuple_find_delete(pkgconf_list_t *list, const char *key)
 static char *
 dequote(const char *value)
 {
-	char *buf = calloc((strlen(value) + 1) * 2, 1);
+	char *buf = calloc(1, (strlen(value) + 1) * 2);
 	char *bptr = buf;
 	const char *i;
 	char quote = 0;
@@ -236,7 +236,7 @@ pkgconf_tuple_t *
 pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key, const char *value, bool parse, unsigned int flags)
 {
 	char *dequote_value;
-	pkgconf_tuple_t *tuple = calloc(sizeof(pkgconf_tuple_t), 1);
+	pkgconf_tuple_t *tuple = calloc(1, sizeof(pkgconf_tuple_t));
 
 	pkgconf_tuple_find_delete(list, key);
 

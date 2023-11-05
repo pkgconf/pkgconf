@@ -43,7 +43,7 @@
 void
 pkgconf_queue_push(pkgconf_list_t *list, const char *package)
 {
-	pkgconf_queue_t *pkgq = calloc(sizeof(pkgconf_queue_t), 1);
+	pkgconf_queue_t *pkgq = calloc(1, sizeof(pkgconf_queue_t));
 
 	pkgq->package = strdup(package);
 	pkgconf_node_insert_tail(&pkgq->iter, pkgq, list);

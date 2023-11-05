@@ -130,7 +130,7 @@ pkgconf_dependency_addraw(pkgconf_client_t *client, pkgconf_list_t *list, const 
 {
 	pkgconf_dependency_t *dep;
 
-	dep = calloc(sizeof(pkgconf_dependency_t), 1);
+	dep = calloc(1, sizeof(pkgconf_dependency_t));
 	dep->package = pkgconf_strndup(package, package_sz);
 
 	if (version_sz != 0)
@@ -469,7 +469,7 @@ pkgconf_dependency_copy(pkgconf_client_t *client, const pkgconf_dependency_t *de
 {
 	pkgconf_dependency_t *new_dep;
 
-	new_dep = calloc(sizeof(pkgconf_dependency_t), 1);
+	new_dep = calloc(1, sizeof(pkgconf_dependency_t));
 	new_dep->package = strdup(dep->package);
 
 	if (dep->version != NULL)

@@ -72,7 +72,7 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 
 	memset(buf, 0, strlen(src) + 1);
 
-	*argv = calloc(sizeof (void *), argv_size);
+	*argv = calloc(argv_size, sizeof (void *));
 	(*argv)[argc_count] = dst_iter;
 
 	while (*src_iter)
