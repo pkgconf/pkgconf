@@ -1,6 +1,38 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.0.3 to 2.1.0:
+----------------------------
+
+* Do not flatten the solver solution into the original world used as
+  input to the solver.
+  Patches by Kai Pastor.
+
+* Fix warnings with GCC 14 -Walloc-size.
+  Patch by Sam Jones.
+
+* Add --solution to the pkgconf CLI to dump the solver state.
+
+* Improve the --digraph output to clarify cancelled edges in a given
+  solution.
+
+* Demote requires dependencies to requires.private when a parent
+  dependency is pulled in via requires.private.
+
+* Trim trailing whitespace when processing package arguments.
+  Patch by Colin Gillespie.
+
+* Avoid strncmp() in --modversion version comparison.
+  Patch by Colin Gillespie.
+
+* Update autoconf compile flag checking macro.
+  Patch by Peter Kokot.
+
+* Add system default path configuration to Meson.
+  Patch by L. E. Segovia.
+
+* Fix order of PKG_CONFIG_LIBDIR and PKG_CONFIG_PATH element processing.
+
 Changes from 2.0.2 to 2.0.3:
 ----------------------------
 
