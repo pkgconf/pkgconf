@@ -95,6 +95,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/metapackage.pc \
 		tests/lib1/metapackage-1.pc \
 		tests/lib1/metapackage-2.pc \
+		tests/lib1/metapackage-3.pc \
 		tests/lib1/explicit-sysroot.pc \
 		tests/lib1/escaped-backslash.pc \
 		tests/lib1/cflags-internal.pc \
