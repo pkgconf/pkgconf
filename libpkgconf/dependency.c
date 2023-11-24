@@ -262,7 +262,7 @@ pkgconf_dependency_unref(pkgconf_client_t *client, pkgconf_dependency_t *dep)
  *
  * .. c:function:: void pkgconf_dependency_free(pkgconf_list_t *list)
  *
- *    Release a dependency list and it's child dependency nodes.
+ *    Release a dependency list and its child dependency nodes.
  *
  *    :param pkgconf_list_t* list: The dependency list to release.
  *    :return: nothing
