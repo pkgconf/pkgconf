@@ -9,7 +9,7 @@ Changes from 2.0.3 to 2.1.0:
   Patches by Kai Pastor.
 
 * Fix warnings with GCC 14 -Walloc-size.
-  Patch by Sam Jones.
+  Patch by Sam James.
 
 * Add --solution to the pkgconf CLI to dump the solver state.
 
