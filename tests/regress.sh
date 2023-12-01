@@ -27,6 +27,9 @@ tests_init \
 	modversion_fullpath \
 	modversion_provides \
 	modversion_uninstalled \
+	modversion_one_word_expression \
+	modversion_two_word_expression \
+	modversion_three_word_expression \
 	pcpath \
 	virtual_variable \
 	fragment_collision \
@@ -300,4 +303,22 @@ modversion_uninstalled_body()
 {
 	atf_check -o inline:"1.2.3\n" \
 		pkgconf --with-path="${selfdir}/lib1" --modversion omg
+}
+
+modversion_one_word_expression_body()
+{
+	atf_check -o inline:"1.2.3\n" \
+		pkgconf --with-path="${selfdir}/lib1" --modversion "foo > 1.0"
+}
+
+modversion_two_word_expression_body()
+{
+	atf_check -o inline:"1.2.3\n" \
+		pkgconf --with-path="${selfdir}/lib1" --modversion foo "> 1.0"
+}
+
+modversion_three_word_expression_body()
+{
+	atf_check -o inline:"1.2.3\n" \
+		pkgconf --with-path="${selfdir}/lib1" --modversion foo ">" 1.0
 }
