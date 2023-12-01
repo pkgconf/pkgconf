@@ -1405,6 +1405,15 @@ cleanup3:
 			pkgconf_queue_push(&pkgq, package);
 			pkg_optind++;
 		}
+		else if (argv[pkg_optind + 2] == NULL)
+		{
+			char packagebuf[PKGCONF_BUFSIZE];
+
+			snprintf(packagebuf, sizeof packagebuf, "%s %s", package, argv[pkg_optind + 1]);
+			pkg_optind += 2;
+
+			pkgconf_queue_push(&pkgq, packagebuf);
+		}
 		else
 		{
 			char packagebuf[PKGCONF_BUFSIZE];
