@@ -333,7 +333,12 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int
 			pkgconf_dependency_t *dep = world_iter->data;
 			pkgconf_pkg_t *pkg = dep->match;
 
-			if (strcmp(pkg->why, queue_node->package))
+			const size_t name_len = strlen(pkg->why);
+			if (name_len > strlen(queue_node->package) ||
+			    strncmp(pkg->why, queue_node->package, name_len) ||
+			    (queue_node->package[name_len] != 0 &&
+			     !isspace(queue_node->package[name_len]) &&
+			     !PKGCONF_IS_OPERATOR_CHAR(queue_node->package[name_len])))
 				continue;
 
 			if (pkg->version != NULL) {
