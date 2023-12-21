@@ -137,6 +137,8 @@ struct pkgconf_path_ {
 #define PKGCONF_PKG_PROPF_CACHED		0x02
 #define PKGCONF_PKG_PROPF_UNINSTALLED		0x08
 #define PKGCONF_PKG_PROPF_VIRTUAL		0x10
+#define PKGCONF_PKG_PROPF_VISITED		0x20
+#define PKGCONF_PKG_PROPF_VISITED_PRIVATE	0x40
 
 struct pkgconf_pkg_ {
 	int refcount;
@@ -176,6 +178,7 @@ struct pkgconf_pkg_ {
 
 	uint64_t serial;
 	uint64_t identifier;
+	uint64_t traverse_id;
 };
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
@@ -212,6 +215,7 @@ struct pkgconf_client_ {
 
 	uint64_t serial;
 	uint64_t identifier;
+	uint64_t traverse_id;
 
 	pkgconf_pkg_t **cache_table;
 	size_t cache_count;
