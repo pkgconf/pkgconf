@@ -1624,9 +1624,27 @@ pkgconf_pkg_traverse_main(pkgconf_client_t *client,
 	unsigned int skip_flags)
 {
 	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
+	unsigned int visited_flag = (client->flags & PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE) ? PKGCONF_PKG_PROPF_VISITED_PRIVATE : PKGCONF_PKG_PROPF_VISITED;
 
 	if (maxdepth == 0)
 		return eflags;
+
+	/* If we have already visited this node, check if we have done so as a Requires or Requires.private
+	 * query as appropriate, and short-circuit if so.
+	 */
+	if ((root->flags & PKGCONF_PKG_PROPF_VIRTUAL) == 0 && root->traverse_serial == client->traverse_serial)
+	{
+		if (root->flags & visited_flag)
+			return eflags;
+	}
+	else
+	{
+		root->traverse_serial = client->traverse_serial;
+		root->flags &= ~(PKGCONF_PKG_PROPF_VISITED|PKGCONF_PKG_PROPF_VISITED_PRIVATE);
+	}
+
+	/* Update this node to indicate how we've visited it so far. */
+	root->flags |= visited_flag;
 
 	PKGCONF_TRACE(client, "%s: level %d, serial %"PRIu64, root->id, maxdepth, client->serial);
 
@@ -1674,6 +1692,8 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 {
 	if (root->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		client->serial++;
+
+	client->traverse_serial++;
 
 	return pkgconf_pkg_traverse_main(client, root, func, data, maxdepth, skip_flags);
 }
