@@ -1,6 +1,22 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.1.0 to 2.1.1:
+----------------------------
+
+* Documentation fixes from Sam James and Stefan Weil.
+
+* Fix --modversion with constraints.
+  Patch by Kai Pastor.
+
+* Reintroduce an optimization to the dependency graph walker which avoids
+  revisiting already visited nodes.
+  Patch by Yi Chou with some modifications.
+
+* Add a regression test to check that the dependency flattener is working
+  as expected.
+  Patch by Kai Pastor.
+
 Changes from 2.0.3 to 2.1.0:
 ----------------------------
 
