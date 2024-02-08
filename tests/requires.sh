@@ -11,6 +11,9 @@ tests_init \
 	static_cflags \
 	private_duplication \
 	private_duplication_digraph \
+	foo_bar \
+	bar_foo \
+	foo_metapackage_3 \
 	libs_static2 \
 	missing \
 	requires_internal \
@@ -84,6 +87,30 @@ private_duplication_digraph_body()
 		-o 'match:"bar" -> "foo"' \
 		-o 'match:"baz" -> "foo"' \
 		pkgconf --static --libs-only-l private-libs-duplication --digraph
+}
+
+bar_foo_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-lbar -lfoo\n" \
+		pkgconf --static --libs-only-l bar foo
+}
+
+foo_bar_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-lbar -lfoo\n" \
+		pkgconf --static --libs-only-l foo bar
+}
+
+foo_metapackage_3_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1"
+	atf_check \
+		-o inline:"-lbar -lfoo\n" \
+		pkgconf --static --libs-only-l foo metapackage-3
 }
 
 libs_static2_body()
