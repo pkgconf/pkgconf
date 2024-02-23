@@ -265,18 +265,20 @@ print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
+		const char *dep_id = (dep->match != NULL) ? dep->match->id : dep->package;
 
 		if ((dep->flags & PKGCONF_PKG_DEPF_PRIVATE) == 0)
-			printf("\"%s\" -> \"%s\" [fontname=Sans fontsize=8]\n", pkg->id, dep->package);
+			printf("\"%s\" -> \"%s\" [fontname=Sans fontsize=8]\n", pkg->id, dep_id);
 		else
-			printf("\"%s\" -> \"%s\" [fontname=Sans fontsize=8 color=gray]\n", pkg->id, dep->package);
+			printf("\"%s\" -> \"%s\" [fontname=Sans fontsize=8 color=gray]\n", pkg->id, dep_id);
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
+		const char *dep_id = (dep->match != NULL) ? dep->match->id : dep->package;
 
-		printf("\"%s\" -> \"%s\" [fontname=Sans fontsize=8 color=gray]\n", pkg->id, dep->package);
+		printf("\"%s\" -> \"%s\" [fontname=Sans fontsize=8 color=gray]\n", pkg->id, dep_id);
 	}
 }
 
