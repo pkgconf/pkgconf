@@ -137,7 +137,7 @@ struct pkgconf_path_ {
 #define PKGCONF_PKG_PROPF_CACHED		0x02
 #define PKGCONF_PKG_PROPF_UNINSTALLED		0x08
 #define PKGCONF_PKG_PROPF_VIRTUAL		0x10
-#define PKGCONF_PKG_PROPF_VISITED		0x20
+#define PKGCONF_PKG_PROPF_ANCESTOR		0x20
 #define PKGCONF_PKG_PROPF_VISITED_PRIVATE	0x40
 
 struct pkgconf_pkg_ {
@@ -178,7 +178,6 @@ struct pkgconf_pkg_ {
 
 	uint64_t serial;
 	uint64_t identifier;
-	uint64_t traverse_serial;
 };
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
@@ -215,7 +214,6 @@ struct pkgconf_client_ {
 
 	uint64_t serial;
 	uint64_t identifier;
-	uint64_t traverse_serial;
 
 	pkgconf_pkg_t **cache_table;
 	size_t cache_count;
@@ -282,7 +280,6 @@ PKGCONF_API void pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *p
 #define PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS	0x4000
 #define PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES		0x8000
 #define PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES         0x10000
-#define PKGCONF_PKG_PKGF_ANCESTOR                       0x20000
 
 #define PKGCONF_PKG_DEPF_INTERNAL		0x1
 #define PKGCONF_PKG_DEPF_PRIVATE		0x2
