@@ -103,132 +103,132 @@ pkgconf_queue_free(pkgconf_list_t *list)
 }
 
 static void
-pkgconf_queue_collect_dependents(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+pkgconf_queue_mark_public(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
+	if (pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE)
+	{
+		pkgconf_list_t *list = data;
+		pkgconf_node_t *node;
+
+		PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+		{
+			pkgconf_dependency_t *dep = node->data;
+			if (dep->match == pkg)
+				dep->flags &= ~PKGCONF_PKG_DEPF_PRIVATE;
+		}
+
+		pkg->flags &= ~PKGCONF_PKG_PROPF_VISITED_PRIVATE;
+
+		PKGCONF_TRACE(client, "%s: updated, public", pkg->id);
+	}
+}
+
+static unsigned int
+pkgconf_queue_collect_dependencies_main(pkgconf_client_t *client,
+	pkgconf_pkg_t *root,
+	void *data,
+	int maxdepth);
+
+static inline unsigned int
+pkgconf_queue_collect_dependencies_walk(pkgconf_client_t *client,
+	pkgconf_pkg_t *parent,
+	pkgconf_list_t *deplist,
+	void *data,
+	int depth)
+{
+	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
 	pkgconf_node_t *node;
 	pkgconf_pkg_t *world = data;
 
-	if (pkg == world)
-		return;
-
-	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
-	{
-		pkgconf_dependency_t *parent_dep = node->data;
-		pkgconf_dependency_t *flattened_dep;
-
-		flattened_dep = pkgconf_dependency_copy(client, parent_dep);
-
-		if ((client->flags & PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE) != PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE)
-			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
-		else
-			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->requires_private);
-	}
-
-	if (client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE)
-	{
-		PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
-		{
-			pkgconf_dependency_t *parent_dep = node->data;
-			pkgconf_dependency_t *flattened_dep;
-
-			flattened_dep = pkgconf_dependency_copy(client, parent_dep);
-
-			pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->requires_private);
-		}
-	}
-}
-
-static int
-dep_sort_cmp(const void *a, const void *b)
-{
-	const pkgconf_dependency_t *depA = *(void **) a;
-	const pkgconf_dependency_t *depB = *(void **) b;
-
-	return depB->match->identifier - depA->match->identifier;
-}
-
-static inline void
-flatten_dependency_set(pkgconf_client_t *client, pkgconf_list_t *list)
-{
-	pkgconf_node_t *node, *next;
-	pkgconf_dependency_t **deps = NULL;
-	size_t dep_count = 0, i;
-
-	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
+	PKGCONF_FOREACH_LIST_ENTRY_REVERSE(deplist->tail, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
-		pkgconf_pkg_t *pkg = pkgconf_pkg_verify_dependency(client, dep, NULL);
+		pkgconf_dependency_t *flattened_dep;
+		pkgconf_pkg_t *pkg = dep->match;
 
-		if (pkg == NULL)
+		if (*dep->package == '\0')
 			continue;
 
-		if (pkg->serial == client->serial)
-		{
-			pkgconf_node_delete(node, list);
-			pkgconf_dependency_unref(client, dep);
-			goto next;
-		}
-
-		if (dep->match == NULL)
+		if (pkg == NULL)
 		{
 			PKGCONF_TRACE(client, "WTF: unmatched dependency %p <%s>", dep, dep->package);
 			abort();
 		}
 
-		/* for virtuals, we need to check to see if there are dupes */
-		for (i = 0; i < dep_count; i++)
-		{
-			pkgconf_dependency_t *other_dep = deps[i];
-
-			PKGCONF_TRACE(client, "dedup %s = %s?", dep->package, other_dep->package);
-
-			if (!strcmp(dep->package, other_dep->package))
-			{
-				PKGCONF_TRACE(client, "skipping, "SIZE_FMT_SPECIFIER" deps", dep_count);
-				goto next;
-			}
-		}
-
-		pkg->serial = client->serial;
-
-		/* copy to the deps table */
-		dep_count++;
-		deps = pkgconf_reallocarray(deps, dep_count, sizeof (void *));
-		deps[dep_count - 1] = dep;
-
-		PKGCONF_TRACE(client, "added %s to dep table", dep->package);
-next:
-		pkgconf_pkg_unref(client, pkg);
-	}
-
-	if (deps == NULL)
-		return;
-
-	qsort(deps, dep_count, sizeof (void *), dep_sort_cmp);
-
-	/* zero the list and start readding */
-	pkgconf_list_zero(list);
-
-	for (i = 0; i < dep_count; i++)
-	{
-		pkgconf_dependency_t *dep = deps[i];
-
-		if (dep->match == NULL)
+		if (pkg->serial == client->serial)
 			continue;
 
-		memset(&dep->iter, '\0', sizeof (dep->iter));
-		pkgconf_node_insert(&dep->iter, dep, list);
+		if (client->flags & PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE)
+			pkg->flags |= PKGCONF_PKG_PROPF_VISITED_PRIVATE;
+		else
+			pkg->flags &= ~PKGCONF_PKG_PROPF_VISITED_PRIVATE;
 
-		PKGCONF_TRACE(client, "slot "SIZE_FMT_SPECIFIER": dep %s matched to %p<%s> id %"PRIu64, i, dep->package, dep->match, dep->match->id, dep->match->identifier);
+		eflags |= pkgconf_queue_collect_dependencies_main(client, pkg, data, depth - 1);
+
+		flattened_dep = pkgconf_dependency_copy(client, dep);
+		pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
 	}
 
-	free(deps);
+	return eflags;
+}
+
+static unsigned int
+pkgconf_queue_collect_dependencies_main(pkgconf_client_t *client,
+	pkgconf_pkg_t *root,
+	void *data,
+	int maxdepth)
+{
+	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
+
+	if (maxdepth == 0)
+		return eflags;
+
+	/* Short-circuit if we have already visited this node.
+	 */
+	if (root->serial == client->serial)
+		return eflags;
+
+	root->serial = client->serial;
+
+	if (client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE)
+	{
+		PKGCONF_TRACE(client, "%s: collecting private dependencies, level %d", root->id, maxdepth);
+
+		/* XXX: ugly */
+		const unsigned int saved_flags = client->flags;
+		client->flags |= PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
+		eflags = pkgconf_queue_collect_dependencies_walk(client, root, &root->requires_private, data, maxdepth);
+		client->flags = saved_flags;
+		if (eflags != PKGCONF_PKG_ERRF_OK)
+			return eflags;
+	}
+
+	PKGCONF_TRACE(client, "%s: collecting public dependencies, level %d", root->id, maxdepth);
+
+	eflags = pkgconf_queue_collect_dependencies_walk(client, root, &root->required, data, maxdepth);
+	if (eflags != PKGCONF_PKG_ERRF_OK)
+		return eflags;
+
+	PKGCONF_TRACE(client, "%s: finished, %s", root->id, (root->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE) ? "private" : "public");
+
+	return eflags;
+}
+
+static inline unsigned int
+pkgconf_queue_collect_dependencies(pkgconf_client_t *client,
+	pkgconf_pkg_t *root,
+	void *data,
+	int maxdepth)
+{
+	++client->serial;
+	return pkgconf_queue_collect_dependencies_main(client, root, data, maxdepth);
 }
 
 static inline unsigned int
 pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth)
 {
 	unsigned int result;
+	const unsigned int saved_flags = client->flags;
 	pkgconf_pkg_t initial_world = {
 		.id = "user:request",
 		.realname = "virtual world package",
@@ -241,30 +241,38 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
 		return PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
 	}
 
-	/* collect all the dependencies */
-	result = pkgconf_pkg_traverse(client, &initial_world, pkgconf_queue_collect_dependents, world, maxdepth, 0);
+	PKGCONF_TRACE(client, "solving");
+	result = pkgconf_pkg_traverse(client, &initial_world, NULL, NULL, maxdepth, 0);
 	if (result != PKGCONF_PKG_ERRF_OK)
 	{
 		pkgconf_solution_free(client, &initial_world);
 		return result;
 	}
 
+	PKGCONF_TRACE(client, "flattening");
+	result = pkgconf_queue_collect_dependencies(client, &initial_world, world, maxdepth);
+	if (result != PKGCONF_PKG_ERRF_OK)
+	{
+		pkgconf_solution_free(client, &initial_world);
+		return result;
+	}
+
+	if (client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE)
+	{
+		PKGCONF_TRACE(client, "marking public deps");
+		client->flags &= ~PKGCONF_PKG_PKGF_SEARCH_PRIVATE;
+		client->flags |= PKGCONF_PKG_PKGF_SKIP_CONFLICTS;
+		result = pkgconf_pkg_traverse(client, &initial_world, pkgconf_queue_mark_public, &world->required, maxdepth, 0);
+		client->flags = saved_flags;
+		if (result != PKGCONF_PKG_ERRF_OK)
+		{
+			pkgconf_solution_free(client, &initial_world);
+			return result;
+		}
+	}
+
 	/* free the initial solution */
 	pkgconf_solution_free(client, &initial_world);
-
-	/* flatten the dependency set using serials.
-	 * we copy the dependencies to a vector, and then erase the list.
-	 * then we copy them back to the list.
-	 */
-	++client->serial;
-
-	PKGCONF_TRACE(client, "flattening 'Requires' deps");
-	flatten_dependency_set(client, &world->required);
-
-	++client->serial;
-
-	PKGCONF_TRACE(client, "flattening 'Requires.private' deps");
-	flatten_dependency_set(client, &world->requires_private);
 
 	return PKGCONF_PKG_ERRF_OK;
 }
