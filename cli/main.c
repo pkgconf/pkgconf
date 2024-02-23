@@ -1549,19 +1549,7 @@ cleanup3:
 			printf(" ");
 
 		if (!(want_flags & PKG_STATIC))
-		{
 			pkgconf_client_set_flags(&pkg_client, pkg_client.flags & ~PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
-
-			/* redo the solution for the library set: free the solution itself, and any cached graph nodes */
-			pkgconf_solution_free(&pkg_client, &world);
-			pkgconf_cache_free(&pkg_client);
-
-			if (!pkgconf_queue_solve(&pkg_client, &pkgq, &world, maximum_traverse_depth))
-			{
-				ret = EXIT_FAILURE;
-				goto out;
-			}
-		}
 
 		apply_libs(&pkg_client, &world, NULL, 2);
 	}
