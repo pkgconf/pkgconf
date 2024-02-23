@@ -231,7 +231,7 @@ libs_circular1_body()
 libs_circular_directpc_body()
 {
 	atf_check \
-		-o inline:"-lcircular-2 -lcircular-3 -lcircular-1\n" \
+		-o inline:"-lcircular-1 -lcircular-2 -lcircular-3\n" \
 		pkgconf --libs ${selfdir}/lib1/circular-3.pc
 }
 

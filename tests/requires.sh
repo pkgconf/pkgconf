@@ -41,7 +41,7 @@ libs_static_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/lib -lbaz -L/test/lib -lzee -L/test/lib -lfoo\n" \
+		-o inline:"-L/test/lib -lbaz -L/test/lib -lzee -lfoo\n" \
 		pkgconf --static --libs baz
 }
 
@@ -49,7 +49,7 @@ libs_static_pure_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-L/test/lib -lbaz -L/test/lib -lfoo\n" \
+		-o inline:"-L/test/lib -lbaz -lfoo\n" \
 		pkgconf --static --pure --libs baz
 }
 
@@ -73,7 +73,7 @@ private_duplication_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o inline:"-lprivate -lbaz -lzee -lbar -lfoo -lfoo\n" \
+		-o inline:"-lprivate -lbaz -lzee -lbar -lfoo\n" \
 		pkgconf --static --libs-only-l private-libs-duplication
 }
 
