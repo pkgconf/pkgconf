@@ -258,12 +258,12 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
 	 */
 	++client->serial;
 
-	PKGCONF_TRACE(client, "flattening requires deps");
+	PKGCONF_TRACE(client, "flattening 'Requires' deps");
 	flatten_dependency_set(client, &world->required);
 
 	++client->serial;
 
-	PKGCONF_TRACE(client, "flattening requires.private deps");
+	PKGCONF_TRACE(client, "flattening 'Requires.private' deps");
 	flatten_dependency_set(client, &world->requires_private);
 
 	return PKGCONF_PKG_ERRF_OK;
