@@ -775,15 +775,13 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 	{
 		if ((f = fopen(name, "r")) != NULL)
 		{
-			pkgconf_pkg_t *pkg;
-
 			PKGCONF_TRACE(client, "%s is a file", name);
 
 			pkg = pkgconf_pkg_new_from_file(client, name, f, 0);
 			if (pkg != NULL)
 			{
 				pkgconf_path_add(pkg->pc_filedir, &client->dir_list, true);
-				return pkg;
+				goto out;
 			}
 		}
 	}
