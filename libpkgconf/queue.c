@@ -230,7 +230,7 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
 {
 	unsigned int result;
 	pkgconf_pkg_t initial_world = {
-		.id = "virtual:world",
+		.id = "user:request",
 		.realname = "virtual world package",
 		.flags = PKGCONF_PKG_PROPF_STATIC | PKGCONF_PKG_PROPF_VIRTUAL,
 	};
