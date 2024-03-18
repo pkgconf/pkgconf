@@ -78,10 +78,7 @@ private_duplication_digraph_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
-		-o 'match:"virtual:world" -> "private-libs-duplication"' \
-		-o 'match:"virtual:world" -> "bar"' \
-		-o 'match:"virtual:world" -> "baz"' \
-		-o 'match:"virtual:world" -> "foo"' \
+		-o 'match:"user:request" -> "private-libs-duplication"' \
 		-o 'match:"private-libs-duplication" -> "bar"' \
 		-o 'match:"private-libs-duplication" -> "baz"' \
 		-o 'match:"bar" -> "foo"' \
