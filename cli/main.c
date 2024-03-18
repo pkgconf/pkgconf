@@ -254,13 +254,22 @@ apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int
 
 #ifndef PKGCONF_LITE
 static void
-print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
+print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
 	pkgconf_node_t *node;
 	(void) client;
-	(void) unused;
+	pkgconf_pkg_t **last_seen = data;
 
 	printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
+	if(*last_seen == NULL)
+	{
+		*last_seen = pkg;
+		if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+			return;
+	}
+
+	printf("\"%s\" -> \"%s\" [fontname=Sans fontsize=8 color=red]\n", (*last_seen)->id, pkg->id);
+	*last_seen = pkg;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
@@ -281,12 +290,13 @@ static bool
 apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	int eflag;
+	pkgconf_pkg_t *last_seen = NULL;
 
 	printf("digraph deptree {\n");
 	printf("edge [color=blue len=7.5 fontname=Sans fontsize=8]\n");
 	printf("node [fontname=Sans fontsize=8]\n");
 
-	eflag = pkgconf_pkg_traverse(client, world, print_digraph_node, unused, maxdepth, 0);
+	eflag = pkgconf_pkg_traverse(client, world, print_digraph_node, &last_seen, maxdepth, 0);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
