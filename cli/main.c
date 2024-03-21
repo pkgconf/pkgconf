@@ -303,7 +303,10 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int ma
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
 	{
 		pkgconf_queue_t *pkgq = iter->data;
-		printf("\"user:request\" -> \"%s\" [fontname=Sans fontsize=8]\n", pkgq->package);
+		pkgconf_pkg_t *pkg = pkgconf_pkg_find(client, pkgq->package);
+		printf("\"user:request\" -> \"%s\" [fontname=Sans fontsize=8]\n", pkg == NULL ? pkgq->package : pkg->id);
+		if (pkg != NULL)
+			pkgconf_pkg_unref(client, pkg);
 	}
 
 	eflag = pkgconf_pkg_traverse(client, world, print_digraph_node, &last_seen, maxdepth, 0);
