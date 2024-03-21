@@ -263,7 +263,11 @@ print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 	if(pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
 
-	printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
+	if (pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE)
+		printf("\"%s\" [fontname=Sans fontsize=8 fontcolor=gray color=gray]\n", pkg->id);
+	else
+		printf("\"%s\" [fontname=Sans fontsize=8]\n", pkg->id);
+
 	if (last_seen != NULL)
 	{
 		if (*last_seen != NULL)
