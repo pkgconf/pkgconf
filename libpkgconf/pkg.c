@@ -1456,7 +1456,11 @@ pkgconf_pkg_report_graph_error(pkgconf_client_t *client, pkgconf_pkg_t *parent, 
 			client->already_sent_notice = true;
 		}
 
-		pkgconf_error(client, "Package '%s', required by '%s', not found\n", node->package, parent->id);
+		if (parent->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+			pkgconf_error(client, "Package '%s' not found\n", node->package);
+		else
+			pkgconf_error(client, "Package '%s', required by '%s', not found\n", node->package, parent->id);
+
 		pkgconf_audit_log(client, "%s NOT-FOUND\n", node->package);
 	}
 	else if (eflags & PKGCONF_PKG_ERRF_PACKAGE_VER_MISMATCH)
