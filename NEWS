@@ -1,6 +1,24 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.1.1 to 2.2.0:
+----------------------------
+
+* libpkgconf SOVERSION is now 5.
+
+* Significant solver rework to flatten both requires and requires.private
+  dependencies in a single pass.  Improves performance slightly and ensures
+  proper dependency order.
+  Patches by Kai Pastor.
+
+* Improve `--digraph` output to reflect more of the solver's state in the
+  rendered dependency graph.
+  Patches by Kai Pastor.
+
+* Do not reference the graph root by name when presenting error messages about
+  directly requested dependency nodes.
+  Patch by Kai Pastor.
+
 Changes from 2.1.0 to 2.1.1:
 ----------------------------
 
