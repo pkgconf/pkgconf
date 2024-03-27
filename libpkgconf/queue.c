@@ -131,7 +131,6 @@ pkgconf_queue_collect_dependencies_main(pkgconf_client_t *client,
 
 static inline unsigned int
 pkgconf_queue_collect_dependencies_walk(pkgconf_client_t *client,
-	pkgconf_pkg_t *parent,
 	pkgconf_list_t *deplist,
 	void *data,
 	int depth)
@@ -197,7 +196,7 @@ pkgconf_queue_collect_dependencies_main(pkgconf_client_t *client,
 		/* XXX: ugly */
 		const unsigned int saved_flags = client->flags;
 		client->flags |= PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
-		eflags = pkgconf_queue_collect_dependencies_walk(client, root, &root->requires_private, data, maxdepth);
+		eflags = pkgconf_queue_collect_dependencies_walk(client, &root->requires_private, data, maxdepth);
 		client->flags = saved_flags;
 		if (eflags != PKGCONF_PKG_ERRF_OK)
 			return eflags;
@@ -205,7 +204,7 @@ pkgconf_queue_collect_dependencies_main(pkgconf_client_t *client,
 
 	PKGCONF_TRACE(client, "%s: collecting public dependencies, level %d", root->id, maxdepth);
 
-	eflags = pkgconf_queue_collect_dependencies_walk(client, root, &root->required, data, maxdepth);
+	eflags = pkgconf_queue_collect_dependencies_walk(client, &root->required, data, maxdepth);
 	if (eflags != PKGCONF_PKG_ERRF_OK)
 		return eflags;
 
