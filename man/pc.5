@@ -126,9 +126,10 @@ All dependencies must be satisfied or the pkg-config implementation must not use
 the package.
 (optional; dependency list)
 .It Requires.private
-Required dependencies that must be met for the package to be usable for static linking.
+Required dependencies that must be met for the package to be usable for header
+inclusion and static linking.
 All dependencies must be satisfied or the pkg-config implementation must not use
-the package for static linking.
+the package for header inclusion and static linking.
 (optional; dependency list)
 .It Conflicts
 Dependencies that must not be met for the package to be usable.
