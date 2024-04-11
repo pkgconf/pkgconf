@@ -116,7 +116,7 @@ flags like so:
 
 
 pkgconf is compiled using [Meson](https://mesonbuild.com) on Windows. In theory, you could also use
-Meson to build on UNIX, but this is not recommended at this time as it pkgconf is typically built
+Meson to build on UNIX, but this is not recommended at this time as pkgconf is typically built
 much earlier than Meson.
 
     $ meson setup build -Dtests=disabled
