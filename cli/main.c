@@ -369,7 +369,7 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int
 			if (name_len > strlen(queue_node->package) ||
 			    strncmp(pkg->why, queue_node->package, name_len) ||
 			    (queue_node->package[name_len] != 0 &&
-			     !isspace(queue_node->package[name_len]) &&
+			     !isspace((unsigned char)queue_node->package[name_len]) &&
 			     !PKGCONF_IS_OPERATOR_CHAR(queue_node->package[name_len])))
 				continue;
 
