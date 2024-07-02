@@ -30,6 +30,8 @@ tests_init \
 	modversion_one_word_expression \
 	modversion_two_word_expression \
 	modversion_three_word_expression \
+	modversion_one_word_expression_no_space \
+	modversion_one_word_expression_no_space_zero \
 	pcpath \
 	virtual_variable \
 	fragment_collision \
@@ -321,4 +323,16 @@ modversion_three_word_expression_body()
 {
 	atf_check -o inline:"1.2.3\n" \
 		pkgconf --with-path="${selfdir}/lib1" --modversion foo ">" 1.0
+}
+
+modversion_one_word_expression_no_space_body()
+{
+	atf_check -o inline:"1.2.3\n" \
+		pkgconf --with-path="${selfdir}/lib1" --modversion "foo >1.0"
+}
+
+modversion_one_word_expression_no_space_zero_body()
+{
+	atf_check -o inline:"1.2.3\n" \
+		pkgconf --with-path="${selfdir}/lib1" --modversion "foo >0.5"
 }
