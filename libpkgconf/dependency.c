@@ -386,15 +386,16 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 			break;
 
 		case INSIDE_OPERATOR:
-			if (!PKGCONF_IS_OPERATOR_CHAR(*ptr))
+			if (PKGCONF_IS_OPERATOR_CHAR(*ptr))
 			{
-				state = AFTER_OPERATOR;
-				compare = pkgconf_pkg_comparator_lookup_by_name(cmpname);
+				if (cnameptr < cnameend)
+					*cnameptr++ = *ptr;
+				break;
 			}
-			else if (cnameptr < cnameend)
-				*cnameptr++ = *ptr;
 
-			break;
+			state = AFTER_OPERATOR;
+			compare = pkgconf_pkg_comparator_lookup_by_name(cmpname);
+			// fallthrough
 
 		case AFTER_OPERATOR:
 			if (!isspace((unsigned char)*ptr))
