@@ -11,6 +11,7 @@ tests_init \
 	libs_cflags_version_alt \
 	libs_cflags_version_different \
 	libs_cflags_version_different_bad \
+	libs_env \
 	exists_nonexitent \
 	nonexitent \
 	exists_version \
@@ -355,4 +356,11 @@ exists_cflags_env_body()
 	atf_check \
 		-o inline:"FOO_CFLAGS='-DHAVE_FOO'\n" \
 		pkgconf --with-path=${selfdir}/lib1 --cflags --exists-cflags --fragment-filter=D --env=FOO foo
+}
+
+libs_env_body()
+{
+	atf_check \
+		-o inline:"FOO_LIBS='-L/test/lib -lfoo'\n" \
+		pkgconf --with-path=${selfdir}/lib1 --libs --env=FOO foo
 }
