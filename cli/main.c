@@ -851,6 +851,7 @@ usage(void)
 	printf("  --msvc-syntax                     print translatable fragments in MSVC syntax\n");
 #endif
 	printf("  --fragment-filter=types           filter output fragments to the specified types\n");
+	printf("  --env=prefix                      print output as shell-compatible environmental variables\n");
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
