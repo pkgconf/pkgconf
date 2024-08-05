@@ -72,6 +72,7 @@
 #define PKG_SHARED			(((uint64_t) 1) << 44)
 #define PKG_DUMP_LICENSE		(((uint64_t) 1) << 45)
 #define PKG_SOLUTION			(((uint64_t) 1) << 46)
+#define PKG_EXISTS_CFLAGS		(((uint64_t) 1) << 47)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -798,6 +799,7 @@ usage(void)
 	printf("  --modversion                      print the specified module's version to stdout\n");
 	printf("  --internal-cflags                 do not filter 'internal' cflags from output\n");
 	printf("  --license                         print the specified module's license to stdout if known\n");
+	printf("  --exists-cflags                   add -DHAVE_FOO fragments to cflags for each found module\n");
 
 	printf("\nfiltering output:\n\n");
 #ifndef PKGCONF_LITE
@@ -993,6 +995,7 @@ main(int argc, char *argv[])
 #endif
 		{ "license", no_argument, &want_flags, PKG_DUMP_LICENSE },
 		{ "verbose", no_argument, NULL, 55 },
+		{ "exists-cflags", no_argument, &want_flags, PKG_EXISTS_CFLAGS },
 		{ NULL, 0, NULL, 0 }
 	};
 
