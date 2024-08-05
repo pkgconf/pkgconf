@@ -22,6 +22,7 @@ tests_init \
 	exists3 \
 	exists_version_alt \
 	exists_cflags \
+	exists_cflags_env \
 	uninstalled_bad \
 	uninstalled \
 	libs_intermediary \
@@ -347,4 +348,11 @@ exists_cflags_body()
 	atf_check \
 		-o inline:"-DHAVE_FOO\n" \
 		pkgconf --with-path=${selfdir}/lib1 --cflags --exists-cflags --fragment-filter=D foo
+}
+
+exists_cflags_env_body()
+{
+	atf_check \
+		-o inline:"FOO_CFLAGS='-DHAVE_FOO'\n" \
+		pkgconf --with-path=${selfdir}/lib1 --cflags --exists-cflags --fragment-filter=D --env=FOO foo
 }
