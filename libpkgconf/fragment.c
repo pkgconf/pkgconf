@@ -123,6 +123,38 @@ pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source,
 /*
  * !doc
  *
+ * .. c:function:: void pkgconf_fragment_insert(const pkgconf_client_t *client, pkgconf_list_t *list, char type, const char *data, bool tail)
+ *
+ *    Adds a `fragment` of text to a `fragment list` directly without interpreting it.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
+ *    :param pkgconf_list_t* list: The fragment list.
+ *    :param char type: The type of the fragment.
+ *    :param char* data: The data of the fragment.
+ *    :param bool tail: Whether to place the fragment at the beginning of the list or the end.
+ *    :return: nothing
+ */
+void
+pkgconf_fragment_insert(const pkgconf_client_t *client, pkgconf_list_t *list, char type, const char *data, bool tail)
+{
+	pkgconf_fragment_t *frag;
+
+	frag = calloc(1, sizeof(pkgconf_fragment_t));
+	frag->type = type;
+	frag->data = pkgconf_fragment_copy_munged(client, data, 0);
+
+	if (tail)
+	{
+		pkgconf_node_insert_tail(&frag->iter, frag, list);
+		return;
+	}
+
+	pkgconf_node_insert(&frag->iter, frag, list);
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
  *
  *    Adds a `fragment` of text to a `fragment list`, possibly modifying the fragment if a sysroot is set.
