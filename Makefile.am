@@ -9,6 +9,7 @@ personality_dir        = @PERSONALITY_PATH@
 pkgconfigdir           = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA  = libpkgconf.pc
 
+ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -DPERSONALITY_PATH=\"$(personality_dir)\" -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
 
 bin_PROGRAMS = pkgconf bomtool
