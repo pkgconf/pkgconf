@@ -21,6 +21,7 @@ tests_init \
 	exists2 \
 	exists3 \
 	exists_version_alt \
+	exists_cflags \
 	uninstalled_bad \
 	uninstalled \
 	libs_intermediary \
@@ -339,4 +340,11 @@ modversion_noflatten_body()
 	atf_check \
 		-o inline:"1.3\n" \
 		pkgconf --with-path=${selfdir}/lib1 --modversion bar
+}
+
+exists_cflags_body()
+{
+	atf_check \
+		-o inline:"-DHAVE_FOO\n" \
+		pkgconf --with-path=${selfdir}/lib1 --cflags --exists-cflags --fragment-filter=D foo
 }
