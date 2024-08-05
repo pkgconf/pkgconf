@@ -503,6 +503,46 @@ apply_env(pkgconf_client_t *client, pkgconf_pkg_t *world, void *env_prefix_p, in
 	return true;
 }
 
+static void
+maybe_add_module_definitions(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *fragment_list)
+{
+	pkgconf_node_t *world_iter;
+
+	if ((want_flags & PKG_EXISTS_CFLAGS) != PKG_EXISTS_CFLAGS)
+		return;
+
+	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, world_iter)
+	{
+		pkgconf_dependency_t *dep = world_iter->data;
+		char havebuf[PKGCONF_ITEM_SIZE];
+		char *p;
+
+		if ((dep->flags & PKGCONF_PKG_DEPF_QUERY) != PKGCONF_PKG_DEPF_QUERY)
+			continue;
+
+		if (dep->match == NULL)
+			continue;
+
+		snprintf(havebuf, sizeof havebuf, "HAVE_%s", dep->match->id);
+
+		for (p = havebuf; *p; p++)
+		{
+			switch (*p)
+			{
+				case ' ':
+				case '-':
+					*p = '_';
+					break;
+
+				default:
+					*p = toupper((unsigned char) *p);
+			}
+		}
+
+		pkgconf_fragment_insert(client, fragment_list, 'D', havebuf, false);
+	}
+}
+
 static bool
 apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
@@ -520,6 +560,8 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 
 	if (filtered_list.head == NULL)
 		goto out;
+
+	maybe_add_module_definitions(client, world, &filtered_list);
 
 	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops);
 	printf("%s", render_buf);
