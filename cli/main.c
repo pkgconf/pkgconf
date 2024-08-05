@@ -557,11 +557,10 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 		return false;
 
 	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, NULL);
+	maybe_add_module_definitions(client, world, &filtered_list);
 
 	if (filtered_list.head == NULL)
 		goto out;
-
-	maybe_add_module_definitions(client, world, &filtered_list);
 
 	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops);
 	printf("%s", render_buf);
