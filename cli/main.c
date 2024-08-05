@@ -454,7 +454,8 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, void *variable, i
 static bool
 apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world, int maxdepth,
 	unsigned int (*collect_fn)(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth),
-	bool (*filter_fn)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data))
+	bool (*filter_fn)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data),
+	void (*postprocess_fn)(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *fragment_list))
 {
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
@@ -467,6 +468,9 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 
 	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_fn, NULL);
 
+	if (postprocess_fn != NULL)
+		postprocess_fn(client, world, &filtered_list);
+
 	if (filtered_list.head == NULL)
 		goto out;
 
@@ -477,28 +481,6 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 out:
 	pkgconf_fragment_free(&unfiltered_list);
 	pkgconf_fragment_free(&filtered_list);
-
-	return true;
-}
-
-static bool
-apply_env(pkgconf_client_t *client, pkgconf_pkg_t *world, void *env_prefix_p, int maxdepth)
-{
-	const char *want_env_prefix = env_prefix_p, *it;
-	char workbuf[PKGCONF_ITEM_SIZE];
-
-	for (it = want_env_prefix; *it != '\0'; it++)
-		if (!isalpha((unsigned char)*it) &&
-		    !isdigit((unsigned char)*it))
-			return false;
-
-	snprintf(workbuf, sizeof workbuf, "%s_CFLAGS", want_env_prefix);
-	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_cflags, filter_cflags))
-		return false;
-
-	snprintf(workbuf, sizeof workbuf, "%s_LIBS", want_env_prefix);
-	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_libs, filter_libs))
-		return false;
 
 	return true;
 }
@@ -541,6 +523,28 @@ maybe_add_module_definitions(pkgconf_client_t *client, pkgconf_pkg_t *world, pkg
 
 		pkgconf_fragment_insert(client, fragment_list, 'D', havebuf, false);
 	}
+}
+
+static bool
+apply_env(pkgconf_client_t *client, pkgconf_pkg_t *world, void *env_prefix_p, int maxdepth)
+{
+	const char *want_env_prefix = env_prefix_p, *it;
+	char workbuf[PKGCONF_ITEM_SIZE];
+
+	for (it = want_env_prefix; *it != '\0'; it++)
+		if (!isalpha((unsigned char)*it) &&
+		    !isdigit((unsigned char)*it))
+			return false;
+
+	snprintf(workbuf, sizeof workbuf, "%s_CFLAGS", want_env_prefix);
+	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_cflags, filter_cflags, maybe_add_module_definitions))
+		return false;
+
+	snprintf(workbuf, sizeof workbuf, "%s_LIBS", want_env_prefix);
+	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_libs, filter_libs, NULL))
+		return false;
+
+	return true;
 }
 
 static bool
