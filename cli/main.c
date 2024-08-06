@@ -1598,7 +1598,7 @@ cleanup3:
 	if (want_env_prefix != NULL)
 	{
 		apply_env(&pkg_client, &world, want_env_prefix, 2);
-		want_flags = 0;
+		goto out;
 	}
 
 	if ((want_flags & PKG_PROVIDES) == PKG_PROVIDES)
