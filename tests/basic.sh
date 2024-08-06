@@ -42,7 +42,8 @@ tests_init \
 	arbitary_path \
 	with_path \
 	relocatable \
-	single_depth_selectors
+	single_depth_selectors \
+	print_variables_env
 
 noargs_body()
 {
@@ -363,4 +364,12 @@ libs_env_body()
 	atf_check \
 		-o inline:"FOO_LIBS='-L/test/lib -lfoo'\n" \
 		pkgconf --with-path=${selfdir}/lib1 --libs --env=FOO foo
+}
+
+print_variables_env_body()
+{
+	atf_check \
+		-o inline:"FOO_CFLAGS='-fPIC -I/test/include/foo'\nFOO_LIBS='-L/test/lib -lfoo'\nFOO_INCLUDEDIR='/test/include'\nFOO_LIBDIR='/test/lib'\nFOO_EXEC_PREFIX='/test'\nFOO_PREFIX='/test'\nFOO_PCFILEDIR='${selfdir}/lib1'\n" \
+		pkgconf --with-path=${selfdir}/lib1 --env=FOO --print-variables --cflags --libs foo
+
 }
