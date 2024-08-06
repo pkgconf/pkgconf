@@ -549,6 +549,9 @@ apply_env_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *
 			char havebuf[PKGCONF_ITEM_SIZE];
 			char *p;
 
+			if (want_variable != NULL && strcmp(want_variable, tuple->key))
+				continue;
+
 			snprintf(havebuf, sizeof havebuf, "%s_%s", env_prefix, tuple->key);
 
 			for (p = havebuf; *p; p++)
@@ -589,7 +592,7 @@ apply_env(pkgconf_client_t *client, pkgconf_pkg_t *world, void *env_prefix_p, in
 	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_libs, filter_libs, NULL))
 		return false;
 
-	if ((want_flags & PKG_VARIABLES) == PKG_VARIABLES)
+	if ((want_flags & PKG_VARIABLES) == PKG_VARIABLES || want_variable != NULL)
 		apply_env_variables(client, world, want_env_prefix);
 
 	return true;
