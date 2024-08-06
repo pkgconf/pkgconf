@@ -65,6 +65,9 @@ sbom_name(pkgconf_pkg_t *world)
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
 
+		if ((dep->flags & PKGCONF_PKG_DEPF_QUERY) != PKGCONF_PKG_DEPF_QUERY)
+			continue;
+
 		if (!dep->match)
 			continue;
 
