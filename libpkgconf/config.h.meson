@@ -66,3 +66,8 @@
 #mesondefine SYSTEM_INCLUDEDIR
 #mesondefine SYSTEM_LIBDIR
 #mesondefine PERSONALITY_PATH
+
+/* Enable Solaris extensions. */
+#ifndef __EXTENSIONS__
+# define __EXTENSIONS__ 1
+#endif
