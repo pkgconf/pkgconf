@@ -111,6 +111,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/sysroot-dir-3.pc \
 		tests/lib1/sysroot-dir-4.pc \
 		tests/lib1/sysroot-dir-5.pc \
+		tests/lib1/child-prefix/pkgconfig/child-prefix-1.pc \
 		$(test_scripts) \
 		doc/conf.py \
 		doc/extract.py \
