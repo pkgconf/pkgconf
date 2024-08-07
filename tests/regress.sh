@@ -41,7 +41,8 @@ tests_init \
 	empty_tuple \
 	solver_requires_private_debounce \
 	billion_laughs \
-	define_prefix_child_prefix_1
+	define_prefix_child_prefix_1 \
+	define_prefix_child_prefix_1_env
 
 #	sysroot_munge \
 
@@ -342,4 +343,12 @@ define_prefix_child_prefix_1_body()
 {
 	atf_check -o inline:"-I${selfdir}/lib1/include/child-prefix-1 -L${selfdir}/lib1/lib64 -lchild-prefix-1\n" \
 		pkgconf --with-path="${selfdir}/lib1/child-prefix/pkgconfig" --define-prefix --cflags --libs child-prefix-1
+}
+
+define_prefix_child_prefix_1_env_body()
+{
+	export PKG_CONFIG_PATH="${selfdir}/lib1/child-prefix/pkgconfig"
+	export PKG_CONFIG_RELOCATE_PATHS=1
+	atf_check -o inline:"-I${selfdir}/lib1/include/child-prefix-1 -L${selfdir}/lib1/lib64 -lchild-prefix-1\n" \
+		pkgconf --cflags --libs child-prefix-1
 }
