@@ -1,6 +1,41 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.2.0 to 2.3.0:
+----------------------------
+
+* Fix compile with Meson on Solaris by defining __EXTENSIONS__.
+
+* Add support for the PKG_CONFIG_RELOCATE_PATHS environmental variable.
+  When set, the program will act as if --define-prefix is always enabled.
+
+* Color solution nodes that were part of the original query, and use
+  that coloring to skip over dependencies when generating DocumentNames
+  in bomtool.
+
+* Enhance --env option to support variables with both --variable=varname
+  and --print-variables.
+
+* Add --exists-cflags option which creates synthetic preprocessor
+  definition flags for every queried dependency when found.
+
+* Document that Requires.private is always used for header paths.
+  Patch by Petr Písař.
+
+* Fix minor documentation typos.
+  Patch by Pierce.
+
+* Ensure string comparisons using <ctype.h> functions are done with
+  unsigned bytes to avoid undefined behavior.
+  Patch by Taylor R Campbell.
+
+* Fix parsing edge-case bugs with dependency versions.
+  Patch by Kai Pastor.
+
+* Change PKG_PROG_PKG_CONFIG autoconf macro to add a customizable
+  failure handler if pkg-config is not found.
+  Patch by Ismael Luceno.
+
 Changes from 2.1.1 to 2.2.0:
 ----------------------------
 

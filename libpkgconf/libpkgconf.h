@@ -81,8 +81,8 @@ typedef struct pkgconf_queue_ pkgconf_queue_t;
 #define PKGCONF_FOREACH_LIST_ENTRY_REVERSE(tail, value) \
 	for ((value) = (tail); (value) != NULL; (value) = (value)->prev)
 
-#define LIBPKGCONF_VERSION	20200
-#define LIBPKGCONF_VERSION_STR	"2.2.0"
+#define LIBPKGCONF_VERSION	20300
+#define LIBPKGCONF_VERSION_STR	"2.3.0"
 
 struct pkgconf_queue_ {
 	pkgconf_node_t iter;
