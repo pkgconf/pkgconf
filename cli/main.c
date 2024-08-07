@@ -1282,7 +1282,7 @@ main(int argc, char *argv[])
 /* On Windows we want to always redefine the prefix by default
  * but allow that behavior to be manually disabled */
 #if !defined(_WIN32) && !defined(_WIN64)
-	if ((want_flags & PKG_DEFINE_PREFIX) == PKG_DEFINE_PREFIX)
+	if ((want_flags & PKG_DEFINE_PREFIX) == PKG_DEFINE_PREFIX || getenv("PKG_CONFIG_RELOCATE_PATHS") != NULL)
 #endif
 		want_client_flags |= PKGCONF_PKG_PKGF_REDEFINE_PREFIX;
 
