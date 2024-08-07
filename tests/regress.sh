@@ -40,7 +40,8 @@ tests_init \
 	explicit_sysroot \
 	empty_tuple \
 	solver_requires_private_debounce \
-	billion_laughs
+	billion_laughs \
+	define_prefix_child_prefix_1
 
 #	sysroot_munge \
 
@@ -335,4 +336,10 @@ modversion_one_word_expression_no_space_zero_body()
 {
 	atf_check -o inline:"1.2.3\n" \
 		pkgconf --with-path="${selfdir}/lib1" --modversion "foo >0.5"
+}
+
+define_prefix_child_prefix_1_body()
+{
+	atf_check -o inline:"-I${selfdir}/lib1/include/child-prefix-1 -L${selfdir}/lib1/lib64 -lchild-prefix-1\n" \
+		pkgconf --with-path="${selfdir}/lib1/child-prefix/pkgconfig" --define-prefix --cflags --libs child-prefix-1
 }
