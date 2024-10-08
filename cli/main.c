@@ -1298,24 +1298,24 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_INTERNAL_CFLAGS) == PKG_INTERNAL_CFLAGS)
 		want_client_flags |= PKGCONF_PKG_PKGF_DONT_FILTER_INTERNAL_CFLAGS;
 
-	/* if these selectors are used, it means that we are inquiring about a single package.
-	 * so signal to libpkgconf that we do not want to use the dependency resolver for more than one level,
-	 * and also limit the SAT problem to a single package.
+	/* if these selectors are used, it means that we are querying metadata.
+	 * so signal to libpkgconf that we only want to walk the flattened dependency set.
 	 */
-	if (((want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
-		(want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
-		(want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
-		(want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
-		(want_flags & PKG_PATH) == PKG_PATH ||
-		want_variable != NULL))
-	{
-		maximum_package_count = 1;
+	if ((want_flags & PKG_MODVERSION) == PKG_MODVERSION ||
+	    (want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
+	    (want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
+	    (want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
+	    (want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
+	    (want_flags & PKG_PATH) == PKG_PATH)
 		maximum_traverse_depth = 1;
-	}
 
-	/* we also want to walk only the flattened dependencies if we are requesting --modversion. */
-	if ((want_flags & PKG_MODVERSION) == PKG_MODVERSION)
-		maximum_traverse_depth = 1;
+	/* if we are asking for a variable, path or list of variables, this only makes sense
+	 * for a single package.
+	 */
+	if ((want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
+	    (want_flags & PKG_PATH) == PKG_PATH ||
+	    want_variable != NULL)
+		maximum_package_count = 1;
 
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS") != NULL)
 		want_flags |= PKG_KEEP_SYSTEM_CFLAGS;
