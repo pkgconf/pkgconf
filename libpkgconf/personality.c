@@ -38,8 +38,13 @@ static unsigned default_personality_init = 0;
 static pkgconf_cross_personality_t default_personality = {
 	.name = "default",
 #ifdef _WIN32
+	/* PE/COFF uses a different linking model than ELF and Mach-O, where
+	 * all transitive dependency references must be processed by the linker
+	 * when linking the final executable image, even if those dependencies
+	 * are pulled in as DLLs.
+	 * This translates to always using --static on Windows targets.
+	 */
 	.want_default_static = true,
-	.want_default_pure = true,
 #endif
 };
 
