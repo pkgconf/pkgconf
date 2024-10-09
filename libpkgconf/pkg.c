@@ -17,6 +17,15 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+#ifndef _WIN32
+#include <fcntl.h>    // open
+#include <libgen.h>   // basename/dirname
+#include <sys/stat.h> // lstat, S_ISLNK
+#include <unistd.h>   // close, readlinkat
+
+#include <string.h>
+#endif
+
 /*
  * !doc
  *
@@ -63,6 +72,65 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	char buf[PKGCONF_ITEM_SIZE], *pathbuf;
 
 	pkgconf_strlcpy(buf, pkg->filename, sizeof buf);
+#ifndef _WIN32
+	/*
+	 * We want to resolve symlinks, since ${pcfiledir} should point to the
+	 * parent of the file symlinked to.
+	 */
+	struct stat path_stat;
+	while (!lstat(buf, &path_stat) && S_ISLNK(path_stat.st_mode))
+	{
+		/*
+		 * Have to split the path into the dir + file components,
+		 * in order to extract the directory file descriptor.
+		 *
+		 * The nomenclature here uses the
+		 *
+		 *   ln <source> <target>
+		 *
+		 * model.
+		 */
+		char basenamebuf[PKGCONF_ITEM_SIZE];
+		pkgconf_strlcpy(basenamebuf, buf, sizeof(basenamebuf));
+		const char* targetfilename = basename(basenamebuf);
+
+		char dirnamebuf[PKGCONF_ITEM_SIZE];
+		pkgconf_strlcpy(dirnamebuf, buf, sizeof(dirnamebuf));
+		const char* targetdir = dirname(dirnamebuf);
+
+		const int dirfd = open(targetdir, O_DIRECTORY);
+		if (dirfd == -1)
+			break;
+
+		char sourcebuf[PKGCONF_ITEM_SIZE];
+		ssize_t len = readlinkat(dirfd, targetfilename, sourcebuf, sizeof(sourcebuf) - 1);
+		close(dirfd);
+
+		if (len == -1)
+			break;
+		sourcebuf[len] = '\0';
+
+		memset(buf, '\0', sizeof buf);
+		/*
+		 * The logic here can be a bit tricky, so here's a table:
+		 *
+		 *        <source>      |        <target>        |         result
+		 * -----------------------------------------------------------------------
+		 *     /bar (absolute)  |   foo/link (relative)  |         /bar (absolute)
+		 *   ../bar (relative)  |   foo/link (relative)  |   foo/../bar (relative)
+		 *     /bar (absolute)  |  /foo/link (absolute)  |         /bar (absolute)
+		 *   ../bar (relative)  |  /foo/link (absolute)  |  /foo/../bar (relative)
+		 */
+		if ((sourcebuf[0] != '/')        /* absolute path in <source> wins */
+		    && (strcmp(targetdir, "."))) /* do not prepend "." */
+		{
+			pkgconf_strlcat(buf, targetdir, sizeof buf);
+			pkgconf_strlcat(buf, "/", sizeof buf);
+		}
+		pkgconf_strlcat(buf, sourcebuf, sizeof buf);
+	}
+#endif
+
 	pathbuf = strrchr(buf, PKG_DIR_SEP_S);
 	if (pathbuf == NULL)
 		pathbuf = strrchr(buf, '/');
