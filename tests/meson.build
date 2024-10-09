@@ -11,8 +11,9 @@ tests = [
   'provides',
   'regress',
   'requires',
+  'symlink',
   'sysroot',
-  'version'
+  'version',
 ]
 
 
