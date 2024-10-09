@@ -73,6 +73,7 @@ core
 /tests/provides
 /tests/regress
 /tests/requires
+/tests/symlink
 /tests/sysroot
 /tests/test_env.sh
 /tests/version
