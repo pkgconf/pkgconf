@@ -3,7 +3,7 @@ libpkgconf `fragment` module
 ============================
 
 The `fragment` module provides low-level management and rendering of fragment lists.  A
-`fragment list` contains various `fragments` of text (such as ``-I /usr/include``) in a matter
+`fragment list` contains various `fragments` of text (such as ``-isystem /usr/include``) in a matter
 which is composable, mergeable and reorderable.
 
 .. c:function:: void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)

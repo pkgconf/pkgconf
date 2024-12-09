@@ -8,5 +8,5 @@ Description: a library for accessing and manipulating development framework conf
 URL: https://gitea.treehouse.systems/ariadne/pkgconf
 License: ISC
 Version: @PACKAGE_VERSION@
-CFlags: -I${includedir}/pkgconf
+CFlags: -isystem ${includedir}/pkgconf
 Libs: -L${libdir} -lpkgconf

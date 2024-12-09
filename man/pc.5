@@ -171,7 +171,7 @@ Requires: libbar > 2.0.0
 Conflicts: libbaz <= 3.0.0
 Libs: -L${libdir} -lfoo
 Libs.private: -lm
-Cflags: -I${includedir}/libfoo
+Cflags: -isystem ${includedir}/libfoo
 .Ed
 .Sh SEE ALSO
 .Xr pkgconf 1 ,

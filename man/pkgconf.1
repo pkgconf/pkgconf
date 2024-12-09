@@ -225,7 +225,7 @@ If set to PKG_CONFIG_SYSROOT_DIR, assume that PKG_CONFIG_FDO_SYSROOT_RULES is se
 .Sh EXAMPLES
 Displaying the CFLAGS of a package:
 .Dl $ pkgconf --cflags foo
-.Dl -fPIC -I/usr/include/foo
+.Dl -fPIC -isystem /usr/include/foo
 .Sh SEE ALSO
 .Xr pc 5 ,
 .Xr pkg.m4 7
