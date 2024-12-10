@@ -423,6 +423,22 @@ PKGCONF_API void pkgconf_path_free(pkgconf_list_t *dirlist);
 PKGCONF_API bool pkgconf_path_relocate(char *buf, size_t buflen);
 PKGCONF_API void pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_t *src);
 
+/* buffer.c */
+typedef struct pkgconf_buffer_ {
+	char *base;
+	char *end;
+} pkgconf_buffer_t;
+
+PKGCONF_API void pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text);
+PKGCONF_API void pkgconf_buffer_finalize(pkgconf_buffer_t *buffer);
+static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer) {
+	return buffer->base;
+}
+
+static inline size_t pkgconf_buffer_len(const pkgconf_buffer_t *buffer) {
+	return (size_t)(ptrdiff_t)(buffer->end - buffer->base);
+}
+
 #ifdef __cplusplus
 }
 #endif

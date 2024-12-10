@@ -150,6 +150,7 @@ SUFFIXES=	.sh
 nobase_pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h libpkgconf/libpkgconf-api.h
 libpkgconf_la_SOURCES  =	\
 		libpkgconf/audit.c		\
+		libpkgconf/buffer.c		\
 		libpkgconf/cache.c		\
 		libpkgconf/client.c		\
 		libpkgconf/pkg.c		\

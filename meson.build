@@ -82,6 +82,7 @@ endif
 libpkgconf = library('pkgconf',
   'libpkgconf/argvsplit.c',
   'libpkgconf/audit.c',
+  'libpkgconf/buffer.c',
   'libpkgconf/bsdstubs.c',
   'libpkgconf/cache.c',
   'libpkgconf/client.c',
