@@ -11,3 +11,4 @@ atf_test_program{name='conflicts'}
 atf_test_program{name='version'}
 atf_test_program{name='framework'}
 atf_test_program{name='provides'}
+atf_test_program{name='symlink'}

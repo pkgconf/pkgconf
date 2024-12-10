@@ -107,6 +107,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/tuple-quoting.pc \
 		tests/lib1/empty-tuple.pc \
 		tests/lib1/orphaned-requires-private.pc \
+		tests/lib1/pcfiledir.pc \
 		tests/lib1/sysroot-dir-2.pc \
 		tests/lib1/sysroot-dir-3.pc \
 		tests/lib1/sysroot-dir-4.pc \
@@ -137,6 +138,7 @@ test_scripts=	tests/meson.build \
 		tests/provides.sh \
 		tests/regress.sh \
 		tests/requires.sh \
+		tests/symlink.sh \
 		tests/sysroot.sh \
 		tests/version.sh
 
