@@ -334,7 +334,7 @@ print_solution_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	(void) client;
 	(void) unused;
 
-	printf("%s (%"PRIu64")\n", pkg->id, pkg->identifier);
+	printf("%s (%"PRIu64")%s\n", pkg->id, pkg->identifier, pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE == PKGCONF_PKG_PROPF_VISITED_PRIVATE ? " [private]" : "");
 }
 
 static bool
