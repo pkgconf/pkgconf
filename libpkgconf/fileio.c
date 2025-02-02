@@ -2,7 +2,7 @@
  * fileio.c
  * File reading utilities
  *
- * Copyright (c) 2012 pkgconf authors (see AUTHORS).
+ * Copyright (c) 2012, 2025 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,17 +17,12 @@
 #include <libpkgconf/libpkgconf.h>
 
 char *
-pkgconf_fgetline(char *line, size_t size, FILE *stream)
+pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 {
-	char *s = line;
-	char *end = line + size - 2;
 	bool quoted = false;
 	int c = '\0', c2;
 
-	if (s == NULL)
-		return NULL;
-
-	while (s < end && (c = getc(stream)) != EOF)
+	while ((c = getc(stream)) != EOF)
 	{
 		if (c == '\\' && !quoted)
 		{
@@ -41,11 +36,11 @@ pkgconf_fgetline(char *line, size_t size, FILE *stream)
 				do {
 					c = getc(stream);
 				} while (c != '\n' && c != EOF);
-				*s++ = c;
+				pkgconf_buffer_push_byte(buffer, c);
 				break;
 			}
 			else
-				*s++ = c;
+				pkgconf_buffer_push_byte(buffer, c);
 
 			quoted = false;
 			continue;
@@ -66,14 +61,14 @@ pkgconf_fgetline(char *line, size_t size, FILE *stream)
 			}
 			else
 			{
-				*s++ = c;
+				pkgconf_buffer_push_byte(buffer, c);
 			}
 
 			break;
 		}
 		else if (c == '\r')
 		{
-			*s++ = '\n';
+			pkgconf_buffer_push_byte(buffer, '\n');
 
 			if ((c2 = getc(stream)) == '\n')
 			{
@@ -99,26 +94,24 @@ pkgconf_fgetline(char *line, size_t size, FILE *stream)
 		else
 		{
 			if (quoted) {
-				*s++ = '\\';
+				pkgconf_buffer_push_byte(buffer, '\\');
 				quoted = false;
 			}
-			*s++ = c;
+			pkgconf_buffer_push_byte(buffer, c);
 		}
 
 	}
 
-	if (c == EOF && (s == line || ferror(stream)))
+
+	if (c == EOF && ((!buffer->base || !*buffer->base) || ferror(stream)))
 		return NULL;
 
-	*s = '\0';
-
 	/* Remove newline character. */
-	if (s > line && *(--s) == '\n') {
-		*s = '\0';
+	if (pkgconf_buffer_lastc(buffer) == '\n')
+		pkgconf_buffer_trim_byte(buffer);
 
-		if (s > line && *(--s) == '\r')
-			*s = '\0';
-	}
+	if (pkgconf_buffer_lastc(buffer) == '\r')
+		pkgconf_buffer_trim_byte(buffer);
 
-	return line;
+	return pkgconf_buffer_str(buffer);
 }

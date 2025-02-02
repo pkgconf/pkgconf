@@ -379,9 +379,6 @@ PKGCONF_API void pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *b
 PKGCONF_API char *pkgconf_fragment_render(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops);
 PKGCONF_API bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag);
 
-/* fileio.c */
-PKGCONF_API char *pkgconf_fgetline(char *line, size_t size, FILE *stream);
-
 /* tuple.c */
 PKGCONF_API pkgconf_tuple_t *pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *parent, const char *key, const char *value, bool parse, unsigned int flags);
 PKGCONF_API char *pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key);

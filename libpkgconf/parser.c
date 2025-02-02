@@ -33,20 +33,20 @@
 void
 pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, const char *filename)
 {
-	char readbuf[PKGCONF_BUFSIZE];
+	pkgconf_buffer_t readbuf = PKGCONF_BUFFER_INITIALIZER;
 	size_t lineno = 0;
 
-	while (pkgconf_fgetline(readbuf, PKGCONF_BUFSIZE, f) != NULL)
+	while (pkgconf_fgetline(&readbuf, f) != NULL)
 	{
 		char op, *p, *key, *value;
 		bool warned_key_whitespace = false, warned_value_whitespace = false;
 
 		lineno++;
 
-		p = readbuf;
+		p = readbuf.base;
 		while (*p && isspace((unsigned char)*p))
 			p++;
-		if (*p && p != readbuf)
+		if (*p && p != readbuf.base)
 		{
 			warnfunc(data, "%s:" SIZE_FMT_SPECIFIER ": warning: whitespace encountered while parsing key section\n",
 				filename, lineno);
@@ -100,6 +100,8 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 		}
 		if (ops[(unsigned char) op])
 			ops[(unsigned char) op](data, lineno, key, value);
+
+		pkgconf_buffer_reset(&readbuf);
 	}
 
 	fclose(f);
