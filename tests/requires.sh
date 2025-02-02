@@ -7,6 +7,7 @@ tests_init \
 	libs_cflags \
 	libs_static \
 	libs_static_pure \
+	cflags_libs_private \
 	argv_parse2 \
 	static_cflags \
 	private_duplication \
@@ -161,4 +162,15 @@ orphaned_requires_private_body()
 		-e ignore \
 		-o ignore \
 		pkgconf --with-path="${selfdir}/lib1" --cflags --libs orphaned-requires-private
+}
+
+cflags_libs_private_body()
+{
+	atf_check \
+		-o inline:"\n" \
+		pkgconf --with-path="${selfdir}/lib1" --libs cflags-libs-private-a
+
+	atf_check \
+		-o inline:"-lc\n" \
+		pkgconf --with-path="${selfdir}/lib1" --static --libs cflags-libs-private-a
 }
