@@ -151,7 +151,7 @@ pkgconf_queue_collect_dependencies_walk(pkgconf_client_t *client,
 		if (pkg == NULL)
 		{
 			PKGCONF_TRACE(client, "WTF: unmatched dependency %p <%s>", dep, dep->package);
-			abort();
+			continue;
 		}
 
 		if (pkg->serial == client->serial)
