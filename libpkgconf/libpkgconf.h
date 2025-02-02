@@ -439,6 +439,8 @@ static inline size_t pkgconf_buffer_len(const pkgconf_buffer_t *buffer) {
 	return (size_t)(ptrdiff_t)(buffer->end - buffer->base);
 }
 
+#define PKGCONF_BUFFER_INITIALIZER { NULL, NULL }
+
 #ifdef __cplusplus
 }
 #endif
