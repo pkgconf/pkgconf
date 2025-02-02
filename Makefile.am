@@ -113,6 +113,9 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/sysroot-dir-4.pc \
 		tests/lib1/sysroot-dir-5.pc \
 		tests/lib1/child-prefix/pkgconfig/child-prefix-1.pc \
+		tests/lib1/cflags-libs-private-a.pc \
+		tests/lib1/cflags-libs-private-b.pc \
+		tests/lib1/cflags-libs-private-c.pc \
 		$(test_scripts) \
 		doc/conf.py \
 		doc/extract.py \
