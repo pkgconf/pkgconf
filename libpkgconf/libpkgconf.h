@@ -430,6 +430,8 @@ typedef struct pkgconf_buffer_ {
 } pkgconf_buffer_t;
 
 PKGCONF_API void pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text);
+PKGCONF_API void pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte);
+PKGCONF_API void pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer);
 PKGCONF_API void pkgconf_buffer_finalize(pkgconf_buffer_t *buffer);
 static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer) {
 	return buffer->base;
@@ -439,7 +441,19 @@ static inline size_t pkgconf_buffer_len(const pkgconf_buffer_t *buffer) {
 	return (size_t)(ptrdiff_t)(buffer->end - buffer->base);
 }
 
+static inline char pkgconf_buffer_lastc(const pkgconf_buffer_t *buffer) {
+	return *(buffer->end - 1);
+}
+
 #define PKGCONF_BUFFER_INITIALIZER { NULL, NULL }
+
+static inline void pkgconf_buffer_reset(pkgconf_buffer_t *buffer) {
+	pkgconf_buffer_finalize(buffer);
+	buffer->base = buffer->end = NULL;
+}
+
+/* fileio.c */
+PKGCONF_API char *pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream);
 
 #ifdef __cplusplus
 }

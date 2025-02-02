@@ -30,8 +30,9 @@ void
 pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 {
 	size_t needed = strlen(text) + 1;
+	size_t newsize = pkgconf_buffer_len(buffer) + needed;
 
-	char *newbase = realloc(buffer->base, pkgconf_buffer_len(buffer) + needed);
+	char *newbase = realloc(buffer->base, newsize);
 
 	/* XXX: silently failing here is antisocial */
 	if (newbase == NULL)
@@ -41,7 +42,36 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 	pkgconf_strlcpy(newend, text, needed);
 
 	buffer->base = newbase;
+	buffer->end = newend + needed;
+}
+
+void
+pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
+{
+	size_t newsize = pkgconf_buffer_len(buffer) + 1;
+	char *newbase = realloc(buffer->base, newsize);
+
+	/* XXX: silently failing here remains antisocial */
+	if (newbase == NULL)
+		return;
+
+	char *newend = newbase + newsize;
+	*(newend - 1) = byte;
+	*newend = '\0';
+
+	buffer->base = newbase;
 	buffer->end = newend;
+}
+
+void
+pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer)
+{
+	size_t newsize = pkgconf_buffer_len(buffer) - 1;
+	char *newbase = realloc(buffer->base, newsize);
+
+	buffer->base = newbase;
+	buffer->end = newbase + newsize;
+	*(buffer->end) = '\0';
 }
 
 void
