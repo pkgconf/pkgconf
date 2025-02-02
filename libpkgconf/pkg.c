@@ -1726,18 +1726,15 @@ pkgconf_pkg_traverse_main(pkgconf_client_t *client,
 	if (eflags != PKGCONF_PKG_ERRF_OK)
 		return eflags;
 
-	if (client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE)
-	{
-		PKGCONF_TRACE(client, "%s: walking 'Requires.private' list", root->id);
+	PKGCONF_TRACE(client, "%s: walking 'Requires.private' list", root->id);
 
-		/* XXX: ugly */
-		client->flags |= PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
-		eflags = pkgconf_pkg_walk_list(client, root, &root->requires_private, func, data, maxdepth, skip_flags);
-		client->flags &= ~PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
+	/* XXX: ugly */
+	client->flags |= PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
+	eflags = pkgconf_pkg_walk_list(client, root, &root->requires_private, func, data, maxdepth, skip_flags);
+	client->flags &= ~PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
 
-		if (eflags != PKGCONF_PKG_ERRF_OK)
-			return eflags;
-	}
+	if (eflags != PKGCONF_PKG_ERRF_OK)
+		return eflags;
 
 	return eflags;
 }

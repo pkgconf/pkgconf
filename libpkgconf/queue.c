@@ -189,18 +189,15 @@ pkgconf_queue_collect_dependencies_main(pkgconf_client_t *client,
 
 	root->serial = client->serial;
 
-	if (client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE)
-	{
-		PKGCONF_TRACE(client, "%s: collecting private dependencies, level %d", root->id, maxdepth);
+	PKGCONF_TRACE(client, "%s: collecting private dependencies, level %d", root->id, maxdepth);
 
-		/* XXX: ugly */
-		const unsigned int saved_flags = client->flags;
-		client->flags |= PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
-		eflags = pkgconf_queue_collect_dependencies_walk(client, &root->requires_private, data, maxdepth);
-		client->flags = saved_flags;
-		if (eflags != PKGCONF_PKG_ERRF_OK)
-			return eflags;
-	}
+	/* XXX: ugly */
+	const unsigned int saved_flags = client->flags;
+	client->flags |= PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
+	eflags = pkgconf_queue_collect_dependencies_walk(client, &root->requires_private, data, maxdepth);
+	client->flags = saved_flags;
+	if (eflags != PKGCONF_PKG_ERRF_OK)
+		return eflags;
 
 	PKGCONF_TRACE(client, "%s: collecting public dependencies, level %d", root->id, maxdepth);
 
