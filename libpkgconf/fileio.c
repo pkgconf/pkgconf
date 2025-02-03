@@ -16,7 +16,7 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
-char *
+bool
 pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 {
 	bool quoted = false;
@@ -104,7 +104,7 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 
 
 	if (c == EOF && ((!buffer->base || !*buffer->base) || ferror(stream)))
-		return NULL;
+		return false;
 
 	/* Remove newline character. */
 	if (pkgconf_buffer_lastc(buffer) == '\n')
@@ -113,5 +113,5 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 	if (pkgconf_buffer_lastc(buffer) == '\r')
 		pkgconf_buffer_trim_byte(buffer);
 
-	return pkgconf_buffer_str(buffer);
+	return true;
 }

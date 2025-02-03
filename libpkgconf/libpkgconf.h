@@ -450,7 +450,7 @@ static inline void pkgconf_buffer_reset(pkgconf_buffer_t *buffer) {
 }
 
 /* fileio.c */
-PKGCONF_API char *pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream);
+PKGCONF_API bool pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream);
 
 #ifdef __cplusplus
 }

@@ -36,7 +36,7 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 	pkgconf_buffer_t readbuf = PKGCONF_BUFFER_INITIALIZER;
 	size_t lineno = 0;
 
-	while (pkgconf_fgetline(&readbuf, f) != NULL)
+	while (pkgconf_fgetline(&readbuf, f))
 	{
 		char op, *p, *key, *value;
 		bool warned_key_whitespace = false, warned_value_whitespace = false;
