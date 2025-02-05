@@ -346,10 +346,6 @@ normpath(const char *path)
 bool
 pkgconf_path_relocate(char *buf, size_t buflen)
 {
-#ifdef _WIN32
-	char *ti;
-#endif
-
 	char *tmpbuf;
 
 	if ((tmpbuf = normpath(buf)) != NULL)
