@@ -26,13 +26,19 @@
  * dynamically-allocated buffers.
  */
 
+static inline size_t
+target_allocation_size(size_t target_size)
+{
+	return 4096 + (4096 * (target_size / 4096));
+}
+
 void
 pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 {
 	size_t needed = strlen(text) + 1;
 	size_t newsize = pkgconf_buffer_len(buffer) + needed;
 
-	char *newbase = realloc(buffer->base, newsize);
+	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
 
 	/* XXX: silently failing here is antisocial */
 	if (newbase == NULL)
@@ -49,7 +55,7 @@ void
 pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 {
 	size_t newsize = pkgconf_buffer_len(buffer) + 1;
-	char *newbase = realloc(buffer->base, newsize);
+	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
 
 	/* XXX: silently failing here remains antisocial */
 	if (newbase == NULL)
@@ -67,7 +73,7 @@ void
 pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer)
 {
 	size_t newsize = pkgconf_buffer_len(buffer) - 1;
-	char *newbase = realloc(buffer->base, newsize);
+	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
 
 	buffer->base = newbase;
 	buffer->end = newbase + newsize;
