@@ -105,4 +105,5 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 	}
 
 	fclose(f);
+	pkgconf_buffer_finalize(&readbuf);
 }
