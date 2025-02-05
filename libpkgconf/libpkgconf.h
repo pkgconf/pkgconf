@@ -439,6 +439,9 @@ static inline size_t pkgconf_buffer_len(const pkgconf_buffer_t *buffer) {
 }
 
 static inline char pkgconf_buffer_lastc(const pkgconf_buffer_t *buffer) {
+	if (buffer->base == buffer->end)
+		return '\0';
+
 	return *(buffer->end - 1);
 }
 
