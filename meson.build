@@ -133,8 +133,8 @@ pkgconf_exe = executable('pkgconf',
   install : true)
 
 with_tests = get_option('tests')
-kyua_exe = find_program('kyua', required : with_tests, disabler : true)
-atf_sh_exe = find_program('atf-sh', required : with_tests, disabler : true)
+kyua_exe = find_program('kyua', required : with_tests, disabler : true, native : true)
+atf_sh_exe = find_program('atf-sh', required : with_tests, disabler : true, native : true)
 kyuafile = configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
 test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile', kyuafile, '--build-root', meson.current_build_dir()])
 subdir('tests')
