@@ -1306,7 +1306,8 @@ main(int argc, char *argv[])
 	    (want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
 	    (want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
 	    (want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
-	    (want_flags & PKG_PATH) == PKG_PATH)
+	    (want_flags & PKG_PATH) == PKG_PATH ||
+	    want_variable != NULL)
 		maximum_traverse_depth = 1;
 
 	/* if we are asking for a variable, path or list of variables, this only makes sense
