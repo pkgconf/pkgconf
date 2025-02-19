@@ -44,7 +44,8 @@ tests_init \
 	relocatable \
 	single_depth_selectors \
 	print_variables_env \
-	variable_env
+	variable_env \
+	variable_no_recurse
 
 noargs_body()
 {
@@ -380,4 +381,11 @@ variable_env_body()
 	atf_check \
 		-o inline:"FOO_INCLUDEDIR='/test/include'\n" \
 		pkgconf --with-path=${selfdir}/lib1 --env=FOO --variable=includedir foo
+}
+
+variable_no_recurse_body()
+{
+	atf_check \
+		-o inline:"/test/include\n" \
+		pkgconf --with-path=${selfdir}/lib1 --variable=includedir bar
 }
