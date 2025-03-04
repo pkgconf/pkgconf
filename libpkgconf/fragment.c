@@ -52,6 +52,7 @@ pkgconf_fragment_is_unmergeable(const char *string)
 		{"-nostdinc", 9},
 		{"-nostdlibinc", 12},
 		{"-nobuiltininc", 13},
+		{"-nodefaultlibs", 14},
 	};
 
 	if (*string != '-')
