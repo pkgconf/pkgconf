@@ -90,6 +90,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/fragment-quoting-3.pc \
 		tests/lib1/fragment-quoting-5.pc \
 		tests/lib1/fragment-quoting-7.pc \
+		tests/lib1/fragment-groups.pc \
 		tests/lib1/malformed-1.pc \
 		tests/lib1/malformed-quoting.pc \
 		tests/lib1/malformed-version.pc \
