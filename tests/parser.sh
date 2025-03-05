@@ -35,7 +35,9 @@ tests_init \
 	tuple_dequote \
 	version_with_whitespace \
 	version_with_whitespace_2 \
-	version_with_whitespace_diagnostic
+	version_with_whitespace_diagnostic \
+	fragment_groups \
+	fragment_groups_composite
 
 comments_body()
 {
@@ -315,4 +317,18 @@ version_with_whitespace_diagnostic_body()
 	atf_check \
 		-o match:warning \
 		pkgconf --with-path="${selfdir}/lib1" --validate malformed-version
+}
+
+fragment_groups_body()
+{
+	atf_check \
+		-o inline:'-Wl,--start-group -la -lb -Wl,--end-group -nodefaultlibs -Wl,--start-group -la -lgcc -Wl,--end-group -Wl,--gc-sections\n' \
+		pkgconf --with-path="${selfdir}/lib1" --libs fragment-groups
+}
+
+fragment_groups_composite_body()
+{
+	atf_check \
+		-o inline:'-Wl,--start-group -la -lb -Wl,--end-group -nodefaultlibs -Wl,--start-group -la -lgcc -Wl,--end-group -Wl,--gc-sections\n' \
+		pkgconf --with-path="${selfdir}/lib1" --libs fragment-groups-2
 }
