@@ -95,7 +95,7 @@ struct pkgconf_fragment_ {
 	char type;
 	char *data;
 
-	bool merged;
+	pkgconf_list_t children;
 };
 
 struct pkgconf_dependency_ {

@@ -30,7 +30,7 @@ fragment_should_quote(const pkgconf_fragment_t *frag)
 	for (src = frag->data; *src; src++)
 	{
 		if (((*src < ' ') ||
-		    (*src >= (' ' + (frag->merged ? 1 : 0)) && *src < '$') ||
+		    (*src >= (' ' + (frag->children.head != NULL ? 1 : 0)) && *src < '$') ||
 		    (*src > '$' && *src < '(') ||
 		    (*src > ')' && *src < '+') ||
 		    (*src > ':' && *src < '=') ||
