@@ -87,6 +87,8 @@ typedef struct pkgconf_queue_ pkgconf_queue_t;
 struct pkgconf_queue_ {
 	pkgconf_node_t iter;
 	char *package;
+
+	unsigned int flags;
 };
 
 struct pkgconf_fragment_ {
@@ -133,6 +135,8 @@ struct pkgconf_path_ {
 	char *path;
 	void *handle_path;
 	void *handle_device;
+
+	unsigned int flags;
 };
 
 #define PKGCONF_PKG_PROPF_NONE			0x00
