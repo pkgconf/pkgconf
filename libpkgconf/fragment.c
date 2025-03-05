@@ -82,6 +82,20 @@ pkgconf_fragment_should_munge(const char *string, const char *sysroot_dir)
 }
 
 static inline bool
+pkgconf_fragment_is_terminus(const char *string)
+{
+	static const struct pkgconf_fragment_check check_fragments[] = {
+		{"-Wl,--end-group", 15},
+	};
+
+	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(check_fragments); i++)
+		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
+			return true;
+
+	return false;
+}
+
+static inline bool
 pkgconf_fragment_is_special(const char *string)
 {
 	if (*string != '-')
@@ -175,6 +189,22 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 	if (*string == '\0')
 		return;
 
+	if (list->tail != NULL && list->tail->data != NULL &&
+	    !(client->flags & PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS))
+	{
+		pkgconf_fragment_t *parent = list->tail->data;
+
+		/* only attempt to merge 'special' fragments together */
+		if (!parent->type && parent->data != NULL &&
+		    pkgconf_fragment_is_unmergeable(parent->data) &&
+		    !(parent->flags & PKGCONF_PKG_FRAGF_TERMINATED))
+		{
+			target = &parent->children;
+			parent->flags |= PKGCONF_PKG_FRAGF_TERMINATED;
+			PKGCONF_TRACE(client, "adding fragment as child to list @%p", target);
+		}
+	}
+
 	if (strlen(string) > 1 && !pkgconf_fragment_is_special(string))
 	{
 		frag = calloc(1, sizeof(pkgconf_fragment_t));
@@ -186,19 +216,6 @@ pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const
 	}
 	else
 	{
-		if (list->tail != NULL && list->tail->data != NULL &&
-		    !(client->flags & PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS))
-		{
-			pkgconf_fragment_t *parent = list->tail->data;
-
-			/* only attempt to merge 'special' fragments together */
-			if (!parent->type && parent->data != NULL && pkgconf_fragment_is_unmergeable(parent->data))
-			{
-				target = &parent->children;
-				PKGCONF_TRACE(client, "adding fragment as child to list @%p", target);
-			}
-		}
-
 		frag = calloc(1, sizeof(pkgconf_fragment_t));
 
 		frag->type = 0;

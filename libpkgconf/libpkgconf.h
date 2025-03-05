@@ -96,7 +96,10 @@ struct pkgconf_fragment_ {
 	char *data;
 
 	pkgconf_list_t children;
+	unsigned int flags;
 };
+
+#define PKGCONF_PKG_FRAGF_TERMINATED		0x1
 
 struct pkgconf_dependency_ {
 	pkgconf_node_t iter;
