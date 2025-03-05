@@ -509,7 +509,7 @@ pkgconf_fragment_len(const pkgconf_fragment_t *frag)
 		{
 			const pkgconf_fragment_t *child_frag = iter->data;
 
-			len += 1;
+			len += 2;
 			quoted = fragment_quote(child_frag);
 			len += strlen(quoted);
 			free(quoted);
