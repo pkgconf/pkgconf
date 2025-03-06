@@ -317,7 +317,13 @@ pkgconf_queue_solve(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_pkg_
 	if (!maxdepth)
 		maxdepth = -1;
 
-	return pkgconf_queue_verify(client, world, list, maxdepth) == PKGCONF_PKG_ERRF_OK;
+	unsigned int flags = client->flags;
+	client->flags |= PKGCONF_PKG_PKGF_SEARCH_PRIVATE;
+
+	unsigned int ret = pkgconf_queue_verify(client, world, list, maxdepth);
+	client->flags = flags;
+
+	return ret == PKGCONF_PKG_ERRF_OK;
 }
 
 /*
