@@ -1,5 +1,5 @@
 project('pkgconf', 'c',
-  version : '2.4.0',
+  version : '2.4.1',
   license : 'ISC',
   meson_version : '>=0.49',
   default_options : ['c_std=c99'],
