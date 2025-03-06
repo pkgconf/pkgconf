@@ -97,8 +97,8 @@ libpkgconf = library('pkgconf',
   'libpkgconf/tuple.c',
   c_args: ['-DLIBPKGCONF_EXPORT', build_static],
   install : true,
-  version : '5.0.0',
-  soversion : '5',
+  version : '6.0.0',
+  soversion : '6',
 )
 
 # For other projects using libpkgconfig as a subproject
