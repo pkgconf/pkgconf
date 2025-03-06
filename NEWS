@@ -1,6 +1,35 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.3.0 to 2.4.0:
+----------------------------
+
+* Allow multiple package names in solution-based queries such as
+  `--print-requires`, `--print-requires-private` and `--print-provides`.
+
+* Use `_DEFAULT_SOURCE` where appropriate on Meson.
+
+* Add an abstract buffer type and use it when loading files from disk
+  instead of a 64KB buffer.  This ensures large pkg-config files are
+  not truncated.
+
+* Disable graph recursion in `--variable` queries as it was generating
+  duplicate output.
+
+* Add infrastructure for tracking fragment group relations and convert
+  storage of fragments to use a tree-like structure instead of string
+  concatenation.
+
+* Add support for tracking linker groups, e.g.
+
+    -Wl,--start-group -la -lb -lc -Wl,--end-group
+
+  as fragment groups.
+
+* Properly contextualize the sysroot directory when processing package
+  information, ensuring packages where ${pc_sysrootdir} does not match
+  the default are properly processed.
+
 Changes from 2.2.0 to 2.3.0:
 ----------------------------
 
