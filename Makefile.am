@@ -122,6 +122,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/cflags-libs-private-b.pc \
 		tests/lib1/cflags-libs-private-c.pc \
 		tests/lib1/truncated.pc \
+		tests/lib1/c-comment.pc \
 		$(test_scripts) \
 		doc/conf.py \
 		doc/extract.py \
