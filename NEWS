@@ -1,6 +1,15 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.4.1 to 2.4.2:
+----------------------------
+
+* Fix several logic errors in the pkg-config file parser that were
+  surfaced by recent refactoring work.
+
+* Fix BSD make compatibility so that it generates the test data
+  before running kyua on BSD make implementations.
+
 Changes from 2.4.0 to 2.4.1:
 ----------------------------
 
