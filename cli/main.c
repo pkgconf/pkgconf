@@ -73,6 +73,7 @@
 #define PKG_DUMP_LICENSE		(((uint64_t) 1) << 45)
 #define PKG_SOLUTION			(((uint64_t) 1) << 46)
 #define PKG_EXISTS_CFLAGS		(((uint64_t) 1) << 47)
+#define PKG_FRAGMENT_TREE		(((uint64_t) 1) << 48)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -764,6 +765,49 @@ apply_simulate(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int m
 #endif
 
 static void
+print_fragment_tree_branch(pkgconf_list_t *fragment_list, int indent)
+{
+	pkgconf_node_t *iter;
+
+	PKGCONF_FOREACH_LIST_ENTRY(fragment_list->head, iter)
+	{
+		pkgconf_fragment_t *frag = iter->data;
+
+		if (frag->type)
+			printf("%*s'-%c%s' [type %c]\n", indent, "", frag->type, frag->data, frag->type);
+		else
+			printf("%*s'%s' [untyped]\n", indent, "", frag->data);
+
+		print_fragment_tree_branch(&frag->children, indent + 2);
+	}
+
+	if (fragment_list->head != NULL)
+		printf("\n");
+}
+
+static bool
+apply_fragment_tree(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
+{
+	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
+	int eflag;
+
+	(void) data;
+
+	eflag = pkgconf_pkg_cflags(client, world, &unfiltered_list, maxdepth);
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+		return false;
+
+	eflag = pkgconf_pkg_libs(client, world, &unfiltered_list, maxdepth);
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+		return false;
+
+	print_fragment_tree_branch(&unfiltered_list, 0);
+	pkgconf_fragment_free(&unfiltered_list);
+
+	return true;
+}
+
+static void
 print_license(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
 	(void) client;
@@ -903,6 +947,7 @@ usage(void)
 #endif
 	printf("  --fragment-filter=types           filter output fragments to the specified types\n");
 	printf("  --env=prefix                      print output as shell-compatible environmental variables\n");
+	printf("  --fragment-tree                   visualize printed CFLAGS/LIBS fragments as a tree\n");
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
@@ -1093,6 +1138,7 @@ main(int argc, char *argv[])
 		{ "license", no_argument, &want_flags, PKG_DUMP_LICENSE },
 		{ "verbose", no_argument, NULL, 55 },
 		{ "exists-cflags", no_argument, &want_flags, PKG_EXISTS_CFLAGS },
+		{ "fragment-tree", no_argument, &want_flags, PKG_FRAGMENT_TREE },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -1664,6 +1710,13 @@ cleanup3:
 		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		apply_requires_private(&pkg_client, &world, NULL, 2);
+	}
+
+	if ((want_flags & PKG_FRAGMENT_TREE))
+	{
+		want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
+
+		apply_fragment_tree(&pkg_client, &world, NULL, 2);
 	}
 
 	if ((want_flags & PKG_CFLAGS))
