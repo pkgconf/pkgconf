@@ -508,11 +508,7 @@ pkgconf_fragment_len(const pkgconf_fragment_t *frag)
 		PKGCONF_FOREACH_LIST_ENTRY(frag->children.head, iter)
 		{
 			const pkgconf_fragment_t *child_frag = iter->data;
-
-			len += 2;
-			quoted = fragment_quote(child_frag);
-			len += strlen(quoted);
-			free(quoted);
+			len += pkgconf_fragment_len(child_frag) + 1;
 		}
 	}
 
