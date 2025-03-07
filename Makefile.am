@@ -123,6 +123,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/cflags-libs-private-c.pc \
 		tests/lib1/truncated.pc \
 		tests/lib1/c-comment.pc \
+		tests/meson.build \
 		$(test_scripts) \
 		doc/conf.py \
 		doc/extract.py \
@@ -139,8 +140,7 @@ EXTRA_DIST =	pkg.m4 \
 		doc/libpkgconf-queue.rst \
 		doc/libpkgconf-tuple.rst
 
-test_scripts=	tests/meson.build \
-		tests/basic.sh \
+test_scripts=	tests/basic.sh \
 		tests/builtins.sh \
 		tests/conflicts.sh \
 		tests/framework.sh \
@@ -152,8 +152,8 @@ test_scripts=	tests/meson.build \
 		tests/sysroot.sh \
 		tests/version.sh
 
-test_sh = $(filter-out tests/meson.build, $(test_scripts))
-check_SCRIPTS = $(test_sh:.sh=)
+test_sh = $(test_scripts)
+check_SCRIPTS = ${test_sh:.sh=}
 
 SUFFIXES=	.sh
 
