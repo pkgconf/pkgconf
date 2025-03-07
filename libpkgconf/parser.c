@@ -35,15 +35,19 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 {
 	pkgconf_buffer_t readbuf = PKGCONF_BUFFER_INITIALIZER;
 	size_t lineno = 0;
+	bool continue_reading = true;
 
-	while (pkgconf_fgetline(&readbuf, f))
+	while (continue_reading)
 	{
 		char op, *p, *key, *value;
 		bool warned_key_whitespace = false, warned_value_whitespace = false;
 
+		continue_reading = pkgconf_fgetline(&readbuf, f);
 		lineno++;
 
 		p = readbuf.base;
+		if (p == NULL)
+			continue;
 		while (*p && isspace((unsigned char)*p))
 			p++;
 		if (*p && p != readbuf.base)
