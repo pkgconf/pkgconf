@@ -38,7 +38,8 @@ tests_init \
 	version_with_whitespace_diagnostic \
 	fragment_groups \
 	fragment_groups_composite \
-	truncated
+	truncated \
+	c_comment
 
 comments_body()
 {
@@ -339,4 +340,11 @@ truncated_body()
 	atf_check \
 		-o match:warning -s exit:1 \
 		pkgconf --with-path="${selfdir}/lib1" --validate truncated
+}
+
+c_comment_body()
+{
+	atf_check \
+		-o match:warning \
+		pkgconf --with-path="${selfdir}/lib1" --validate c-comment
 }
