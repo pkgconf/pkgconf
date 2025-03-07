@@ -102,10 +102,6 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 
 	}
 
-
-	if (c == EOF && ((!buffer->base || !*buffer->base) || ferror(stream)))
-		return false;
-
 	/* Remove newline character. */
 	if (pkgconf_buffer_lastc(buffer) == '\n')
 		pkgconf_buffer_trim_byte(buffer);
@@ -113,5 +109,5 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 	if (pkgconf_buffer_lastc(buffer) == '\r')
 		pkgconf_buffer_trim_byte(buffer);
 
-	return true;
+	return !(c == EOF || ferror(stream));
 }
