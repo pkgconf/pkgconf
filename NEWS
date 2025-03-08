@@ -1,6 +1,12 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 2.4.2 to 2.4.3:
+----------------------------
+
+* Fix additional logic errors relating to the new fragment trees
+  functionality.
+
 Changes from 2.4.1 to 2.4.2:
 ----------------------------
 
