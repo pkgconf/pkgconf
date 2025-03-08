@@ -38,6 +38,7 @@ tests_init \
 	version_with_whitespace_diagnostic \
 	fragment_groups \
 	fragment_groups_composite \
+	fragment_tree \
 	truncated \
 	c_comment
 
@@ -348,3 +349,24 @@ c_comment_body()
 		-o match:warning \
 		pkgconf --with-path="${selfdir}/lib1" --validate c-comment
 }
+
+fragment_tree_body()
+{
+	atf_check \
+		-o inline:"'-Wl,--start-group' [untyped]
+  '-la' [type l]
+  '-lb' [type l]
+  '-Wl,--end-group' [untyped]
+
+'-nodefaultlibs' [untyped]
+'-Wl,--start-group' [untyped]
+  '-la' [type l]
+  '-lgcc' [type l]
+  '-Wl,--end-group' [untyped]
+
+'-Wl,--gc-sections' [untyped]
+
+" \
+		pkgconf --with-path="${selfdir}/lib1" --fragment-tree fragment-groups-2
+}
+
