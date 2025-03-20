@@ -32,7 +32,11 @@
 # include <malloc.h>
 # define PATH_DEV_NULL	"nul"
 # ifdef _WIN64
-#  define SIZE_FMT_SPECIFIER	"%I64u"
+#  ifndef __MINGW32__
+#   define SIZE_FMT_SPECIFIER	"%I64u"
+#  else
+#   define SIZE_FMT_SPECIFIER	"%llu"
+#  endif
 # else
 #  define SIZE_FMT_SPECIFIER	"%u"
 # endif
