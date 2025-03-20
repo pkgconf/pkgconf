@@ -1,8 +1,8 @@
 project('pkgconf', 'c',
   version : '2.4.3',
   license : 'ISC',
-  meson_version : '>=0.49',
   default_options : ['c_std=c99'],
+  meson_version: '>=0.52',
 )
 
 cc = meson.get_compiler('c')
@@ -147,3 +147,41 @@ install_man('man/pkgconf-personality.5')
 install_data('pkg.m4', install_dir: 'share/aclocal')
 install_data('AUTHORS', install_dir: 'share/doc/pkgconf')
 install_data('README.md', install_dir: 'share/doc/pkgconf')
+
+if host_machine.system() == 'windows'
+  conf_data = configuration_data()
+  conf_data.set('VERSION', meson.project_version())
+  conf_data.set('EXE', pkgconf_exe.full_path())
+  conf_data.set('DLL', libpkgconf.full_path())
+  if host_machine.cpu() != 'x86_64'
+    wixl_arch = 'x86'
+  else
+    wixl_arch = 'x64'
+  endif
+  conf_data.set('WIXL_ARCH', wixl_arch)
+
+  python = find_program('python3')
+  wixl = find_program('wixl', required: false, version: '>= 0.105')
+  unoconv = find_program('unoconv', required: false)
+  msi_filename = 'pkgconf-@0@-@1@.msi'.format(wixl_arch, meson.project_version())
+
+  wxsfile = configure_file(input: 'pkgconf.wxs.in', output: 'pkgconf.wxs', configuration: conf_data)
+
+  if wixl.found() and unoconv.found()
+    licensefile = custom_target(
+      'License.rtf',
+      input: 'COPYING',
+      output: 'License.rtf',
+      command: [python, files('txt2rtf.py'), '@INPUT@', '@OUTPUT@'],
+    )
+
+    msi = custom_target(
+      msi_filename,
+      input: [wxsfile, licensefile],
+      output: msi_filename,
+      command: [wixl, '--arch', wixl_arch, '--ext', 'ui', '-o', msi_filename, wxsfile],
+    )
+
+    alias_target('msi', msi)
+  endif
+endif
