@@ -10,6 +10,7 @@ cc = meson.get_compiler('c')
 add_project_arguments(
   '-D_BSD_SOURCE',
   '-D_DEFAULT_SOURCE',
+  '-D_POSIX_C_SOURCE=200809L',
   cc.get_supported_arguments(
     '-Wimplicit-function-declaration',
     '-Wmisleading-indentation',
@@ -31,7 +32,7 @@ check_functions = [
 
 foreach f : check_functions
   name = f[0].to_upper().underscorify()
-  if cc.has_function(f[0], prefix : '#define _BSD_SOURCE\n#define _DEFAULT_SOURCE\n#include <@0@>'.format(f[1])) and cc.has_header_symbol(f[1], f[0], prefix : '#define _BSD_SOURCE\n#define _DEFAULT_SOURCE')
+  if cc.has_function(f[0], prefix : '#define _BSD_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#include <@0@>'.format(f[1])) and cc.has_header_symbol(f[1], f[0], prefix : '#define _BSD_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L')
     cdata.set('HAVE_@0@'.format(name), 1)
     cdata.set('HAVE_DECL_@0@'.format(name), 1)
   else
