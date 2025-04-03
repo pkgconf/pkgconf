@@ -718,6 +718,8 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 		if (!str_has_suffix(path, PKG_CONFIG_EXT))
 			return NULL;
 
+		PKGCONF_TRACE(client, "trying file [%s]", path);
+
 		f = fopen(path, "r");
 		if (f == NULL)
 			return NULL;
