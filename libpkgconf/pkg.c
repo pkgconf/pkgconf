@@ -715,6 +715,9 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 		pkgconf_pkg_t *pkg;
 		FILE *f;
 
+		if (!str_has_suffix(path, PKG_CONFIG_EXT))
+			return NULL;
+
 		f = fopen(path, "r");
 		if (f == NULL)
 			return NULL;
