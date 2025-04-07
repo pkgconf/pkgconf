@@ -96,6 +96,7 @@ which is not covered, please get in touch.
 pkgconf is basically compiled the same way any other autotools-based project is
 compiled:
 
+    $ ./autogen.sh
     $ ./configure
     $ make
     $ sudo make install
@@ -105,6 +106,7 @@ likely want to define the default system includedir and libdir for your toolchai
 To do this, use the `--with-system-includedir` and `--with-system-libdir` configure
 flags like so:
 
+    $ ./autogen.sh
     $ ./configure \
          --prefix=/opt/pkgconf \
          --with-system-libdir=/lib:/usr/lib \
