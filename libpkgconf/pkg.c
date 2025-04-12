@@ -711,8 +711,34 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 	pkgconf_pkg_t *outpkg = NULL;
 
 	dir = opendir(path);
-	if (dir == NULL)
+	if (dir == NULL) {
+		pkgconf_pkg_t *pkg;
+		FILE *f;
+
+		if (!str_has_suffix(path, PKG_CONFIG_EXT))
+			return NULL;
+
+		PKGCONF_TRACE(client, "trying file [%s]", path);
+
+		f = fopen(path, "r");
+		if (f == NULL)
+			return NULL;
+
+		pkg = pkgconf_pkg_new_from_file(client, path, f, 0);
+		if (pkg != NULL)
+		{
+			if (func(pkg, data))
+			{
+				fclose(f);
+				return pkg;
+			}
+
+			pkgconf_pkg_unref(client, pkg);
+		}
+
+		fclose(f);
 		return NULL;
+	}
 
 	PKGCONF_TRACE(client, "scanning dir [%s]", path);
 
