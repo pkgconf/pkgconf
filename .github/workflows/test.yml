@@ -28,6 +28,7 @@ jobs:
             mingw-w64-${{ matrix.arch }}-meson
             mingw-w64-${{ matrix.arch }}-ninja
             mingw-w64-${{ matrix.arch }}-gcc
+            mingw-w64-${{ matrix.arch }}-msitools
 
       - name: Build
         shell: msys2 {0}
@@ -36,7 +37,16 @@ jobs:
           export CFLAGS=-D__USE_MINGW_ANSI_STDIO=0
 
           meson -Dtests=disabled _build
-          meson compile -C _build
+          meson compile -C _build msi
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            _build/*.exe
+            _build/*.dll
+            _build/*.msi
 
   debian-meson:
     runs-on: ubuntu-latest
