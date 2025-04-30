@@ -825,6 +825,48 @@ pkgconf_pkg_find_in_registry_key(pkgconf_client_t *client, HKEY hkey, const char
 }
 #endif
 
+static pkgconf_pkg_t *
+pkgconf_pkg_find_in_specific_envvar(pkgconf_client_t *client, const char *name)
+{
+	pkgconf_pkg_t *pkg = NULL;
+	char *envpath;
+
+	if ((envpath = getenv("PKG_CONFIG_EXTERNAL_FILES")) != NULL)
+	{
+		char search_suffix[PKGCONF_ITEM_SIZE] = {PKG_DIR_SEP_S, 0};
+		pkgconf_list_t plist = PKGCONF_LIST_INITIALIZER;
+		pkgconf_node_t *n;
+		FILE *f;
+
+		pkgconf_strlcat(search_suffix, name, sizeof search_suffix);
+		pkgconf_strlcat(search_suffix, PKG_CONFIG_EXT, sizeof search_suffix);
+
+		pkgconf_path_split(envpath, &plist, true);
+
+		PKGCONF_FOREACH_LIST_ENTRY(plist.head, n)
+		{
+			pkgconf_path_t *pnode = n->data;
+
+			PKGCONF_TRACE(client, "trying direct path: %s for %s", pnode->path, name);
+
+			if (!str_has_suffix(pnode->path, search_suffix))
+				continue;
+
+			if ((f = fopen(pnode->path, "r")) != NULL)
+			{
+				PKGCONF_TRACE(client, "found: %s", pnode->path);
+				pkg = pkgconf_pkg_new_from_file(client, pnode->path, f, 0);
+				if (pkg != NULL)
+					break;
+			}
+		}
+
+		pkgconf_path_free(&plist);
+	}
+
+	return pkg;
+}
+
 /*
  * !doc
  *
@@ -894,6 +936,12 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 	if (!pkg)
 		pkg = pkgconf_pkg_find_in_registry_key(client, HKEY_LOCAL_MACHINE, name);
 #endif
+
+	/* support getting directly from environment variable */
+	if ((pkg = pkgconf_pkg_find_in_specific_envvar(client, name)) != NULL)
+	{
+		PKGCONF_TRACE(client, "%s from PKG_CONFIG_EXTERNAL_FILES", name);
+	}
 
 out:
 	pkgconf_cache_add(client, pkg);
