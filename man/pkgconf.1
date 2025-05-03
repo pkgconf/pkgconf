@@ -133,14 +133,14 @@ or only the include path
 flags, or only the compiler flags that are not include path flags,
 respectively.
 .It Fl -libs , Fl -libs-only-L , Fl -libs-only-l , Fl -libs-only-other
-Display either all linker flags, only
-.Fl L
-linker flags, only
-.Fl l
-linker flags or only linker flags that are not
-.Fl L
-or
-.Fl l .
+Print all linker flags required to link against the
+.Cm module ,
+or only the library path
+.Pq Fl L
+flags, or only the library
+.Pq Fl l
+flags, or only the linker flags that are neither library path
+nor library flags, respectively.
 .It Fl -keep-system-cflags , Fl -keep-system-libs
 Keep CFLAGS or linker flag fragments that would be filtered due to being
 included by default in the compiler.
