@@ -34,13 +34,13 @@ Print all errors on the main output stream instead of the error output stream.
 .It Fl -silence-errors
 Do not display any errors at all.
 .It Fl -debug
-Print some non-fatal warning messages to standard output
+Print some non-fatal warning messages to standard error output
 that would otherwise silently be ignored.
 If
 .Nm
 was compiled without defining the preprocessor macro
 .Dv PKGCONF_LITE ,
-this option also prints many debugging messages to standard output.
+this option also prints many debugging messages to standard error output.
 .It Fl -list-all
 Walk all directories listed in the
 .Va PKG_CONFIG_PATH
