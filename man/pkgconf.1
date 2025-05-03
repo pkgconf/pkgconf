@@ -118,10 +118,12 @@ of a solution.
 .Sh QUERY-SPECIFIC OPTIONS
 .Bl -tag -width indent
 .It Fl -cflags , Fl -cflags-only-I , Fl -cflags-only-other
-Display either all CFLAGS, only
-.Fl I
-CFLAGS or only CFLAGS that are not
-.Fl I .
+Print all compiler flags required to compile against the
+.Cm module ,
+or only the include path
+.Pq Fl I
+flags, or only the compiler flags that are not include path flags,
+respectively.
 .It Fl -libs , Fl -libs-only-L , Fl -libs-only-l , Fl -libs-only-other
 Display either all linker flags, only
 .Fl L
