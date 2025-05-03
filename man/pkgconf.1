@@ -32,6 +32,12 @@ Exit with error if we do not support the requested pkg-config version.
 .It Fl -errors-to-stdout
 Print all error, warning, and debugging messages to standard output
 instead of to standard error output.
+.It Fl -print-errors
+Print some messages about fatal errors to standard error output
+that would otherwise be omitted.
+This option is implied by many other options, but not by all.
+It can be overridden with
+.Fl -silence-errors .
 .It Fl -silence-errors
 Do not display any errors at all.
 .It Fl -debug
