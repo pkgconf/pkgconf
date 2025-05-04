@@ -1055,7 +1055,7 @@ main(int argc, char *argv[])
 		.flags = PKGCONF_PKG_PROPF_STATIC | PKGCONF_PKG_PROPF_VIRTUAL,
 	};
 
-	pkgconf_pledge("stdio rpath wpath cpath", "");
+	pkgconf_pledge("stdio rpath wpath cpath unveil", "");
 
 	want_flags = 0;
 
