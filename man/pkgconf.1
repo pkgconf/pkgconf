@@ -39,7 +39,12 @@ This option is implied by many other options, but not by all.
 It can be overridden with
 .Fl -silence-errors .
 .It Fl -silence-errors
-Do not display any errors at all.
+Do not print any error, warning, or debugging messages at all.
+Overrides all of
+.Fl -debug ,
+.Fl -errors-to-stdout ,
+and
+.Fl -print-errors .
 .It Fl -debug
 Print some non-fatal warning messages to standard error output
 that would otherwise silently be ignored.
