@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <libpkgconf/bsdstubs.h>
 #include <libpkgconf/config.h>
@@ -121,6 +122,30 @@ strndup(const char *src, size_t len)
 }
 #endif
 
+#if !HAVE_DECL_PLEDGE
+static inline int
+pledge(const char *promises, const char *execpromises)
+{
+	(void) promises;
+	(void) execpromises;
+
+	errno = ENOSYS;
+	return -1;
+}
+#endif
+
+#if !HAVE_DECL_UNVEIL
+static inline int
+unveil(const char *path, const char *permissions)
+{
+	(void) path;
+	(void) permissions;
+
+	errno = ENOSYS;
+	return -1;
+}
+#endif
+
 size_t
 pkgconf_strlcpy(char *dst, const char *src, size_t siz)
 {
@@ -157,4 +182,16 @@ void *
 pkgconf_reallocarray(void *ptr, size_t m, size_t n)
 {
 	return reallocarray(ptr, m, n);
+}
+
+int
+pkgconf_pledge(const char *promises, const char *execpromises)
+{
+	return pledge(promises, execpromises);
+}
+
+int
+pkgconf_unveil(const char *path, const char *permissions)
+{
+	return unveil(path, permissions);
 }

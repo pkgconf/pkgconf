@@ -23,6 +23,7 @@ AX_CHECK_COMPILE_FLAG([-std=gnu99], [CFLAGS="$CFLAGS -std=gnu99"], [
 ])
 AC_CONFIG_HEADERS([libpkgconf/config.h])
 AC_CHECK_DECLS([strlcpy, strlcat, strndup], [], [], [[#include <string.h>]])
+AC_CHECK_DECLS([pledge, unveil], [], [], [[#include <unistd.h>]])
 AC_CHECK_DECLS([reallocarray])
 AC_CHECK_HEADERS([sys/stat.h])
 AM_INIT_AUTOMAKE([foreign dist-xz subdir-objects])

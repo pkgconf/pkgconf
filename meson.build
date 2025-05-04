@@ -28,6 +28,8 @@ check_functions = [
   ['strncasecmp', 'strings.h'],
   ['strcasecmp', 'strings.h'],
   ['reallocarray', 'stdlib.h'],
+  ['pledge', 'unistd.h'],
+  ['unveil', 'unistd.h'],
 ]
 
 foreach f : check_functions
