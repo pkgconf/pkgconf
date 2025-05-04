@@ -1031,6 +1031,18 @@ deduce_personality(char *argv[])
 }
 #endif
 
+static void
+unveil_pkg_search_paths(const pkgconf_client_t *client)
+{
+	const pkgconf_node_t *n;
+
+	PKGCONF_FOREACH_LIST_ENTRY(client->dir_list.head, n)
+	{
+		const pkgconf_path_t *pn = n->data;
+		pkgconf_unveil(pn->path, "r");
+	}
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1056,6 +1068,7 @@ main(int argc, char *argv[])
 	};
 
 	pkgconf_pledge("stdio rpath wpath cpath unveil", "");
+	unveil_personality_path
 
 	want_flags = 0;
 
@@ -1233,6 +1246,9 @@ main(int argc, char *argv[])
 
 	/* now, bring up the client.  settings are preserved since the client is prealloced */
 	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
+
+	/* now that the client is initialized, use unveil(2) to allow access to the search paths */
+	unveil_pkg_search_paths(&pkg_client);
 
 #ifndef PKGCONF_LITE
 	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX || getenv("PKG_CONFIG_MSVC_SYNTAX") != NULL)
