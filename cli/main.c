@@ -1055,6 +1055,8 @@ main(int argc, char *argv[])
 		.flags = PKGCONF_PKG_PROPF_STATIC | PKGCONF_PKG_PROPF_VIRTUAL,
 	};
 
+	pkgconf_pledge("stdio rpath wpath cpath", "");
+
 	want_flags = 0;
 
 #ifdef _WIN32
