@@ -149,9 +149,28 @@ This option is implied by many other options, but not by all.
 It can be overridden with
 .Fl -silence-errors .
 .It Fl -print-provides
-Print all relevant
-.Sq Provides
-entries for a module to the output channel.
+For each specified
+.Ar module ,
+print one line to standard output containing the
+.Ic Name
+property, an equal sign
+.Pq Sq = ,
+and the
+.Ic Version
+property.
+If the
+.Ar module
+contains one or more
+.Ic Provides
+properties, print additional lines in dependency list format, one name
+per line, each name optionally followed by an operator and a version.
+This option implies
+.Fl -maximum-traverse-depth Ns =1
+and overrides and disables all
+.Fl -cflags
+and
+.Fl -libs
+flags.
 .It Fl -print-requires , Fl -print-requires-private
 Print the modules included in either the
 .Va Requires
