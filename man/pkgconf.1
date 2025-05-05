@@ -172,11 +172,20 @@ and
 .Fl -libs
 flags.
 .It Fl -print-requires , Fl -print-requires-private
-Print the modules included in either the
-.Va Requires
-field or the
-.Va Requires.private
-field.
+For each specified
+.Ar module ,
+print the
+.Ic Requires
+or
+.Ic Requires.private
+properties, respectively, in dependency list format to standard output.
+Both of these options imply
+.Fl -maximum-traverse-depth Ns =1
+and override and disable all
+.Fl -cflags
+and
+.Fl -libs
+flags.
 .It Fl -print-variables
 Print all seen variables for a module to the output channel.
 .It Fl -pure
