@@ -84,8 +84,13 @@ instead of to standard error output.
 .It Fl -exact-version Ns = Ns Ar VERSION
 Exit with error if a module's version is not exactly the specified version.
 .It Fl -exists
-Exit with a non-zero result if the dependency resolver was unable to find all of
-the requested modules.
+Exit with a non-zero exit status
+if the dependency resolver is unable to find all of the requested
+.Ar module Ns s .
+This option is active by default and cannot be disabled.
+However, various other options cause
+.Nm
+to exit and report success or failure before all arguments have been inspected.
 .It Fl -fragment-filter Ns = Ns Ar TYPES
 Filter the fragment lists for the specified types.
 .It Fl -ignore-conflicts
