@@ -21,7 +21,9 @@
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #include <libpkgconf/bsdstubs.h>
 #include <libpkgconf/config.h>
