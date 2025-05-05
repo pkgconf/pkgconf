@@ -29,7 +29,11 @@ The
 are as follows:
 .Bl -tag -width indent
 .It Fl -atleast-pkgconfig-version Ns = Ns Ar VERSION
-Exit with error if we do not support the requested pkg-config version.
+Exit with error if the requested
+.Ar VERSION
+number is greater than the version number of the
+.Nm
+program.
 .It Fl -atleast-version Ns = Ns Ar VERSION
 Exit with error if a module's version is less than the specified version.
 .It Fl -cflags , Fl -cflags-only-I , Fl -cflags-only-other
