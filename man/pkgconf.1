@@ -70,6 +70,9 @@ Dump the dependency resolver's solution as a graphviz
 .Sq dot
 file.
 This can be used with graphviz to visualize module interdependencies.
+This option is only available if the preprocessor macro
+.Dv PKGCONF_LITE
+was not defined during compilation.
 .It Fl -dont-define-prefix
 Disables the
 .Sq define-prefix
@@ -225,6 +228,9 @@ and
 Simulates resolving a dependency graph based on the requested modules on the
 command line.
 Dumps a series of trees denoting pkgconf's resolver state.
+This option is only available if the preprocessor macro
+.Dv PKGCONF_LITE
+was not defined during compilation.
 .It Fl -static
 Compute a deeper dependency graph and use compiler/linker flags intended for
 static linking.
