@@ -35,7 +35,9 @@ number is greater than the version number of the
 .Nm
 program.
 .It Fl -atleast-version Ns = Ns Ar version
-Exit with error if a module's version number is less than the specified
+Exit with error if the version number of each
+.Ar module
+is less than the specified
 .Ar version
 number.
 .It Fl -cflags , Fl -cflags-only-I , Fl -cflags-only-other
@@ -84,7 +86,9 @@ Learn about pkgconf's configuration strictly from environmental variables.
 Print all error, warning, and debugging messages to standard output
 instead of to standard error output.
 .It Fl -exact-version Ns = Ns Ar version
-Exit with error if a module's version number is not exactly the specified
+Exit with error if no
+.Ar module
+has exactly the specified
 .Ar version
 number.
 .It Fl -exists
@@ -120,7 +124,9 @@ Walk all directories listed in the
 environmental variable and display information on packages which have registered
 information there.
 .It Fl -max-version Ns = Ns Ar version
-Exit with error if a module's version number is greater than the specified
+Exit with error if the version number of each
+.Ar module
+is greater than the specified
 .Ar version
 number.
 .It Fl -maximum-traverse-depth Ns = Ns Ar depth
