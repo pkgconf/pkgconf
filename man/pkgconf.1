@@ -139,7 +139,21 @@ For example, a
 of 2 restricts the resolver from acting on child
 dependencies of modules added to the resolver's solution.
 .It Fl -modversion
-Print the version of the queried module.
+For each specified
+.Ar module ,
+print the version number to standard output.
+If the
+.Fl -verbose
+option is also specified, the name of the respective
+.Ar module
+and a colon is printed before each version number.
+This option implies
+.Fl -maximum-traverse-depth Ns =1
+and overrides and disables all
+.Fl -cflags
+and
+.Fl -libs
+flags.
 .It Fl -no-cache
 Skip caching packages when they are loaded into the internal resolver.
 This may result in an alternate dependency graph being computed.
@@ -245,6 +259,13 @@ files for correctness.
 .It Fl -variable Ns = Ns Ar varname
 Print the value of
 .Va varname .
+.It Fl -verbose
+This option only has an effect if
+.Fl -modversion
+is also specified.
+It prints the name of the respective
+.Ar module
+and a colon before each version number.
 .It Fl -version
 Print the version number of the
 .Nm
