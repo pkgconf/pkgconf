@@ -28,14 +28,16 @@ The
 .Ar options
 are as follows:
 .Bl -tag -width indent
-.It Fl -atleast-pkgconfig-version Ns = Ns Ar VERSION
+.It Fl -atleast-pkgconfig-version Ns = Ns Ar version
 Exit with error if the requested
-.Ar VERSION
+.Ar version
 number is greater than the version number of the
 .Nm
 program.
-.It Fl -atleast-version Ns = Ns Ar VERSION
-Exit with error if a module's version is less than the specified version.
+.It Fl -atleast-version Ns = Ns Ar version
+Exit with error if a module's version number is less than the specified
+.Ar version
+number.
 .It Fl -cflags , Fl -cflags-only-I , Fl -cflags-only-other
 Print all compiler flags required to compile against the
 .Cm module ,
@@ -54,11 +56,11 @@ this option also prints many debugging messages to standard error output.
 .It Fl -define-prefix
 Attempts to determine the prefix variable to use for CFLAGS and LIBS entry relocations.
 This is mainly useful for platforms where framework SDKs are relocatable, such as Windows.
-.It Fl -define-variable Ns = Ns Ar VARNAME Ns = Ns Ar VALUE
+.It Fl -define-variable Ns = Ns Ar varname Ns = Ns Ar value
 Define
-.Va VARNAME
+.Ar varname
 as
-.Va VALUE .
+.Va value .
 Variables are used in query output, and some modules' results may change based
 on the presence of a variable definition.
 .It Fl -digraph
@@ -72,7 +74,7 @@ Disables the
 feature.
 .It Fl -dont-relocate-paths
 Disables the path relocation feature.
-.It Fl -env Ns = Ns Ar VARNAME
+.It Fl -env Ns = Ns Ar varname
 Print the requested values as variable declarations in a similar format as the
 .Xr env 1
 command.
@@ -81,8 +83,10 @@ Learn about pkgconf's configuration strictly from environmental variables.
 .It Fl -errors-to-stdout
 Print all error, warning, and debugging messages to standard output
 instead of to standard error output.
-.It Fl -exact-version Ns = Ns Ar VERSION
-Exit with error if a module's version is not exactly the specified version.
+.It Fl -exact-version Ns = Ns Ar version
+Exit with error if a module's version number is not exactly the specified
+.Ar version
+number.
 .It Fl -exists
 Exit with a non-zero exit status
 if the dependency resolver is unable to find all of the requested
@@ -91,8 +95,9 @@ This option is active by default and cannot be disabled.
 However, various other options cause
 .Nm
 to exit and report success or failure before all arguments have been inspected.
-.It Fl -fragment-filter Ns = Ns Ar TYPES
-Filter the fragment lists for the specified types.
+.It Fl -fragment-filter Ns = Ns Ar types
+Filter the fragment lists for the specified
+.Ar types .
 .It Fl -ignore-conflicts
 Ignore
 .Sq Conflicts
@@ -114,11 +119,15 @@ Walk all directories listed in the
 .Va PKG_CONFIG_PATH
 environmental variable and display information on packages which have registered
 information there.
-.It Fl -max-version Ns = Ns Ar VERSION
-Exit with error if a module's version is greater than the specified version.
-.It Fl -maximum-traverse-depth Ns = Ns Ar DEPTH
+.It Fl -max-version Ns = Ns Ar version
+Exit with error if a module's version number is greater than the specified
+.Ar version
+number.
+.It Fl -maximum-traverse-depth Ns = Ns Ar depth
 Impose a limit on the allowed depth in the dependency graph.
-For example, a depth of 2 will restrict the resolver from acting on child
+For example, a
+.Ar depth
+of 2 restricts the resolver from acting on child
 dependencies of modules added to the resolver's solution.
 .It Fl -modversion
 Print the version of the queried module.
@@ -136,7 +145,7 @@ of a solution.
 Display the filenames of the
 .Sq .pc
 files used by the dependency resolver for a given dependency set.
-.It Fl -prefix-variable Ns = Ns Ar VARIABLE
+.It Fl -prefix-variable Ns = Ns Ar variable
 Sets the
 .Sq prefix
 variable used by the
@@ -193,7 +202,7 @@ Treats the computed dependency graph as if it were pure.
 This is mainly intended for use with the
 .Fl -static
 flag.
-.It Fl -relocate Ns = Ns Ar PATH
+.It Fl -relocate Ns = Ns Ar path
 Relocates a path using the pkgconf_path_relocate API.
 This is mainly used by the testsuite to provide a guaranteed interface
 to the system's path relocation backend.
@@ -221,16 +230,20 @@ module as part of its solution.
 Validate specific
 .Sq .pc
 files for correctness.
-.It Fl -variable Ns = Ns Ar VARNAME
+.It Fl -variable Ns = Ns Ar varname
 Print the value of
-.Va VARNAME .
+.Va varname .
 .It Fl -version
 Print the version number of the
 .Nm
 program to standard output and exit.
 Most other options and all command line arguments are ignored.
-.It Fl -with-path Ns = Ns Ar PATH
-Adds a new module search path to pkgconf's dependency resolver.
+.It Fl -with-path Ns = Ns Ar path
+Add a new module search
+.Ar path
+to
+.Nm Ap s
+dependency resolver.
 Paths added in this way are given preference before other paths.
 .El
 .Sh ENVIRONMENT
