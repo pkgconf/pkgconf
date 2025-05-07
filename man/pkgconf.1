@@ -165,9 +165,13 @@ rules in modules when resolving dependencies.
 Forbids the dependency resolver from considering 'uninstalled' modules as part
 of a solution.
 .It Fl -path
-Display the filenames of the
-.Sq .pc
-files used by the dependency resolver for a given dependency set.
+For the first
+.Ar module
+given on the command line, let the dependency resolver find the
+.Xr pc 5
+file describing that module, print the absolute pathname of that file
+to standard output, and exit immediately,
+ignoring most other options and all other arguments.
 .It Fl -prefix-variable Ns = Ns Ar variable
 Sets the
 .Sq prefix
