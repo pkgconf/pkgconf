@@ -123,7 +123,7 @@ flags, or only the linker flags that are neither library path
 nor library flags, respectively.
 .It Fl -list-all
 Walk all directories listed in the
-.Va PKG_CONFIG_PATH
+.Ev PKG_CONFIG_PATH
 environmental variable and display information on packages which have registered
 information there.
 .It Fl -max-version Ns = Ns Ar version
@@ -285,51 +285,51 @@ Paths added in this way are given preference before other paths.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width indent
-.It Va PKG_CONFIG_PATH
-List of secondary directories where
-.Sq .pc
-files are looked up.
-.It Va PKG_CONFIG_LIBDIR
-List of primary directories where
-.Sq .pc
-files are looked up.
-.It Va PKG_CONFIG_SYSROOT_DIR
-.Sq sysroot
-directory, will be prepended to every path defined in
-.Va PKG_CONFIG_PATH .
-Useful for cross compilation.
-.It Va PKG_CONFIG_TOP_BUILD_DIR
-Provides an alternative setting for the
-.Sq pc_top_builddir
-global variable.
-.It Va PKG_CONFIG_PURE_DEPGRAPH
-If set, enables the same behaviour as the
-.Fl -pure
-flag.
-.It Va PKG_CONFIG_SYSTEM_INCLUDE_PATH
-List of paths that are considered system include paths by the toolchain.
-This is a pkgconf-specific extension.
-.It Va PKG_CONFIG_SYSTEM_LIBRARY_PATH
-List of paths that are considered system library paths by the toolchain.
-This is a pkgconf-specific extension.
-.It Va PKG_CONFIG_DISABLE_UNINSTALLED
+.It Ev DESTDIR
+If set to PKG_CONFIG_SYSROOT_DIR, assume that PKG_CONFIG_FDO_SYSROOT_RULES is set.
+.It Ev PKG_CONFIG_DEBUG_SPEW
+If set, enables additional debug logging.
+The format of the debug log messages is implementation-specific.
+.It Ev PKG_CONFIG_DISABLE_UNINSTALLED
 If set, enables the same behaviour as the
 .Fl -no-uninstalled
 flag.
-.It Va PKG_CONFIG_LOG
+.It Ev PKG_CONFIG_DONT_RELOCATE_PATHS
+If set, disables the path relocation feature.
+.It Ev PKG_CONFIG_FDO_SYSROOT_RULES
+If set, follow the sysroot prefixing rules that freedesktop.org pkg-config uses.
+.It Ev PKG_CONFIG_LIBDIR
+List of primary directories where
+.Sq .pc
+files are looked up.
+.It Ev PKG_CONFIG_LOG
 .Sq logfile
 which is used for dumping audit information concerning installed module versions.
-.It Va PKG_CONFIG_DEBUG_SPEW
-If set, enables additional debug logging.
-The format of the debug log messages is implementation-specific.
-.It Va PKG_CONFIG_DONT_RELOCATE_PATHS
-If set, disables the path relocation feature.
-.It Va PKG_CONFIG_MSVC_SYNTAX
+.It Ev PKG_CONFIG_MSVC_SYNTAX
 If set, uses MSVC syntax for fragments.
-.It Va PKG_CONFIG_FDO_SYSROOT_RULES
-If set, follow the sysroot prefixing rules that freedesktop.org pkg-config uses.
-.It Va DESTDIR
-If set to PKG_CONFIG_SYSROOT_DIR, assume that PKG_CONFIG_FDO_SYSROOT_RULES is set.
+.It Ev PKG_CONFIG_PATH
+List of secondary directories where
+.Sq .pc
+files are looked up.
+.It Ev PKG_CONFIG_PURE_DEPGRAPH
+If set, enables the same behaviour as the
+.Fl -pure
+flag.
+.It Ev PKG_CONFIG_SYSROOT_DIR
+.Sq sysroot
+directory, will be prepended to every path defined in
+.Ev PKG_CONFIG_PATH .
+Useful for cross compilation.
+.It Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH
+List of paths that are considered system include paths by the toolchain.
+This is a pkgconf-specific extension.
+.It Ev PKG_CONFIG_SYSTEM_LIBRARY_PATH
+List of paths that are considered system library paths by the toolchain.
+This is a pkgconf-specific extension.
+.It Ev PKG_CONFIG_TOP_BUILD_DIR
+Provides an alternative setting for the
+.Sq pc_top_builddir
+global variable.
 .El
 .Sh EXIT STATUS
 .Ex -std
