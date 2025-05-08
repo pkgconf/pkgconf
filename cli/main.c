@@ -1220,9 +1220,6 @@ main(int argc, char *argv[])
 #endif
 	}
 
-	pkgconf_path_copy_list(&personality->dir_list, &dir_list);
-	pkgconf_path_free(&dir_list);
-
 #ifndef PKGCONF_LITE
 	if ((want_flags & PKG_DUMP_PERSONALITY) == PKG_DUMP_PERSONALITY)
 	{
@@ -1260,6 +1257,9 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_DEBUG) == PKG_DEBUG)
 		pkgconf_client_set_trace_handler(&pkg_client, error_handler, NULL);
 #endif
+
+	pkgconf_path_prepend_list(&pkg_client.dir_list, &dir_list);
+	pkgconf_path_free(&dir_list);
 
 	if ((want_flags & PKG_ABOUT) == PKG_ABOUT)
 	{
