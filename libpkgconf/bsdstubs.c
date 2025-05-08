@@ -131,8 +131,7 @@ pledge(const char *promises, const char *execpromises)
 	(void) promises;
 	(void) execpromises;
 
-	errno = ENOSYS;
-	return -1;
+	return 0;
 }
 #endif
 
@@ -143,8 +142,7 @@ unveil(const char *path, const char *permissions)
 	(void) path;
 	(void) permissions;
 
-	errno = ENOSYS;
-	return -1;
+	return 0;
 }
 #endif
 
