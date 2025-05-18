@@ -1031,6 +1031,33 @@ deduce_personality(char *argv[])
 }
 #endif
 
+static bool
+unveil_search_paths(const pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
+{
+	pkgconf_node_t *n;
+
+	if (pkgconf_unveil("/dev/null", "rwc") == -1)
+		return false;
+
+	PKGCONF_FOREACH_LIST_ENTRY(client->dir_list.head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+
+		if (pkgconf_unveil(pn->path, "r") == -1)
+			return false;
+	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(personality->dir_list.head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+
+		if (pkgconf_unveil(pn->path, "r") == -1)
+			return false;
+	}
+
+	return true;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1235,6 +1262,13 @@ main(int argc, char *argv[])
 	/* now, bring up the client.  settings are preserved since the client is prealloced */
 	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
 
+	/* unveil the entire search path now that we have loaded the personality data. */
+	if (!unveil_search_paths(&pkg_client, personality))
+	{
+		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
+		return EXIT_FAILURE;
+	}
+
 #ifndef PKGCONF_LITE
 	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX || getenv("PKG_CONFIG_MSVC_SYNTAX") != NULL)
 		want_render_ops = msvc_renderer_get();
@@ -1433,6 +1467,12 @@ main(int argc, char *argv[])
 
 	if (logfile_arg != NULL)
 	{
+		if (pkgconf_unveil(logfile_arg, "rwc") == -1)
+		{
+			fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
+			return EXIT_FAILURE;
+		}
+
 		logfile_out = fopen(logfile_arg, "w");
 		pkgconf_audit_set_log(&pkg_client, logfile_out);
 	}
@@ -1556,6 +1596,13 @@ cleanup3:
 			pkgconf_pkg_unref(&pkg_client, pkg);
 		pkgconf_dependency_free(&deplist);
 		goto out;
+	}
+
+	/* we shouldn't need to unveil any more filesystem accesses from this point, so lock it down */
+	if (pkgconf_unveil(NULL, NULL) == -1)
+	{
+		fprintf(stderr, "pkgconf: unveil lockdown failed: %s\n", strerror(errno));
+		return EXIT_FAILURE;
 	}
 
 	while (1)
