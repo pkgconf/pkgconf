@@ -195,6 +195,16 @@ and overrides and disables all
 and
 .Fl -libs
 flags.
+.It Fl -msvc-syntax
+Use MSVC syntax for
+.Fl -cflags ,
+.Fl -env ,
+and
+.Fl -libs
+output.
+This option is only available if the preprocessor macro
+.Dv PKGCONF_LITE
+was not defined during compilation.
 .It Fl -no-cache
 Skip caching packages when they are loaded into the internal resolver.
 This may result in an alternate dependency graph being computed.
@@ -388,7 +398,18 @@ For more details, see the
 .Fl -log-file
 command line option, which overrides this variable.
 .It Ev PKG_CONFIG_MSVC_SYNTAX
-If set, uses MSVC syntax for fragments.
+If set, use MSVC syntax for
+.Fl -cflags ,
+.Fl -env ,
+and
+.Fl -libs
+output.
+This variable has the same effect as the
+.Fl -msvc-syntax
+option.
+If the preprocessor macro
+.Dv PKGCONF_LITE
+was defined during compilation, this variable is ignored.
 .It Ev PKG_CONFIG_PATH
 A colon-separated list of high-priority directories where
 .Xr pc 5
