@@ -1034,6 +1034,8 @@ deduce_personality(char *argv[])
 static void
 unveil_handler(const pkgconf_client_t *client, const char *path, const char *permissions)
 {
+	(void) client;
+
 	if (pkgconf_unveil(path, permissions) == -1)
 	{
 		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
