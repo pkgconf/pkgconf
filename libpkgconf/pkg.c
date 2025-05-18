@@ -849,6 +849,9 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 	/* name might actually be a filename. */
 	if (str_has_suffix(name, PKG_CONFIG_EXT))
 	{
+		if (client->unveil_handler != NULL)
+			client->unveil_handler(client, name, "r");
+
 		if ((f = fopen(name, "r")) != NULL)
 		{
 			PKGCONF_TRACE(client, "%s is a file", name);
@@ -856,6 +859,9 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 			pkg = pkgconf_pkg_new_from_file(client, name, f, 0);
 			if (pkg != NULL)
 			{
+				if (client->unveil_handler != NULL)
+					client->unveil_handler(client, pkg->pc_filedir, "r");
+
 				pkgconf_path_add(pkg->pc_filedir, &client->dir_list, true);
 				goto out;
 			}

@@ -106,6 +106,9 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 		pkgconf_client_set_trace_handler(client, NULL, NULL);
 #endif
 
+	if (client->unveil_handler == NULL)
+		pkgconf_client_set_unveil_handler(client, NULL);
+
 	pkgconf_client_set_error_handler(client, error_handler, error_handler_data);
 	pkgconf_client_set_warn_handler(client, NULL, NULL);
 
@@ -412,6 +415,14 @@ pkgconf_default_error_handler(const char *msg, const pkgconf_client_t *client, v
 	return true;
 }
 
+static void
+default_unveil_handler(const pkgconf_client_t *client, const char *path, const char *permissions)
+{
+	(void) client;
+	(void) path;
+	(void) permissions;
+}
+
 /*
  * !doc
  *
@@ -568,6 +579,45 @@ pkgconf_client_set_error_handler(pkgconf_client_t *client, pkgconf_error_handler
 	{
 		PKGCONF_TRACE(client, "installing default error handler");
 		client->error_handler = pkgconf_default_error_handler;
+	}
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_client_get_unveil_handler(const pkgconf_client_t *client)
+ *
+ *    Returns the unveil handler if one is set, else ``NULL``.
+ *
+ *    :param pkgconf_client_t* client: The client object to get the unveil handler from.
+ *    :return: a function pointer to the error handler or ``NULL``
+ */
+pkgconf_unveil_handler_func_t
+pkgconf_client_get_unveil_handler(const pkgconf_client_t *client)
+{
+	return client->unveil_handler;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_client_set_unveil_handler(pkgconf_client_t *client, pkgconf_unveil_handler_func_t unveil_handler)
+ *
+ *    Sets an unveil handler on a client object or uninstalls one if set to ``NULL``.
+ *
+ *    :param pkgconf_client_t* client: The client object to set the error handler on.
+ *    :param pkgconf_unveil_handler_func_t unveil_handler: The unveil handler to set.
+ *    :return: nothing
+ */
+void
+pkgconf_client_set_unveil_handler(pkgconf_client_t *client, pkgconf_unveil_handler_func_t unveil_handler)
+{
+	client->unveil_handler = unveil_handler;
+
+	if (client->unveil_handler == NULL)
+	{
+		PKGCONF_TRACE(client, "installing default unveil handler");
+		client->unveil_handler = default_unveil_handler;
 	}
 }
 

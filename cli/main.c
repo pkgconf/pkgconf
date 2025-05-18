@@ -1031,6 +1031,16 @@ deduce_personality(char *argv[])
 }
 #endif
 
+static void
+unveil_handler(const pkgconf_client_t *client, const char *path, const char *permissions)
+{
+	if (pkgconf_unveil(path, permissions) == -1)
+	{
+		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
+
 static bool
 unveil_search_paths(const pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
 {
@@ -1054,6 +1064,8 @@ unveil_search_paths(const pkgconf_client_t *client, const pkgconf_cross_personal
 		if (pkgconf_unveil(pn->path, "r") == -1)
 			return false;
 	}
+
+	pkgconf_client_set_unveil_handler(&pkg_client, unveil_handler);
 
 	return true;
 }
@@ -1598,13 +1610,6 @@ cleanup3:
 		goto out;
 	}
 
-	/* we shouldn't need to unveil any more filesystem accesses from this point, so lock it down */
-	if (pkgconf_unveil(NULL, NULL) == -1)
-	{
-		fprintf(stderr, "pkgconf: unveil lockdown failed: %s\n", strerror(errno));
-		return EXIT_FAILURE;
-	}
-
 	while (1)
 	{
 		char *package = argv[pkg_optind];
@@ -1670,6 +1675,13 @@ cleanup3:
 	{
 		ret = EXIT_FAILURE;
 		goto out;
+	}
+
+	/* we shouldn't need to unveil any more filesystem accesses from this point, so lock it down */
+	if (pkgconf_unveil(NULL, NULL) == -1)
+	{
+		fprintf(stderr, "pkgconf: unveil lockdown failed: %s\n", strerror(errno));
+		return EXIT_FAILURE;
 	}
 
 #ifndef PKGCONF_LITE
