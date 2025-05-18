@@ -52,9 +52,13 @@ or only the include path
 .Pq Fl I
 flags, or only the compiler flags that are not include path flags,
 respectively.
+These options imply
+.Fl -print-errors .
 .It Fl -debug
 Print some non-fatal warning messages to standard error output
 that would otherwise silently be ignored.
+This option also implies
+.Fl -print-errors .
 If
 .Nm
 was compiled without defining the preprocessor macro
@@ -132,6 +136,8 @@ flags, or only the library
 .Pq Fl l
 flags, or only the linker flags that are neither library path
 nor library flags, respectively.
+These options imply
+.Fl -print-errors .
 .It Fl -list-all
 Walk the module search path in the order of descending priority.
 For each
@@ -144,12 +150,16 @@ property, a dash
 and the
 .Ic Description
 property.
+This option implies
+.Fl -print-errors .
 .It Fl -list-package-names
 Perform the same search as
 .Fl -list-all ,
 but only print the basename of each
 .Xr pc 5
 file without the extension, not the module name and the description.
+This option implies
+.Fl -print-errors .
 .It Fl -log-file Ns = Ns Ar file
 Set the name of the output
 .Ar file
@@ -200,6 +210,8 @@ option is also specified, the name of the respective
 .Ar module
 and a colon is printed before each version number.
 This option implies
+.Fl -print-errors
+and
 .Fl -maximum-traverse-depth Ns =1
 and overrides and disables all
 .Fl -cflags
@@ -287,6 +299,8 @@ flags.
 .It Fl -print-variables
 Print all seen variables for a module to the output channel.
 This option implies
+.Fl -print-errors
+and
 .Fl -maximum-traverse-depth Ns =1
 and overrides and disables all
 .Fl -cflags
@@ -336,6 +350,10 @@ module as part of its solution.
 Validate specific
 .Sq .pc
 files for correctness.
+This option implies
+.Fl -print-errors
+and
+.Fl -errors-to-stdout .
 .It Fl -variable Ns = Ns Ar varname
 Print the value of
 .Ar varname .
