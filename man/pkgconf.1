@@ -421,6 +421,13 @@ flag.
 If set, disables the path relocation feature.
 .It Ev PKG_CONFIG_FDO_SYSROOT_RULES
 If set, follow the sysroot prefixing rules that freedesktop.org pkg-config uses.
+.It Ev PKG_CONFIG_IGNORE_CONFLICTS
+If set, ignore
+.Ic Conflicts
+rules in modules.
+Has the same effect as the
+.Fl -ignore-conflicts
+option.
 .It Ev PKG_CONFIG_LIBDIR
 A colon-separated list of low-priority directories where
 .Xr pc 5
