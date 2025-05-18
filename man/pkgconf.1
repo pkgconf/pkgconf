@@ -315,6 +315,9 @@ Overrides all of
 .Fl -errors-to-stdout ,
 and
 .Fl -print-errors .
+This option is overridden and disabled if the
+.Ev PKG_CONFIG_DEBUG_SPEW
+environment variable is set.
 .It Fl -simulate
 Simulates resolving a dependency graph based on the requested modules on the
 command line.
@@ -389,8 +392,9 @@ Fourth supplementary colon-separated list of include paths filtered out
 in the same way as
 .Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH .
 .It Ev PKG_CONFIG_DEBUG_SPEW
-If set, enables additional debug logging.
-The format of the debug log messages is implementation-specific.
+If set, override and disable the
+.Fl -silence-errors
+option.
 .It Ev PKG_CONFIG_DISABLE_UNINSTALLED
 If set, enables the same behaviour as the
 .Fl -no-uninstalled
