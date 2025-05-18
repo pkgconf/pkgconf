@@ -297,7 +297,11 @@ and
 .Fl -libs
 flags.
 .It Fl -print-variables
-Print all seen variables for a module to the output channel.
+For the first
+.Ar module
+given on the command line, print the names of all seen variables
+to standard output, one per line.
+Any subsequent arguments are silently ignored.
 This option implies
 .Fl -print-errors
 and
@@ -361,8 +365,12 @@ This option implies
 and
 .Fl -errors-to-stdout .
 .It Fl -variable Ns = Ns Ar varname
-Print the value of
-.Ar varname .
+For the first
+.Ar module
+given on the command line, print the value of the variable with the name
+.Ar varname
+to standard output.
+Any subsequent arguments are silently ignored.
 This option implies
 .Fl -maximum-traverse-depth Ns =1
 and overrides and disables all
