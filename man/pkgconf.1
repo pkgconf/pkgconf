@@ -311,13 +311,17 @@ flags.
 Treats the computed dependency graph as if it were pure.
 This is mainly intended for use with the
 .Fl -static
-flag.
+flag and has no effect if
+.Fl -shared
+is also specified.
 .It Fl -relocate Ns = Ns Ar path
 Relocates a path using the pkgconf_path_relocate API.
 This is mainly used by the testsuite to provide a guaranteed interface
 to the system's path relocation backend.
 .It Fl -shared
 Compute a simple dependency graph that is only suitable for shared linking.
+This option overrides
+.Fl -static .
 .It Fl -short-errors
 When printing error messages about modules that are not found
 or conflict with each other, avoid printing additional, verbose
@@ -342,6 +346,8 @@ was not defined during compilation.
 .It Fl -static
 Compute a deeper dependency graph and use compiler/linker flags intended for
 static linking.
+This option is overridden by
+.Fl -shared .
 .It Fl -uninstalled
 Exit with a non-zero result if the dependency resolver uses an
 .Sq uninstalled
