@@ -331,8 +331,28 @@ and
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width indent
+.It Ev CPATH
+First supplementary colon-separated list of include paths filtered out
+in the same way as
+.Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH .
+.It Ev CPLUS_INCLUDE_PATH
+Third supplementary colon-separated list of include paths filtered out
+in the same way as
+.Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH .
+.It Ev C_INCLUDE_PATH
+Second supplementary colon-separated list of include paths filtered out
+in the same way as
+.Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH .
 .It Ev DESTDIR
 If set to PKG_CONFIG_SYSROOT_DIR, assume that PKG_CONFIG_FDO_SYSROOT_RULES is set.
+.It Ev LIBRARY_PATH
+Supplementary colon-separated list of library paths filtered out
+in the same way as
+.Ev PKG_CONFIG_SYSTEM_LIBRARY_PATH .
+.It Ev OBJC_INCLUDE_PATH
+Fourth supplementary colon-separated list of include paths filtered out
+in the same way as
+.Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH .
 .It Ev PKG_CONFIG_DEBUG_SPEW
 If set, enables additional debug logging.
 The format of the debug log messages is implementation-specific.
@@ -391,11 +411,38 @@ directory, will be prepended to every path defined in
 .Ev PKG_CONFIG_PATH .
 Useful for cross compilation.
 .It Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH
-List of paths that are considered system include paths by the toolchain.
-This is a pkgconf-specific extension.
+Colon-separated list of include paths that are filtered out
+and not printed by the
+.Fl -cflags
+and
+.Fl -cflags-only-I
+options because they are considered system include paths.
+If not defined, the default list compiled into the
+.Nm
+program from the
+.Dv SYSTEM_INCLUDEDIR
+preprocessor macro is used instead.
+This variable is a pkgconf-specific extension.
+Any directories listed in the environment variables
+.Ev CPATH ,
+.Ev C_INCLUDE_PATH ,
+.Ev CPLUS_INCLUDE_PATH ,
+and
+.Ev OBJC_INCLUDE_PATH
+are also filtered out.
 .It Ev PKG_CONFIG_SYSTEM_LIBRARY_PATH
-List of paths that are considered system library paths by the toolchain.
-This is a pkgconf-specific extension.
+Colon-separated list of library paths that are filtered out
+and not printed by the
+.Fl -libs
+and
+.Fl -libs-only-L
+options because they are considered system library paths.
+If not defined, the default list compiled into the
+.Nm
+program from the
+.Dv SYSTEM_LIBDIR
+preprocessor macro is used instead.
+This variable is a pkgconf-specific extension.
 .It Ev PKG_CONFIG_TOP_BUILD_DIR
 Provides an alternative setting for the
 .Sq pc_top_builddir
