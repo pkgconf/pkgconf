@@ -546,9 +546,13 @@ program from the
 preprocessor macro is used instead.
 This variable is a pkgconf-specific extension.
 .It Ev PKG_CONFIG_TOP_BUILD_DIR
-Provides an alternative setting for the
-.Sq pc_top_builddir
+The value of the
+.Va pc_top_builddir
 global variable.
+If this environment variable is not defined, the string
+.Qq $(top_builddir)
+is used as the value of
+.Va pc_top_builddir .
 .El
 .Sh EXIT STATUS
 .Ex -std
