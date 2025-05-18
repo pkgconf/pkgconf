@@ -423,6 +423,10 @@ option.
 If set, enables the same behaviour as the
 .Fl -no-uninstalled
 flag.
+.It Ev PKG_CONFIG_DONT_DEFINE_PREFIX
+If set, this variable has the same effect as the
+.Fl -dont-define-prefix
+option.
 .It Ev PKG_CONFIG_DONT_RELOCATE_PATHS
 If set, disables the path relocation feature.
 .It Ev PKG_CONFIG_FDO_SYSROOT_RULES
@@ -491,6 +495,10 @@ or the compiled-in default directories with lower priority.
 If set, enables the same behaviour as the
 .Fl -pure
 flag.
+.It Ev PKG_CONFIG_RELOCATE_PATHS
+If set, this variable has the same effect as the
+.Fl -define-prefix
+option.
 .It Ev PKG_CONFIG_SYSROOT_DIR
 .Sq sysroot
 directory, will be prepended to every path defined in
