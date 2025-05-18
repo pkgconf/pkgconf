@@ -179,6 +179,17 @@ For example, a
 .Ar depth
 of 2 restricts the resolver from acting on child
 dependencies of modules added to the resolver's solution.
+This option is overridden by the
+.Ev PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH
+environment variable and by the options
+.Fl -modversion ,
+.Fl -path ,
+.Fl -print-provides ,
+.Fl -print-requires ,
+.Fl -print-requires-private ,
+.Fl -print-variables ,
+and
+.Fl -variable .
 .It Fl -modversion
 For each specified
 .Ar module ,
@@ -275,6 +286,13 @@ and
 flags.
 .It Fl -print-variables
 Print all seen variables for a module to the output channel.
+This option implies
+.Fl -maximum-traverse-depth Ns =1
+and overrides and disables all
+.Fl -cflags
+and
+.Fl -libs
+flags.
 .It Fl -pure
 Treats the computed dependency graph as if it were pure.
 This is mainly intended for use with the
@@ -318,6 +336,13 @@ files for correctness.
 .It Fl -variable Ns = Ns Ar varname
 Print the value of
 .Ar varname .
+This option implies
+.Fl -maximum-traverse-depth Ns =1
+and overrides and disables all
+.Fl -cflags
+and
+.Fl -libs
+flags.
 .It Fl -verbose
 This option only has an effect if
 .Fl -modversion
@@ -397,6 +422,11 @@ to the file with the name stored in this variable.
 For more details, see the
 .Fl -log-file
 command line option, which overrides this variable.
+.It Ev PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH
+Impose a limit on the allowed depth in the dependency graph.
+This variable overrides the
+.Fl -maximum-traverse-depth
+option, but is overriden by the other options mentioned there.
 .It Ev PKG_CONFIG_MSVC_SYNTAX
 If set, use MSVC syntax for
 .Fl -cflags ,
