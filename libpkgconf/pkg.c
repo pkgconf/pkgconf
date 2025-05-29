@@ -496,6 +496,9 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	char *idptr;
 
 	pkg = calloc(1, sizeof(pkgconf_pkg_t));
+	if (pkg == NULL)
+		return NULL;
+
 	pkg->owner = client;
 	pkg->filename = strdup(filename);
 	pkg->pc_filedir = pkg_get_parent_dir(pkg);
