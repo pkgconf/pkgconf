@@ -91,6 +91,9 @@ prepare_path_node(const char *text, pkgconf_list_t *dirlist, bool filter)
 #endif
 
 	node = calloc(1, sizeof(pkgconf_path_t));
+	if (node == NULL)
+		return NULL;
+
 	node->path = strdup(path);
 
 #ifdef PKGCONF_CACHE_INODES
@@ -267,6 +270,9 @@ pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_t *src)
 		pkgconf_path_t *srcpath = n->data, *path;
 
 		path = calloc(1, sizeof(pkgconf_path_t));
+		if (path == NULL)
+			continue;
+
 		path->path = strdup(srcpath->path);
 
 #ifdef PKGCONF_CACHE_INODES
@@ -299,6 +305,9 @@ pkgconf_path_prepend_list(pkgconf_list_t *dst, const pkgconf_list_t *src)
 		pkgconf_path_t *srcpath = n->data, *path;
 
 		path = calloc(1, sizeof(pkgconf_path_t));
+		if (path == NULL)
+			continue;
+
 		path->path = strdup(srcpath->path);
 
 #ifdef PKGCONF_CACHE_INODES
