@@ -230,7 +230,7 @@ struct pkgconf_client_ {
 };
 
 struct pkgconf_cross_personality_ {
-	const char *name;
+	char *name;
 
 	pkgconf_list_t dir_list;
 
