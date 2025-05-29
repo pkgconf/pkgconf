@@ -669,6 +669,11 @@ pkgconf_pkg_ref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 void
 pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
+	if (pkg == NULL) {
+		PKGCONF_TRACE(client, "WTF: client %p unrefs a NULL package", client);
+		return;
+	}
+
 	if (pkg->owner != NULL && pkg->owner != client)
 		PKGCONF_TRACE(client, "WTF: client %p unrefs package %p owned by other client %p", client, pkg, pkg->owner);
 
