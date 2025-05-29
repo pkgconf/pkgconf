@@ -170,4 +170,4 @@ jobs:
           export CFLAGS="-Wall -Werror -O2 -ggdb3 -fanalyzer"
           ./autogen.sh
           ./configure
-          make -j9 V=1 CFLAGS="$CFLAGS"
+          make -j9 CFLAGS="$CFLAGS"
