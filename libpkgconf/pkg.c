@@ -327,6 +327,9 @@ static char *
 convert_path_to_value(const char *path)
 {
 	char *buf = calloc(1, (strlen(path) + 1) * 2);
+	if (buf == NULL)
+		return NULL;
+
 	char *bptr = buf;
 	const char *i;
 
@@ -475,6 +478,61 @@ pkgconf_pkg_validate(const pkgconf_client_t *client, const pkgconf_pkg_t *pkg)
 	return valid;
 }
 
+static void
+pkg_free_object(pkgconf_pkg_t *pkg)
+{
+	if (pkg->id != NULL)
+		free(pkg->id);
+
+	if (pkg->filename != NULL)
+		free(pkg->filename);
+
+	if (pkg->realname != NULL)
+		free(pkg->realname);
+
+	if (pkg->version != NULL)
+		free(pkg->version);
+
+	if (pkg->description != NULL)
+		free(pkg->description);
+
+	if (pkg->url != NULL)
+		free(pkg->url);
+
+	if (pkg->pc_filedir != NULL)
+		free(pkg->pc_filedir);
+
+	if (pkg->license != NULL)
+		free(pkg->license);
+
+	if (pkg->maintainer != NULL)
+		free(pkg->maintainer);
+
+	if (pkg->copyright != NULL)
+		free(pkg->copyright);
+
+	if (pkg->why != NULL)
+		free(pkg->why);
+
+	free(pkg);
+}
+
+static void
+pkg_free_lists(pkgconf_pkg_t *pkg)
+{
+	pkgconf_dependency_free(&pkg->required);
+	pkgconf_dependency_free(&pkg->requires_private);
+	pkgconf_dependency_free(&pkg->conflicts);
+	pkgconf_dependency_free(&pkg->provides);
+
+	pkgconf_fragment_free(&pkg->cflags);
+	pkgconf_fragment_free(&pkg->cflags_private);
+	pkgconf_fragment_free(&pkg->libs);
+	pkgconf_fragment_free(&pkg->libs_private);
+
+	pkgconf_tuple_free(&pkg->vars);
+}
+
 /*
  * !doc
  *
@@ -500,9 +558,21 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 		return NULL;
 
 	pkg->owner = client;
-	pkg->filename = strdup(filename);
-	pkg->pc_filedir = pkg_get_parent_dir(pkg);
 	pkg->flags = flags;
+
+	pkg->filename = strdup(filename);
+	if (pkg->filename == NULL)
+	{
+		pkg_free_object(pkg);
+		return NULL;
+	}
+
+	pkg->pc_filedir = pkg_get_parent_dir(pkg);
+	if (pkg->pc_filedir == NULL)
+	{
+		pkg_free_object(pkg);
+		return NULL;
+	}
 
 	char *pc_filedir_value = convert_path_to_value(pkg->pc_filedir);
 	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pc_filedir_value, true, pkg->flags);
@@ -532,6 +602,13 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 #endif
 
 	pkg->id = strdup(idptr);
+	if (pkg->id == NULL)
+	{
+		pkg_free_lists(pkg);
+		pkg_free_object(pkg);
+		return NULL;
+	}
+
 	idptr = strrchr(pkg->id, '.');
 	if (idptr)
 		*idptr = '\0';
@@ -580,55 +657,12 @@ pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 
 	pkgconf_cache_remove(client, pkg);
 
-	pkgconf_dependency_free(&pkg->required);
-	pkgconf_dependency_free(&pkg->requires_private);
-	pkgconf_dependency_free(&pkg->conflicts);
-	pkgconf_dependency_free(&pkg->provides);
-
-	pkgconf_fragment_free(&pkg->cflags);
-	pkgconf_fragment_free(&pkg->cflags_private);
-	pkgconf_fragment_free(&pkg->libs);
-	pkgconf_fragment_free(&pkg->libs_private);
-
-	pkgconf_tuple_free(&pkg->vars);
+	pkg_free_lists(pkg);
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
 
-	if (pkg->id != NULL)
-		free(pkg->id);
-
-	if (pkg->filename != NULL)
-		free(pkg->filename);
-
-	if (pkg->realname != NULL)
-		free(pkg->realname);
-
-	if (pkg->version != NULL)
-		free(pkg->version);
-
-	if (pkg->description != NULL)
-		free(pkg->description);
-
-	if (pkg->url != NULL)
-		free(pkg->url);
-
-	if (pkg->pc_filedir != NULL)
-		free(pkg->pc_filedir);
-
-	if (pkg->license != NULL)
-		free(pkg->license);
-
-	if (pkg->maintainer != NULL)
-		free(pkg->maintainer);
-
-	if (pkg->copyright != NULL)
-		free(pkg->copyright);
-
-	if (pkg->why != NULL)
-		free(pkg->why);
-
-	free(pkg);
+	pkg_free_object(pkg);
 }
 
 /*
