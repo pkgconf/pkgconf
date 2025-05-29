@@ -151,3 +151,23 @@ jobs:
       - name: Run tests
         run: |
           make distcheck
+
+  analysis:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Update system and add dependencies
+        run: |
+          apk update
+          apk add kyua atf build-base autoconf automake libtool xz gzip
+
+      - name: Build
+        run: |
+          export CFLAGS="-Wall -Werror -O2 -ggdb3 -fanalyzer"
+          ./autogen.sh
+          ./configure
+          make -j9 V=1 CFLAGS="$CFLAGS"
