@@ -324,14 +324,32 @@ pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot
 bool
 pkgconf_error(const pkgconf_client_t *client, const char *format, ...)
 {
-	char errbuf[PKGCONF_BUFSIZE];
+	char *errbuf;
+	ssize_t msgsize = 0;
+	bool ret;
 	va_list va;
 
 	va_start(va, format);
-	vsnprintf(errbuf, sizeof errbuf, format, va);
+	msgsize = vsnprintf(NULL, 0, format, va);
 	va_end(va);
 
-	return client->error_handler(errbuf, client, client->error_handler_data);
+	if (msgsize < 0)
+		return false;
+
+	msgsize++;
+
+	errbuf = calloc(1, msgsize);
+	if (errbuf == NULL)
+		return false;
+
+	va_start(va, format);
+	vsnprintf(errbuf, msgsize, format, va);
+	va_end(va);
+
+	ret = client->error_handler(errbuf, client, client->error_handler_data);
+	free(errbuf);
+
+	return ret;
 }
 
 /*
@@ -349,14 +367,32 @@ pkgconf_error(const pkgconf_client_t *client, const char *format, ...)
 bool
 pkgconf_warn(const pkgconf_client_t *client, const char *format, ...)
 {
-	char errbuf[PKGCONF_BUFSIZE];
+	char *errbuf;
+	ssize_t msgsize = 0;
+	bool ret;
 	va_list va;
 
 	va_start(va, format);
-	vsnprintf(errbuf, sizeof errbuf, format, va);
+	msgsize = vsnprintf(NULL, 0, format, va);
 	va_end(va);
 
-	return client->warn_handler(errbuf, client, client->warn_handler_data);
+	if (msgsize < 0)
+		return false;
+
+	msgsize++;
+
+	errbuf = calloc(1, msgsize);
+	if (errbuf == NULL)
+		return false;
+
+	va_start(va, format);
+	vsnprintf(errbuf, msgsize, format, va);
+	va_end(va);
+
+	ret = client->warn_handler(errbuf, client, client->warn_handler_data);
+	free(errbuf);
+
+	return ret;
 }
 
 /*
@@ -377,22 +413,48 @@ pkgconf_warn(const pkgconf_client_t *client, const char *format, ...)
 bool
 pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t lineno, const char *funcname, const char *format, ...)
 {
-	char errbuf[PKGCONF_BUFSIZE];
-	size_t len;
+	char prefix[PKGCONF_ITEM_SIZE];
+	char *errbuf = NULL;
+	ssize_t errlen;
+	char *finalbuf = NULL;
+	ssize_t finallen;
+	bool ret;
 	va_list va;
 
 	if (client == NULL || client->trace_handler == NULL)
 		return false;
 
-	len = snprintf(errbuf, sizeof errbuf, "%s:" SIZE_FMT_SPECIFIER " [%s]: ", filename, lineno, funcname);
+	snprintf(prefix, sizeof prefix, "%s:" SIZE_FMT_SPECIFIER " [%s]:", filename, lineno, funcname);
 
 	va_start(va, format);
-	vsnprintf(errbuf + len, sizeof(errbuf) - len, format, va);
+	errlen = vsnprintf(NULL, 0, format, va) + 1;
 	va_end(va);
 
-	pkgconf_strlcat(errbuf, "\n", sizeof errbuf);
+	if (errlen < 0)
+		return false;
 
-	return client->trace_handler(errbuf, client, client->trace_handler_data);
+	errbuf = calloc(1, errlen);
+	if (errbuf == NULL)
+		return false;
+
+	va_start(va, format);
+	vsnprintf(errbuf, errlen, format, va);
+	va_end(va);
+
+	finallen = snprintf(NULL, 0, "%s %s\n", prefix, errbuf) + 1;
+	if (finallen < 0)
+		return false;
+
+	finalbuf = calloc(1, finallen);
+	if (finalbuf == NULL)
+		return false;
+
+	snprintf(finalbuf, finallen, "%s %s\n", prefix, errbuf);
+	ret = client->trace_handler(finalbuf, client, client->trace_handler_data);
+	free(errbuf);
+	free(finalbuf);
+
+	return ret;
 }
 
 /*
