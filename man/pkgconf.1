@@ -508,9 +508,12 @@ If set, this variable has the same effect as the
 .Fl -define-prefix
 option.
 .It Ev PKG_CONFIG_SYSROOT_DIR
+If set, this variable defines a
 .Sq sysroot
-directory, will be prepended to every path defined in
-.Ev PKG_CONFIG_PATH .
+directory, which will be prepended to every path variable
+beginning with the prefix variable in a given
+.Xr pc 5
+file.
 Useful for cross compilation.
 .It Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH
 Colon-separated list of include paths that are filtered out
