@@ -536,7 +536,7 @@ pkg_free_lists(pkgconf_pkg_t *pkg)
 /*
  * !doc
  *
- * .. c:function:: pkgconf_pkg_t *pkgconf_pkg_new_from_file(const pkgconf_client_t *client, const char *filename, FILE *f, unsigned int flags)
+ * .. c:function:: pkgconf_pkg_t *pkgconf_pkg_new_from_path(const pkgconf_client_t *client, const char *filename, unsigned int flags)
  *
  *    Parse a .pc file into a pkgconf_pkg_t object structure.
  *
@@ -548,14 +548,22 @@ pkg_free_lists(pkgconf_pkg_t *pkg)
  *    :rtype: pkgconf_pkg_t *
  */
 pkgconf_pkg_t *
-pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *f, unsigned int flags)
+pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsigned int flags)
 {
 	pkgconf_pkg_t *pkg;
 	char *idptr;
+	FILE *f;
+
+	f = fopen(filename, "r");
+	if (f == NULL)
+		return NULL;
 
 	pkg = calloc(1, sizeof(pkgconf_pkg_t));
 	if (pkg == NULL)
+	{
+		fclose(f);
 		return NULL;
+	}
 
 	pkg->owner = client;
 	pkg->flags = flags;
@@ -563,6 +571,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	pkg->filename = strdup(filename);
 	if (pkg->filename == NULL)
 	{
+		fclose(f);
 		pkg_free_object(pkg);
 		return NULL;
 	}
@@ -570,6 +579,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	pkg->pc_filedir = pkg_get_parent_dir(pkg);
 	if (pkg->pc_filedir == NULL)
 	{
+		fclose(f);
 		pkg_free_object(pkg);
 		return NULL;
 	}
@@ -604,6 +614,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	pkg->id = strdup(idptr);
 	if (pkg->id == NULL)
 	{
+		fclose(f);
 		pkg_free_lists(pkg);
 		pkg_free_object(pkg);
 		return NULL;
@@ -621,6 +632,7 @@ pkgconf_pkg_new_from_file(pkgconf_client_t *client, const char *filename, FILE *
 	}
 
 	pkgconf_parser_parse(f, pkg, pkg_parser_funcs, (pkgconf_parser_warn_func_t) pkg_warn_func, pkg->filename);
+	fclose(f);
 
 	if (!pkgconf_pkg_validate(client, pkg))
 	{
@@ -722,7 +734,6 @@ static inline pkgconf_pkg_t *
 pkgconf_pkg_try_specific_path(pkgconf_client_t *client, const char *path, const char *name)
 {
 	pkgconf_pkg_t *pkg = NULL;
-	FILE *f;
 	char locbuf[PKGCONF_ITEM_SIZE];
 	char uninst_locbuf[PKGCONF_ITEM_SIZE];
 
@@ -731,16 +742,14 @@ pkgconf_pkg_try_specific_path(pkgconf_client_t *client, const char *path, const 
 	snprintf(locbuf, sizeof locbuf, "%s%c%s" PKG_CONFIG_EXT, path, PKG_DIR_SEP_S, name);
 	snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s%c%s-uninstalled" PKG_CONFIG_EXT, path, PKG_DIR_SEP_S, name);
 
-	if (!(client->flags & PKGCONF_PKG_PKGF_NO_UNINSTALLED) && (f = fopen(uninst_locbuf, "r")) != NULL)
-	{
-		PKGCONF_TRACE(client, "found (uninstalled): %s", uninst_locbuf);
-		pkg = pkgconf_pkg_new_from_file(client, uninst_locbuf, f, PKGCONF_PKG_PROPF_UNINSTALLED);
-	}
-	else if ((f = fopen(locbuf, "r")) != NULL)
-	{
-		PKGCONF_TRACE(client, "found: %s", locbuf);
-		pkg = pkgconf_pkg_new_from_file(client, locbuf, f, 0);
-	}
+	if (!(client->flags & PKGCONF_PKG_PKGF_NO_UNINSTALLED))
+		pkg = pkgconf_pkg_new_from_path(client, uninst_locbuf, PKGCONF_PKG_PROPF_UNINSTALLED);
+
+	if (pkg == NULL)
+		pkg = pkgconf_pkg_new_from_path(client, locbuf, 0);
+
+	if (pkg != NULL)
+		PKGCONF_TRACE(client, "found%s: %s", pkg->flags & PKGCONF_PKG_PROPF_UNINSTALLED ? " (uninstalled)" : "", uninst_locbuf);
 
 	return pkg;
 }
@@ -762,7 +771,6 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 	{
 		char filebuf[PKGCONF_ITEM_SIZE];
 		pkgconf_pkg_t *pkg;
-		FILE *f;
 
 		pkgconf_strlcpy(filebuf, path, sizeof filebuf);
 		pkgconf_strlcat(filebuf, "/", sizeof filebuf);
@@ -773,11 +781,7 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 
 		PKGCONF_TRACE(client, "trying file [%s]", filebuf);
 
-		f = fopen(filebuf, "r");
-		if (f == NULL)
-			continue;
-
-		pkg = pkgconf_pkg_new_from_file(client, filebuf, f, 0);
+		pkg = pkgconf_pkg_new_from_path(client, filebuf, 0);
 		if (pkg != NULL)
 		{
 			if (func(pkg, data))
@@ -884,7 +888,6 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 {
 	pkgconf_pkg_t *pkg = NULL;
 	pkgconf_node_t *n;
-	FILE *f;
 
 	PKGCONF_TRACE(client, "looking for: %s", name);
 
@@ -894,19 +897,16 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 		if (client->unveil_handler != NULL)
 			client->unveil_handler(client, name, "r");
 
-		if ((f = fopen(name, "r")) != NULL)
+		pkg = pkgconf_pkg_new_from_path(client, name, 0);
+		if (pkg != NULL)
 		{
 			PKGCONF_TRACE(client, "%s is a file", name);
 
-			pkg = pkgconf_pkg_new_from_file(client, name, f, 0);
-			if (pkg != NULL)
-			{
-				if (client->unveil_handler != NULL)
-					client->unveil_handler(client, pkg->pc_filedir, "r");
+			if (client->unveil_handler != NULL)
+				client->unveil_handler(client, pkg->pc_filedir, "r");
 
-				pkgconf_path_add(pkg->pc_filedir, &client->dir_list, true);
-				goto out;
-			}
+			pkgconf_path_add(pkg->pc_filedir, &client->dir_list, true);
+			goto out;
 		}
 	}
 
