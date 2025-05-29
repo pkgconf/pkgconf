@@ -307,10 +307,10 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 	parse_state_t state = OUTSIDE_MODULE;
 	pkgconf_pkg_comparator_t compare = PKGCONF_CMP_ANY;
 	char cmpname[PKGCONF_ITEM_SIZE];
-	char buf[PKGCONF_BUFSIZE];
-	size_t package_sz = 0, version_sz = 0;
-	char *start = buf;
-	char *ptr = buf;
+	size_t package_sz = 0, version_sz = 0, buf_sz = 0;
+	char *buf;
+	char *start = NULL;
+	char *ptr = NULL;
 	char *vstart = NULL;
 	char *package = NULL, *version = NULL;
 	char *cnameptr = cmpname;
@@ -318,8 +318,15 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 
 	memset(cmpname, '\0', sizeof cmpname);
 
-	pkgconf_strlcpy(buf, depends, sizeof buf);
-	pkgconf_strlcat(buf, " ", sizeof buf);
+	buf_sz = strlen(depends) * 2;
+	buf = calloc(1, buf_sz);
+	if (buf == NULL)
+		return;
+
+	pkgconf_strlcpy(buf, depends, buf_sz);
+	pkgconf_strlcat(buf, " ", buf_sz);
+
+	start = ptr = buf;
 
 	while (*ptr)
 	{
@@ -430,6 +437,8 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 
 		ptr++;
 	}
+
+	free(buf);
 }
 
 /*
