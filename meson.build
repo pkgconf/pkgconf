@@ -164,12 +164,11 @@ if host_machine.system() == 'windows'
 
   python = find_program('python3')
   wixl = find_program('wixl', required: false, version: '>= 0.105')
-  unoconv = find_program('unoconv', required: false)
   msi_filename = 'pkgconf-@0@-@1@.msi'.format(wixl_arch, meson.project_version())
 
   wxsfile = configure_file(input: 'pkgconf.wxs.in', output: 'pkgconf.wxs', configuration: conf_data)
 
-  if wixl.found() and unoconv.found()
+  if wixl.found()
     licensefile = custom_target(
       'License.rtf',
       input: 'COPYING',
@@ -179,7 +178,7 @@ if host_machine.system() == 'windows'
 
     msi = custom_target(
       msi_filename,
-      input: [wxsfile, licensefile],
+      input: [wxsfile, licensefile, pkgconf_exe],
       output: msi_filename,
       command: [wixl, '--arch', wixl_arch, '--ext', 'ui', '-o', msi_filename, wxsfile],
     )
