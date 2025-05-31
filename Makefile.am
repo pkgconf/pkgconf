@@ -18,6 +18,8 @@ lib_LTLIBRARIES = libpkgconf.la
 EXTRA_DIST =	pkg.m4 \
 		meson.build \
 		meson_options.txt \
+		pkgconf.wxs.in \
+		txt2rtf.py \
 		libpkgconf/meson.build \
 		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
