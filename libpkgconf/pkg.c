@@ -37,7 +37,6 @@
  */
 
 #ifdef _WIN32
-#	define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
 #	undef PKG_DEFAULT_PATH
 #	define PKG_DEFAULT_PATH "../lib/pkgconfig;../share/pkgconfig"
 #	define strncasecmp _strnicmp
@@ -833,44 +832,6 @@ pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_fun
 	return NULL;
 }
 
-#ifdef _WIN32
-static pkgconf_pkg_t *
-pkgconf_pkg_find_in_registry_key(pkgconf_client_t *client, HKEY hkey, const char *name)
-{
-	pkgconf_pkg_t *pkg = NULL;
-
-	HKEY key;
-	int i = 0;
-
-	char buf[16384]; /* per registry limits */
-	DWORD bufsize = sizeof buf;
-	if (RegOpenKeyEx(hkey, PKG_CONFIG_REG_KEY,
-				0, KEY_READ, &key) != ERROR_SUCCESS)
-		return NULL;
-
-	while (RegEnumValue(key, i++, buf, &bufsize, NULL, NULL, NULL, NULL)
-			== ERROR_SUCCESS)
-	{
-		char pathbuf[PKGCONF_ITEM_SIZE];
-		DWORD type;
-		DWORD pathbuflen = sizeof pathbuf;
-
-		if (RegQueryValueEx(key, buf, NULL, &type, (LPBYTE) pathbuf, &pathbuflen)
-				== ERROR_SUCCESS && type == REG_SZ)
-		{
-			pkg = pkgconf_pkg_try_specific_path(client, pathbuf, name);
-			if (pkg != NULL)
-				break;
-		}
-
-		bufsize = sizeof buf;
-	}
-
-	RegCloseKey(key);
-	return pkg;
-}
-#endif
-
 /*
  * !doc
  *
@@ -935,13 +896,6 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 		if (pkg != NULL)
 			goto out;
 	}
-
-#ifdef _WIN32
-	/* support getting PKG_CONFIG_PATH from registry */
-	pkg = pkgconf_pkg_find_in_registry_key(client, HKEY_CURRENT_USER, name);
-	if (!pkg)
-		pkg = pkgconf_pkg_find_in_registry_key(client, HKEY_LOCAL_MACHINE, name);
-#endif
 
 out:
 	pkgconf_cache_add(client, pkg);

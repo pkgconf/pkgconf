@@ -67,6 +67,11 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
 		pkgconf_list_t dir_list = PKGCONF_LIST_INITIALIZER;
 		const pkgconf_list_t *prepend_list = &personality->dir_list;
 
+#ifdef _WIN32
+		(void) pkgconf_path_build_from_registry(HKEY_CURRENT_USER, &client->dir_list, true);
+		(void) pkgconf_path_build_from_registry(HKEY_LOCAL_MACHINE, &client->dir_list, true);
+#endif
+
 		if (getenv("PKG_CONFIG_LIBDIR") != NULL)
 		{
 			/* PKG_CONFIG_LIBDIR= should empty the search path entirely. */

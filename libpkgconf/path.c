@@ -22,6 +22,10 @@
 # define PKGCONF_CACHE_INODES
 #endif
 
+#ifdef _WIN32
+# define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
+#endif
+
 static bool
 #ifdef PKGCONF_CACHE_INODES
 path_list_contains_entry(const char *text, pkgconf_list_t *dirlist, struct stat *st)
@@ -404,3 +408,52 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 
 	return true;
 }
+
+#ifdef _WIN32
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_path_build_from_registry(HKEY hKey, pkgconf_list_t *dir_list, bool filter)
+ *
+ *    Adds paths to a directory list discovered from a given registry key.
+ *
+ *    :param HKEY hKey: The registry key to enumerate.
+ *    :param pkgconf_list_t* dir_list: The directory list to append enumerated paths to.
+ *    :param bool filter: Whether duplicate paths should be filtered.
+ *    :return: number of path nodes added to the list
+ *    :rtype: size_t
+ */
+size_t
+pkgconf_path_build_from_registry(void *hKey, pkgconf_list_t *dir_list, bool filter)
+{
+	HKEY key;
+	int i = 0;
+	size_t added = 0;
+
+	char buf[16384]; /* per registry limits */
+	DWORD bufsize = sizeof buf;
+	if (RegOpenKeyEx(hKey, PKG_CONFIG_REG_KEY,
+				0, KEY_READ, &key) != ERROR_SUCCESS)
+		return 0;
+
+	while (RegEnumValue(key, i++, buf, &bufsize, NULL, NULL, NULL, NULL)
+			== ERROR_SUCCESS)
+	{
+		char pathbuf[PKGCONF_ITEM_SIZE];
+		DWORD type;
+		DWORD pathbuflen = sizeof pathbuf;
+
+		if (RegQueryValueEx(key, buf, NULL, &type, (LPBYTE) pathbuf, &pathbuflen)
+				== ERROR_SUCCESS && type == REG_SZ)
+		{
+			pkgconf_path_add(pathbuf, dir_list, filter);
+			added++;
+		}
+
+		bufsize = sizeof buf;
+	}
+
+	RegCloseKey(key);
+	return added;
+}
+#endif
