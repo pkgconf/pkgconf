@@ -414,7 +414,16 @@ Second supplementary colon-separated list of include paths filtered out
 in the same way as
 .Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH .
 .It Ev DESTDIR
-If set to PKG_CONFIG_SYSROOT_DIR, assume that PKG_CONFIG_FDO_SYSROOT_RULES is set.
+If set to the same value as
+.Ev PKG_CONFIG_SYSROOT_DIR ,
+behave in the same way as if
+.Ev PKG_CONFIG_FDO_SYSROOT_RULES
+is set.
+If
+.Ev PKG_CONFIG_SYSROOT_DIR
+is not set or set to a different value,
+.Ev DESTDIR
+is ignored.
 .It Ev LIBRARY_PATH
 Supplementary colon-separated list of library paths filtered out
 in the same way as
