@@ -41,9 +41,19 @@ number is greater than the version number of the
 program, or with success otherwise.
 Most other options and all command line arguments are ignored.
 .It Fl -atleast-version Ns = Ns Ar version
+Check the
+.Ar module
+arguments in the given order.
+Exit with error as soon as a
+.Ar module
+does not exist, and exit with success as soon as the version number of a
+.Ar module
+is greater than or equal to the requested
+.Ar version
+number.
 Exit with error if the version number of each
 .Ar module
-is less than the specified
+is less than the requested
 .Ar version
 number.
 .It Fl -cflags , Fl -cflags-only-I , Fl -cflags-only-other
@@ -105,9 +115,19 @@ and the compiled-in default directories.
 Print all error, warning, and debugging messages to standard output
 instead of to standard error output.
 .It Fl -exact-version Ns = Ns Ar version
-Exit with error if no
+Check the
 .Ar module
-has exactly the specified
+arguments in the given order.
+Exit with error as soon as a
+.Ar module
+does not exist, and exit with success as soon as the version number of a
+.Ar module
+is exactly the requested
+.Ar version
+number.
+Exit with error if the version number of each
+.Ar module
+differs from the requested
 .Ar version
 number.
 .It Fl -exists
@@ -181,9 +201,19 @@ is instead taken from the
 environment variable, and if that is not provided either,
 this kind of logging is disabled.
 .It Fl -max-version Ns = Ns Ar version
+Check the
+.Ar module
+arguments in the given order.
+Exit with error as soon as a
+.Ar module
+does not exist, and exit with success as soon as the version number of a
+.Ar module
+is less than or equal to the requested
+.Ar version
+number.
 Exit with error if the version number of each
 .Ar module
-is greater than the specified
+is greater than the requested
 .Ar version
 number.
 .It Fl -maximum-traverse-depth Ns = Ns Ar depth
