@@ -733,3 +733,28 @@ pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler
 	}
 }
 #endif
+
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_client_preload_path(pkgconf_client_t *client, const char *path)
+ *
+ *    Loads a pkg-config file into the preloaded packages set.
+ *
+ *    :param pkgconf_client_t* client: The client object for preloading.
+ *    :param char* path: The path to the pkg-config file to preload.
+ *    :return: true on success, false on error
+ *    :rtype: bool
+ */
+bool
+pkgconf_client_preload_path(pkgconf_client_t *client, const char *path)
+{
+	pkgconf_pkg_t *pkg = pkgconf_pkg_new_from_path(client, path, PKGCONF_PKG_PROPF_PRELOADED);
+	if (pkg == NULL)
+		return false;
+
+	pkgconf_pkg_ref(client, pkg);
+	pkgconf_node_insert_tail(&pkg->preload_node, pkg, &client->preloaded_pkgs);
+
+	return true;
+}
