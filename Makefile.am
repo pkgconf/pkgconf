@@ -179,6 +179,7 @@ libpkgconf_la_SOURCES  =	\
 libpkgconf_la_LDFLAGS = -no-undefined -version-info 7:0:0 -export-symbols-regex '^pkgconf_'
 
 dist_man_MANS    = 		\
+	man/bomtool.1		\
 	man/pkgconf.1		\
 	man/pkg.m4.7		\
 	man/pc.5		\

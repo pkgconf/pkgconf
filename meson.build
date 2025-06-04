@@ -142,6 +142,7 @@ kyuafile = configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configurat
 test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile', kyuafile, '--build-root', meson.current_build_dir()])
 subdir('tests')
 
+install_man('man/bomtool.1')
 install_man('man/pkgconf.1')
 install_man('man/pkg.m4.7')
 install_man('man/pc.5')
