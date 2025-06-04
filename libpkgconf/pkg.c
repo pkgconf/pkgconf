@@ -556,6 +556,10 @@ pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsign
 	char *idptr;
 	FILE *f;
 
+	/* make sure we only load .pc files */
+	if (!str_has_suffix(filename, PKG_CONFIG_EXT))
+		return NULL;
+
 	f = fopen(filename, "r");
 	if (f == NULL)
 		return NULL;
