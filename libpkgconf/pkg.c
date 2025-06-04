@@ -480,6 +480,9 @@ pkgconf_pkg_validate(const pkgconf_client_t *client, const pkgconf_pkg_t *pkg)
 static void
 pkg_free_object(pkgconf_pkg_t *pkg)
 {
+	if (pkg->flags & PKGCONF_PKG_PROPF_PRELOADED)
+		pkgconf_node_delete(&pkg->preload_node, &pkg->owner->preloaded_pkgs);
+
 	if (pkg->id != NULL)
 		free(pkg->id);
 
