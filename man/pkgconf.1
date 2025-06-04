@@ -18,15 +18,122 @@
 .Op Ar options
 .Ar module ...
 .Sh DESCRIPTION
+The
 .Nm
-is a program which helps to configure compiler and linker flags for
-development libraries.
-This allows build systems to detect other dependencies and use them with the
-system toolchain.
+program retrieves configuration information related to the
+.Ar module
+arguments from
+.Xr pc 5
+files installed on the system and prints parts of the retrieved
+information depending on the specified
+.Ar options .
+The most common use is printing the compiler and linker flags needed
+to build software that uses the libraries given by the
+.Ar module
+arguments.
 .Pp
 The
+.Xr pc 5
+files are searched for along a path constructed from the
+.Fl -with-path
+option, the
+.Ev PKG_CONFIG_PATH
+and
+.Ev PKG_CONFIG_LIBDIR
+environment variables, and some compiled-in default directories.
+The
+.Ar module
+arguments correspond to the file names, but without the
+.Pa .pc
+filename extension.
+.Pp
+Several of the
 .Ar options
-are as follows:
+cause immediate exit.
+If multiple of these options are given, only the option with the
+highest priority takes effect and those with lower priority are
+silently ignored.
+These options are, ordered by descending priority:
+.Bl -enum
+.It
+No-module options:
+.Fl -relocate ,
+.Fl -dump-personality ,
+.Fl -about ,
+.Fl -version ,
+.Fl -help ,
+.Fl -atleast-pkgconfig-version ,
+.Fl -list-all ,
+and
+.Fl -list-package-names :
+These options cause all arguments to be ignored.
+.It
+Argument-only options:
+.Fl -atleast-version ,
+.Fl -exact-version ,
+and
+.Fl -max-version :
+These options only inspect modules explicitly specified on the
+command line and do not look at dependencies.
+.It
+Limited-output options:
+.Fl -validate ,
+.Fl -license ,
+.Fl -uninstalled ,
+and
+.Fl -env :
+These options perform dependency resolution, but exit after printing
+the information requested by the highest-priority option,
+ignoring other output options that may have been specified.
+.El
+.Pp
+Several other options require at least one
+.Ar module
+argument, produce output, do not cause early exit, can be combined
+with each other, but override and disable all
+.Fl -cflags
+and
+.Fl -libs
+options:
+.Bl -enum
+.It
+Single-module output options:
+.Fl -path ,
+.Fl -print-variables ,
+.Fl -variable :
+If any of these options is specified, only the first
+.Ar module
+argument is used, all other arguments are silently ignored,
+and no dependency resolution is attempted.
+.It
+Depth-one output options:
+.Fl -print-provides ,
+.Fl -modversion ,
+.Fl -print-requires ,
+and
+.Fl -print-requires-private :
+If any of these options is specified, only modules
+explicitly specified on the command line are inspected
+and no dependency resolution is attempted.
+.It
+General output options:
+.Fl -simulate ,
+.Fl -digraph ,
+.Fl -solution ,
+.Fl -fragment-tree :
+These options do not limit dependency resolution.
+.El
+.Pp
+The most important output options
+.Fl -cflags
+and
+.Fl -libs
+can be combined with each other, but are overridden and ignored if
+any of the options listed above are specified.
+.Pp
+The complete list of
+.Ar options
+is as follows:
 .Bl -tag -width indent
 .It Fl -about
 Print the version number, the Copyright notice, and the license of the
