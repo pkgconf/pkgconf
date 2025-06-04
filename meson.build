@@ -126,13 +126,23 @@ pkg.generate(libpkgconf,
   extra_cflags : build_static
 )
 
+cli_include = include_directories('cli')
 
 pkgconf_exe = executable('pkgconf',
   'cli/main.c',
   'cli/getopt_long.c',
   'cli/renderer-msvc.c',
   link_with : libpkgconf,
-  c_args: build_static,
+  c_args : build_static,
+  include_directories : cli_include,
+  install : true)
+
+bomtool_exe = executable('bomtool',
+  'cli/bomtool/main.c',
+  'cli/getopt_long.c',
+  link_with : libpkgconf,
+  c_args : build_static,
+  include_directories : cli_include,
   install : true)
 
 with_tests = get_option('tests')
