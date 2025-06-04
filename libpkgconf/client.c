@@ -758,3 +758,44 @@ pkgconf_client_preload_path(pkgconf_client_t *client, const char *path)
 
 	return true;
 }
+
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *environ)
+ *
+ *    Loads zero or more pkg-config files specified in the given environmental
+ *    variable.
+ *
+ *    :param pkgconf_client_t* client: The client object for preloading.
+ *    :param char* environ: The environment variable to use for preloading.
+ *    :return: true on success, false on error
+ *    :rtype: bool
+ */
+bool
+pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *environ)
+{
+	const char *data;
+	pkgconf_list_t pathlist = PKGCONF_LIST_INITIALIZER;
+	pkgconf_node_t *n;
+	bool ret;
+
+	data = getenv(environ);
+	if (data == NULL)
+		return true;
+
+	pkgconf_path_split(data, &pathlist, true);
+
+	PKGCONF_FOREACH_LIST_ENTRY(pathlist.head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+
+		ret = pkgconf_client_preload_path(client, pn->path);
+		if (!ret)
+			break;
+	}
+
+	pkgconf_path_free(&pathlist);
+
+	return ret;
+}
