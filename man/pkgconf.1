@@ -499,6 +499,13 @@ if any, and unless
 is specified, by appending either
 .Ev PKG_CONFIG_LIBDIR
 or the compiled-in default directories with lower priority.
+.It Ev PKG_CONFIG_PRELOADED_FILES
+Colon-separated list of
+.Xr pc 5
+files which are loaded before any other pkg-config files.
+These packages are given highest priority over any other
+.Xr pc 5
+files that would otherwise provide a given package.
 .It Ev PKG_CONFIG_PURE_DEPGRAPH
 If set, enables the same behaviour as the
 .Fl -pure
