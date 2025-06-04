@@ -1452,6 +1452,9 @@ main(int argc, char *argv[])
 	/* at this point, want_client_flags should be set, so build the dir list */
 	pkgconf_client_dir_list_build(&pkg_client, personality);
 
+	/* preload any files in PKG_CONFIG_PRELOADED_FILES */
+	pkgconf_client_preload_from_environ(&pkg_client, "PKG_CONFIG_PRELOADED_FILES");
+
 	if (required_pkgconfig_version != NULL)
 	{
 		if (pkgconf_compare_version(PACKAGE_VERSION, required_pkgconfig_version) >= 0)
