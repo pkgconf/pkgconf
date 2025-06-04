@@ -822,6 +822,22 @@ pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_fun
 	pkgconf_node_t *n;
 	pkgconf_pkg_t *pkg;
 
+	PKGCONF_TRACE(client, "scanning preloaded list");
+	PKGCONF_FOREACH_LIST_ENTRY(client->preloaded_pkgs.head, n)
+	{
+		pkg = n->data;
+
+		/* add an additional reference to ensure preloaded packages have the same
+		 * object ownership semantics as non-preloaded packages
+		 */
+		pkgconf_pkg_ref(client, pkg);
+
+		if (func(pkg, data))
+			return pkg;
+
+		pkgconf_pkg_unref(client, pkg);
+	}
+
 	PKGCONF_FOREACH_LIST_ENTRY(client->dir_list.head, n)
 	{
 		pkgconf_path_t *pnode = n->data;
@@ -830,6 +846,25 @@ pkgconf_scan_all(pkgconf_client_t *client, void *data, pkgconf_pkg_iteration_fun
 
 		if ((pkg = pkgconf_pkg_scan_dir(client, pnode->path, data, func)) != NULL)
 			return pkg;
+	}
+
+	return NULL;
+}
+
+static pkgconf_pkg_t *
+search_preload_list(pkgconf_client_t *client, const char *name)
+{
+	pkgconf_node_t *n;
+
+	PKGCONF_FOREACH_LIST_ENTRY(client->preloaded_pkgs.head, n)
+	{
+		pkgconf_pkg_t *pkg = n->data;
+
+		if (!strcmp(pkg->id, name))
+		{
+			pkgconf_pkg_ref(client, pkg);
+			return pkg;
+		}
 	}
 
 	return NULL;
@@ -889,6 +924,13 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 			PKGCONF_TRACE(client, "%s is cached", name);
 			return pkg;
 		}
+	}
+
+	/* check preload list */
+	if ((pkg = search_preload_list(client, name)) != NULL)
+	{
+		PKGCONF_TRACE(client, "%s is preloaded", name);
+		return pkg;
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(client->dir_list.head, n)
