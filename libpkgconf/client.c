@@ -177,6 +177,18 @@ pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handl
 	return out;
 }
 
+static void
+unref_preload_list(pkgconf_client_t *client)
+{
+	pkgconf_node_t *n, *tn;
+
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(client->preloaded_pkgs.head, n, tn)
+	{
+		pkgconf_pkg_t *pkg = n->data;
+		pkgconf_pkg_unref(client, pkg);
+	}
+}
+
 /*
  * !doc
  *
@@ -191,6 +203,8 @@ void
 pkgconf_client_deinit(pkgconf_client_t *client)
 {
 	PKGCONF_TRACE(client, "deinit @%p", client);
+
+	unref_preload_list(client);
 
 	if (client->prefix_varname != NULL)
 		free(client->prefix_varname);
