@@ -146,6 +146,7 @@ struct pkgconf_path_ {
 #define PKGCONF_PKG_PROPF_VIRTUAL		0x10
 #define PKGCONF_PKG_PROPF_ANCESTOR		0x20
 #define PKGCONF_PKG_PROPF_VISITED_PRIVATE	0x40
+#define PKGCONF_PKG_PROPF_PRELOADED		0x80
 
 struct pkgconf_pkg_ {
 	int refcount;
@@ -185,6 +186,8 @@ struct pkgconf_pkg_ {
 
 	uint64_t serial;
 	uint64_t identifier;
+
+	pkgconf_node_t preload_node;
 };
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
@@ -227,6 +230,8 @@ struct pkgconf_client_ {
 	size_t cache_count;
 
 	pkgconf_unveil_handler_func_t unveil_handler;
+
+	pkgconf_list_t preloaded_pkgs;
 };
 
 struct pkgconf_cross_personality_ {
