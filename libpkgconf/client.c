@@ -762,7 +762,7 @@ pkgconf_client_preload_path(pkgconf_client_t *client, const char *path)
 /*
  * !doc
  *
- * .. c:function:: bool pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *environ)
+ * .. c:function:: bool pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *env)
  *
  *    Loads zero or more pkg-config files specified in the given environmental
  *    variable.
@@ -773,14 +773,14 @@ pkgconf_client_preload_path(pkgconf_client_t *client, const char *path)
  *    :rtype: bool
  */
 bool
-pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *environ)
+pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *env)
 {
 	const char *data;
 	pkgconf_list_t pathlist = PKGCONF_LIST_INITIALIZER;
 	pkgconf_node_t *n;
 	bool ret;
 
-	data = getenv(environ);
+	data = getenv(env);
 	if (data == NULL)
 		return true;
 
