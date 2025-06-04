@@ -99,6 +99,20 @@ Disables the
 feature.
 .It Fl -dont-relocate-paths
 Disables the path relocation feature.
+.It Fl -dump-personality
+Print some default settings to standard output, in particular
+the default module search path that is used when
+.Ev PKG_CONFIG_LIBDIR
+is not defined, the default list of include paths that are filtered out when
+.Ev PKG_CONFIG_SYSTEM_INCLUDE_PATH
+is not defined,
+and the default list of library paths that are filtered out when
+.Ev PKG_CONFIG_SYSTEM_LIBRARY_PATH
+is not defined, and exit.
+Most other options and all command line arguments are ignored.
+This option is only available if the preprocessor macro
+.Dv PKGCONF_LITE
+was not defined during compilation.
 .It Fl -env Ns = Ns Ar varname
 Print the requested values as variable declarations in a similar format as the
 .Xr env 1
@@ -141,6 +155,9 @@ to exit and report success or failure before all arguments have been inspected.
 .It Fl -fragment-filter Ns = Ns Ar types
 Filter the fragment lists for the specified
 .Ar types .
+.It Fl -help
+Print a usage summary on standard output and exit.
+Most other options and all command line arguments are ignored.
 .It Fl -ignore-conflicts
 Ignore
 .Sq Conflicts
@@ -377,6 +394,13 @@ environment variable is set.
 Simulates resolving a dependency graph based on the requested modules on the
 command line.
 Dumps a series of trees denoting pkgconf's resolver state.
+This option is only available if the preprocessor macro
+.Dv PKGCONF_LITE
+was not defined during compilation.
+.It Fl -solution
+Print the names of the modules requested with
+.Ar module
+arguments and their dependencies to standard output.
 This option is only available if the preprocessor macro
 .Dv PKGCONF_LITE
 was not defined during compilation.
