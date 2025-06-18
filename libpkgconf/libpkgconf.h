@@ -310,15 +310,23 @@ PKGCONF_API void pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *p
 #define PKGCONF_PKG_ERRF_PACKAGE_CONFLICT	0x4
 #define PKGCONF_PKG_ERRF_DEPGRAPH_BREAK		0x8
 
-#if defined(__GNUC__) || defined(__INTEL_COMPILER)
-#define PRINTFLIKE(fmtarg, firstvararg) \
-        __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
-#define DEPRECATED \
-        __attribute__((deprecated))
+#if __GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
+# define PRINTFLIKE(fmtarg, firstvararg) \
+         __attribute__((__format__ (gnu_printf, fmtarg, firstvararg)))
+#elif defined(__clang__) || defined(__INTEL_COMPILER) || __GNUC__ > 2 || (_GNUC__ == 2 && __GNUC_MINOR__ >= 5)
+# define PRINTFLIKE(fmtarg, firstvararg) \
+         __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
 #else
-#define PRINTFLIKE(fmtarg, firstvararg)
-#define DEPRECATED
-#endif /* defined(__INTEL_COMPILER) || defined(__GNUC__) */
+# define PRINTFLIKE(fmtarg, firstvararg)
+#endif
+
+#if defined(__clang__) || defined(__INTEL_COMPILER) || (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+# define DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+# define DEPRECATED __declspec(deprecated)
+#else
+# define DEPRECATED
+#endif
 
 /* parser.c */
 typedef void (*pkgconf_parser_operand_func_t)(void *data, const size_t lineno, const char *key, const char *value);
