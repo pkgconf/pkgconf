@@ -1,0 +1,51 @@
+name: Generate and upload release tarballs
+
+on:
+  push:
+    tags:
+      - 'pkgconf-*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        repository: pkgconf/pkgconf
+
+    - name: Update system and add dependencies
+      run: |
+        apk update
+        apk add kyua atf build-base autoconf automake libtool xz gzip openssh-client
+
+    - name: Bootstrap autotools
+      run: |
+        sh autogen.sh
+        ./configure
+
+    - name: Run tests and generate dist tarballs
+      run: |
+        make distcheck -j$(nproc)
+
+    - name: Upload dist tarballs to distfiles.ariadne.space
+      env:
+        DISTFILES_PRIVATE_KEY: ${{ secrets.DISTFILES_PRIVATE_KEY }}
+        DISTFILES_HOST_KEYS: ${{ secrets.DISTFILES_HOST_KEYS }}
+      run: |
+        mkdir -p $HOME/.ssh
+
+        # Ensure the private key is read-only so SSH doesn't reject it.
+        umask 277
+        (echo "$DISTFILES_PRIVATE_KEY" | base64 -d) > $HOME/.ssh/id_ed25519
+
+        umask 077
+        (echo "$DISTFILES_HOST_KEYS" | base64 -d) > $HOME/.ssh/known_hosts
+
+        # Upload the tarballs.
+        scp -i "$HOME/.ssh/id_ed25519" -o "UserKnownHostsFile=$HOME/.ssh/known_hosts" *.tar* kaniini@distfiles.ariadne.space:distfiles/pkgconf/
+
+        # Delete the key material.
+        rm -rf $HOME/.ssh
