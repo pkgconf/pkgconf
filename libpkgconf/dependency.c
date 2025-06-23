@@ -318,6 +318,9 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 
 	memset(cmpname, '\0', sizeof cmpname);
 
+	if (strlen(depends) == 0)
+		return;
+
 	buf_sz = strlen(depends) * 2;
 	buf = calloc(1, buf_sz);
 	if (buf == NULL)
