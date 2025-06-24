@@ -446,12 +446,13 @@ pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t linen
 	snprintf(prefix, sizeof prefix, "%s:" SIZE_FMT_SPECIFIER " [%s]:", filename, lineno, funcname);
 
 	va_start(va, format);
-	errlen = vsnprintf(NULL, 0, format, va) + 1;
+	errlen = vsnprintf(NULL, 0, format, va);
 	va_end(va);
 
 	if (errlen < 0)
 		return false;
 
+	errlen++;
 	errbuf = calloc(1, errlen);
 	if (errbuf == NULL)
 		return false;
@@ -460,10 +461,11 @@ pkgconf_trace(const pkgconf_client_t *client, const char *filename, size_t linen
 	vsnprintf(errbuf, errlen, format, va);
 	va_end(va);
 
-	finallen = snprintf(NULL, 0, "%s %s\n", prefix, errbuf) + 1;
+	finallen = snprintf(NULL, 0, "%s %s\n", prefix, errbuf);
 	if (finallen < 0)
 		return false;
 
+	finallen++;
 	finalbuf = calloc(1, finallen);
 	if (finalbuf == NULL)
 		return false;
