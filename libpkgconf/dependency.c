@@ -316,6 +316,9 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 	char *cnameptr = cmpname;
 	char *cnameend = cmpname + PKGCONF_ITEM_SIZE - 1;
 
+	if (!*depends)
+		return;
+
 	memset(cmpname, '\0', sizeof cmpname);
 
 	buf_sz = strlen(depends) * 2;
