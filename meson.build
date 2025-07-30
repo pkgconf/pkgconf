@@ -31,6 +31,7 @@ check_functions = [
   ['reallocarray', 'stdlib.h'],
   ['pledge', 'unistd.h'],
   ['unveil', 'unistd.h'],
+  ['readlinkat', 'unistd.h'],
 ]
 
 foreach f : check_functions
