@@ -79,6 +79,8 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	struct stat path_stat;
 	while (!lstat(buf, &path_stat) && S_ISLNK(path_stat.st_mode))
 	{
+		char sourcebuf[PKGCONF_ITEM_SIZE];
+
 		/*
 		 * Have to split the path into the dir + file components,
 		 * in order to extract the directory file descriptor.
@@ -97,13 +99,16 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 		pkgconf_strlcpy(dirnamebuf, buf, sizeof(dirnamebuf));
 		const char* targetdir = dirname(dirnamebuf);
 
+#ifdef HAVE_DECL_READLINKAT
 		const int dirfd = open(targetdir, O_DIRECTORY);
 		if (dirfd == -1)
 			break;
 
-		char sourcebuf[PKGCONF_ITEM_SIZE];
 		ssize_t len = readlinkat(dirfd, targetfilename, sourcebuf, sizeof(sourcebuf) - 1);
 		close(dirfd);
+#else
+		ssize_t len = readlink(buf, sourcebuf, sizeof(sourcebuf) - 1);
+#endif
 
 		if (len == -1)
 			break;
