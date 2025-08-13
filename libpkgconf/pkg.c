@@ -93,13 +93,13 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 		 */
 		char basenamebuf[PKGCONF_ITEM_SIZE];
 		pkgconf_strlcpy(basenamebuf, buf, sizeof(basenamebuf));
-		const char* targetfilename = basename(basenamebuf);
 
 		char dirnamebuf[PKGCONF_ITEM_SIZE];
 		pkgconf_strlcpy(dirnamebuf, buf, sizeof(dirnamebuf));
 		const char* targetdir = dirname(dirnamebuf);
 
 #ifdef HAVE_DECL_READLINKAT
+		const char* targetfilename = basename(basenamebuf);
 		const int dirfd = open(targetdir, O_DIRECTORY);
 		if (dirfd == -1)
 			break;
