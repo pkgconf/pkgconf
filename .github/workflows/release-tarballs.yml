@@ -49,3 +49,70 @@ jobs:
 
         # Delete the key material.
         rm -rf $HOME/.ssh
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tarball
+        path: pkgconf-*.tar.*
+
+  build-msi:
+    name: Build MSI
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [
+          { msystem: MINGW64, arch: x86_64},
+        ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup-msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: true
+          install: >-
+            mingw-w64-${{ matrix.arch }}-meson
+            mingw-w64-${{ matrix.arch }}-ninja
+            mingw-w64-${{ matrix.arch }}-gcc
+            mingw-w64-${{ matrix.arch }}-msitools
+
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          # the code assumes msvc style printf atm
+          export CFLAGS=-D__USE_MINGW_ANSI_STDIO=0
+          meson _build --buildtype=release -Dtests=disabled -Db_lto=true
+          meson compile -C _build msi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: msi
+          path: _build/pkgconf-*.msi
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: [publish, build-msi]
+    steps:
+      - name: Download tarball artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tarball
+          path: dist
+      - name: Download msi artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: msi
+          path: dist
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/pkgconf-*.tar.*
+            dist/pkgconf-*.msi
