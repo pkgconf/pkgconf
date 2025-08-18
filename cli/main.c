@@ -1490,7 +1490,7 @@ main(int argc, char *argv[])
 			return EXIT_FAILURE;
 		}
 
-		logfile_out = fopen(logfile_arg, "w");
+		logfile_out = fopen(logfile_arg, "a");
 		pkgconf_audit_set_log(&pkg_client, logfile_out);
 	}
 
