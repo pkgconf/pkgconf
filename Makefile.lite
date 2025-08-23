@@ -16,6 +16,7 @@ SRCS = \
 	libpkgconf/argvsplit.c		\
 	libpkgconf/audit.c		\
 	libpkgconf/bsdstubs.c		\
+	libpkgconf/buffer.c		\
 	libpkgconf/cache.c		\
 	libpkgconf/client.c		\
 	libpkgconf/dependency.c		\
