@@ -74,6 +74,7 @@
 #define PKG_SOLUTION			(((uint64_t) 1) << 46)
 #define PKG_EXISTS_CFLAGS		(((uint64_t) 1) << 47)
 #define PKG_FRAGMENT_TREE		(((uint64_t) 1) << 48)
+#define PKG_DUMP_SOURCE		(((uint64_t) 1) << 49)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -834,6 +835,32 @@ apply_license(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int ma
 }
 
 static void
+print_source(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+{
+	(void) client;
+	(void) data;
+
+	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+		return;
+
+	/* If source is empty then empty string is printed otherwise URL */
+	printf("%s: %s\n", pkg->id, pkg->source != NULL ? pkg->source : "");
+}
+
+static bool
+apply_source(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
+{
+	int eflag;
+
+	eflag = pkgconf_pkg_traverse(client, world, print_source, data, maxdepth, 0);
+
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+		return false;
+
+	return true;
+}
+
+static void
 version(void)
 {
 	printf("%s\n", PACKAGE_VERSION);
@@ -939,6 +966,7 @@ usage(void)
 	printf("  --modversion                      print the specified module's version to stdout\n");
 	printf("  --internal-cflags                 do not filter 'internal' cflags from output\n");
 	printf("  --license                         print the specified module's license to stdout if known\n");
+	printf("  --source                          print the specified module's source code location to stdout if known\n");
 	printf("  --exists-cflags                   add -DHAVE_FOO fragments to cflags for each found module\n");
 
 	printf("\nfiltering output:\n\n");
@@ -1186,6 +1214,7 @@ main(int argc, char *argv[])
 		{ "verbose", no_argument, NULL, 55 },
 		{ "exists-cflags", no_argument, &want_flags, PKG_EXISTS_CFLAGS },
 		{ "fragment-tree", no_argument, &want_flags, PKG_FRAGMENT_TREE },
+		{ "source", no_argument, &want_flags, PKG_DUMP_SOURCE },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -1707,6 +1736,13 @@ cleanup3:
 		apply_license(&pkg_client, &world, &ret, 2);
 		goto out;
 	}
+
+	if ((want_flags & PKG_DUMP_SOURCE) == PKG_DUMP_SOURCE)
+	{
+		apply_source(&pkg_client, &world, &ret, 2);
+		goto out;
+	}
+
 
 	if ((want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
