@@ -43,6 +43,8 @@ tests_init \
 	with_path \
 	relocatable \
 	single_depth_selectors \
+	source_foo \
+	source_empty \
 	print_variables_env \
 	variable_env \
 	variable_no_recurse
@@ -338,6 +340,20 @@ license_noassertion_body()
 	atf_check \
 		-o inline:"bar: NOASSERTION\nfoo: ISC\n" \
 		pkgconf --with-path=${selfdir}/lib1 --license bar
+}
+
+source_foo_body()
+{
+	atf_check \
+		-o inline:"foo: https://foo.bar/foo\n" \
+		pkgconf --with-path=${selfdir}/lib1 --source foo
+}
+
+source_empty_body()
+{
+	atf_check \
+		-o inline:"bar: \nfoo: https://foo.bar/foo\n" \
+		pkgconf --with-path=${selfdir}/lib1 --source bar
 }
 
 modversion_noflatten_body()
