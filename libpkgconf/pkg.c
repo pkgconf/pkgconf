@@ -261,6 +261,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"Requires", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, required)},
 	{"Requires.internal", pkgconf_pkg_parser_internal_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
 	{"Requires.private", pkgconf_pkg_parser_private_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
+	{"Source", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, source)},
 	{"URL", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, url)},
 	{"Version", pkgconf_pkg_parser_version_func, offsetof(pkgconf_pkg_t, version)},
 };
