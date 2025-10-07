@@ -12,7 +12,7 @@ nodist_pkgconfig_DATA  = libpkgconf.pc
 ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -DPERSONALITY_PATH=\"$(personality_dir)\" -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
 
-bin_PROGRAMS = pkgconf bomtool
+bin_PROGRAMS = pkgconf bomtool spdxtool
 lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	pkg.m4 \
@@ -200,6 +200,17 @@ bomtool_SOURCES  = \
 	cli/bomtool/main.c				\
 	cli/getopt_long.c
 bomtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/bomtool
+
+spdxtool_LDADD    = libpkgconf.la
+spdxtool_SOURCES  = \
+	cli/spdxtool/main.c		\
+	cli/spdxtool/core.c		\
+	cli/spdxtool/software.c		\
+	cli/spdxtool/serialize.c	\
+	cli/spdxtool/simplelicensing.c	\
+	cli/spdxtool/util.c		\
+	cli/getopt_long.c
+spdxtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/bomtool
 
 dist_doc_DATA = README.md AUTHORS
 
