@@ -147,6 +147,19 @@ bomtool_exe = executable('bomtool',
   include_directories : cli_include,
   install : true)
 
+bomtool_exe = executable('spdxtool',
+  'cli/spdxtool/main.c',
+  'cli/spdxtool/core.c',
+  'cli/spdxtool/software.c',
+  'cli/spdxtool/serialize.c',
+  'cli/spdxtool/simplelicensing.c',
+  'cli/spdxtool/util.c',
+  'cli/getopt_long.c',
+  link_with : libpkgconf,
+  c_args : build_static,
+  include_directories : include_directories('cli', 'cli/spdxtool'),
+  install : true)
+
 with_tests = get_option('tests')
 kyua_exe = find_program('kyua', required : with_tests, disabler : true, native : true)
 atf_sh_exe = find_program('atf-sh', required : with_tests, disabler : true, native : true)
