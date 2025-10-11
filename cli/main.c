@@ -1055,7 +1055,7 @@ unveil_search_paths(const pkgconf_client_t *client, const pkgconf_cross_personal
 	{
 		pkgconf_path_t *pn = n->data;
 
-		if (pkgconf_unveil(pn->path, "r") == -1)
+		if (pkgconf_unveil(pn->path, "r") == -1 && errno != ENOENT)
 			return false;
 	}
 
@@ -1063,7 +1063,7 @@ unveil_search_paths(const pkgconf_client_t *client, const pkgconf_cross_personal
 	{
 		pkgconf_path_t *pn = n->data;
 
-		if (pkgconf_unveil(pn->path, "r") == -1)
+		if (pkgconf_unveil(pn->path, "r") == -1 && errno != ENOENT)
 			return false;
 	}
 
