@@ -1276,13 +1276,6 @@ main(int argc, char *argv[])
 	/* now, bring up the client.  settings are preserved since the client is prealloced */
 	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
 
-	/* unveil the entire search path now that we have loaded the personality data. */
-	if (!unveil_search_paths(&pkg_client, personality))
-	{
-		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
-		return EXIT_FAILURE;
-	}
-
 #ifndef PKGCONF_LITE
 	if ((want_flags & PKG_MSVC_SYNTAX) == PKG_MSVC_SYNTAX || getenv("PKG_CONFIG_MSVC_SYNTAX") != NULL)
 		want_render_ops = msvc_renderer_get();
@@ -1451,6 +1444,13 @@ main(int argc, char *argv[])
 
 	/* at this point, want_client_flags should be set, so build the dir list */
 	pkgconf_client_dir_list_build(&pkg_client, personality);
+
+	/* unveil the entire search path now that we have loaded the personality data and built the dir list. */
+	if (!unveil_search_paths(&pkg_client, personality))
+	{
+		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
+		return EXIT_FAILURE;
+	}
 
 	/* preload any files in PKG_CONFIG_PRELOADED_FILES */
 	pkgconf_client_preload_from_environ(&pkg_client, "PKG_CONFIG_PRELOADED_FILES");
