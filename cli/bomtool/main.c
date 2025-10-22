@@ -136,6 +136,9 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	if (pkg->description != NULL)
 		printf("PackageSummary: <text>%s</text>\n", pkg->description);
 
+	if (pkg->source != NULL)
+		printf("PackageDownloadLocation: %s\n", pkg->source);
+
 	printf("\n\n");
 }
 
