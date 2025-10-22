@@ -522,6 +522,9 @@ pkg_free_object(pkgconf_pkg_t *pkg)
 	if (pkg->why != NULL)
 		free(pkg->why);
 
+	if (pkg->source != NULL)
+		free(pkg->source);
+
 	free(pkg);
 }
 
