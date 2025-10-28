@@ -35,6 +35,8 @@ tests_init \
 	libs_metapackage \
 	license_isc \
 	license_noassertion \
+	license_file_foo \
+	license_file_empty \
 	modversion_noflatten \
 	pkg_config_path \
 	nolibs \
@@ -340,6 +342,20 @@ license_noassertion_body()
 	atf_check \
 		-o inline:"bar: NOASSERTION\nfoo: ISC\n" \
 		pkgconf --with-path=${selfdir}/lib1 --license bar
+}
+
+license_file_foo_body()
+{
+	atf_check \
+		-o inline:"foo: https://foo.bar/foo/COPYING\n" \
+		pkgconf --with-path=${selfdir}/lib1 --license-file foo
+}
+
+license_file_empty_body()
+{
+	atf_check \
+		-o inline:"bar: \nfoo: https://foo.bar/foo/COPYING\n" \
+		pkgconf --with-path=${selfdir}/lib1 --license-file bar
 }
 
 source_foo_body()
