@@ -75,6 +75,7 @@
 #define PKG_EXISTS_CFLAGS		(((uint64_t) 1) << 47)
 #define PKG_FRAGMENT_TREE		(((uint64_t) 1) << 48)
 #define PKG_DUMP_SOURCE		(((uint64_t) 1) << 49)
+#define PKG_DUMP_LICENSE_FILE	(((uint64_t) 1) << 50)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -835,6 +836,32 @@ apply_license(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int ma
 }
 
 static void
+print_license_file(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+{
+	(void) client;
+	(void) data;
+
+	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+		return;
+
+	/*If lisense file location if not available then just print empty */
+	printf("%s: %s\n", pkg->id, pkg->license_file != NULL ? pkg->license_file : "");
+}
+
+static bool
+apply_license_file(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
+{
+	int eflag;
+
+	eflag = pkgconf_pkg_traverse(client, world, print_license_file, data, maxdepth, 0);
+
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+		return false;
+
+	return true;
+}
+
+static void
 print_source(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
 	(void) client;
@@ -1211,6 +1238,7 @@ main(int argc, char *argv[])
 		{ "personality", required_argument, NULL, 53 },
 #endif
 		{ "license", no_argument, &want_flags, PKG_DUMP_LICENSE },
+		{ "license-file", no_argument, &want_flags, PKG_DUMP_LICENSE_FILE },
 		{ "verbose", no_argument, NULL, 55 },
 		{ "exists-cflags", no_argument, &want_flags, PKG_EXISTS_CFLAGS },
 		{ "fragment-tree", no_argument, &want_flags, PKG_FRAGMENT_TREE },
@@ -1734,6 +1762,12 @@ cleanup3:
 	if ((want_flags & PKG_DUMP_LICENSE) == PKG_DUMP_LICENSE)
 	{
 		apply_license(&pkg_client, &world, &ret, 2);
+		goto out;
+	}
+
+	if ((want_flags & PKG_DUMP_LICENSE_FILE) == PKG_DUMP_LICENSE_FILE)
+	{
+		apply_license_file(&pkg_client, &world, &ret, 2);
 		goto out;
 	}
 
