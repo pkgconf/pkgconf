@@ -161,6 +161,7 @@ struct pkgconf_pkg_ {
 	char *maintainer;
 	char *copyright;
 	char *source;
+	char *license_file;
 	char *why;
 
 	pkgconf_list_t libs;
