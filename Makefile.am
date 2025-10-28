@@ -12,7 +12,7 @@ nodist_pkgconfig_DATA  = libpkgconf.pc
 ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -DPERSONALITY_PATH=\"$(personality_dir)\" -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
 
-bin_PROGRAMS = pkgconf bomtool
+bin_PROGRAMS = pkgconf bomtool spdxtool
 lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	pkg.m4 \
@@ -125,6 +125,16 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/cflags-libs-private-c.pc \
 		tests/lib1/truncated.pc \
 		tests/lib1/c-comment.pc \
+		tests/lib-sbom/meta_package.pc \
+		tests/lib-sbom/test1.pc \
+		tests/lib-sbom/test2.pc \
+		tests/lib-sbom/test3.pc \
+		tests/lib-sbom/test4.pc \
+		tests/lib-sbom/test5.pc \
+		tests/lib-sbom/test6.pc \
+		tests/lib-sbom-files/basic.json \
+		tests/lib-sbom-files/meta_package.json \
+		tests/lib-sbom-files/with_dependency.json \
 		tests/meson.build \
 		$(test_scripts) \
 		doc/conf.py \
@@ -150,6 +160,7 @@ test_scripts=	tests/basic.sh \
 		tests/provides.sh \
 		tests/regress.sh \
 		tests/requires.sh \
+		tests/spdxtool.sh \
 		tests/symlink.sh \
 		tests/sysroot.sh \
 		tests/version.sh
@@ -192,14 +203,30 @@ pkgconf_SOURCES  = \
 	cli/renderer-msvc.c
 pkgconf_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli
 noinst_HEADERS   = \
-	cli/getopt_long.h			\
-	cli/renderer-msvc.h
+	cli/getopt_long.h					\
+	cli/renderer-msvc.h					\
+	cli/spdxtool/core.h					\
+	cli/spdxtool/serialize.h			\
+	cli/spdxtool/simplelicensing.h		\
+	cli/spdxtool/software.h				\
+	cli/spdxtool/util.h
 
 bomtool_LDADD    = libpkgconf.la
 bomtool_SOURCES  = \
 	cli/bomtool/main.c				\
 	cli/getopt_long.c
 bomtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/bomtool
+
+spdxtool_LDADD    = libpkgconf.la
+spdxtool_SOURCES  = \
+	cli/spdxtool/main.c		\
+	cli/spdxtool/core.c		\
+	cli/spdxtool/software.c		\
+	cli/spdxtool/serialize.c	\
+	cli/spdxtool/simplelicensing.c	\
+	cli/spdxtool/util.c		\
+	cli/getopt_long.c
+spdxtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/spdxtool
 
 dist_doc_DATA = README.md AUTHORS
 
