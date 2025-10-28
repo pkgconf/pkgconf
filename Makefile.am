@@ -125,6 +125,16 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/cflags-libs-private-c.pc \
 		tests/lib1/truncated.pc \
 		tests/lib1/c-comment.pc \
+		tests/lib-sbom/meta_package.pc \
+		tests/lib-sbom/test1.pc \
+		tests/lib-sbom/test2.pc \
+		tests/lib-sbom/test3.pc \
+		tests/lib-sbom/test4.pc \
+		tests/lib-sbom/test5.pc \
+		tests/lib-sbom/test6.pc \
+		tests/lib-sbom-files/basic.json \
+		tests/lib-sbom-files/meta_package.json \
+		tests/lib-sbom-files/with_dependency.json \
 		tests/meson.build \
 		$(test_scripts) \
 		doc/conf.py \
@@ -150,6 +160,7 @@ test_scripts=	tests/basic.sh \
 		tests/provides.sh \
 		tests/regress.sh \
 		tests/requires.sh \
+		tests/spdxtool.sh \
 		tests/symlink.sh \
 		tests/sysroot.sh \
 		tests/version.sh
