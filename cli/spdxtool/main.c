@@ -91,19 +91,22 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	pkgconf_tuple_add(client, &pkg->vars, "creationInfo", document->creation_info, false, 0);
 	pkgconf_tuple_add(client, &pkg->vars, "agent", document->agent, false, 0);
 
-	snprintf(spdx_id_name, 1024, "%s/hasDeclaredLicense", pkg->realname);
-	package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
-	pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0);
-	free(package_spdx);
-	package_spdx = NULL;
+	if (pkg->license != NULL)
+	{
+		snprintf(spdx_id_name, 1024, "%s/hasDeclaredLicense", pkg->realname);
+		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
+		pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0);
+		free(package_spdx);
+		package_spdx = NULL;
 
-	snprintf(spdx_id_name, 1024, "%s/hasConcludedLicense", pkg->realname);
-	package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
-	pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0);
-	free(package_spdx);
-	package_spdx = NULL;
+		snprintf(spdx_id_name, 1024, "%s/hasConcludedLicense", pkg->realname);
+		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
+		pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0);
+		free(package_spdx);
+		package_spdx = NULL;
 
-	spdxtool_core_spdx_document_add_license(client, document, pkg->license);
+		spdxtool_core_spdx_document_add_license(client, document, pkg->license);
+	}
 
 	node = calloc(1, sizeof(pkgconf_node_t));
 
