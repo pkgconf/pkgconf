@@ -144,7 +144,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	return strdup(buf);
 }
 
-typedef void (*pkgconf_pkg_parser_keyword_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value);
+typedef void (*pkgconf_pkg_parser_keyword_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value);
 typedef struct {
 	const char *keyword;
 	const pkgconf_pkg_parser_keyword_func_t func;
@@ -158,20 +158,19 @@ static int pkgconf_pkg_parser_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) lineno;
+	(void) warnprefix;
 
 	char **dest = (char **)((char *) pkg + offset);
 	*dest = pkgconf_tuple_parse(client, &pkg->vars, value, pkg->flags);
 }
 
 static void
-pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) lineno;
 	char *p, *i;
 	size_t len;
 	char **dest = (char **)((char *) pkg + offset);
@@ -185,15 +184,15 @@ pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, co
 		i = p + (ptrdiff_t) len;
 		*i = '\0';
 
-		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: malformed version field with whitespace, trimming to [%s]\n", pkg->filename,
-			     lineno, p);
+		pkgconf_warn(client, "%s: warning: malformed version field with whitespace, trimming to [%s]\n",
+			     warnprefix, p);
 	}
 
 	*dest = p;
 }
 
 static void
-pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 
@@ -208,16 +207,16 @@ pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, c
 
 	if (!ret)
 	{
-		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: unable to parse field '%s' into an argument vector, value [%s]\n", pkg->filename,
-			     lineno, keyword, value);
+		pkgconf_warn(client, "%s: warning: unable to parse field '%s' into an argument vector, value [%s]\n",
+			     warnprefix, keyword, value);
 	}
 }
 
 static void
-pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) lineno;
+	(void) warnprefix;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	pkgconf_dependency_parse(client, pkg, dest, value, 0);
@@ -225,10 +224,10 @@ pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg,
 
 /* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as an "internal" dependency. */
 static void
-pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) lineno;
+	(void) warnprefix;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_INTERNAL);
@@ -236,10 +235,10 @@ pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pk
 
 /* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as a "private" dependency. */
 static void
-pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const size_t lineno, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) lineno;
+	(void) warnprefix;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_PRIVATE);
@@ -268,7 +267,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 };
 
 static void
-pkgconf_pkg_parser_keyword_set(void *opaque, const size_t lineno, const char *keyword, const char *value)
+pkgconf_pkg_parser_keyword_set(void *opaque, const char *warnprefix, const char *keyword, const char *value)
 {
 	pkgconf_pkg_t *pkg = opaque;
 
@@ -279,7 +278,7 @@ pkgconf_pkg_parser_keyword_set(void *opaque, const size_t lineno, const char *ke
 	if (pair == NULL || pair->func == NULL)
 		return;
 
-	pair->func(pkg->owner, pkg, keyword, lineno, pair->offset, value);
+	pair->func(pkg->owner, pkg, keyword, warnprefix, pair->offset, value);
 }
 
 static const char *
@@ -391,12 +390,12 @@ is_path_prefix_equal(const char *path1, const char *path2, size_t path2_len)
 }
 
 static void
-pkgconf_pkg_parser_value_set(void *opaque, const size_t lineno, const char *keyword, const char *value)
+pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *keyword, const char *value)
 {
 	char canonicalized_value[PKGCONF_ITEM_SIZE];
 	pkgconf_pkg_t *pkg = opaque;
 
-	(void) lineno;
+	(void) warnprefix;
 
 	pkgconf_strlcpy(canonicalized_value, value, sizeof canonicalized_value);
 	canonicalize_path(canonicalized_value);

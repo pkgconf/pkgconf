@@ -330,12 +330,6 @@ PKGCONF_API void pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *p
 # define DEPRECATED
 #endif
 
-/* parser.c */
-typedef void (*pkgconf_parser_operand_func_t)(void *data, const size_t lineno, const char *key, const char *value);
-typedef void (*pkgconf_parser_warn_func_t)(void *data, const char *fmt, ...);
-
-PKGCONF_API void pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, const char *filename);
-
 /* pkg.c */
 PKGCONF_API bool pkgconf_error(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
 PKGCONF_API bool pkgconf_warn(const pkgconf_client_t *client, const char *format, ...) PRINTFLIKE(2, 3);
@@ -487,6 +481,13 @@ static inline void pkgconf_buffer_reset(pkgconf_buffer_t *buffer) {
 
 /* fileio.c */
 PKGCONF_API bool pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream);
+
+/* parser.c */
+typedef void (*pkgconf_parser_operand_func_t)(void *data, const char *warnprefix, const char *key, const char *value);
+typedef void (*pkgconf_parser_warn_func_t)(void *data, const char *fmt, ...);
+
+PKGCONF_API void pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, pkgconf_buffer_t *buffer, const char *warnprefix);
+PKGCONF_API void pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, const char *filename);
 
 #ifdef __cplusplus
 }
