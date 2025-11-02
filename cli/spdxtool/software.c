@@ -118,7 +118,7 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 	spdxtool_serialize_parm_and_string(buffer, "@type", sbom_struct->type, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "creationInfo", sbom_struct->creation_info, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "spdxId", sbom_struct->spdx_id, 3, true);
-	spdxtool_serialize_parm_and_char(buffer, "sbomType", '[', 3, false);
+	spdxtool_serialize_parm_and_char(buffer, "software_sbomType", '[', 3, false);
 	spdxtool_serialize_string(buffer, sbom_struct->sbom_type, 4, false);
 	spdxtool_serialize_array_end(buffer, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "rootElement", '[', 3, false);

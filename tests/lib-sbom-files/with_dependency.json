@@ -32,7 +32,7 @@
             "@type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test2",
-            "sbomType": [
+            "software_sbomType": [
                 "build"
             ],
             "rootElement": [
@@ -89,7 +89,7 @@
             "@type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test3",
-            "sbomType": [
+            "software_sbomType": [
                 "build"
             ],
             "rootElement": [

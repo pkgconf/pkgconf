@@ -50,7 +50,7 @@
             "@type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/meta_package",
-            "sbomType": [
+            "software_sbomType": [
                 "build"
             ],
             "rootElement": [
@@ -162,7 +162,7 @@
             "@type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test1",
-            "sbomType": [
+            "software_sbomType": [
                 "build"
             ],
             "rootElement": [
@@ -208,7 +208,7 @@
             "@type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test2",
-            "sbomType": [
+            "software_sbomType": [
                 "build"
             ],
             "rootElement": [
@@ -265,7 +265,7 @@
             "@type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test3",
-            "sbomType": [
+            "software_sbomType": [
                 "build"
             ],
             "rootElement": [
@@ -311,7 +311,7 @@
             "@type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test4",
-            "sbomType": [
+            "software_sbomType": [
                 "build"
             ],
             "rootElement": [
@@ -379,7 +379,7 @@
             "@type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test5",
-            "sbomType": [
+            "software_sbomType": [
                 "build"
             ],
             "rootElement": [
@@ -425,7 +425,7 @@
             "@type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test6",
-            "sbomType": [
+            "software_sbomType": [
                 "build"
             ],
             "rootElement": [
