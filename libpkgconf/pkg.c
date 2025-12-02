@@ -925,13 +925,6 @@ pkgconf_pkg_find(pkgconf_client_t *client, const char *name)
 		}
 	}
 
-	/* check builtins */
-	if ((pkg = pkgconf_builtin_pkg_get(name)) != NULL)
-	{
-		PKGCONF_TRACE(client, "%s is a builtin", name);
-		return pkg;
-	}
-
 	/* check cache */
 	if (!(client->flags & PKGCONF_PKG_PKGF_NO_CACHE))
 	{
@@ -1099,6 +1092,7 @@ pkgconf_compare_version(const char *a, const char *b)
 	return 1;
 }
 
+#if 0
 static pkgconf_pkg_t pkg_config_virtual = {
 	.id = "pkg-config",
 	.realname = "pkg-config",
@@ -1159,44 +1153,7 @@ static pkgconf_pkg_t pkgconf_virtual = {
 		.tail = NULL,
 	},
 };
-
-typedef struct {
-	const char *name;
-	pkgconf_pkg_t *pkg;
-} pkgconf_builtin_pkg_pair_t;
-
-/* keep these in alphabetical order */
-static const pkgconf_builtin_pkg_pair_t pkgconf_builtin_pkg_pair_set[] = {
-	{"pkg-config", &pkg_config_virtual},
-	{"pkgconf", &pkgconf_virtual},
-};
-
-static int pkgconf_builtin_pkg_pair_cmp(const void *key, const void *ptr)
-{
-	const pkgconf_builtin_pkg_pair_t *pair = ptr;
-	return strcasecmp(key, pair->name);
-}
-
-/*
- * !doc
- *
- * .. c:function:: pkgconf_pkg_t *pkgconf_builtin_pkg_get(const char *name)
- *
- *    Looks up a built-in package.  The package should not be freed or dereferenced.
- *
- *    :param char* name: An atom corresponding to a built-in package to search for.
- *    :return: the built-in package if present, else ``NULL``.
- *    :rtype: pkgconf_pkg_t *
- */
-pkgconf_pkg_t *
-pkgconf_builtin_pkg_get(const char *name)
-{
-	const pkgconf_builtin_pkg_pair_t *pair = bsearch(name, pkgconf_builtin_pkg_pair_set,
-		PKGCONF_ARRAY_SIZE(pkgconf_builtin_pkg_pair_set), sizeof(pkgconf_builtin_pkg_pair_t),
-		pkgconf_builtin_pkg_pair_cmp);
-
-	return (pair != NULL) ? pair->pkg : NULL;
-}
+#endif
 
 typedef bool (*pkgconf_vercmp_res_func_t)(const char *a, const char *b);
 
