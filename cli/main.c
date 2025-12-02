@@ -603,13 +603,11 @@ apply_env(pkgconf_client_t *client, pkgconf_pkg_t *world, void *env_prefix_p, in
 }
 
 static bool
-apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
+apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *target_list, int maxdepth)
 {
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	int eflag;
-	char *render_buf;
-	(void) unused;
 
 	eflag = pkgconf_pkg_cflags(client, world, &unfiltered_list, maxdepth);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
@@ -621,9 +619,7 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 	if (filtered_list.head == NULL)
 		goto out;
 
-	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
-	printf("%s", render_buf);
-	free(render_buf);
+	pkgconf_fragment_copy_list(client, target_list, &filtered_list);
 
 out:
 	pkgconf_fragment_free(&unfiltered_list);
@@ -633,13 +629,11 @@ out:
 }
 
 static bool
-apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
+apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *target_list, int maxdepth)
 {
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	int eflag;
-	char *render_buf;
-	(void) unused;
 
 	eflag = pkgconf_pkg_libs(client, world, &unfiltered_list, maxdepth);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
@@ -650,9 +644,7 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	if (filtered_list.head == NULL)
 		goto out;
 
-	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
-	printf("%s", render_buf);
-	free(render_buf);
+	pkgconf_fragment_copy_list(client, target_list, &filtered_list);
 
 out:
 	pkgconf_fragment_free(&unfiltered_list);
@@ -1936,24 +1928,26 @@ cleanup3:
 		apply_fragment_tree(&pkg_client, &world, NULL, 2);
 	}
 
-	if ((want_flags & PKG_CFLAGS))
+	if ((want_flags & (PKG_CFLAGS|PKG_LIBS)))
 	{
-		apply_cflags(&pkg_client, &world, NULL, 2);
-	}
+		pkgconf_list_t target_list = PKGCONF_LIST_INITIALIZER;
+		char *render_buf;
 
-	if ((want_flags & PKG_LIBS))
-	{
-		if (want_flags & PKG_CFLAGS)
-			printf("%c", (want_flags & PKG_NEWLINES) ? '\n' : ' ');
+		if ((want_flags & PKG_CFLAGS))
+			apply_cflags(&pkg_client, &world, &target_list, 2);
 
-		if (!(want_flags & PKG_STATIC))
+		if ((want_flags & PKG_LIBS) && !(want_flags & PKG_STATIC))
 			pkgconf_client_set_flags(&pkg_client, pkg_client.flags & ~PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
 
-		apply_libs(&pkg_client, &world, NULL, 2);
-	}
+		if ((want_flags & PKG_LIBS))
+			apply_libs(&pkg_client, &world, &target_list, 2);
 
-	if (want_flags & (PKG_CFLAGS|PKG_LIBS))
-		printf("\n");
+		render_buf = pkgconf_fragment_render(&target_list, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
+		printf("%s\n", render_buf);
+		free(render_buf);
+
+		pkgconf_fragment_free(&target_list);
+	}
 
 out:
 	pkgconf_solution_free(&pkg_client, &world);
