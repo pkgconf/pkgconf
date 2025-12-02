@@ -41,7 +41,6 @@ spdxtool_serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level)
 	memset(indent_str, ' ', indent);
 
 	pkgconf_buffer_append(buffer, indent_str);
-	pkgconf_buffer_trim_byte(buffer);
 }
 
 /*
@@ -78,7 +77,6 @@ spdxtool_serialize_add_ch_with_comma(pkgconf_buffer_t *buffer, char ch, unsigned
 	*(ptr) = '\n';
 
 	pkgconf_buffer_append(buffer, append_string);
-	pkgconf_buffer_trim_byte(buffer);
 }
 
 /*
@@ -98,7 +96,6 @@ void
 spdxtool_serialize_add_string_with_comma(pkgconf_buffer_t *buffer, char *string, bool comma)
 {
 	pkgconf_buffer_append(buffer, string);
-	pkgconf_buffer_trim_byte(buffer);
 	free(string);
 
 	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
