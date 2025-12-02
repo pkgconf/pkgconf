@@ -83,7 +83,7 @@ build_default_search_path(pkgconf_list_t* dirlist)
 		paths = NULL;
 	}
 #else
-	pkgconf_path_split(PKG_DEFAULT_PATH, dirlist, true);
+	pkgconf_path_split(PKG_DEFAULT_PATH, dirlist, false);
 #endif
 }
 
