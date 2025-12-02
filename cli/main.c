@@ -74,8 +74,8 @@
 #define PKG_SOLUTION			(((uint64_t) 1) << 46)
 #define PKG_EXISTS_CFLAGS		(((uint64_t) 1) << 47)
 #define PKG_FRAGMENT_TREE		(((uint64_t) 1) << 48)
-#define PKG_DUMP_SOURCE		(((uint64_t) 1) << 49)
-#define PKG_DUMP_LICENSE_FILE	(((uint64_t) 1) << 50)
+#define PKG_DUMP_SOURCE			(((uint64_t) 1) << 49)
+#define PKG_DUMP_LICENSE_FILE		(((uint64_t) 1) << 50)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
