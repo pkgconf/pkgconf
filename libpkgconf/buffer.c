@@ -120,4 +120,5 @@ void
 pkgconf_buffer_finalize(pkgconf_buffer_t *buffer)
 {
 	free(buffer->base);
+	buffer->base = buffer->end = NULL;
 }
