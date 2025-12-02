@@ -1039,13 +1039,13 @@ static void
 dump_personality(const pkgconf_cross_personality_t *p)
 {
 	pkgconf_buffer_t pc_path_buf = PKGCONF_BUFFER_INITIALIZER;
-	path_list_to_buffer(&p->dir_list, &pc_path_buf, ' ');
+	path_list_to_buffer(&p->dir_list, &pc_path_buf, ':');
 
 	pkgconf_buffer_t pc_system_libdirs_buf = PKGCONF_BUFFER_INITIALIZER;
-	path_list_to_buffer(&p->filter_libdirs, &pc_system_libdirs_buf, ' ');
+	path_list_to_buffer(&p->filter_libdirs, &pc_system_libdirs_buf, ':');
 
 	pkgconf_buffer_t pc_system_includedirs_buf = PKGCONF_BUFFER_INITIALIZER;
-	path_list_to_buffer(&p->filter_includedirs, &pc_system_includedirs_buf, ' ');
+	path_list_to_buffer(&p->filter_includedirs, &pc_system_includedirs_buf, ':');
 
 	printf("Triplet: %s\n", p->name);
 
@@ -1053,8 +1053,8 @@ dump_personality(const pkgconf_cross_personality_t *p)
 		printf("SysrootDir: %s\n", p->sysroot_dir);
 
 	printf("DefaultSearchPaths: %s\n", pc_path_buf.base);
-	printf("SystemIncludePaths: %s\n", pc_system_libdirs_buf.base);
-	printf("SystemLibraryPaths: %s\n", pc_system_includedirs_buf.base);
+	printf("SystemIncludePaths: %s\n", pc_system_includedirs_buf.base);
+	printf("SystemLibraryPaths: %s\n", pc_system_libdirs_buf.base);
 
 	pkgconf_buffer_finalize(&pc_path_buf);
 	pkgconf_buffer_finalize(&pc_system_libdirs_buf);
