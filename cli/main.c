@@ -76,6 +76,7 @@
 #define PKG_FRAGMENT_TREE		(((uint64_t) 1) << 48)
 #define PKG_DUMP_SOURCE			(((uint64_t) 1) << 49)
 #define PKG_DUMP_LICENSE_FILE		(((uint64_t) 1) << 50)
+#define PKG_NEWLINES			(((uint64_t) 1) << 51)
 
 static pkgconf_client_t pkg_client;
 static const pkgconf_fragment_render_ops_t *want_render_ops = NULL;
@@ -477,7 +478,7 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 	if (filtered_list.head == NULL)
 		goto out;
 
-	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops, ' ');
+	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
 	printf("%s='%s'\n", prefix, render_buf);
 	free(render_buf);
 
@@ -620,7 +621,7 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int m
 	if (filtered_list.head == NULL)
 		goto out;
 
-	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops, ' ');
+	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
 	printf("%s", render_buf);
 	free(render_buf);
 
@@ -649,7 +650,7 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	if (filtered_list.head == NULL)
 		goto out;
 
-	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops, ' ');
+	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
 	printf("%s", render_buf);
 	free(render_buf);
 
@@ -1003,6 +1004,7 @@ usage(void)
 	printf("  --fragment-filter=types           filter output fragments to the specified types\n");
 	printf("  --env=prefix                      print output as shell-compatible environmental variables\n");
 	printf("  --fragment-tree                   visualize printed CFLAGS/LIBS fragments as a tree\n");
+	printf("  --newlines                        use newlines for whitespace between fragments\n");
 
 	printf("\nreport bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
@@ -1312,6 +1314,7 @@ main(int argc, char *argv[])
 		{ "exists-cflags", no_argument, &want_flags, PKG_EXISTS_CFLAGS },
 		{ "fragment-tree", no_argument, &want_flags, PKG_FRAGMENT_TREE },
 		{ "source", no_argument, &want_flags, PKG_DUMP_SOURCE },
+		{ "newlines", no_argument, &want_flags, PKG_NEWLINES },
 		{ NULL, 0, NULL, 0 }
 	};
 
