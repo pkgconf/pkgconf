@@ -1395,7 +1395,9 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_DUMP_PERSONALITY) == PKG_DUMP_PERSONALITY)
 	{
 		dump_personality(personality);
-		return EXIT_SUCCESS;
+
+		ret = EXIT_SUCCESS;
+		goto out;
 	}
 #endif
 
