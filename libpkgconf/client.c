@@ -765,6 +765,8 @@ pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler
 bool
 pkgconf_client_preload_one(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 {
+	PKGCONF_TRACE(client, "preloading pkg %s@%p", pkg->id, pkg);
+
 	pkg->flags |= PKGCONF_PKG_PROPF_PRELOADED;
 
 	pkgconf_pkg_ref(client, pkg);
