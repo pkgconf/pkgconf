@@ -8,6 +8,7 @@ tests = [
   'conflicts',
   'framework',
   'parser',
+  'personality',
   'provides',
   'regress',
   'requires',
