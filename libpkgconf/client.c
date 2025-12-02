@@ -182,7 +182,7 @@ unref_preload_list(pkgconf_client_t *client)
 {
 	pkgconf_node_t *n, *tn;
 
-	PKGCONF_FOREACH_LIST_ENTRY_SAFE(client->preloaded_pkgs.head, n, tn)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(client->preloaded_pkgs.head, tn, n)
 	{
 		pkgconf_pkg_t *pkg = n->data;
 		pkgconf_pkg_unref(client, pkg);
