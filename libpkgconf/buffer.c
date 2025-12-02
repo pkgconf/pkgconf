@@ -66,6 +66,28 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 }
 
 void
+pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...)
+{
+	va_list va;
+	char *buf;
+	size_t needed;
+
+	va_start(va, fmt);
+	needed = vsnprintf(NULL, 0, fmt, va) + 1;
+	va_end(va);
+
+	buf = malloc(needed);
+
+	va_start(va, fmt);
+	vsnprintf(buf, needed, fmt, va);
+	va_end(va);
+
+	pkgconf_buffer_append(buffer, buf);
+
+	free(buf);
+}
+
+void
 pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 {
 	size_t newsize = pkgconf_buffer_len(buffer) + 1;
