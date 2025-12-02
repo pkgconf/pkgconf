@@ -1127,6 +1127,49 @@ unveil_search_paths(const pkgconf_client_t *client, const pkgconf_cross_personal
 	return true;
 }
 
+/* SAFETY: pkgconf_client_t takes ownership of these package objects */
+static void
+register_builtins(pkgconf_client_t *client, pkgconf_cross_personality_t *personality)
+{
+	(void) personality;
+
+	pkgconf_pkg_t *pkg_config_virtual = calloc(1, sizeof(pkgconf_pkg_t));
+	if (pkg_config_virtual == NULL)
+		return;
+
+	pkg_config_virtual->owner = client;
+	pkg_config_virtual->id = strdup("pkg-config");
+	pkg_config_virtual->realname = strdup("pkg-config");
+	pkg_config_virtual->description = strdup("virtual package defining pkgconf API version supported");
+	pkg_config_virtual->url = strdup(PACKAGE_BUGREPORT);
+	pkg_config_virtual->version = strdup(PACKAGE_VERSION);
+
+	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_libdirs", SYSTEM_LIBDIR, false, 0);
+	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_includedirs", SYSTEM_INCLUDEDIR, false, 0);
+	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_path", PKG_DEFAULT_PATH, false, 0);
+
+	if (!pkgconf_client_preload_one(client, pkg_config_virtual))
+		return;
+
+	pkgconf_pkg_t *pkgconf_virtual = calloc(1, sizeof(pkgconf_pkg_t));
+	if (pkgconf_virtual == NULL)
+		return;
+
+	pkgconf_virtual->owner = client;
+	pkgconf_virtual->id = strdup("pkgconf");
+	pkgconf_virtual->realname = strdup("pkgconf");
+	pkgconf_virtual->description = strdup("virtual package defining pkgconf API version supported");
+	pkgconf_virtual->url = strdup(PACKAGE_BUGREPORT);
+	pkgconf_virtual->version = strdup(PACKAGE_VERSION);
+
+	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_libdirs", SYSTEM_LIBDIR, false, 0);
+	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_includedirs", SYSTEM_INCLUDEDIR, false, 0);
+	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_path", PKG_DEFAULT_PATH, false, 0);
+
+	if (!pkgconf_client_preload_one(client, pkgconf_virtual))
+		return;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1508,6 +1551,9 @@ main(int argc, char *argv[])
 		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
 		return EXIT_FAILURE;
 	}
+
+	/* register built-in packages */
+	register_builtins(&pkg_client, personality);
 
 	/* preload any files in PKG_CONFIG_PRELOADED_FILES */
 	pkgconf_client_preload_from_environ(&pkg_client, "PKG_CONFIG_PRELOADED_FILES");
