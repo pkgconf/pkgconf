@@ -1018,41 +1018,47 @@ relocate_path(const char *path)
 	printf("%s\n", buf);
 }
 
+static void
+path_list_to_buffer(const pkgconf_list_t *list, pkgconf_buffer_t *buffer, char delim)
+{
+	pkgconf_node_t *n;
+
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+
+		if (n != list->head)
+			pkgconf_buffer_push_byte(buffer, delim);
+
+		pkgconf_buffer_append(buffer, pn->path);
+	}
+}
+
 #ifndef PKGCONF_LITE
 static void
 dump_personality(const pkgconf_cross_personality_t *p)
 {
-	pkgconf_node_t *n;
+	pkgconf_buffer_t pc_path_buf = PKGCONF_BUFFER_INITIALIZER;
+	path_list_to_buffer(&p->dir_list, &pc_path_buf, ' ');
+
+	pkgconf_buffer_t pc_system_libdirs_buf = PKGCONF_BUFFER_INITIALIZER;
+	path_list_to_buffer(&p->filter_libdirs, &pc_system_libdirs_buf, ' ');
+
+	pkgconf_buffer_t pc_system_includedirs_buf = PKGCONF_BUFFER_INITIALIZER;
+	path_list_to_buffer(&p->filter_includedirs, &pc_system_includedirs_buf, ' ');
 
 	printf("Triplet: %s\n", p->name);
 
 	if (p->sysroot_dir)
 		printf("SysrootDir: %s\n", p->sysroot_dir);
 
-	printf("DefaultSearchPaths: ");
-	PKGCONF_FOREACH_LIST_ENTRY(p->dir_list.head, n)
-	{
-		pkgconf_path_t *pn = n->data;
-		printf("%s ", pn->path);
-	}
+	printf("DefaultSearchPaths: %s\n", pc_path_buf.base);
+	printf("SystemIncludePaths: %s\n", pc_system_libdirs_buf.base);
+	printf("SystemLibraryPaths: %s\n", pc_system_includedirs_buf.base);
 
-	printf("\n");
-	printf("SystemIncludePaths: ");
-	PKGCONF_FOREACH_LIST_ENTRY(p->filter_includedirs.head, n)
-	{
-		pkgconf_path_t *pn = n->data;
-		printf("%s ", pn->path);
-	}
-
-	printf("\n");
-	printf("SystemLibraryPaths: ");
-	PKGCONF_FOREACH_LIST_ENTRY(p->filter_libdirs.head, n)
-	{
-		pkgconf_path_t *pn = n->data;
-		printf("%s ", pn->path);
-	}
-
-	printf("\n");
+	pkgconf_buffer_finalize(&pc_path_buf);
+	pkgconf_buffer_finalize(&pc_system_libdirs_buf);
+	pkgconf_buffer_finalize(&pc_system_includedirs_buf);
 }
 
 static pkgconf_cross_personality_t *
@@ -1125,22 +1131,6 @@ unveil_search_paths(const pkgconf_client_t *client, const pkgconf_cross_personal
 	pkgconf_client_set_unveil_handler(&pkg_client, unveil_handler);
 
 	return true;
-}
-
-static void
-path_list_to_buffer(const pkgconf_list_t *list, pkgconf_buffer_t *buffer, char delim)
-{
-	pkgconf_node_t *n;
-
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, n)
-	{
-		pkgconf_path_t *pn = n->data;
-
-		if (n != list->head)
-			pkgconf_buffer_push_byte(buffer, delim);
-
-		pkgconf_buffer_append(buffer, pn->path);
-	}
 }
 
 /* SAFETY: pkgconf_client_t takes ownership of these package objects */
