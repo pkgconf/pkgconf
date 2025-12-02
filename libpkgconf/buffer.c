@@ -32,6 +32,18 @@ target_allocation_size(size_t target_size)
 	return 4096 + (4096 * (target_size / 4096));
 }
 
+#if 0
+static void
+buffer_debug(pkgconf_buffer_t *buffer)
+{
+	for (char *c = buffer->base; c <= buffer->end; c++) {
+		fprintf(stderr, "%02x ", (unsigned char) *c);
+	}
+
+	fprintf(stderr, "\n");
+}
+#endif
+
 void
 pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 {
@@ -48,7 +60,9 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 	pkgconf_strlcpy(newend, text, needed);
 
 	buffer->base = newbase;
-	buffer->end = newend + needed;
+	buffer->end = newend + (needed - 1);
+
+	*buffer->end = '\0';
 }
 
 void
