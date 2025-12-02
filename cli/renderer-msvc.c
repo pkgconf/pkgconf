@@ -104,7 +104,7 @@ msvc_renderer_render_len(const pkgconf_list_t *list, bool escape)
 }
 
 static void
-msvc_renderer_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape)
+msvc_renderer_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape, char delim)
 {
 	pkgconf_node_t *node;
 	char *bptr = buf;
@@ -154,7 +154,7 @@ msvc_renderer_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, b
 		if (escape)
 			*bptr++ = '"';
 
-		*bptr++ = ' ';
+		*bptr++ = delim;
 	}
 
 	*bptr = '\0';
