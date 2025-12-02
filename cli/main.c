@@ -1944,7 +1944,7 @@ cleanup3:
 	if ((want_flags & PKG_LIBS))
 	{
 		if (want_flags & PKG_CFLAGS)
-			printf(" ");
+			printf("%c", (want_flags & PKG_NEWLINES) ? '\n' : ' ');
 
 		if (!(want_flags & PKG_STATIC))
 			pkgconf_client_set_flags(&pkg_client, pkg_client.flags & ~PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
