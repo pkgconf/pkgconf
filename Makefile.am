@@ -135,6 +135,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom-files/basic.json \
 		tests/lib-sbom-files/meta_package.json \
 		tests/lib-sbom-files/with_dependency.json \
+		tests/personality-data/i386-linux-gnu.personality \
 		tests/meson.build \
 		$(test_scripts) \
 		doc/conf.py \
@@ -157,6 +158,7 @@ test_scripts=	tests/basic.sh \
 		tests/conflicts.sh \
 		tests/framework.sh \
 		tests/parser.sh \
+		tests/personality.sh \
 		tests/provides.sh \
 		tests/regress.sh \
 		tests/requires.sh \
