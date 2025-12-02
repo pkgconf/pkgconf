@@ -1092,69 +1092,6 @@ pkgconf_compare_version(const char *a, const char *b)
 	return 1;
 }
 
-#if 0
-static pkgconf_pkg_t pkg_config_virtual = {
-	.id = "pkg-config",
-	.realname = "pkg-config",
-	.description = "virtual package defining pkg-config API version supported",
-	.url = PACKAGE_BUGREPORT,
-	.version = PACKAGE_VERSION,
-	.flags = PKGCONF_PKG_PROPF_STATIC,
-	.vars = {
-		.head = &(pkgconf_node_t){
-			.next = &(pkgconf_node_t){
-				.next = &(pkgconf_node_t){
-					.data = &(pkgconf_tuple_t){
-						.key = "pc_system_libdirs",
-						.value = SYSTEM_LIBDIR,
-					}
-				},
-				.data = &(pkgconf_tuple_t){
-					.key = "pc_system_includedirs",
-					.value = SYSTEM_INCLUDEDIR,
-				}
-			},
-			.data = &(pkgconf_tuple_t){
-				.key = "pc_path",
-				.value = PKG_DEFAULT_PATH,
-			},
-		},
-		.tail = NULL,
-	}
-};
-
-static pkgconf_pkg_t pkgconf_virtual = {
-	.id = "pkgconf",
-	.realname = "pkgconf",
-	.description = "virtual package defining pkgconf API version supported",
-	.url = PACKAGE_BUGREPORT,
-	.version = PACKAGE_VERSION,
-	.license = "ISC",
-	.flags = PKGCONF_PKG_PROPF_STATIC,
-	.vars = {
-		.head = &(pkgconf_node_t){
-			.next = &(pkgconf_node_t){
-				.next = &(pkgconf_node_t){
-					.data = &(pkgconf_tuple_t){
-						.key = "pc_system_libdirs",
-						.value = SYSTEM_LIBDIR,
-					}
-				},
-				.data = &(pkgconf_tuple_t){
-					.key = "pc_system_includedirs",
-					.value = SYSTEM_INCLUDEDIR,
-				}
-			},
-			.data = &(pkgconf_tuple_t){
-				.key = "pc_path",
-				.value = PKG_DEFAULT_PATH,
-			},
-		},
-		.tail = NULL,
-	},
-};
-#endif
-
 typedef bool (*pkgconf_vercmp_res_func_t)(const char *a, const char *b);
 
 typedef struct {
