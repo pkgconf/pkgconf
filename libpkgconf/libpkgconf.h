@@ -272,6 +272,7 @@ PKGCONF_API void pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgc
 PKGCONF_API pkgconf_unveil_handler_func_t pkgconf_client_get_unveil_handler(const pkgconf_client_t *client);
 PKGCONF_API void pkgconf_client_set_unveil_handler(pkgconf_client_t *client, pkgconf_unveil_handler_func_t unveil_handler);
 PKGCONF_API void pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality);
+PKGCONF_API bool pkgconf_client_preload_one(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 PKGCONF_API bool pkgconf_client_preload_path(pkgconf_client_t *client, const char *path);
 PKGCONF_API bool pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *env);
 
