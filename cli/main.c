@@ -1127,15 +1127,40 @@ unveil_search_paths(const pkgconf_client_t *client, const pkgconf_cross_personal
 	return true;
 }
 
+static void
+path_list_to_buffer(const pkgconf_list_t *list, pkgconf_buffer_t *buffer, char delim)
+{
+	pkgconf_node_t *n;
+
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, n)
+	{
+		pkgconf_path_t *pn = n->data;
+
+		if (n != list->head)
+			pkgconf_buffer_push_byte(buffer, delim);
+
+		pkgconf_buffer_append(buffer, pn->path);
+	}
+}
+
 /* SAFETY: pkgconf_client_t takes ownership of these package objects */
 static void
 register_builtins(pkgconf_client_t *client, pkgconf_cross_personality_t *personality)
 {
-	(void) personality;
+	pkgconf_buffer_t pc_path_buf = PKGCONF_BUFFER_INITIALIZER;
+	path_list_to_buffer(&personality->dir_list, &pc_path_buf, ':');
+
+	pkgconf_buffer_t pc_system_libdirs_buf = PKGCONF_BUFFER_INITIALIZER;
+	path_list_to_buffer(&personality->filter_libdirs, &pc_system_libdirs_buf, ':');
+
+	pkgconf_buffer_t pc_system_includedirs_buf = PKGCONF_BUFFER_INITIALIZER;
+	path_list_to_buffer(&personality->filter_includedirs, &pc_system_includedirs_buf, ':');
 
 	pkgconf_pkg_t *pkg_config_virtual = calloc(1, sizeof(pkgconf_pkg_t));
 	if (pkg_config_virtual == NULL)
-		return;
+	{
+		goto error;
+	}
 
 	pkg_config_virtual->owner = client;
 	pkg_config_virtual->id = strdup("pkg-config");
@@ -1144,16 +1169,20 @@ register_builtins(pkgconf_client_t *client, pkgconf_cross_personality_t *persona
 	pkg_config_virtual->url = strdup(PACKAGE_BUGREPORT);
 	pkg_config_virtual->version = strdup(PACKAGE_VERSION);
 
-	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_libdirs", SYSTEM_LIBDIR, false, 0);
-	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_includedirs", SYSTEM_INCLUDEDIR, false, 0);
-	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_path", PKG_DEFAULT_PATH, false, 0);
+	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_libdirs", pc_system_libdirs_buf.base, false, 0);
+	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_includedirs", pc_system_includedirs_buf.base, false, 0);
+	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_path", pc_path_buf.base, false, 0);
 
 	if (!pkgconf_client_preload_one(client, pkg_config_virtual))
-		return;
+	{
+		goto error;
+	}
 
 	pkgconf_pkg_t *pkgconf_virtual = calloc(1, sizeof(pkgconf_pkg_t));
 	if (pkgconf_virtual == NULL)
-		return;
+	{
+		goto error;
+	}
 
 	pkgconf_virtual->owner = client;
 	pkgconf_virtual->id = strdup("pkgconf");
@@ -1162,12 +1191,19 @@ register_builtins(pkgconf_client_t *client, pkgconf_cross_personality_t *persona
 	pkgconf_virtual->url = strdup(PACKAGE_BUGREPORT);
 	pkgconf_virtual->version = strdup(PACKAGE_VERSION);
 
-	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_libdirs", SYSTEM_LIBDIR, false, 0);
-	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_includedirs", SYSTEM_INCLUDEDIR, false, 0);
-	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_path", PKG_DEFAULT_PATH, false, 0);
+	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_libdirs", pc_system_libdirs_buf.base, false, 0);
+	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_includedirs", pc_system_includedirs_buf.base, false, 0);
+	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_path", pc_path_buf.base, false, 0);
 
 	if (!pkgconf_client_preload_one(client, pkgconf_virtual))
-		return;
+	{
+		goto error;
+	}
+
+error:
+	pkgconf_buffer_finalize(&pc_path_buf);
+	pkgconf_buffer_finalize(&pc_system_libdirs_buf);
+	pkgconf_buffer_finalize(&pc_system_includedirs_buf);
 }
 
 int
