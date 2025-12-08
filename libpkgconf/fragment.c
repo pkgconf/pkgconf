@@ -568,30 +568,20 @@ fragment_render_len(const pkgconf_list_t *list, bool escape)
 }
 
 static inline size_t
-fragment_render_item(const pkgconf_fragment_t *frag, char *bptr, size_t bufremain)
+fragment_render_item(const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf, char delim)
 {
 	const pkgconf_node_t *iter;
-	char *base = bptr;
 
 	char *quoted = fragment_quote(frag);
 	if (quoted == NULL)
 		return 0;
 
-	if (strlen(quoted) > bufremain)
-	{
-		free(quoted);
-		return 0;
-	}
-
 	if (frag->type)
-	{
-		*bptr++ = '-';
-		*bptr++ = frag->type;
-	}
+		pkgconf_buffer_append_fmt(buf, "-%c", frag->type);
 
 	if (quoted != NULL)
 	{
-		bptr += pkgconf_strlcpy(bptr, quoted, bufremain - (bptr - base));
+		pkgconf_buffer_append(buf, quoted);
 		free(quoted);
 	}
 
@@ -599,33 +589,27 @@ fragment_render_item(const pkgconf_fragment_t *frag, char *bptr, size_t bufremai
 	{
 		const pkgconf_fragment_t *child_frag = iter->data;
 
-		*bptr++ = ' ';
-		bptr += fragment_render_item(child_frag, bptr, bufremain - (bptr - base));
+		pkgconf_buffer_push_byte(buf, delim);
+		fragment_render_item(child_frag, buf, delim);
 	}
 
-	return bptr - base;
+	return pkgconf_buffer_len(buf);
 }
 
 static void
-fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape, char delim)
+fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, char delim)
 {
 	(void) escape;
 
 	pkgconf_node_t *node;
-	char *bptr = buf;
-
-	memset(buf, 0, buflen);
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		const pkgconf_fragment_t *frag = node->data;
-		size_t buf_remaining = buflen - (bptr - buf);
-		size_t written = fragment_render_item(frag, bptr, buf_remaining);
-
-		bptr += written;
+		fragment_render_item(frag, buf, delim);
 
 		if (node->next != NULL)
-			*bptr++ = delim;
+			pkgconf_buffer_push_byte(buf, delim);
 	}
 }
 
@@ -672,12 +656,12 @@ pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape, const pkgco
  *    :return: nothing
  */
 void
-pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim)
+pkgconf_fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim)
 {
 	(void) escape;
 
 	ops = ops != NULL ? ops : &default_render_ops;
-	ops->render_buf(list, buf, buflen, true, delim);
+	ops->render_buf(list, buf, true, delim);
 }
 
 /*
@@ -697,14 +681,16 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, char *buf, size_t buflen
 char *
 pkgconf_fragment_render(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim)
 {
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+	char *out;
+
 	(void) escape;
 
-	size_t buflen = pkgconf_fragment_render_len(list, true, ops);
-	char *buf = calloc(1, buflen);
+	pkgconf_fragment_render_buf(list, &buf, true, ops, delim);
+	out = strdup(pkgconf_buffer_len(&buf) ? pkgconf_buffer_str(&buf) : "");
+	pkgconf_buffer_finalize(&buf);
 
-	pkgconf_fragment_render_buf(list, buf, buflen, true, ops, delim);
-
-	return buf;
+	return out;
 }
 
 /*
