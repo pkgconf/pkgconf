@@ -463,8 +463,8 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 {
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
+	pkgconf_buffer_t render_buf = PKGCONF_BUFFER_INITIALIZER;
 	unsigned int eflag;
-	char *render_buf;
 
 	eflag = collect_fn(client, world, &unfiltered_list, maxdepth);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
@@ -478,9 +478,9 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 	if (filtered_list.head == NULL)
 		goto out;
 
-	render_buf = pkgconf_fragment_render(&filtered_list, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
-	printf("%s='%s'\n", prefix, render_buf);
-	free(render_buf);
+	pkgconf_fragment_render_buf(&filtered_list, &render_buf, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
+	printf("%s='%s'\n", prefix, pkgconf_buffer_str_or_empty(&render_buf));
+	pkgconf_buffer_finalize(&render_buf);
 
 out:
 	pkgconf_fragment_free(&unfiltered_list);
@@ -1931,7 +1931,7 @@ cleanup3:
 	if ((want_flags & (PKG_CFLAGS|PKG_LIBS)))
 	{
 		pkgconf_list_t target_list = PKGCONF_LIST_INITIALIZER;
-		char *render_buf;
+		pkgconf_buffer_t render_buf = PKGCONF_BUFFER_INITIALIZER;
 
 		if ((want_flags & PKG_CFLAGS))
 			apply_cflags(&pkg_client, &world, &target_list, 2);
@@ -1942,9 +1942,9 @@ cleanup3:
 		if ((want_flags & PKG_LIBS))
 			apply_libs(&pkg_client, &world, &target_list, 2);
 
-		render_buf = pkgconf_fragment_render(&target_list, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
-		printf("%s\n", render_buf);
-		free(render_buf);
+		pkgconf_fragment_render_buf(&target_list, &render_buf, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
+		pkgconf_buffer_fputs(&render_buf, stdout);
+		pkgconf_buffer_finalize(&render_buf);
 
 		pkgconf_fragment_free(&target_list);
 	}
