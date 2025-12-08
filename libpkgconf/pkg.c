@@ -389,13 +389,40 @@ is_path_prefix_equal(const char *path1, const char *path2, size_t path2_len)
 #endif
 }
 
+static inline const char *
+lookup_val_from_env(const char *pkg_id, const char *keyword)
+{
+	char env_var[PKGCONF_ITEM_SIZE];
+	char *c;
+
+	snprintf(env_var, sizeof env_var, "PKG_CONFIG_%s_%s", pkg_id, keyword);
+
+	for (c = env_var; *c; c++)
+	{
+		*c = toupper((unsigned char) *c);
+
+		if (!isalnum((unsigned char) *c))
+			*c = '_';
+	}
+
+	return getenv(env_var);
+}
+
 static void
 pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *keyword, const char *value)
 {
 	char canonicalized_value[PKGCONF_ITEM_SIZE];
 	pkgconf_pkg_t *pkg = opaque;
+	const char *env_content;
 
 	(void) warnprefix;
+
+	env_content = lookup_val_from_env(pkg->id, keyword);
+	if (env_content != NULL)
+	{
+		PKGCONF_TRACE(pkg->owner, "overriding %s from environment", keyword);
+		value = env_content;
+	}
 
 	pkgconf_strlcpy(canonicalized_value, value, sizeof canonicalized_value);
 	canonicalize_path(canonicalized_value);
