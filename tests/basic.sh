@@ -49,7 +49,8 @@ tests_init \
 	source_empty \
 	print_variables_env \
 	variable_env \
-	variable_no_recurse
+	variable_no_recurse \
+	tuple_env
 
 noargs_body()
 {
@@ -420,4 +421,12 @@ variable_no_recurse_body()
 	atf_check \
 		-o inline:"/test/include\n" \
 		pkgconf --with-path=${selfdir}/lib1 --variable=includedir bar
+}
+
+tuple_env_body()
+{
+	PKG_CONFIG_DUPLICATE_TUPLE_PREFIX=/bar \
+	atf_check \
+		-o inline:"/bar\n" \
+		pkgconf --with-path=${selfdir}/lib1 --variable=prefix duplicate-tuple
 }
