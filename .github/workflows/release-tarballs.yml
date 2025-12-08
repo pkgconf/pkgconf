@@ -1,4 +1,4 @@
-name: Generate and upload release tarballs
+name: Generate and upload release artifacts
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - 'pkgconf-*'
 
 jobs:
-  publish:
+  tarball:
     runs-on: ubuntu-latest
     container:
       image: alpine:latest
@@ -30,33 +30,13 @@ jobs:
       run: |
         make distcheck -j$(nproc)
 
-    - name: Upload dist tarballs to distfiles.ariadne.space
-      env:
-        DISTFILES_PRIVATE_KEY: ${{ secrets.DISTFILES_PRIVATE_KEY }}
-        DISTFILES_HOST_KEYS: ${{ secrets.DISTFILES_HOST_KEYS }}
-      run: |
-        mkdir -p $HOME/.ssh
-
-        # Ensure the private key is read-only so SSH doesn't reject it.
-        umask 277
-        (echo "$DISTFILES_PRIVATE_KEY" | base64 -d) > $HOME/.ssh/id_ed25519
-
-        umask 077
-        (echo "$DISTFILES_HOST_KEYS" | base64 -d) > $HOME/.ssh/known_hosts
-
-        # Upload the tarballs.
-        scp -i "$HOME/.ssh/id_ed25519" -o "UserKnownHostsFile=$HOME/.ssh/known_hosts" *.tar* kaniini@distfiles.ariadne.space:distfiles/pkgconf/
-
-        # Delete the key material.
-        rm -rf $HOME/.ssh
-
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: tarball
         path: pkgconf-*.tar.*
 
-  build-msi:
+  msi:
     name: Build MSI
     runs-on: windows-latest
     strategy:
@@ -97,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    needs: [publish, build-msi]
+    needs: [tarball, msi]
     steps:
       - name: Download tarball artifact
         uses: actions/download-artifact@v4
@@ -116,3 +96,40 @@ jobs:
           files: |
             dist/pkgconf-*.tar.*
             dist/pkgconf-*.msi
+
+  publish:
+    name: Publish on distfiles.ariadne.space
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: [tarball, msi]
+    steps:
+      - name: Download tarball artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tarball
+          path: dist
+      - name: Download msi artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: msi
+          path: dist
+      - name: Upload dist tarballs to distfiles.ariadne.space
+        env:
+          DISTFILES_PRIVATE_KEY: ${{ secrets.DISTFILES_PRIVATE_KEY }}
+          DISTFILES_HOST_KEYS: ${{ secrets.DISTFILES_HOST_KEYS }}
+        run: |
+          mkdir -p $HOME/.ssh
+
+          # Ensure the private key is read-only so SSH doesn't reject it.
+          umask 277
+          (echo "$DISTFILES_PRIVATE_KEY" | base64 -d) > $HOME/.ssh/id_ed25519
+
+          umask 077
+          (echo "$DISTFILES_HOST_KEYS" | base64 -d) > $HOME/.ssh/known_hosts
+
+          # Upload the tarballs.
+          scp -i "$HOME/.ssh/id_ed25519" -o "UserKnownHostsFile=$HOME/.ssh/known_hosts" dist/* kaniini@distfiles.ariadne.space:distfiles/pkgconf/
+
+          # Delete the key material.
+          rm -rf $HOME/.ssh
