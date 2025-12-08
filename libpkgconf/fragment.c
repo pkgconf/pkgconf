@@ -667,35 +667,6 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, b
 /*
  * !doc
  *
- * .. c:function:: char *pkgconf_fragment_render(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim)
- *
- *    Allocate memory and render a `fragment list` into it.
- *
- *    :param pkgconf_list_t* list: The `fragment list` being rendered.
- *    :param bool escape: Whether or not to escape special shell characters (deprecated).
- *    :param pkgconf_fragment_render_ops_t* ops: An optional ops structure to use for custom renderers, else ``NULL``.
- *    :param char delim: The delimiter to use between fragments.
- *    :return: An allocated string containing the rendered `fragment list`.
- *    :rtype: char *
- */
-char *
-pkgconf_fragment_render(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim)
-{
-	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
-	char *out;
-
-	(void) escape;
-
-	pkgconf_fragment_render_buf(list, &buf, true, ops, delim);
-	out = strdup(pkgconf_buffer_len(&buf) ? pkgconf_buffer_str(&buf) : "");
-	pkgconf_buffer_finalize(&buf);
-
-	return out;
-}
-
-/*
- * !doc
- *
  * .. c:function:: void pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node)
  *
  *    Delete a `fragment node` from a `fragment list`.
