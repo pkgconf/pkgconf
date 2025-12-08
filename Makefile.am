@@ -125,6 +125,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/cflags-libs-private-c.pc \
 		tests/lib1/truncated.pc \
 		tests/lib1/c-comment.pc \
+		tests/lib1/duplicate-tuple.pc \
 		tests/lib-sbom/meta_package.pc \
 		tests/lib-sbom/test1.pc \
 		tests/lib-sbom/test2.pc \
