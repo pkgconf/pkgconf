@@ -122,3 +122,12 @@ pkgconf_buffer_finalize(pkgconf_buffer_t *buffer)
 	free(buffer->base);
 	buffer->base = buffer->end = NULL;
 }
+
+void
+pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out)
+{
+	if (pkgconf_buffer_len(buffer) != 0)
+		fputs(pkgconf_buffer_str(buffer), out);
+
+	fputc('\n', out);
+}
