@@ -19,7 +19,7 @@ jobs:
     - name: Update system and add dependencies
       run: |
         apk update
-        apk add kyua atf build-base autoconf automake libtool xz gzip openssh-client
+        apk add kyua atf build-base autoconf automake libtool xz gzip tar openssh-client
 
     - name: Bootstrap autotools
       run: |
