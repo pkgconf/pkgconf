@@ -238,8 +238,6 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 	char *dequote_value;
 	pkgconf_tuple_t *tuple = calloc(1, sizeof(pkgconf_tuple_t));
 
-	pkgconf_tuple_find_delete(list, key);
-
 	dequote_value = dequote(value);
 
 	tuple->key = strdup(key);
@@ -249,6 +247,8 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 		tuple->value = strdup(dequote_value);
 
 	PKGCONF_TRACE(client, "adding tuple to @%p: %s => %s (parsed? %d)", list, key, tuple->value, parse);
+
+	pkgconf_tuple_find_delete(list, key);
 
 	pkgconf_node_insert(&tuple->iter, tuple, list);
 
