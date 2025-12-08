@@ -464,6 +464,10 @@ static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer) {
 	return buffer->base;
 }
 
+static inline const char *pkgconf_buffer_str_or_empty(const pkgconf_buffer_t *buffer) {
+	return buffer->base != NULL ? buffer->base : "";
+}
+
 static inline size_t pkgconf_buffer_len(const pkgconf_buffer_t *buffer) {
 	return (size_t)(ptrdiff_t)(buffer->end - buffer->base);
 }
