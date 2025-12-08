@@ -149,7 +149,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add kyua atf build-base autoconf automake libtool xz gzip
+          apk add kyua atf build-base autoconf automake libtool xz gzip tar
 
       - name: Build
         run: |
