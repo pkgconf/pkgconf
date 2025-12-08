@@ -9,6 +9,7 @@ tests_init \
 	depgraph_break_3 \
 	define_variable \
 	define_variable_override \
+	duplicate_tuple_upsert \
 	variable \
 	keep_system_libs \
 	libs \
@@ -90,6 +91,12 @@ define_variable_override_body()
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check -o inline:"/test\n" \
 		pkgconf --variable=prefix --define-variable='prefix=/test' typelibdir
+}
+
+duplicate_tuple_upsert_body()
+{
+	atf_check -o inline:"/foo\n" \
+		pkgconf --variable=prefix --with-path=${selfdir}/lib1 duplicate-tuple
 }
 
 variable_body()
