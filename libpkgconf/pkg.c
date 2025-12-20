@@ -215,10 +215,14 @@ pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, c
 static void
 pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
-	(void) keyword;
-	(void) warnprefix;
-
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+
+	if (dest->tail != NULL)
+	{
+		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
+			     warnprefix, keyword);
+	}
+
 	pkgconf_dependency_parse(client, pkg, dest, value, 0);
 }
 
@@ -226,10 +230,14 @@ pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg,
 static void
 pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
-	(void) keyword;
-	(void) warnprefix;
-
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+
+	if (dest->tail != NULL)
+	{
+		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
+			     warnprefix, keyword);
+	}
+
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_INTERNAL);
 }
 
@@ -237,10 +245,14 @@ pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pk
 static void
 pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
-	(void) keyword;
-	(void) warnprefix;
-
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+
+	if (dest->tail != NULL)
+	{
+		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
+			     warnprefix, keyword);
+	}
+
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_PRIVATE);
 }
 
