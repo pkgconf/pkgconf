@@ -31,7 +31,7 @@ static pkgconf_client_t pkg_client;
 static uint64_t want_flags;
 static size_t maximum_package_count = 0;
 // static int maximum_traverse_depth = 2000;
-FILE *error_msgout = NULL;
+static FILE *error_msgout = NULL;
 
 static bool
 error_handler(const char *msg, const pkgconf_client_t *client, void *data)

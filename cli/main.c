@@ -89,8 +89,8 @@ static size_t maximum_package_count = 0;
 static char *want_variable = NULL;
 static char *want_fragment_filter = NULL;
 
-FILE *error_msgout = NULL;
-FILE *logfile_out = NULL;
+static FILE *error_msgout = NULL;
+static FILE *logfile_out = NULL;
 
 static bool
 error_handler(const char *msg, const pkgconf_client_t *client, void *data)
