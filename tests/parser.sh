@@ -30,6 +30,7 @@ tests_init \
 	fragment_quoting_5 \
 	fragment_quoting_7 \
 	fragment_comment \
+	fragment_whitespace \
 	msvc_fragment_quoting \
 	msvc_fragment_render_cflags \
 	tuple_dequote \
@@ -370,3 +371,13 @@ fragment_tree_body()
 		pkgconf --with-path="${selfdir}/lib1" --fragment-tree fragment-groups-2
 }
 
+fragment_whitespace_body()
+{
+	atf_check \
+		-o inline:"'-I/includedir' [type I]\n\n" \
+			pkgconf --with-path="${selfdir}/lib1" --fragment-tree flag-whitespace-2
+
+	atf_check \
+		-o inline:"'-I/includedir' [type I]\n\n" \
+			pkgconf --with-path="${selfdir}/lib1" --fragment-tree flag-whitespace
+}
