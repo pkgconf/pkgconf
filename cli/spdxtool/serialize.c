@@ -21,26 +21,14 @@
  *    Add some indent. Level tells how many spaces.
  *
  *    :param pkgconf_buffer_t *buffer: Buffer to add.
- *    :param unsigned int level: Add level * 4 spaces. There can be 12 levels
+ *    :param unsigned int level: Add level * 4 spaces.
  *    :return: nothing
  */
 void
 spdxtool_serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level)
 {
-	unsigned int indent = 0;
-	char indent_str[48];
-
-	if(level >= 12)
-	{
-		indent = 12;
-	}
-
-	indent = level * 4;
-
-	memset(indent_str, 0x00, 48);
-	memset(indent_str, ' ', indent);
-
-	pkgconf_buffer_append(buffer, indent_str);
+	for (; level; level--)
+		pkgconf_buffer_append(buffer, "    ");
 }
 
 /*
@@ -58,25 +46,17 @@ spdxtool_serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level)
 void
 spdxtool_serialize_add_ch_with_comma(pkgconf_buffer_t *buffer, char ch, unsigned int level, bool comma)
 {
-	char append_string[4] = {0x00, 0x00, 0x00, 0x00};
-	char *ptr = append_string;
 	/* If this just used to add comman adn \n then ch is 0x00 */
 	if(ch > 0x00)
 	{
 		spdxtool_serialize_add_indent(buffer, level);
-		*(ptr) = ch;
-		ptr ++;
+		pkgconf_buffer_push_byte(buffer, ch);
 	}
 
 	if(comma)
-	{
-		*(ptr) = ',';
-		ptr ++;
-	}
+		pkgconf_buffer_push_byte(buffer, ',');
 
-	*(ptr) = '\n';
-
-	pkgconf_buffer_append(buffer, append_string);
+	pkgconf_buffer_push_byte(buffer, '\n');
 }
 
 /*
