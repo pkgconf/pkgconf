@@ -131,3 +131,32 @@ pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out)
 
 	fputc('\n', out);
 }
+
+void
+pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list src_va)
+{
+	va_list va;
+	const char *arg;
+
+	va_copy(va, src_va);
+
+	while ((arg = va_arg(va, const char *)) != NULL)
+	{
+		if (pkgconf_buffer_str(buffer) != NULL)
+			pkgconf_buffer_push_byte(buffer, delim);
+
+		pkgconf_buffer_append(buffer, arg);
+	}
+
+	va_end(va);
+}
+
+void
+pkgconf_buffer_join(pkgconf_buffer_t *buffer, char delim, ...)
+{
+	va_list va;
+
+	va_start(va, delim);
+	pkgconf_buffer_vjoin(buffer, delim, va);
+	va_end(va);
+}
