@@ -649,7 +649,8 @@ pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsign
 	 * package.
 	 * See https://github.com/pkgconf/pkgconf/issues/213
 	 */
-	if (client->sysroot_dir && strncmp(pkg->pc_filedir, client->sysroot_dir, strlen(client->sysroot_dir)))
+	if (client->sysroot_dir != NULL && strncmp(pkg->pc_filedir, client->sysroot_dir, strlen(client->sysroot_dir)) &&
+	    !(client->flags & PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES))
 		pkgconf_tuple_add(client, &pkg->vars, "pc_sysrootdir", "", false, pkg->flags);
 
 	/* make module id */
