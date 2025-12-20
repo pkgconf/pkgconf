@@ -9,6 +9,7 @@
  */
 
 #include <libpkgconf/libpkgconf.h>
+#include <libpkgconf/stdinc.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -156,7 +157,7 @@ spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, char *part)
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
 
 	pkgconf_buffer_join(&current_uri, '/', global_xsd_any_uri, part, NULL);
-	pkgconf_buffer_append_fmt(&current_uri, "/%ld", ++last_id);
+	pkgconf_buffer_append_fmt(&current_uri, "/" SIZE_FMT_SPECIFIER, ++last_id);
 
 	return pkgconf_buffer_freeze(&current_uri);
 }
