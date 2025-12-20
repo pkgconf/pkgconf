@@ -24,10 +24,6 @@
  * =========================
  */
 
-#ifdef _WIN32
-#	define strcasecmp _stricmp
-#endif
-
 /*
  * Increment each time the default personality is inited, decrement each time
  * it's deinited. Whenever it is 0, then the deinit frees the personality. In

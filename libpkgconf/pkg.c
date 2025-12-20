@@ -17,15 +17,6 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
-#ifndef _WIN32
-#include <fcntl.h>    // open
-#include <libgen.h>   // basename/dirname
-#include <sys/stat.h> // lstat, S_ISLNK
-#include <unistd.h>   // close, readlinkat
-
-#include <string.h>
-#endif
-
 /*
  * !doc
  *
@@ -35,13 +26,6 @@
  * The `pkg` module provides dependency resolution services and the overall `.pc` file parsing
  * routines.
  */
-
-#ifdef _WIN32
-#	undef PKG_DEFAULT_PATH
-#	define PKG_DEFAULT_PATH "../lib/pkgconfig;../share/pkgconfig"
-#	define strncasecmp _strnicmp
-#	define strcasecmp _stricmp
-#endif
 
 #define PKG_CONFIG_EXT ".pc"
 

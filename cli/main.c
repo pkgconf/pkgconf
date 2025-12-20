@@ -21,10 +21,6 @@
 #ifndef PKGCONF_LITE
 #include "renderer-msvc.h"
 #endif
-#ifdef _WIN32
-#include <io.h>     /* for _setmode() */
-#include <fcntl.h>
-#endif
 
 #define PKG_CFLAGS_ONLY_I		(((uint64_t) 1) << 2)
 #define PKG_CFLAGS_ONLY_OTHER		(((uint64_t) 1) << 3)

@@ -22,10 +22,6 @@
 # define PKGCONF_CACHE_INODES
 #endif
 
-#ifdef _WIN32
-# define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
-#endif
-
 static bool
 #ifdef PKGCONF_CACHE_INODES
 path_list_contains_entry(const char *text, pkgconf_list_t *dirlist, struct stat *st)
@@ -410,6 +406,7 @@ pkgconf_path_relocate(char *buf, size_t buflen)
 }
 
 #ifdef _WIN32
+#define PKG_CONFIG_REG_KEY "Software\\pkgconfig\\PKG_CONFIG_PATH"
 /*
  * !doc
  *
