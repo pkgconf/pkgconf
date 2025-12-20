@@ -161,7 +161,7 @@ spdxtool_serialize_obj_start(pkgconf_buffer_t *buffer, unsigned int level)
  *
  *    :param pkgconf_buffer_t *buffer: Buffer to add.
  *    :param unsigned int level: Level which is added
- *    :param bool comma: If need to add comma
+ *    :param bool more: true if more fields are expected, else false
  *    :return: nothing
  */
 void
@@ -196,7 +196,7 @@ spdxtool_serialize_array_start(pkgconf_buffer_t *buffer, unsigned int level)
  *
  *    :param pkgconf_buffer_t *buffer: Buffer to add.
  *    :param unsigned int level: Level which is added
- *    :param bool comma: If need to add comma
+ *    :param bool more: true if more fields are expected, else false
  *    :return: nothing
  */
 void
