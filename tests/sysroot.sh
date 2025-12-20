@@ -7,6 +7,7 @@ tests_init \
 	variable \
 	do_not_eat_slash \
 	do_not_duplicate_sysroot_dir \
+	do_not_duplicate_sysroot_dir_variable \
 	uninstalled \
 	uninstalled_pkgconf1 \
 	uninstalled_fdo \
@@ -64,6 +65,15 @@ do_not_duplicate_sysroot_dir_body()
 	atf_check \
 		-o inline:"-I${SYSROOT_DIR}/usr/include\n" \
 		pkgconf --cflags sysroot-dir-4
+}
+
+do_not_duplicate_sysroot_dir_variable_body()
+{
+	export PKG_CONFIG_SYSROOT_DIR="/sysroot"
+	atf_check \
+		-o inline:"/sysroot//usr/share/test\n" \
+		pkgconf --with-path="${selfdir}/lib1" --variable=pkgdatadir \
+		explicit-sysroot
 }
 
 uninstalled_body()
