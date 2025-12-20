@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include <libpkgconf/libpkgconf-api.h>
 #include <libpkgconf/iter.h>
 #include <libpkgconf/bsdstubs.h>
@@ -485,6 +486,15 @@ static inline char pkgconf_buffer_lastc(const pkgconf_buffer_t *buffer) {
 static inline void pkgconf_buffer_reset(pkgconf_buffer_t *buffer) {
 	pkgconf_buffer_finalize(buffer);
 	buffer->base = buffer->end = NULL;
+}
+
+static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer) {
+	if (buffer->base == NULL)
+		return NULL;
+
+	char *out = strdup(pkgconf_buffer_str(buffer));
+	pkgconf_buffer_reset(buffer);
+	return out;
 }
 
 /* fileio.c */
