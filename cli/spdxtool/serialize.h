@@ -20,15 +20,6 @@ extern "C" {
 #endif
 
 void
-spdxtool_serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level);
-
-void
-spdxtool_serialize_add_ch_with_comma(pkgconf_buffer_t *buffer, char ch, unsigned int level, bool comma);
-
-void
-spdxtool_serialize_add_string_with_comma(pkgconf_buffer_t *buffer, char *string, bool comma);
-
-void
 spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *string, unsigned int level, bool comma);
 
 void

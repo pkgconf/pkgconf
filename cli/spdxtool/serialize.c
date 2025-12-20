@@ -13,56 +13,42 @@
 #include "util.h"
 #include "core.h"
 
-/*
- * !doc
- *
- * .. c:function:: void spdxtool_serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level)
- *
- *    Add some indent. Level tells how many spaces.
- *
- *    :param pkgconf_buffer_t *buffer: Buffer to add.
- *    :param unsigned int level: Add level * 4 spaces.
- *    :return: nothing
- */
-void
-spdxtool_serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level)
+static inline void
+serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level)
 {
 	for (; level; level--)
 		pkgconf_buffer_append(buffer, "    ");
 }
 
-/*
- * !doc
- *
- * .. c:function:: void spdxtool_serialize_add_ch_with_comma(pkgconf_buffer_t *buffer, char ch, unsigned int level, bool comma)
- *
- *    Add character and optional comma to buffer
- *
- *    :param pkgconf_buffer_t *buffer: Buffer to add.
- *    :param char ch: Char to add
- *    :param bool comma: If comma is true then add comma it not then not
- *    :return: nothing
- */
-void
-spdxtool_serialize_add_ch_with_comma(pkgconf_buffer_t *buffer, char ch, unsigned int level, bool comma)
+static inline void
+serialize_next_line(pkgconf_buffer_t *buffer, bool more)
 {
-	/* If this just used to add comman adn \n then ch is 0x00 */
-	if(ch > 0x00)
-	{
-		spdxtool_serialize_add_indent(buffer, level);
-		pkgconf_buffer_push_byte(buffer, ch);
-	}
-
-	if(comma)
+	if (more)
 		pkgconf_buffer_push_byte(buffer, ',');
 
 	pkgconf_buffer_push_byte(buffer, '\n');
 }
 
+static inline void
+serialize_begin_object(pkgconf_buffer_t *buffer, char ch, unsigned int level)
+{
+	serialize_add_indent(buffer, level);
+	pkgconf_buffer_push_byte(buffer, ch);
+	serialize_next_line(buffer, false);
+}
+
+static inline void
+serialize_end_object(pkgconf_buffer_t *buffer, char ch, unsigned int level, bool more)
+{
+	serialize_add_indent(buffer, level);
+	pkgconf_buffer_push_byte(buffer, ch);
+	serialize_next_line(buffer, more);
+}
+
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *string, unsigned int level, bool comma)
+ * .. c:function:: void spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *string, unsigned int level, bool more)
  *
  *    Add paramter, string and optional comma to buffer
  *
@@ -70,22 +56,21 @@ spdxtool_serialize_add_ch_with_comma(pkgconf_buffer_t *buffer, char ch, unsigned
  *    :param char *param: Parameter name
  *    :param char *string: String to add
  *    :param unsigned int level: Indent level
- *    :param bool comma: If comma is true then add comma it not then not
+ *    :param bool more: true if more fields are expected, else false
  *    :return: nothing
  */
 void
-spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *string, unsigned int level, bool comma)
+spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *string, unsigned int level, bool more)
 {
-	spdxtool_serialize_add_indent(buffer, level);
-
+	serialize_add_indent(buffer, level);
 	pkgconf_buffer_append_fmt(buffer, "\"%s\": \"%s\"", parm, string);
-	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
+	serialize_next_line(buffer, more);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, unsigned int level, bool comma)
+ * .. c:function:: void spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, unsigned int level, bool more)
  *
  *    Add paramter, char and optional comma to buffer
  *
@@ -93,22 +78,21 @@ spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *s
  *    :param char *param: Parameter name
  *    :param char ch: Char to add
  *    :param unsigned int level: Indent level
- *    :param bool comma: If comma is true then add comma it not then not
+ *    :param bool more: true if more fields are expected, else false
  *    :return: nothing
  */
 void
-spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, unsigned int level, bool comma)
+spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, unsigned int level, bool more)
 {
-	spdxtool_serialize_add_indent(buffer, level);
-
+	serialize_add_indent(buffer, level);
 	pkgconf_buffer_append_fmt(buffer, "\"%s\": %c", parm, ch);
-	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
+	serialize_next_line(buffer, more);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, char *parm, int integer, unsigned int level, bool comma)
+ * .. c:function:: void spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, char *parm, int integer, unsigned int level, bool more)
  *
  *    Add paramter, integer and optional comma to buffer
  *
@@ -116,22 +100,21 @@ spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, 
  *    :param char *param: Parameter name
  *    :param int integer: Int to add
  *    :param unsigned int level: Indent level
- *    :param bool comma: If comma is true then add comma it not then not
+ *    :param bool more: true if more fields are expected, else false
  *    :return: nothing
  */
 void
-spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, char *parm, int integer, unsigned int level, bool comma)
+spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, char *parm, int integer, unsigned int level, bool more)
 {
-	spdxtool_serialize_add_indent(buffer, level);
-
+	serialize_add_indent(buffer, level);
 	pkgconf_buffer_append_fmt(buffer, "\"%s\": %d", parm, integer);
-	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
+	serialize_next_line(buffer, more);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_string(pkgconf_buffer_t *buffer, char *string, unsigned int level, bool comma)
+ * .. c:function:: void spdxtool_serialize_string(pkgconf_buffer_t *buffer, char *string, unsigned int level, bool more)
  *
  *    Add just string.
  *
@@ -139,18 +122,17 @@ spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, char *parm, int intege
  *    :param char *param: Parameter name
  *    :param char *ch: String to add
  *    :param unsigned int: level Indent level
- *    :param bool comma: If comma is true then add comma it not then not
+ *    :param bool more: true if more fields are expected, else false
  *    :return: nothing
  */
 void
-spdxtool_serialize_string(pkgconf_buffer_t *buffer, char *string, unsigned int level, bool comma)
+spdxtool_serialize_string(pkgconf_buffer_t *buffer, char *string, unsigned int level, bool more)
 {
-	spdxtool_serialize_add_indent(buffer, level);
-
+	serialize_add_indent(buffer, level);
 	pkgconf_buffer_push_byte(buffer, '"');
 	pkgconf_buffer_append(buffer, string);
 	pkgconf_buffer_push_byte(buffer, '"');
-	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
+	serialize_next_line(buffer, more);
 }
 
 /*
@@ -167,13 +149,13 @@ spdxtool_serialize_string(pkgconf_buffer_t *buffer, char *string, unsigned int l
 void
 spdxtool_serialize_obj_start(pkgconf_buffer_t *buffer, unsigned int level)
 {
-	spdxtool_serialize_add_ch_with_comma(buffer, '{', level, 0);
+	serialize_begin_object(buffer, '{', level);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_obj_end(pkgconf_buffer_t *buffer, unsigned int level, bool comma)
+ * .. c:function:: void spdxtool_serialize_obj_end(pkgconf_buffer_t *buffer, unsigned int level, bool more)
  *
  *    End JSON object to buffer
  *
@@ -183,9 +165,9 @@ spdxtool_serialize_obj_start(pkgconf_buffer_t *buffer, unsigned int level)
  *    :return: nothing
  */
 void
-spdxtool_serialize_obj_end(pkgconf_buffer_t *buffer, unsigned int level, bool comma)
+spdxtool_serialize_obj_end(pkgconf_buffer_t *buffer, unsigned int level, bool more)
 {
-	spdxtool_serialize_add_ch_with_comma(buffer, '}', level, comma);
+	serialize_end_object(buffer, '}', level, more);
 }
 
 /*
@@ -202,13 +184,13 @@ spdxtool_serialize_obj_end(pkgconf_buffer_t *buffer, unsigned int level, bool co
 void
 spdxtool_serialize_array_start(pkgconf_buffer_t *buffer, unsigned int level)
 {
-	spdxtool_serialize_add_ch_with_comma(buffer, '[', level, 0);
+	serialize_begin_object(buffer, '[', level);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_array_end(pkgconf_buffer_t *buffer, unsigned int level, bool comma)
+ * .. c:function:: void spdxtool_serialize_array_end(pkgconf_buffer_t *buffer, unsigned int level, bool more)
  *
  *    End JSON array to buffer
  *
@@ -218,7 +200,7 @@ spdxtool_serialize_array_start(pkgconf_buffer_t *buffer, unsigned int level)
  *    :return: nothing
  */
 void
-spdxtool_serialize_array_end(pkgconf_buffer_t *buffer, unsigned int level, bool comma)
+spdxtool_serialize_array_end(pkgconf_buffer_t *buffer, unsigned int level, bool more)
 {
-	spdxtool_serialize_add_ch_with_comma(buffer, ']', level, comma);
+	serialize_end_object(buffer, ']', level, more);
 }
