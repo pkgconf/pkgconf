@@ -135,6 +135,8 @@ spdxtool_util_get_spdx_license(pkgconf_client_t *client)
 	return pkgconf_tuple_find_global(client, "spdx_license");
 }
 
+static size_t last_id = 0;
+
 /*
  * !doc
  *
@@ -152,21 +154,9 @@ spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, char *part)
 {
 	const 	char *global_xsd_any_uri = spdxtool_util_get_uri_root(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
-	long current_id = 1;
 
-	for (;;)
-	{
-		/* Finds available ID in current namespace */
-		pkgconf_buffer_append_fmt(&current_uri, "%s/%s/%ld", global_xsd_any_uri, part, current_id);
-
-		if(!pkgconf_tuple_find_global(client, pkgconf_buffer_str(&current_uri)))
-			break;
-
-		current_id++;
-		pkgconf_buffer_reset(&current_uri);
-	}
-
-	spdxtool_util_set_key(client, pkgconf_buffer_str(&current_uri), part, "Reserved");
+	pkgconf_buffer_join(&current_uri, '/', global_xsd_any_uri, part, NULL);
+	pkgconf_buffer_append_fmt(&current_uri, "/%ld", ++last_id);
 
 	return pkgconf_buffer_freeze(&current_uri);
 }
