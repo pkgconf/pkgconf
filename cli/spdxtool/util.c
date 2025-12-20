@@ -276,7 +276,7 @@ spdxtool_util_string_correction(char *str)
 	for ( ; *ptr; ++ptr)
 	{
 		*ptr = tolower(*ptr);
-		if(isspace(*ptr))
+		if(isspace((unsigned char) *ptr))
 		{
 			*ptr = '_';
 		}
