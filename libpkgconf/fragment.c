@@ -33,6 +33,31 @@ struct pkgconf_fragment_check {
 };
 
 static inline bool
+pkgconf_fragment_is_greedy(const char *string)
+{
+	static const struct pkgconf_fragment_check check_fragments[] = {
+		{"-F", 2},
+		{"-I", 2},
+		{"-L", 2},
+		{"-D", 2},
+		{"-l", 2},
+	};
+
+	if (*string != '-')
+		return false;
+
+	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(check_fragments); i++)
+		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
+		{
+			/* if it is the bare flag, then we want the next token to be the data */
+			if (!*(string + check_fragments[i].len))
+				return true;
+		}
+
+	return false;
+}
+
+static inline bool
 pkgconf_fragment_is_unmergeable(const char *string)
 {
 	static const struct pkgconf_fragment_check check_fragments[] = {
@@ -742,8 +767,6 @@ pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkg
 
 	for (i = 0; i < argc; i++)
 	{
-		PKGCONF_TRACE(client, "processing %s", argv[i]);
-
 		if (argv[i] == NULL)
 		{
 			PKGCONF_TRACE(client, "parsed fragment string is inconsistent: argc = %d while argv[%d] == NULL", argc, i);
@@ -752,7 +775,24 @@ pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkg
 			return false;
 		}
 
-		pkgconf_fragment_add(client, list, argv[i], flags);
+		bool greedy = pkgconf_fragment_is_greedy(argv[i]);
+
+		PKGCONF_TRACE(client, "processing [%s] greedy=%d", argv[i], greedy);
+
+		if (greedy && i + 1 < argc)
+		{
+			pkgconf_buffer_t greedybuf = PKGCONF_BUFFER_INITIALIZER;
+
+			pkgconf_buffer_append(&greedybuf, argv[i]);
+			pkgconf_buffer_append(&greedybuf, argv[i + 1]);
+			pkgconf_fragment_add(client, list, pkgconf_buffer_str(&greedybuf), flags);
+			pkgconf_buffer_finalize(&greedybuf);
+
+			/* skip over next arg as we combined them */
+			i++;
+		}
+		else
+			pkgconf_fragment_add(client, list, argv[i], flags);
 	}
 
 	pkgconf_argv_free(argv);
