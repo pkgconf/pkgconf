@@ -816,7 +816,7 @@ pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *env)
 	const char *data;
 	pkgconf_list_t pathlist = PKGCONF_LIST_INITIALIZER;
 	pkgconf_node_t *n;
-	bool ret;
+	bool ret = true;
 
 	data = getenv(env);
 	if (data == NULL)
