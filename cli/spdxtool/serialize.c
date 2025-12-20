@@ -82,28 +82,6 @@ spdxtool_serialize_add_ch_with_comma(pkgconf_buffer_t *buffer, char ch, unsigned
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_add_string_with_comma(pkgconf_buffer_t *buffer, char *string, bool comma)
- *
- *    Add string and optional comma to buffer
- *
- *    :param pkgconf_buffer_t *buffer: Buffer to add.
- *    :param char *string: String to add
- *    :param bool comma: If comma is true then add comma it not then not
- *    :param unsigned int level: Indent level
- *    :return: nothing
- */
-void
-spdxtool_serialize_add_string_with_comma(pkgconf_buffer_t *buffer, char *string, bool comma)
-{
-	pkgconf_buffer_append(buffer, string);
-	free(string);
-
-	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
-}
-
-/*
- * !doc
- *
  * .. c:function:: void spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *string, unsigned int level, bool comma)
  *
  *    Add paramter, string and optional comma to buffer
@@ -118,17 +96,10 @@ spdxtool_serialize_add_string_with_comma(pkgconf_buffer_t *buffer, char *string,
 void
 spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *string, unsigned int level, bool comma)
 {
-	char *tmp_str = NULL;
-
 	spdxtool_serialize_add_indent(buffer, level);
-	if( asprintf(&tmp_str, "\"%s\": \"%s\"", parm, string) < 0)
-	{
-		pkgconf_error(NULL, "Can't serialize paramter and string to JSON. Memory exhausted!");
-	}
-	else
-	{
-		spdxtool_serialize_add_string_with_comma(buffer, tmp_str, comma);
-	}
+
+	pkgconf_buffer_append_fmt(buffer, "\"%s\": \"%s\"", parm, string);
+	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
 }
 
 /*
@@ -148,17 +119,10 @@ spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *s
 void
 spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, unsigned int level, bool comma)
 {
-	char *tmp_str = NULL;
-
 	spdxtool_serialize_add_indent(buffer, level);
-	if(asprintf(&tmp_str, "\"%s\": %c", parm, ch) < 0)
-	{
-		pkgconf_error(NULL, "Can't serialize paramter and char to JSON. Memory exhausted!");
-	}
-	else
-	{
-		spdxtool_serialize_add_string_with_comma(buffer, tmp_str, comma);
-	}
+
+	pkgconf_buffer_append_fmt(buffer, "\"%s\": %c", parm, ch);
+	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
 }
 
 /*
@@ -178,17 +142,10 @@ spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, 
 void
 spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, char *parm, int integer, unsigned int level, bool comma)
 {
-	char *tmp_str = NULL;
-
 	spdxtool_serialize_add_indent(buffer, level);
-	if(asprintf(&tmp_str, "\"%s\": %d", parm, integer) < 0)
-	{
-		pkgconf_error(NULL, "Can't serialize paramter and int to JSON. Memory exhausted!");
-	}
-	else
-	{
-		spdxtool_serialize_add_string_with_comma(buffer, tmp_str, comma);
-	}
+
+	pkgconf_buffer_append_fmt(buffer, "\"%s\": %d", parm, integer);
+	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
 }
 
 /*
@@ -208,17 +165,12 @@ spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, char *parm, int intege
 void
 spdxtool_serialize_string(pkgconf_buffer_t *buffer, char *string, unsigned int level, bool comma)
 {
-	char *tmp_str = NULL;
-
 	spdxtool_serialize_add_indent(buffer, level);
-	if( asprintf(&tmp_str, "\"%s\"", string) < 0)
-	{
-		pkgconf_error(NULL, "Can't serialize string to JSON. Memory exhausted!");
-	}
-	else
-	{
-		spdxtool_serialize_add_string_with_comma(buffer, tmp_str, comma);
-	}
+
+	pkgconf_buffer_push_byte(buffer, '"');
+	pkgconf_buffer_append(buffer, string);
+	pkgconf_buffer_push_byte(buffer, '"');
+	spdxtool_serialize_add_ch_with_comma(buffer, 0x00, 0, comma);
 }
 
 /*
