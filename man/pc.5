@@ -134,6 +134,13 @@ Required dependencies that must be met for the package to be usable.
 All dependencies must be satisfied or the pkg-config implementation must not use
 the package.
 (optional; dependency list)
+.It Requires.internal
+Required dependencies that must be met for the package to be usable for
+static linking.
+The main differences verses Requires.private are that CFLAGS will not be
+included and the solver will not consider the dependency when solving for
+CFLAGS only.
+(optional; dependency list; pkgconf extension)
 .It Requires.private
 Required dependencies that must be met for the package to be usable for header
 inclusion and static linking.
