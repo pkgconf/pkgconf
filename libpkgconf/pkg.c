@@ -1534,6 +1534,18 @@ pkgconf_pkg_report_graph_error(pkgconf_client_t *client, pkgconf_pkg_t *parent, 
 	return eflags;
 }
 
+static inline bool
+missing_node_is_tolerable(const pkgconf_client_t *client, const pkgconf_dependency_t *dep)
+{
+	if (!(dep->flags & PKGCONF_PKG_DEPF_INTERNAL))
+		return false;
+
+	if ((client->flags & PKGCONF_PKG_PKGF_REQUIRE_INTERNAL))
+		return false;
+
+	return true;
+}
+
 static inline unsigned int
 pkgconf_pkg_walk_list(pkgconf_client_t *client,
 	pkgconf_pkg_t *parent,
@@ -1558,15 +1570,17 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 			continue;
 
 		pkgdep = pkgconf_pkg_verify_dependency(client, depnode, &eflags_local);
-
-		eflags |= eflags_local;
-		if (eflags_local != PKGCONF_PKG_ERRF_OK && !(client->flags & PKGCONF_PKG_PKGF_SKIP_ERRORS))
+		if (eflags_local != PKGCONF_PKG_ERRF_OK)
 		{
-			pkgconf_pkg_report_graph_error(client, parent, pkgdep, depnode, eflags_local);
+			if (missing_node_is_tolerable(client, depnode))
+				continue;
+
+			if (!(client->flags & PKGCONF_PKG_PKGF_SKIP_ERRORS))
+				pkgconf_pkg_report_graph_error(client, parent, pkgdep, depnode, eflags_local);
+
+			eflags |= eflags_local;
 			continue;
 		}
-		if (pkgdep == NULL)
-			continue;
 
 		if((pkgdep->flags & PKGCONF_PKG_PROPF_ANCESTOR) != 0)
 		{
