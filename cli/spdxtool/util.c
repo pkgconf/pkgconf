@@ -199,25 +199,15 @@ spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, char *part, char *str
 char *
 spdxtool_util_get_iso8601_time(time_t *wanted_time)
 {
-	char *buf = NULL;
+	char buf[PKGCONF_ITEM_SIZE];
 	struct tm *tm_info = gmtime(wanted_time);
 
 	if(!wanted_time)
-	{
 		return NULL;
-	}
 
-	buf = calloc(1, 21);
-
-	if(!buf)
-	{
-		pkgconf_error(NULL, "Memory exhausted! Can't create ISO8601 time.");
-		return NULL;
-	}
-
-	/* ISO8061 time with Z at the end */
-	strftime(buf, 21, "%Y-%m-%dT%H:%M:%SZ", tm_info);
-	return buf;
+	/* ISO8601 time with Z at the end */
+	strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%SZ", tm_info);
+	return strdup(buf);
 }
 
 /*
