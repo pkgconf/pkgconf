@@ -19,6 +19,9 @@ tests_init \
 	missing \
 	requires_internal \
 	requires_internal_missing \
+	requires_internal_missing_nonstatic \
+	requires_internal_missing_nonstatic_cflags_libs \
+	requires_internal_missing_static_cflags \
 	requires_internal_collision \
 	orphaned_requires_private
 
@@ -146,6 +149,33 @@ requires_internal_missing_body()
 		-e ignore \
 		-o ignore \
 		pkgconf --with-path="${selfdir}/lib1" --static --libs requires-internal-missing
+}
+
+requires_internal_missing_nonstatic_body()
+{
+	atf_check \
+		-s exit:0 \
+		-e ignore \
+		-o ignore \
+		pkgconf --with-path="${selfdir}/lib1" --libs requires-internal-missing
+}
+
+requires_internal_missing_static_cflags_body()
+{
+	atf_check \
+		-s exit:0 \
+		-e ignore \
+		-o ignore \
+		pkgconf --with-path="${selfdir}/lib1" --static --cflags requires-internal-missing
+}
+
+requires_internal_missing_nonstatic_cflags_libs_body()
+{
+	atf_check \
+		-s exit:0 \
+		-e ignore \
+		-o ignore \
+		pkgconf --with-path="${selfdir}/lib1" --cflags --libs requires-internal-missing
 }
 
 requires_internal_collision_body()
