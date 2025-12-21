@@ -54,13 +54,6 @@ spdxtool_core_agent_new(pkgconf_client_t *client, char *creation_info_id, char *
 	spdxtool_util_string_correction(spdx_id_name);
 	spdx_id = spdxtool_util_get_spdx_id_string(client, agent_struct->type, spdx_id_name);
 
-	/* ID already taken. Use original not this one */
-	if(!spdxtool_util_spdx_id_add(client, spdx_id))
-	{
-		free(agent_struct);
-		return NULL;
-	}
-
 	agent_struct->creation_info = creation_info_id;
 	agent_struct->spdx_id = spdx_id;
 	agent_struct->name = name;

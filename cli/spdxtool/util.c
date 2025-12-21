@@ -164,28 +164,6 @@ spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, char *part)
 
 /*
  * !doc
- *    bool spdxtool_util_spdx_id_add(pkgconf_client_t *client, char *spdx_id)char *spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, char *part)
- *
- *    Test if spdxId is reserved and if not add it
- *
- *    :param pkgconf_client_t* client: The pkgconf client being accessed.
- *    :param char *spdx_id: spdxId to test and add
- *    :return: True if add. False if already added.
- */
-bool
-spdxtool_util_spdx_id_add(pkgconf_client_t *client, char *spdx_id)
-{
-	if(!pkgconf_tuple_find_global(client, spdx_id))
-	{
-		spdxtool_util_set_key(client, spdx_id, "Reserved", "Reserved");
-		return true;
-	}
-
-	return false;
-}
-
-/*
- * !doc
  *
  * .. c:function:: char *spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, char *part, char *string_id)
  *
