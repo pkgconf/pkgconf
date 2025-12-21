@@ -1510,6 +1510,10 @@ main(int argc, char *argv[])
 	if ((want_flags & PKG_INTERNAL_CFLAGS) == PKG_INTERNAL_CFLAGS)
 		want_client_flags |= PKGCONF_PKG_PKGF_DONT_FILTER_INTERNAL_CFLAGS;
 
+	/* --static --libs, --exists require the full dependency graph to be solved */
+	if ((want_flags & (PKG_STATIC|PKG_LIBS)) == (PKG_STATIC|PKG_LIBS) || (want_flags & PKG_EXISTS) == PKG_EXISTS)
+		want_client_flags |= PKGCONF_PKG_PKGF_REQUIRE_INTERNAL;
+
 	/* if these selectors are used, it means that we are querying metadata.
 	 * so signal to libpkgconf that we only want to walk the flattened dependency set.
 	 */
