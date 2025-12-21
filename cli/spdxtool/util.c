@@ -216,7 +216,7 @@ spdxtool_util_get_iso8601_time(time_t *wanted_time)
 	}
 
 	/* ISO8061 time with Z at the end */
-	strftime(buf, 21, "%FT%TZ", tm_info);
+	strftime(buf, 21, "%Y-%m-%dT%H:%M:%SZ", tm_info);
 	return buf;
 }
 
