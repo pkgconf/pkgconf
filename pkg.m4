@@ -1,5 +1,5 @@
 # pkg.m4 - Macros to locate and use pkg-config.   -*- Autoconf -*-
-# serial 14 (pkgconf)
+# serial 15 (pkgconf)
 
 dnl Copyright © 2004 Scott James Remnant <scott@netsplit.com>.
 dnl Copyright © 2012-2015 Dan Nicholson <dbn.lists@gmail.com>
@@ -173,13 +173,13 @@ _PKG_TEXT])[]dnl
 elif test $pkg_failed = untried; then
         AC_MSG_RESULT([no])
         m4_default([$4], [AC_MSG_FAILURE(
-[The pkg-config script could not be found or is too old.  Make sure it
+[A pkg-config implementation could not be found or is too old.  Make sure it
 is in your PATH or set the PKG_CONFIG environment variable to the full
 path to pkg-config.
 
 _PKG_TEXT
 
-To get pkg-config, see <http://pkg-config.freedesktop.org/>.])[]dnl
+To get a pkg-config implementation, see <http://github.com/pkgconf/pkgconf>.])[]dnl
         ])
 else
         $1[]_CFLAGS=$pkg_cv_[]$1[]_CFLAGS
