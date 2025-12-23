@@ -1953,7 +1953,7 @@ cleanup3:
 			apply_libs(&pkg_client, &world, &target_list, 2);
 
 		pkgconf_fragment_render_buf(&target_list, &render_buf, true, want_render_ops, (want_flags & PKG_NEWLINES) ? '\n' : ' ');
-		pkgconf_buffer_fputs(&render_buf, stdout);
+		pkgconf_output_putbuf(pkg_client.output, PKGCONF_OUTPUT_STDOUT, &render_buf, true);
 		pkgconf_buffer_finalize(&render_buf);
 
 		pkgconf_fragment_free(&target_list);
