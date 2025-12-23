@@ -189,6 +189,7 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/tuple.c		\
 		libpkgconf/dependency.c		\
 		libpkgconf/queue.c		\
+		libpkgconf/output.c		\
 		libpkgconf/path.c		\
 		libpkgconf/personality.c	\
 		libpkgconf/parser.c
