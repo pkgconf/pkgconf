@@ -151,6 +151,8 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 
 	trace_path_list(client, "filtered library paths", &client->filter_libdirs);
 	trace_path_list(client, "filtered include paths", &client->filter_includedirs);
+
+	client->output = pkgconf_output_default();
 }
 
 /*
