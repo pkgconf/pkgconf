@@ -227,7 +227,6 @@ static bool
 apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
-	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
@@ -247,7 +246,6 @@ static void
 print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
 	pkgconf_node_t *node;
-	(void) client;
 	pkgconf_pkg_t **last_seen = data;
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
@@ -354,7 +352,6 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int
 {
 	pkgconf_node_t *queue_iter;
 	pkgconf_list_t *pkgq = data;
-	(void) client;
 	(void) maxdepth;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkgq->head, queue_iter)
@@ -393,7 +390,6 @@ static bool
 apply_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
-	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
@@ -412,7 +408,6 @@ static bool
 apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
-	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
@@ -531,7 +526,6 @@ maybe_add_module_definitions(pkgconf_client_t *client, pkgconf_pkg_t *world, pkg
 static void
 apply_env_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *env_prefix)
 {
-	(void) client;
 	pkgconf_node_t *world_iter;
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, world_iter)
@@ -657,7 +651,6 @@ static bool
 apply_requires(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
-	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
@@ -676,7 +669,6 @@ static bool
 apply_requires_private(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int maxdepth)
 {
 	pkgconf_node_t *iter;
-	(void) client;
 	(void) unused;
 	(void) maxdepth;
 
@@ -719,7 +711,6 @@ print_graph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
 	pkgconf_node_t *n;
 
-	(void) client;
 	(void) data;
 
 	pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "node '%s' {\n", pkg->id);
