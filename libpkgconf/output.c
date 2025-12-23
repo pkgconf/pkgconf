@@ -72,7 +72,7 @@ pkgconf_output_stdio_write(pkgconf_output_t *output, pkgconf_output_stream_t str
 		const char *str = pkgconf_buffer_str(buffer);
 		size_t size = pkgconf_buffer_len(buffer);
 
-		if (size > 0 && !fwrite(str, size - 1, 1, target))
+		if (size > 0 && !fwrite(str, size, 1, target))
 			return false;
 	}
 
