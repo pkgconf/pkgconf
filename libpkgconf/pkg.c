@@ -1253,7 +1253,7 @@ static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_
                 },
 		.depcmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
-                },
+		},
 	},
 	[PKGCONF_CMP_LESS_THAN] = {
 		.rulecmp = {
@@ -1327,7 +1327,7 @@ static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_
 		},
 		.depcmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
-                },
+		},
 	},
 	[PKGCONF_CMP_NOT_EQUAL] = {
 		.rulecmp = {
@@ -1341,7 +1341,7 @@ static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_
 		},
 		.depcmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
-                },
+		},
 	},
 };
 
