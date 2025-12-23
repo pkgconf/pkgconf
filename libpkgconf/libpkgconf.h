@@ -225,6 +225,8 @@ struct pkgconf_client_ {
 	pkgconf_unveil_handler_func_t unveil_handler;
 
 	pkgconf_list_t preloaded_pkgs;
+
+	pkgconf_output_t *output;
 };
 
 struct pkgconf_cross_personality_ {
@@ -266,6 +268,7 @@ PKGCONF_API void pkgconf_client_dir_list_build(pkgconf_client_t *client, const p
 PKGCONF_API bool pkgconf_client_preload_one(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 PKGCONF_API bool pkgconf_client_preload_path(pkgconf_client_t *client, const char *path);
 PKGCONF_API bool pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *env);
+PKGCONF_API void pkgconf_client_set_output(pkgconf_client_t *client, pkgconf_output_t *output);
 
 /* personality.c */
 PKGCONF_API pkgconf_cross_personality_t *pkgconf_cross_personality_default(void);

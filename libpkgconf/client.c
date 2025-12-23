@@ -843,3 +843,21 @@ pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *env)
 
 	return ret;
 }
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_client_set_output(pkgconf_client_t *client, pkgconf_output_t *output)
+ *
+ *    Sets the client's output object.  This is mainly a convenience function for clients
+ *    to use.
+ *
+ *    :param pkgconf_client_t* client: The client object to set the output object for.
+ *    :param pkgconf_output_t* output: The output object to use.
+ *    :return: nothing
+ */
+void
+pkgconf_client_set_output(pkgconf_client_t *client, pkgconf_output_t *output)
+{
+	client->output = output;
+}
