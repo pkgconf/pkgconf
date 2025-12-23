@@ -17,6 +17,24 @@
 #include <libpkgconf/libpkgconf.h>
 
 bool
+pkgconf_output_putbuf(pkgconf_output_t *output, pkgconf_output_stream_t stream, const pkgconf_buffer_t *buffer, bool newline)
+{
+	bool ret;
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+
+	if (pkgconf_buffer_len(buffer) != 0)
+		pkgconf_buffer_append(&buf, pkgconf_buffer_str(buffer));
+
+	if (newline)
+		pkgconf_buffer_push_byte(&buf, '\n');
+
+	ret = output->write(output, stream, &buf);
+	pkgconf_buffer_finalize(&buf);
+
+	return ret;
+}
+
+bool
 pkgconf_output_puts(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *str)
 {
 	bool ret;

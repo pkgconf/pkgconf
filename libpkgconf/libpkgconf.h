@@ -508,6 +508,7 @@ struct pkgconf_output_ {
 	bool (*write)(pkgconf_output_t *output, pkgconf_output_stream_t stream, const pkgconf_buffer_t *buffer);
 };
 
+PKGCONF_API bool pkgconf_output_putbuf(pkgconf_output_t *output, pkgconf_output_stream_t stream, const pkgconf_buffer_t *buffer, bool newline);
 PKGCONF_API bool pkgconf_output_puts(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *str);
 PKGCONF_API bool pkgconf_output_fmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *fmt, ...);
 PKGCONF_API bool pkgconf_output_vfmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *fmt, va_list va);
