@@ -100,6 +100,8 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 static bool
 print_list_entry(const pkgconf_pkg_t *entry, void *data)
 {
+	const pkgconf_node_t *n;
+
 	(void) data;
 
 	if (entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED)
@@ -107,18 +109,40 @@ print_list_entry(const pkgconf_pkg_t *entry, void *data)
 
 	printf("%-30s %s - %s\n", entry->id, entry->realname, entry->description);
 
+	PKGCONF_FOREACH_LIST_ENTRY(entry->provides.head, n)
+	{
+		const pkgconf_dependency_t *dep = n->data;
+
+		if (!strcmp(dep->package, entry->id))
+			continue;
+
+		printf("%-30s %s - %s (provided by %s)\n", dep->package, entry->realname, entry->description, entry->id);
+	}
+
 	return false;
 }
 
 static bool
 print_package_entry(const pkgconf_pkg_t *entry, void *data)
 {
+	const pkgconf_node_t *n;
+
 	(void) data;
 
 	if (entry->flags & PKGCONF_PKG_PROPF_UNINSTALLED)
 		return false;
 
 	printf("%s\n", entry->id);
+
+	PKGCONF_FOREACH_LIST_ENTRY(entry->provides.head, n)
+	{
+		const pkgconf_dependency_t *dep = n->data;
+
+		if (!strcmp(dep->package, entry->id))
+			continue;
+
+		printf("%s\n", dep->package);
+	}
 
 	return false;
 }
