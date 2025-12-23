@@ -54,6 +54,7 @@ typedef struct pkgconf_path_ pkgconf_path_t;
 typedef struct pkgconf_client_ pkgconf_client_t;
 typedef struct pkgconf_cross_personality_ pkgconf_cross_personality_t;
 typedef struct pkgconf_queue_ pkgconf_queue_t;
+typedef struct pkgconf_output_ pkgconf_output_t;
 
 #define PKGCONF_ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
 
@@ -490,6 +491,23 @@ typedef void (*pkgconf_parser_warn_func_t)(void *data, const char *fmt, ...);
 
 PKGCONF_API void pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, pkgconf_buffer_t *buffer, const char *warnprefix);
 PKGCONF_API void pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, const char *filename);
+
+/* output.c */
+typedef enum {
+	PKGCONF_OUTPUT_STDOUT,
+	PKGCONF_OUTPUT_STDERR,
+} pkgconf_output_stream_t;
+
+struct pkgconf_output_ {
+	void *privdata;
+
+	bool (*write)(pkgconf_output_t *output, pkgconf_output_stream_t stream, const pkgconf_buffer_t *buffer);
+};
+
+PKGCONF_API bool pkgconf_output_puts(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *str);
+PKGCONF_API bool pkgconf_output_fmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *fmt, ...);
+PKGCONF_API bool pkgconf_output_vfmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *fmt, va_list va);
+PKGCONF_API pkgconf_output_t *pkgconf_output_default(void);
 
 #ifdef __cplusplus
 }
