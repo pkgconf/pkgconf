@@ -324,7 +324,7 @@ pkgconf_cross_personality_find(const char *triplet)
 		}
 	}
 
-	pkgconf_path_build_from_environ("XDG_DATA_DIRS", "/usr/local/share" PKG_CONFIG_PATH_SEP_S "/usr/share", &plist, true);
+	pkgconf_path_build_from_environ(NULL, "XDG_DATA_DIRS", "/usr/local/share" PKG_CONFIG_PATH_SEP_S "/usr/share", &plist, true);
 
 	PKGCONF_FOREACH_LIST_ENTRY(plist.head, n)
 	{

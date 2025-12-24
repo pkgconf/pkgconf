@@ -60,7 +60,7 @@ trace_path_list(const pkgconf_client_t *client, const char *desc, pkgconf_list_t
 void
 pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
 {
-	pkgconf_path_build_from_environ("PKG_CONFIG_PATH", NULL, &client->dir_list, true);
+	pkgconf_path_build_from_environ(client, "PKG_CONFIG_PATH", NULL, &client->dir_list, true);
 
 	if (!(client->flags & PKGCONF_PKG_PKGF_ENV_ONLY))
 	{
@@ -72,10 +72,10 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
 		(void) pkgconf_path_build_from_registry(HKEY_LOCAL_MACHINE, &client->dir_list, true);
 #endif
 
-		if (getenv("PKG_CONFIG_LIBDIR") != NULL)
+		if (pkgconf_client_getenv(client, "PKG_CONFIG_LIBDIR") != NULL)
 		{
 			/* PKG_CONFIG_LIBDIR= should empty the search path entirely. */
-			(void) pkgconf_path_build_from_environ("PKG_CONFIG_LIBDIR", NULL, &dir_list, true);
+			(void) pkgconf_path_build_from_environ(client, "PKG_CONFIG_LIBDIR", NULL, &dir_list, true);
 			prepend_list = &dir_list;
 		}
 
@@ -125,30 +125,30 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	pkgconf_client_set_buildroot_dir(client, NULL);
 	pkgconf_client_set_prefix_varname(client, NULL);
 
-	if(getenv("PKG_CONFIG_SYSTEM_LIBRARY_PATH") == NULL)
+	if(pkgconf_client_getenv(client, "PKG_CONFIG_SYSTEM_LIBRARY_PATH") == NULL)
 		pkgconf_path_copy_list(&client->filter_libdirs, &personality->filter_libdirs);
 	else
-		pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_LIBRARY_PATH", NULL, &client->filter_libdirs, false);
+		pkgconf_path_build_from_environ(client, "PKG_CONFIG_SYSTEM_LIBRARY_PATH", NULL, &client->filter_libdirs, false);
 
-	if(getenv("PKG_CONFIG_SYSTEM_INCLUDE_PATH") == NULL)
+	if(pkgconf_client_getenv(client, "PKG_CONFIG_SYSTEM_INCLUDE_PATH") == NULL)
 		pkgconf_path_copy_list(&client->filter_includedirs, &personality->filter_includedirs);
 	else
-		pkgconf_path_build_from_environ("PKG_CONFIG_SYSTEM_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
+		pkgconf_path_build_from_environ(client, "PKG_CONFIG_SYSTEM_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
 
 	/* GCC uses these environment variables to define system include paths, so we should check them. */
 #ifdef __HAIKU__
-	pkgconf_path_build_from_environ("BELIBRARIES", NULL, &client->filter_libdirs, false);
+	pkgconf_path_build_from_environ(client, "BELIBRARIES", NULL, &client->filter_libdirs, false);
 #else
-	pkgconf_path_build_from_environ("LIBRARY_PATH", NULL, &client->filter_libdirs, false);
+	pkgconf_path_build_from_environ(client, "LIBRARY_PATH", NULL, &client->filter_libdirs, false);
 #endif
-	pkgconf_path_build_from_environ("CPATH", NULL, &client->filter_includedirs, false);
-	pkgconf_path_build_from_environ("C_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
-	pkgconf_path_build_from_environ("CPLUS_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
-	pkgconf_path_build_from_environ("OBJC_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
+	pkgconf_path_build_from_environ(client, "CPATH", NULL, &client->filter_includedirs, false);
+	pkgconf_path_build_from_environ(client, "C_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
+	pkgconf_path_build_from_environ(client, "CPLUS_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
+	pkgconf_path_build_from_environ(client, "OBJC_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
 
 #ifdef _WIN32
 	/* also use the path lists that MSVC uses on windows */
-	pkgconf_path_build_from_environ("INCLUDE", NULL, &client->filter_includedirs, false);
+	pkgconf_path_build_from_environ(client, "INCLUDE", NULL, &client->filter_includedirs, false);
 #endif
 
 	PKGCONF_TRACE(client, "initialized client @%p", client);
@@ -886,7 +886,7 @@ pkgconf_client_set_output(pkgconf_client_t *client, pkgconf_output_t *output)
 const char *
 pkgconf_client_getenv(const pkgconf_client_t *client, const char *key)
 {
-	if (client->environ_lookup_handler != NULL)
+	if (client != NULL && client->environ_lookup_handler != NULL)
 		return client->environ_lookup_handler(client, key);
 
 	return getenv(key);
