@@ -87,7 +87,7 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data)
+ * .. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler)
  *
  *    Initialise a pkgconf client object.
  *
@@ -96,12 +96,14 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
  *    :param void* error_handler_data: user data passed to optional error handler
  *    :param pkgconf_cross_personality_t* personality: the cross-compile personality to use for defaults
  *    :param void* client_data: user data associated with the client
+ *    :param pkgconf_environ_lookup_handler_func_t environ_lookup_handler: the lookup handler to use for environment variables
  *    :return: nothing
  */
 void
-pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data)
+pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler)
 {
 	client->client_data = client_data;
+	client->environ_lookup_handler = environ_lookup_handler;
 	client->error_handler_data = error_handler_data;
 	client->error_handler = error_handler;
 	client->auditf = NULL;
@@ -168,17 +170,18 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
  *    :param void* error_handler_data: user data passed to optional error handler
  *    :param pkgconf_cross_personality_t* personality: cross-compile personality to use
  *    :param void* client_data: user data associated with the client
+ *    :param pkgconf_environ_lookup_handler_func_t environ_lookup_handler: the lookup handler to use for environment variables
  *    :return: A pkgconf client object.
  *    :rtype: pkgconf_client_t*
  */
 pkgconf_client_t *
-pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data)
+pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler)
 {
 	pkgconf_client_t *out = calloc(1, sizeof(pkgconf_client_t));
 	if (out == NULL)
 		return NULL;
 
-	pkgconf_client_init(out, error_handler, error_handler_data, personality, client_data);
+	pkgconf_client_init(out, error_handler, error_handler_data, personality, client_data, environ_lookup_handler);
 	return out;
 }
 
