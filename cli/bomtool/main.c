@@ -285,7 +285,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	pkgconf_client_init(&pkg_client, error_handler, NULL, personality);
+	pkgconf_client_init(&pkg_client, error_handler, NULL, personality, NULL);
 
 	/* we have determined what features we want most likely.  in some cases, we override later. */
 	pkgconf_client_set_flags(&pkg_client, want_client_flags);
