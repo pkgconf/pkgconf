@@ -197,6 +197,7 @@ struct pkgconf_client_ {
 
 	pkgconf_list_t global_vars;
 
+	void *client_data;
 	void *error_handler_data;
 	void *warn_handler_data;
 	void *trace_handler_data;
@@ -244,8 +245,8 @@ struct pkgconf_cross_personality_ {
 };
 
 /* client.c */
-PKGCONF_API void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality);
-PKGCONF_API pkgconf_client_t * pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality);
+PKGCONF_API void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data);
+PKGCONF_API pkgconf_client_t * pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data);
 PKGCONF_API void pkgconf_client_deinit(pkgconf_client_t *client);
 PKGCONF_API void pkgconf_client_free(pkgconf_client_t *client);
 PKGCONF_API const char *pkgconf_client_get_sysroot_dir(const pkgconf_client_t *client);

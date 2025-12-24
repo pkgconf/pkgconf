@@ -87,7 +87,7 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
+ * .. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data)
  *
  *    Initialise a pkgconf client object.
  *
@@ -95,11 +95,13 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
  *    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
  *    :param void* error_handler_data: user data passed to optional error handler
  *    :param pkgconf_cross_personality_t* personality: the cross-compile personality to use for defaults
+ *    :param void* client_data: user data associated with the client
  *    :return: nothing
  */
 void
-pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
+pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data)
 {
+	client->client_data = client_data;
 	client->error_handler_data = error_handler_data;
 	client->error_handler = error_handler;
 	client->auditf = NULL;
@@ -165,17 +167,18 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
  *    :param pkgconf_error_handler_func_t error_handler: An optional error handler to use for logging errors.
  *    :param void* error_handler_data: user data passed to optional error handler
  *    :param pkgconf_cross_personality_t* personality: cross-compile personality to use
+ *    :param void* client_data: user data associated with the client
  *    :return: A pkgconf client object.
  *    :rtype: pkgconf_client_t*
  */
 pkgconf_client_t *
-pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality)
+pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data)
 {
 	pkgconf_client_t *out = calloc(1, sizeof(pkgconf_client_t));
 	if (out == NULL)
 		return NULL;
 
-	pkgconf_client_init(out, error_handler, error_handler_data, personality);
+	pkgconf_client_init(out, error_handler, error_handler_data, personality, client_data);
 	return out;
 }
 
