@@ -1244,7 +1244,8 @@ cleanup3:
 
 		end = package + strlen(package) - 1;
 		while(end > package && isspace((unsigned char)end[0])) end--;
-		end[1] = '\0';
+		if (end[1])
+			end[1] = '\0';
 
 		if (argv[last_argc + 1] == NULL || !PKGCONF_IS_OPERATOR_CHAR(*(argv[last_argc + 1])))
 		{
