@@ -1144,10 +1144,10 @@ cleanup:
 		pkgconf_node_t *node;
 		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
 
-		while (argv[pkg_optind])
+		while (argv[last_argc])
 		{
-			pkgconf_dependency_parse_str(&state->pkg_client, &deplist, argv[pkg_optind], 0);
-			pkg_optind++;
+			pkgconf_dependency_parse_str(&state->pkg_client, &deplist, argv[last_argc], 0);
+			last_argc++;
 		}
 
 		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
@@ -1184,10 +1184,10 @@ cleanup2:
 		pkgconf_node_t *node;
 		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
 
-		while (argv[pkg_optind])
+		while (argv[last_argc])
 		{
-			pkgconf_dependency_parse_str(&state->pkg_client, &deplist, argv[pkg_optind], 0);
-			pkg_optind++;
+			pkgconf_dependency_parse_str(&state->pkg_client, &deplist, argv[last_argc], 0);
+			last_argc++;
 		}
 
 		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
@@ -1221,7 +1221,7 @@ cleanup3:
 
 	while (1)
 	{
-		char *package = argv[pkg_optind];
+		char *package = argv[last_argc];
 		char *end;
 
 		if (package == NULL)
@@ -1238,7 +1238,7 @@ cleanup3:
 
 		/* skip empty packages */
 		if (package[0] == '\0') {
-			pkg_optind++;
+			last_argc++;
 			continue;
 		}
 
@@ -1246,17 +1246,17 @@ cleanup3:
 		while(end > package && isspace((unsigned char)end[0])) end--;
 		end[1] = '\0';
 
-		if (argv[pkg_optind + 1] == NULL || !PKGCONF_IS_OPERATOR_CHAR(*(argv[pkg_optind + 1])))
+		if (argv[last_argc + 1] == NULL || !PKGCONF_IS_OPERATOR_CHAR(*(argv[last_argc + 1])))
 		{
 			pkgconf_queue_push(&pkgq, package);
-			pkg_optind++;
+			last_argc++;
 		}
-		else if (argv[pkg_optind + 2] == NULL)
+		else if (argv[last_argc + 2] == NULL)
 		{
 			char packagebuf[PKGCONF_BUFSIZE];
 
-			snprintf(packagebuf, sizeof packagebuf, "%s %s", package, argv[pkg_optind + 1]);
-			pkg_optind += 2;
+			snprintf(packagebuf, sizeof packagebuf, "%s %s", package, argv[last_argc + 1]);
+			last_argc += 2;
 
 			pkgconf_queue_push(&pkgq, packagebuf);
 		}
@@ -1264,8 +1264,8 @@ cleanup3:
 		{
 			char packagebuf[PKGCONF_BUFSIZE];
 
-			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[pkg_optind + 1], argv[pkg_optind + 2]);
-			pkg_optind += 3;
+			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[last_argc + 1], argv[last_argc + 2]);
+			last_argc += 3;
 
 			pkgconf_queue_push(&pkgq, packagebuf);
 		}
