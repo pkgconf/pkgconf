@@ -133,6 +133,7 @@ cli_include = include_directories('cli')
 
 pkgconf_exe = executable('pkgconf',
   'cli/main.c',
+  'cli/core.c',
   'cli/getopt_long.c',
   'cli/renderer-msvc.c',
   link_with : libpkgconf,

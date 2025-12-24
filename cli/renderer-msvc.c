@@ -142,12 +142,12 @@ msvc_renderer_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool
 	}
 }
 
-static const pkgconf_fragment_render_ops_t msvc_renderer_ops = {
+static pkgconf_fragment_render_ops_t msvc_renderer_ops = {
 	.render_len = msvc_renderer_render_len,
 	.render_buf = msvc_renderer_render_buf
 };
 
-const pkgconf_fragment_render_ops_t *
+pkgconf_fragment_render_ops_t *
 msvc_renderer_get(void)
 {
 	return &msvc_renderer_ops;
