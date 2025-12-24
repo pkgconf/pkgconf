@@ -19,6 +19,14 @@
 #include "getopt_long.h"
 #include "core.h"
 
+static const char *
+environ_lookup_handler(const pkgconf_client_t *client, const char *key)
+{
+	(void) client;
+
+	return getenv(key);
+}
+
 static bool
 error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 {
@@ -411,7 +419,7 @@ main(int argc, char *argv[])
 #endif
 
 	/* now, bring up the client.  settings are preserved since the client is prealloced */
-	pkgconf_client_init(&state.pkg_client, error_handler, &state, state.personality, &state);
+	pkgconf_client_init(&state.pkg_client, error_handler, &state, state.personality, &state, environ_lookup_handler);
 
 #ifndef PKGCONF_LITE
 	if (getenv("PKG_CONFIG_MSVC_SYNTAX") != NULL)

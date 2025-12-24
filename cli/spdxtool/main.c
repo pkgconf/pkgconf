@@ -33,6 +33,14 @@ static size_t maximum_package_count = 0;
 // static int maximum_traverse_depth = 2000;
 static FILE *error_msgout = NULL;
 
+static const char *
+environ_lookup_handler(const pkgconf_client_t *client, const char *key)
+{
+	(void) client;
+
+	return getenv(key);
+}
+
 static bool
 error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 {
@@ -263,7 +271,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	pkgconf_client_init(&pkg_client, error_handler, NULL, personality, NULL);
+	pkgconf_client_init(&pkg_client, error_handler, NULL, personality, NULL, environ_lookup_handler);
 
 	/* we have determined what features we want most likely.  in some cases, we override later. */
 	pkgconf_client_set_flags(&pkg_client, want_client_flags);
