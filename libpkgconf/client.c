@@ -869,3 +869,25 @@ pkgconf_client_set_output(pkgconf_client_t *client, pkgconf_output_t *output)
 {
 	client->output = output;
 }
+
+/*
+ * !doc
+ *
+ * .. c:function:: const char *pkgconf_client_getenv(const pkgconf_client_t *client, const char *key)
+ *
+ *    Looks up an environmental variable which may be mocked, otherwise fetches
+ *    from the main environment.
+ *
+ *    :param pkgconf_client_t* client: yhe client object to use for looking up environmental variables.
+ *    :param char* key: the environmental variable to look up.
+ *    :return: the environmental variable contents else NULL
+ *    :rtype: const char*
+ */
+const char *
+pkgconf_client_getenv(const pkgconf_client_t *client, const char *key)
+{
+	if (client->environ_lookup_handler != NULL)
+		return client->environ_lookup_handler(client, key);
+
+	return getenv(key);
+}

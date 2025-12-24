@@ -273,6 +273,7 @@ PKGCONF_API bool pkgconf_client_preload_one(pkgconf_client_t *client, pkgconf_pk
 PKGCONF_API bool pkgconf_client_preload_path(pkgconf_client_t *client, const char *path);
 PKGCONF_API bool pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *env);
 PKGCONF_API void pkgconf_client_set_output(pkgconf_client_t *client, pkgconf_output_t *output);
+PKGCONF_API const char *pkgconf_client_getenv(const pkgconf_client_t *client, const char *key);
 
 /* personality.c */
 PKGCONF_API pkgconf_cross_personality_t *pkgconf_cross_personality_default(void);
