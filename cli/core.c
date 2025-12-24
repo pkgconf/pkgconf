@@ -934,8 +934,8 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 
 	int ret = EXIT_SUCCESS;
 	unsigned int want_client_flags = PKGCONF_PKG_PKGF_NONE;
-	char *builddir;
-	char *sysroot_dir;
+	const char *builddir;
+	const char *sysroot_dir;
 	pkgconf_list_t pkgq = PKGCONF_LIST_INITIALIZER;
 	pkgconf_pkg_t world = {
 		.id = "virtual:world",
@@ -948,10 +948,10 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		state->want_render_ops = msvc_renderer_get();
 #endif
 
-	if (getenv("PKG_CONFIG_FDO_SYSROOT_RULES"))
+	if (pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_FDO_SYSROOT_RULES"))
 		want_client_flags |= PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES;
 
-	if (getenv("PKG_CONFIG_PKGCONF1_SYSROOT_RULES"))
+	if (pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_PKGCONF1_SYSROOT_RULES"))
 		want_client_flags |= PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES;
 
 	if ((state->want_flags & PKG_SHORT_ERRORS) == PKG_SHORT_ERRORS)
@@ -968,7 +968,7 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		state->opened_error_msgout = true;
 	}
 
-	if ((state->want_flags & PKG_IGNORE_CONFLICTS) == PKG_IGNORE_CONFLICTS || getenv("PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
+	if ((state->want_flags & PKG_IGNORE_CONFLICTS) == PKG_IGNORE_CONFLICTS || pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
 		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_CONFLICTS;
 
 	if ((state->want_flags & PKG_STATIC) == PKG_STATIC || state->personality->want_default_static)
@@ -981,7 +981,7 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	 * this allows for a --static which searches private modules, but has the same fragment behaviour as if
 	 * --static were disabled.  see <https://github.com/pkgconf/pkgconf/issues/83> for rationale.
 	 */
-	if ((state->want_flags & PKG_PURE) == PKG_PURE || getenv("PKG_CONFIG_PURE_DEPGRAPH") != NULL || state->personality->want_default_pure)
+	if ((state->want_flags & PKG_PURE) == PKG_PURE || pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_PURE_DEPGRAPH") != NULL || state->personality->want_default_pure)
 		want_client_flags &= ~PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS;
 
 	if ((state->want_flags & PKG_ENV_ONLY) == PKG_ENV_ONLY)
@@ -993,17 +993,17 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 /* On Windows we want to always redefine the prefix by default
  * but allow that behavior to be manually disabled */
 #if !defined(_WIN32) && !defined(_WIN64)
-	if ((state->want_flags & PKG_DEFINE_PREFIX) == PKG_DEFINE_PREFIX || getenv("PKG_CONFIG_RELOCATE_PATHS") != NULL)
+	if ((state->want_flags & PKG_DEFINE_PREFIX) == PKG_DEFINE_PREFIX || pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_RELOCATE_PATHS") != NULL)
 #endif
 		want_client_flags |= PKGCONF_PKG_PKGF_REDEFINE_PREFIX;
 
-	if ((state->want_flags & PKG_NO_UNINSTALLED) == PKG_NO_UNINSTALLED || getenv("PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
+	if ((state->want_flags & PKG_NO_UNINSTALLED) == PKG_NO_UNINSTALLED || pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_DISABLE_UNINSTALLED") != NULL)
 		want_client_flags |= PKGCONF_PKG_PKGF_NO_UNINSTALLED;
 
 	if ((state->want_flags & PKG_NO_PROVIDES) == PKG_NO_PROVIDES)
 		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_PROVIDES;
 
-	if ((state->want_flags & PKG_DONT_DEFINE_PREFIX) == PKG_DONT_DEFINE_PREFIX  || getenv("PKG_CONFIG_DONT_DEFINE_PREFIX") != NULL)
+	if ((state->want_flags & PKG_DONT_DEFINE_PREFIX) == PKG_DONT_DEFINE_PREFIX  || pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_DONT_DEFINE_PREFIX") != NULL)
 		want_client_flags &= ~PKGCONF_PKG_PKGF_REDEFINE_PREFIX;
 
 	if ((state->want_flags & PKG_INTERNAL_CFLAGS) == PKG_INTERNAL_CFLAGS)
@@ -1039,16 +1039,16 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		want_client_flags |= PKGCONF_PKG_PKGF_SEARCH_PRIVATE;
 	}
 
-	if ((builddir = getenv("PKG_CONFIG_TOP_BUILD_DIR")) != NULL)
+	if ((builddir = pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_TOP_BUILD_DIR")) != NULL)
 		pkgconf_client_set_buildroot_dir(&state->pkg_client, builddir);
 
-	if ((sysroot_dir = getenv("PKG_CONFIG_SYSROOT_DIR")) != NULL)
+	if ((sysroot_dir = pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_SYSROOT_DIR")) != NULL)
 	{
 		const char *destdir;
 
 		pkgconf_client_set_sysroot_dir(&state->pkg_client, sysroot_dir);
 
-		if ((destdir = getenv("DESTDIR")) != NULL)
+		if ((destdir = pkgconf_client_getenv(&state->pkg_client, "DESTDIR")) != NULL)
 		{
 			if (!strcmp(destdir, sysroot_dir))
 				want_client_flags |= PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES;
