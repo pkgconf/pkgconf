@@ -183,6 +183,7 @@ exists_version_bad2_body()
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check \
 		-s exit:1 \
+		-e ignore \
 		pkgconf --exists 'foo >= '
 }
 

@@ -937,6 +937,9 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	const char *builddir;
 	const char *sysroot_dir;
 	pkgconf_list_t pkgq = PKGCONF_LIST_INITIALIZER;
+	pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
+	pkgconf_node_t *node;
+	pkgconf_buffer_t queryparams = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_pkg_t world = {
 		.id = "virtual:world",
 		.realname = "virtual world package",
@@ -1098,21 +1101,34 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		goto out;
 	}
 
-	if (state->required_module_version != NULL)
+	while (argv[last_argc])
+	{
+		if (pkgconf_buffer_len(&queryparams) > 0)
+			pkgconf_buffer_push_byte(&queryparams, ' ');
+
+		pkgconf_buffer_append(&queryparams, argv[last_argc]);
+		last_argc++;
+	}
+
+	pkgconf_dependency_parse_str(&state->pkg_client, &deplist, pkgconf_buffer_str_or_empty(&queryparams), 0);
+	pkgconf_buffer_finalize(&queryparams);
+
+	if (state->required_module_version != NULL || state->required_exact_module_version != NULL || state->required_max_module_version != NULL)
 	{
 		pkgconf_pkg_t *pkg = NULL;
-		pkgconf_node_t *node;
-		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
+		const char *target_version = NULL;
 
-		while (argv[last_argc])
-		{
-			pkgconf_dependency_parse_str(&state->pkg_client, &deplist, argv[last_argc], 0);
-			last_argc++;
-		}
+		if (state->required_module_version != NULL)
+			target_version = state->required_module_version;
+		else if (state->required_exact_module_version != NULL)
+			target_version = state->required_exact_module_version;
+		else if (state->required_max_module_version != NULL)
+			target_version = state->required_max_module_version;
 
 		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
 			pkgconf_dependency_t *pkgiter = node->data;
+			int result;
 
 			pkg = pkgconf_pkg_find(&state->pkg_client, pkgiter->package);
 			if (pkg == NULL)
@@ -1124,7 +1140,18 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 				goto cleanup;
 			}
 
-			if (pkgconf_compare_version(pkg->version, state->required_module_version) >= 0)
+			result = pkgconf_compare_version(pkg->version, target_version);
+			if (state->required_module_version != NULL && result >= 0)
+			{
+				ret = EXIT_SUCCESS;
+				goto cleanup;
+			}
+			else if (state->required_exact_module_version != NULL && result == 0)
+			{
+				ret = EXIT_SUCCESS;
+				goto cleanup;
+			}
+			else if (state->required_max_module_version != NULL && result <= 0)
 			{
 				ret = EXIT_SUCCESS;
 				goto cleanup;
@@ -1138,139 +1165,14 @@ cleanup:
 		pkgconf_dependency_free(&deplist);
 		goto out;
 	}
-	else if (state->required_exact_module_version != NULL)
+
+	PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 	{
-		pkgconf_pkg_t *pkg = NULL;
-		pkgconf_node_t *node;
-		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
-
-		while (argv[last_argc])
-		{
-			pkgconf_dependency_parse_str(&state->pkg_client, &deplist, argv[last_argc], 0);
-			last_argc++;
-		}
-
-		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
-		{
-			pkgconf_dependency_t *pkgiter = node->data;
-
-			pkg = pkgconf_pkg_find(&state->pkg_client, pkgiter->package);
-			if (pkg == NULL)
-			{
-				if (state->want_flags & PKG_PRINT_ERRORS)
-					pkgconf_error(&state->pkg_client, "Package '%s' was not found\n", pkgiter->package);
-
-				ret = EXIT_FAILURE;
-				goto cleanup2;
-			}
-
-			if (pkgconf_compare_version(pkg->version, state->required_exact_module_version) == 0)
-			{
-				ret = EXIT_SUCCESS;
-				goto cleanup2;
-			}
-		}
-
-		ret = EXIT_FAILURE;
-cleanup2:
-		if (pkg != NULL)
-			pkgconf_pkg_unref(&state->pkg_client, pkg);
-		pkgconf_dependency_free(&deplist);
-		goto out;
-	}
-	else if (state->required_max_module_version != NULL)
-	{
-		pkgconf_pkg_t *pkg = NULL;
-		pkgconf_node_t *node;
-		pkgconf_list_t deplist = PKGCONF_LIST_INITIALIZER;
-
-		while (argv[last_argc])
-		{
-			pkgconf_dependency_parse_str(&state->pkg_client, &deplist, argv[last_argc], 0);
-			last_argc++;
-		}
-
-		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
-		{
-			pkgconf_dependency_t *pkgiter = node->data;
-
-			pkg = pkgconf_pkg_find(&state->pkg_client, pkgiter->package);
-			if (pkg == NULL)
-			{
-				if (state->want_flags & PKG_PRINT_ERRORS)
-					pkgconf_error(&state->pkg_client, "Package '%s' was not found\n", pkgiter->package);
-
-				ret = EXIT_FAILURE;
-				goto cleanup3;
-			}
-
-			if (pkgconf_compare_version(pkg->version, state->required_max_module_version) <= 0)
-			{
-				ret = EXIT_SUCCESS;
-				goto cleanup3;
-			}
-		}
-
-		ret = EXIT_FAILURE;
-cleanup3:
-		if (pkg != NULL)
-			pkgconf_pkg_unref(&state->pkg_client, pkg);
-		pkgconf_dependency_free(&deplist);
-		goto out;
+		pkgconf_dependency_t *dep = node->data;
+		pkgconf_queue_push_dependency(&pkgq, dep);
 	}
 
-	while (1)
-	{
-		char *package = argv[last_argc];
-		char *end;
-
-		if (package == NULL)
-			break;
-
-		/* check if there is a limit to the number of packages allowed to be included, if so and we have hit
-		 * the limit, stop adding packages to the queue.
-		 */
-		if (state->maximum_package_count > 0 && pkgq.length >= state->maximum_package_count)
-			break;
-
-		while (isspace((unsigned char)package[0]))
-			package++;
-
-		/* skip empty packages */
-		if (package[0] == '\0') {
-			last_argc++;
-			continue;
-		}
-
-		end = package + strlen(package) - 1;
-		while(end > package && isspace((unsigned char)end[0])) end--;
-		if (end[1])
-			end[1] = '\0';
-
-		if (argv[last_argc + 1] == NULL || !PKGCONF_IS_OPERATOR_CHAR(*(argv[last_argc + 1])))
-		{
-			pkgconf_queue_push(&pkgq, package);
-			last_argc++;
-		}
-		else if (argv[last_argc + 2] == NULL)
-		{
-			char packagebuf[PKGCONF_BUFSIZE];
-
-			snprintf(packagebuf, sizeof packagebuf, "%s %s", package, argv[last_argc + 1]);
-			last_argc += 2;
-
-			pkgconf_queue_push(&pkgq, packagebuf);
-		}
-		else
-		{
-			char packagebuf[PKGCONF_BUFSIZE];
-
-			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[last_argc + 1], argv[last_argc + 2]);
-			last_argc += 3;
-
-			pkgconf_queue_push(&pkgq, packagebuf);
-		}
-	}
+	pkgconf_dependency_free(&deplist);
 
 	if (pkgq.head == NULL)
 	{
