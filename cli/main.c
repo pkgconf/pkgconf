@@ -237,6 +237,7 @@ main(int argc, char *argv[])
 	pkgconf_list_t dir_list = PKGCONF_LIST_INITIALIZER;
 	char *env_traverse_depth;
 	char *logfile_arg = NULL;
+	pkgconf_cross_personality_t *personality = NULL;
 
 	if (pkgconf_pledge("stdio rpath wpath cpath unveil", NULL) == -1)
 	{
@@ -385,7 +386,7 @@ main(int argc, char *argv[])
 			break;
 #ifndef PKGCONF_LITE
 		case 53:
-			state.personality = pkgconf_cross_personality_find(pkg_optarg);
+			personality = pkgconf_cross_personality_find(pkg_optarg);
 			break;
 #endif
 		case 55:
@@ -400,18 +401,18 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (state.personality == NULL) {
+	if (personality == NULL) {
 #ifndef PKGCONF_LITE
-		state.personality = deduce_personality(argv);
+		personality = deduce_personality(argv);
 #else
-		state.personality = pkgconf_cross_personality_default();
+		personality = pkgconf_cross_personality_default();
 #endif
 	}
 
 #ifndef PKGCONF_LITE
 	if ((state.want_flags & PKG_DUMP_PERSONALITY) == PKG_DUMP_PERSONALITY)
 	{
-		dump_personality(state.personality);
+		dump_personality(personality);
 
 		ret = EXIT_SUCCESS;
 		goto out;
@@ -419,7 +420,7 @@ main(int argc, char *argv[])
 #endif
 
 	/* now, bring up the client.  settings are preserved since the client is prealloced */
-	pkgconf_client_init(&state.pkg_client, error_handler, &state, state.personality, &state, environ_lookup_handler);
+	pkgconf_client_init(&state.pkg_client, error_handler, &state, personality, &state, environ_lookup_handler);
 
 #ifndef PKGCONF_LITE
 	if (getenv("PKG_CONFIG_MSVC_SYNTAX") != NULL)

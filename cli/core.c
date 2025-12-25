@@ -866,7 +866,7 @@ unveil_search_paths(pkgconf_client_t *client, const pkgconf_cross_personality_t 
 
 /* SAFETY: pkgconf_client_t takes ownership of these package objects */
 static void
-register_builtins(pkgconf_client_t *client, pkgconf_cross_personality_t *personality)
+register_builtins(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
 {
 	pkgconf_buffer_t pc_path_buf = PKGCONF_BUFFER_INITIALIZER;
 	path_list_to_buffer(&personality->dir_list, &pc_path_buf, ':');
@@ -971,7 +971,7 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	if ((state->want_flags & PKG_IGNORE_CONFLICTS) == PKG_IGNORE_CONFLICTS || pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_IGNORE_CONFLICTS") != NULL)
 		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_CONFLICTS;
 
-	if ((state->want_flags & PKG_STATIC) == PKG_STATIC || state->personality->want_default_static)
+	if ((state->want_flags & PKG_STATIC) == PKG_STATIC || state->pkg_client.personality->want_default_static)
 		want_client_flags |= (PKGCONF_PKG_PKGF_SEARCH_PRIVATE | PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS);
 
 	if ((state->want_flags & PKG_SHARED) == PKG_SHARED)
@@ -981,7 +981,7 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	 * this allows for a --static which searches private modules, but has the same fragment behaviour as if
 	 * --static were disabled.  see <https://github.com/pkgconf/pkgconf/issues/83> for rationale.
 	 */
-	if ((state->want_flags & PKG_PURE) == PKG_PURE || pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_PURE_DEPGRAPH") != NULL || state->personality->want_default_pure)
+	if ((state->want_flags & PKG_PURE) == PKG_PURE || pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_PURE_DEPGRAPH") != NULL || state->pkg_client.personality->want_default_pure)
 		want_client_flags &= ~PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS;
 
 	if ((state->want_flags & PKG_ENV_ONLY) == PKG_ENV_ONLY)
@@ -1059,17 +1059,17 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	pkgconf_client_set_flags(&state->pkg_client, want_client_flags);
 
 	/* at this point, want_client_flags should be set, so build the dir list */
-	pkgconf_client_dir_list_build(&state->pkg_client, state->personality);
+	pkgconf_client_dir_list_build(&state->pkg_client, state->pkg_client.personality);
 
 	/* unveil the entire search path now that we have loaded the personality data and built the dir list. */
-	if (!unveil_search_paths(&state->pkg_client, state->personality))
+	if (!unveil_search_paths(&state->pkg_client, state->pkg_client.personality))
 	{
 		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	/* register built-in packages */
-	register_builtins(&state->pkg_client, state->personality);
+	register_builtins(&state->pkg_client, state->pkg_client.personality);
 
 	/* preload any files in PKG_CONFIG_PRELOADED_FILES */
 	pkgconf_client_preload_from_environ(&state->pkg_client, "PKG_CONFIG_PRELOADED_FILES");
@@ -1439,7 +1439,7 @@ out:
 void
 pkgconf_cli_state_reset(pkgconf_cli_state_t *state)
 {
-	pkgconf_cross_personality_deinit(state->personality);
+	pkgconf_cross_personality_deinit((void *) state->pkg_client.personality);
 	pkgconf_client_deinit(&state->pkg_client);
 
 	if (state->logfile_out != NULL)

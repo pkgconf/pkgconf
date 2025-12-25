@@ -90,8 +90,6 @@ typedef struct {
 	FILE *logfile_out;
 
 	bool opened_error_msgout;
-
-	pkgconf_cross_personality_t *personality;
 } pkgconf_cli_state_t;
 
 extern void path_list_to_buffer(const pkgconf_list_t *list, pkgconf_buffer_t *buffer, char delim);

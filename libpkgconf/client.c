@@ -102,6 +102,7 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
 void
 pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler)
 {
+	client->personality = personality;
 	client->client_data = client_data;
 	client->environ_lookup_handler = environ_lookup_handler;
 	client->error_handler_data = error_handler_data;

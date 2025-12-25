@@ -231,6 +231,8 @@ struct pkgconf_client_ {
 	pkgconf_list_t preloaded_pkgs;
 
 	pkgconf_output_t *output;
+
+	const pkgconf_cross_personality_t *personality;
 };
 
 struct pkgconf_cross_personality_ {
