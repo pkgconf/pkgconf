@@ -416,6 +416,7 @@ PKGCONF_API void pkgconf_tuple_define_global(pkgconf_client_t *client, const cha
 
 /* queue.c */
 PKGCONF_API void pkgconf_queue_push(pkgconf_list_t *list, const char *package);
+PKGCONF_API void pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *dep);
 PKGCONF_API bool pkgconf_queue_compile(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list);
 PKGCONF_API bool pkgconf_queue_solve(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_pkg_t *world, int maxdepth);
 PKGCONF_API void pkgconf_queue_free(pkgconf_list_t *list);

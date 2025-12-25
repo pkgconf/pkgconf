@@ -32,6 +32,32 @@
 /*
  * !doc
  *
+ * .. c:function:: void pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *dep)
+ *
+ *    Pushes a requested dependency onto the dependency resolver's queue which is described by
+ *    a pkgconf_dependency_t node.
+ *
+ *    :param pkgconf_list_t* list: the dependency resolution queue to add the package request to.
+ *    :param pkgconf_dependency_t* dep: the dependency requested
+ *    :return: nothing
+ */
+void
+pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *dep)
+{
+	pkgconf_buffer_t depbuf = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_queue_t *pkgq = calloc(1, sizeof(pkgconf_queue_t));
+
+	pkgconf_buffer_append(&depbuf, dep->package);
+	if (dep->version != NULL)
+		pkgconf_buffer_append_fmt(&depbuf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
+
+	pkgq->package = pkgconf_buffer_freeze(&depbuf);
+	pkgconf_node_insert_tail(&pkgq->iter, pkgq, list);
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void pkgconf_queue_push(pkgconf_list_t *list, const char *package)
  *
  *    Pushes a requested dependency onto the dependency resolver's queue.
