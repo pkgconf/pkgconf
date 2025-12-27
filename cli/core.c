@@ -890,9 +890,9 @@ register_builtins(pkgconf_client_t *client, const pkgconf_cross_personality_t *p
 	pkg_config_virtual->url = strdup(PACKAGE_BUGREPORT);
 	pkg_config_virtual->version = strdup(PACKAGE_VERSION);
 
-	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_libdirs", pc_system_libdirs_buf.base, false, 0);
-	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_includedirs", pc_system_includedirs_buf.base, false, 0);
-	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_path", pc_path_buf.base, false, 0);
+	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_libdirs", pkgconf_buffer_str_or_empty(&pc_system_libdirs_buf), false, 0);
+	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_includedirs", pkgconf_buffer_str_or_empty(&pc_system_includedirs_buf), false, 0);
+	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_path", pkgconf_buffer_str_or_empty(&pc_path_buf), false, 0);
 
 	if (!pkgconf_client_preload_one(client, pkg_config_virtual))
 	{
@@ -912,9 +912,9 @@ register_builtins(pkgconf_client_t *client, const pkgconf_cross_personality_t *p
 	pkgconf_virtual->url = strdup(PACKAGE_BUGREPORT);
 	pkgconf_virtual->version = strdup(PACKAGE_VERSION);
 
-	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_libdirs", pc_system_libdirs_buf.base, false, 0);
-	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_includedirs", pc_system_includedirs_buf.base, false, 0);
-	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_path", pc_path_buf.base, false, 0);
+	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_libdirs", pkgconf_buffer_str_or_empty(&pc_system_libdirs_buf), false, 0);
+	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_includedirs", pkgconf_buffer_str_or_empty(&pc_system_includedirs_buf), false, 0);
+	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_path", pkgconf_buffer_str_or_empty(&pc_path_buf), false, 0);
 
 	if (!pkgconf_client_preload_one(client, pkgconf_virtual))
 	{
