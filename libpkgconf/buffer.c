@@ -170,3 +170,24 @@ pkgconf_buffer_join(pkgconf_buffer_t *buffer, char delim, ...)
 	pkgconf_buffer_vjoin(buffer, delim, va);
 	va_end(va);
 }
+
+bool
+pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle)
+{
+	const char *haystack_str = pkgconf_buffer_str_or_empty(haystack);
+	const char *needle_str = pkgconf_buffer_str_or_empty(needle);
+
+	return strstr(haystack_str, needle_str) != NULL;
+}
+
+bool
+pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle)
+{
+	const char *haystack_str = pkgconf_buffer_str_or_empty(haystack);
+	const char *needle_str = pkgconf_buffer_str_or_empty(needle);
+
+	if (pkgconf_buffer_len(haystack) != pkgconf_buffer_len(needle))
+		return false;
+
+	return memcmp(haystack_str, needle_str, pkgconf_buffer_len(haystack)) == 0;
+}
