@@ -3,14 +3,6 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	noargs \
-	libs \
-	libs_cflags \
-	libs_cflags_version \
-	libs_cflags_version_multiple \
-	libs_cflags_version_alt \
-	libs_cflags_version_different \
-	libs_cflags_version_different_bad \
 	libs_env \
 	exists_nonexitent \
 	nonexitent \
@@ -51,79 +43,6 @@ tests_init \
 	variable_env \
 	variable_no_recurse \
 	tuple_env
-
-noargs_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check -s exit:1 -e ignore pkgconf
-}
-
-libs_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-L/test/lib -lfoo\n" \
-		pkgconf --libs foo
-}
-
-libs_cflags_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo\n" \
-		pkgconf --cflags --libs foo
-}
-
-atf_test_case basic_libs_cflags_version
-libs_cflags_version_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo\n" \
-		pkgconf --cflags --libs 'foo > 1.2'
-}
-
-libs_cflags_version_multiple_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lbar -lfoo\n" \
-		pkgconf --cflags --libs 'foo > 1.2 bar >= 1.3'
-}
-
-libs_cflags_version_multiple_coma_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lbar -lfoo\n" \
-		pkgconf --cflags --libs 'foo > 1.2,bar >= 1.3'
-}
-
-libs_cflags_version_alt_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo\n" \
-		pkgconf --cflags --libs 'foo' '>' '1.2'
-}
-
-libs_cflags_version_different_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -L/test/lib -lfoo\n" \
-		pkgconf --cflags --libs 'foo' '!=' '1.3.0'
-}
-
-atf_test_case basic_libs_cflags_version_different_bad
-libs_cflags_version_different_bad_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-s exit:1 \
-		-e inline:"Package dependency requirement 'foo != 1.2.3' could not be satisfied.\nPackage 'foo' has version '1.2.3', required version is '!= 1.2.3'\n" \
-		pkgconf --cflags --libs 'foo' '!=' '1.2.3'
-}
 
 exists_nonexitent_body()
 {

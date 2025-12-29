@@ -27,6 +27,10 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/libs.test \
 		t/basic/libs-cflags.test \
 		t/basic/libs-cflags-version.test \
+		t/basic/libs-cflags-version-multiple.test \
+		t/basic/libs-cflags-version-multiple-comma.test \
+		t/basic/libs-cflags-version-not.test \
+		t/basic/libs-cflags-version-not-provided.test \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
