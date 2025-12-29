@@ -523,6 +523,8 @@ process_test_directory(char *dirpath)
 		pkgconf_buffer_append(&pathbuf, dirent->d_name);
 
 		char *pathstr = pkgconf_buffer_freeze(&pathbuf);
+		if (pathstr == NULL)
+			continue;
 
 		if (!str_has_suffix(pathstr, ".test"))
 		{
