@@ -149,7 +149,7 @@ bomtool_exe = executable('bomtool',
   include_directories : cli_include,
   install : true)
 
-bomtool_exe = executable('spdxtool',
+spdxtool_exe = executable('spdxtool',
   'cli/spdxtool/main.c',
   'cli/spdxtool/core.c',
   'cli/spdxtool/software.c',
