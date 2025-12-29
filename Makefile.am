@@ -236,6 +236,13 @@ spdxtool_SOURCES  = \
 	cli/getopt_long.c
 spdxtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/spdxtool
 
+noinst_PROGRAMS = test-runner
+test_runner_LDADD = libpkgconf.la
+test_runner_SOURCES = \
+	cli/core.c \
+	cli/renderer-msvc.c \
+	tests/test-runner.c
+
 dist_doc_DATA = README.md AUTHORS
 
 m4datadir              = $(datadir)/aclocal

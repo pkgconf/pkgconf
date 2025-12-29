@@ -162,6 +162,16 @@ bomtool_exe = executable('spdxtool',
   include_directories : include_directories('cli', 'cli/spdxtool'),
   install : true)
 
+test_runner_exe = executable('test-runner',
+  'cli/core.c',
+  'cli/getopt_long.c',
+  'cli/renderer-msvc.c',
+  'tests/test-runner.c',
+  link_with : libpkgconf,
+  c_args : build_static,
+  include_directories : cli_include,
+  install : true)
+
 with_tests = get_option('tests')
 kyua_exe = find_program('kyua', required : with_tests, disabler : true, native : true)
 atf_sh_exe = find_program('atf-sh', required : with_tests, disabler : true, native : true)
