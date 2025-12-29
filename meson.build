@@ -172,7 +172,7 @@ test_runner_exe = executable('test-runner',
   include_directories : cli_include,
   install : true)
 
-fixtures_dir = '@0@/tests'.format(meson.current_build_dir())
+fixtures_dir = '@0@/tests'.format(meson.current_source_dir())
 test_suites = [
   'basic',
 ]
