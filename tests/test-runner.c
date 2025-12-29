@@ -543,7 +543,10 @@ process_test_directory(char *dirpath)
 	bool ret = true;
 	DIR *dir = opendir(dirpath);
 	if (dir == NULL)
+	{
+		fprintf(stderr, "failed to open test directory %s\n", dirpath);
 		return false;
+	}
 
 	struct dirent *dirent;
 
