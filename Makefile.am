@@ -24,6 +24,9 @@ EXTRA_DIST =	pkg.m4 \
 		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
 		t/basic/noargs.test \
+		t/basic/exists-nonexistent.test \
+		t/basic/exists-version-with-tilde.test \
+		t/basic/exists-version-less-than-with-tilde.test \
 		t/basic/libs.test \
 		t/basic/libs-cflags.test \
 		t/basic/libs-cflags-version.test \
@@ -31,6 +34,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/libs-cflags-version-multiple-comma.test \
 		t/basic/libs-cflags-version-not.test \
 		t/basic/libs-cflags-version-not-provided.test \
+		t/basic/libs-env.test \
+		t/basic/malformed-empty-package.test \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \

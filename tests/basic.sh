@@ -10,9 +10,6 @@ tests_init \
 	exists_version_bad \
 	exists_version_bad2 \
 	exists_version_bad3 \
-	exists \
-	exists2 \
-	exists3 \
 	exists_version_alt \
 	exists_cflags \
 	exists_cflags_env \
@@ -112,27 +109,6 @@ exists_version_bad3_body()
 	atf_check \
 		-s exit:1 \
 		pkgconf --exists 'tilde >= 1.0.0'
-}
-
-exists_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		pkgconf --exists 'tilde = 1.0.0~rc1'
-}
-
-exists2_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		pkgconf --exists 'tilde <= 1.0.0'
-}
-
-exists3_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		pkgconf --exists '' 'foo'
 }
 
 libs_intermediary_body()
