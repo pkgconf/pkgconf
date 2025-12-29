@@ -77,9 +77,9 @@ typedef struct {
 	int maximum_traverse_depth;
 	size_t maximum_package_count;
 
-	char *want_variable;
-	char *want_fragment_filter;
-	char *want_env_prefix;
+	const char *want_variable;
+	const char *want_fragment_filter;
+	const char *want_env_prefix;
 
 	char *required_pkgconfig_version;
 	char *required_exact_module_version;

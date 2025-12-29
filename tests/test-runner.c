@@ -41,6 +41,8 @@ typedef struct test_case_ {
 	uint64_t wanted_flags;
 
 	pkgconf_list_t env_vars;
+
+	pkgconf_buffer_t want_env_prefix;
 } pkgconf_test_case_t;
 
 typedef struct test_state_ {
@@ -345,6 +347,7 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 	{"PackageSearchPath", test_keyword_set_path_list, offsetof(pkgconf_test_case_t, search_path)},
 	{"Query", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, query)},
 	{"WantedFlags", test_keyword_set_wanted_flags, offsetof(pkgconf_test_case_t, wanted_flags)},
+	{"WantEnvPrefix", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_env_prefix)},
 };
 
 static void
@@ -517,10 +520,12 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 	fprintf(stderr,
 		"stderr: [%s]\n"
 		"expected-stderr: [%s] (%s)\n"
+		"want-env-prefix: [%s]\n"
 		"--------------------------------------------------------------------------------\n",
 		pkgconf_buffer_str_or_empty(&out->o_stderr),
 		pkgconf_buffer_str_or_empty(&testcase->expected_stderr),
-		testcase->match_stderr == MATCH_PARTIAL ? "partial" : "exact");
+		testcase->match_stderr == MATCH_PARTIAL ? "partial" : "exact",
+		pkgconf_buffer_str_or_empty(&testcase->want_env_prefix));
 
 	pkgconf_buffer_finalize(&search_path_buf);
 	pkgconf_buffer_finalize(&wanted_flags_buf);
@@ -535,6 +540,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	pkgconf_cross_personality_t *personality = personality_for_test(testcase);
 	pkgconf_test_state_t state = {
 		.cli_state.want_flags = testcase->wanted_flags,
+		.cli_state.want_env_prefix = pkgconf_buffer_str(&testcase->want_env_prefix),
 		.testcase = testcase,
 	};
 
