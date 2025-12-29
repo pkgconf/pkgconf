@@ -64,13 +64,13 @@ typedef struct test_output_ {
 void
 test_environment_push(pkgconf_test_case_t *testcase, const char *key, const char *value)
 {
-	pkgconf_test_environ_t *environ = calloc(1, sizeof(*environ));
-	if (environ == NULL)
+	pkgconf_test_environ_t *env = calloc(1, sizeof(*env));
+	if (env == NULL)
 		return;
 
-	environ->key = strdup(key);
-	environ->value = strdup(value);
-	pkgconf_node_insert_tail(&environ->node, environ, &testcase->env_vars);
+	env->key = strdup(key);
+	env->value = strdup(value);
+	pkgconf_node_insert_tail(&env->node, env, &testcase->env_vars);
 }
 
 void
@@ -80,13 +80,13 @@ test_environment_free(pkgconf_list_t *env_list)
 
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(env_list->head, tn, n)
 	{
-		pkgconf_test_environ_t *environ = n->data;
+		pkgconf_test_environ_t *env = n->data;
 
-		pkgconf_node_delete(&environ->node, env_list);
+		pkgconf_node_delete(&env->node, env_list);
 
-		free(environ->key);
-		free(environ->value);
-		free(environ);
+		free(env->key);
+		free(env->value);
+		free(env);
 	}
 }
 
@@ -98,10 +98,10 @@ environ_lookup_handler(const pkgconf_client_t *client, const char *key)
 
 	PKGCONF_FOREACH_LIST_ENTRY(state->testcase->env_vars.head, node)
 	{
-		pkgconf_test_environ_t *environ = node->data;
+		pkgconf_test_environ_t *env = node->data;
 
-		if (!strcmp(key, environ->key))
-			return environ->value;
+		if (!strcmp(key, env->key))
+			return env->value;
 	}
 
 	return NULL;
