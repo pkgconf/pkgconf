@@ -35,8 +35,13 @@ jobs:
           # the code assumes msvc style printf atm
           export CFLAGS=-D__USE_MINGW_ANSI_STDIO=0
 
-          meson -Dtests=disabled _build
+          meson _build
           meson compile -C _build msi
+
+      - name: Run tests
+        shell: msys2 {0}
+        run: |
+          meson test -v -C _build
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
