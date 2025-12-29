@@ -23,6 +23,7 @@ EXTRA_DIST =	pkg.m4 \
 		libpkgconf/meson.build \
 		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
+		t/basic/noargs.test \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
@@ -252,7 +253,9 @@ m4data_DATA            = pkg.m4
 CLEANFILES =	$(EXTRA_PROGRAMS) \
 		$(check_SCRIPTS)
 
-check: pkgconf $(check_SCRIPTS)
+check: pkgconf test-runner $(check_SCRIPTS)
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_builddir)/tests \
+		$(top_srcdir)/t/basic
 	kyua --config=none test --kyuafile='$(top_builddir)/Kyuafile' \
 		--build-root='$(top_builddir)'
 
