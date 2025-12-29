@@ -129,7 +129,7 @@ test_output(void)
 		.output.write = write_handler,
 	};
 
-	return (pkgconf_output_t *) &output;
+	return &output.output;
 }
 
 static void
