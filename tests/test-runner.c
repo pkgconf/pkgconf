@@ -19,6 +19,7 @@
 #include <cli/getopt_long.h>
 
 static char *test_fixtures_dir = NULL;
+static bool debug = false;
 
 typedef enum test_match_strategy_ {
 	MATCH_EXACT = 0,
@@ -107,6 +108,15 @@ environ_lookup_handler(const pkgconf_client_t *client, const char *key)
 	}
 
 	return NULL;
+}
+
+static bool
+debug_handler(const char *msg, const pkgconf_client_t *client, void *data)
+{
+	(void) client;
+	(void) data;
+	fprintf(stderr, "%s", msg);
+	return true;
 }
 
 static bool
@@ -557,6 +567,9 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	pkgconf_argv_split(pkgconf_buffer_str(&arg_buf), &test_argc, &test_argv);
 	pkgconf_buffer_finalize(&arg_buf);
 
+	if (debug)
+		pkgconf_client_set_trace_handler(&state.cli_state.pkg_client, debug_handler, NULL);
+
 	int ret = pkgconf_cli_run(&state.cli_state, test_argc, test_argv, 1);
 	pkgconf_argv_free(test_argv);
 
@@ -688,6 +701,7 @@ main(int argc, char *argv[])
 
 	struct pkg_option options[] = {
 		{"test-fixtures", required_argument, NULL, 1},
+		{"debug", no_argument, NULL, 2},
 		{NULL, 0, NULL, 0},
 	};
 
@@ -697,6 +711,9 @@ main(int argc, char *argv[])
 		{
 		case 1:
 			test_fixtures_dir = pkg_optarg;
+			break;
+		case 2:
+			debug = true;
 			break;
 		}
 	}
