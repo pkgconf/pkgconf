@@ -1139,7 +1139,7 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		goto out;
 	}
 
-	while (argv[last_argc])
+	while (last_argc < argc && argv[last_argc])
 	{
 		if (pkgconf_buffer_len(&queryparams) > 0)
 			pkgconf_buffer_push_byte(&queryparams, ' ');
