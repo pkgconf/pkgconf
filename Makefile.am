@@ -240,6 +240,7 @@ noinst_PROGRAMS = test-runner
 test_runner_LDADD = libpkgconf.la
 test_runner_SOURCES = \
 	cli/core.c \
+	cli/getopt_long.c \
 	cli/renderer-msvc.c \
 	tests/test-runner.c
 

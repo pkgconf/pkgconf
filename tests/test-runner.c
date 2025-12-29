@@ -16,6 +16,9 @@
 #include <libpkgconf/libpkgconf.h>
 #include <libpkgconf/stdinc.h>
 #include <cli/core.h>
+#include <cli/getopt_long.h>
+
+static char *test_fixtures_dir = NULL;
 
 typedef enum test_match_strategy_ {
 	MATCH_EXACT = 0,
@@ -266,6 +269,33 @@ test_keyword_set_wanted_flags(pkgconf_test_case_t *testcase, const char *keyword
 	pkgconf_argv_free(flags);
 }
 
+static size_t
+prefixed_path_split(const char *text, pkgconf_list_t *dirlist, const char *prefix)
+{
+	size_t count = 0;
+	char *workbuf, *p, *iter;
+
+	if (text == NULL)
+		return 0;
+
+	iter = workbuf = strdup(text);
+	while ((p = strtok(iter, PKG_CONFIG_PATH_SEP_S)) != NULL)
+	{
+		pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
+
+		pkgconf_buffer_append(&pathbuf, prefix);
+		pkgconf_buffer_append(&pathbuf, "/");
+		pkgconf_buffer_append(&pathbuf, p);
+		pkgconf_path_add(pkgconf_buffer_str(&pathbuf), dirlist, false);
+		pkgconf_buffer_finalize(&pathbuf);
+
+		count++, iter = NULL;
+	}
+	free(workbuf);
+
+	return count;
+}
+
 static void
 test_keyword_set_path_list(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
 {
@@ -273,7 +303,7 @@ test_keyword_set_path_list(pkgconf_test_case_t *testcase, const char *keyword, c
 	(void) warnprefix;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) testcase + offset);
-	pkgconf_path_split(value, dest, false);
+	prefixed_path_split(value, dest, test_fixtures_dir);
 }
 
 static void
@@ -512,6 +542,9 @@ process_test_directory(char *dirpath)
 {
 	bool ret = true;
 	DIR *dir = opendir(dirpath);
+	if (dir == NULL)
+		return false;
+
 	struct dirent *dirent;
 
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
@@ -543,14 +576,38 @@ process_test_directory(char *dirpath)
 	return ret;
 }
 
+void
+usage(void)
+{
+	fprintf(stderr, "usage: test-runner --test-fixtures <path-to-fixtures> <path-to-tests>\n");
+	exit(EXIT_FAILURE);
+}
+
 int
 main(int argc, char *argv[])
 {
-	if (argc < 2)
+	int ret;
+
+	struct pkg_option options[] = {
+		{"test-fixtures", required_argument, NULL, 1},
+		{NULL, 0, NULL, 0},
+	};
+
+	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
-		fprintf(stderr, "usage: test-runner <path-to-tests>\n");
-		return EXIT_FAILURE;
+		switch (ret)
+		{
+		case 1:
+			test_fixtures_dir = pkg_optarg;
+			break;
+		}
 	}
 
-	return process_test_directory(argv[1]) ? EXIT_SUCCESS : EXIT_FAILURE;
+	if (test_fixtures_dir == NULL)
+		usage();
+
+	if (argc < 2)
+		usage();
+
+	return process_test_directory(argv[pkg_optind]) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
