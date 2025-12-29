@@ -610,6 +610,7 @@ free_test_case(pkgconf_test_case_t *testcase)
 	pkgconf_buffer_finalize(&testcase->expected_stderr);
 	pkgconf_buffer_finalize(&testcase->expected_stdout);
 	pkgconf_buffer_finalize(&testcase->query);
+	pkgconf_buffer_finalize(&testcase->want_env_prefix);
 
 	free(testcase->name);
 	free(testcase);
