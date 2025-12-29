@@ -257,7 +257,7 @@ CLEANFILES =	$(EXTRA_PROGRAMS) \
 		$(check_SCRIPTS)
 
 check: pkgconf test-runner $(check_SCRIPTS)
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_builddir)/tests \
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests \
 		$(top_srcdir)/t/basic
 	kyua --config=none test --kyuafile='$(top_builddir)/Kyuafile' \
 		--build-root='$(top_builddir)'
