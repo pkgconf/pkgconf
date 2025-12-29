@@ -500,18 +500,26 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
                 "environment:\n"
                 "  %s\n"
 		"query: [%s]\n"
-		"exit-code: %d\n"
-		"stdout: [%s] (%s)\n"
-		"stderr: [%s] (%s)\n"
-		"--------------------------------------------------------------------------------\n",
+		"exit-code: %d\n",
 		pkgconf_buffer_str_or_empty(&search_path_buf),
 		pkgconf_buffer_str_or_empty(&wanted_flags_buf),
 		pkgconf_buffer_str_or_empty(&env_buf),
 		pkgconf_buffer_str_or_empty(&testcase->query),
-		ret,
+		ret);
+
+	fprintf(stderr,
+		"stdout: [%s]\n"
+                "expected-stdout: [%s] (%s)\n",
 		pkgconf_buffer_str_or_empty(&out->o_stdout),
-		testcase->match_stdout == MATCH_PARTIAL ? "partial" : "exact",
+		pkgconf_buffer_str_or_empty(&testcase->expected_stdout),
+		testcase->match_stdout == MATCH_PARTIAL ? "partial" : "exact");
+
+	fprintf(stderr,
+		"stderr: [%s]\n"
+		"expected-stderr: [%s] (%s)\n"
+		"--------------------------------------------------------------------------------\n",
 		pkgconf_buffer_str_or_empty(&out->o_stderr),
+		pkgconf_buffer_str_or_empty(&testcase->expected_stderr),
 		testcase->match_stderr == MATCH_PARTIAL ? "partial" : "exact");
 
 	pkgconf_buffer_finalize(&search_path_buf);
