@@ -172,6 +172,15 @@ test_runner_exe = executable('test-runner',
   include_directories : cli_include,
   install : true)
 
+fixtures_dir = '@0@/tests'.format(meson.current_build_dir())
+test_suites = [
+  'basic',
+]
+
+foreach t : test_suites
+  test(t, test_runner_exe, args : ['--test-fixtures', fixtures_dir, '@0@/t/@1@'.format(meson.current_source_dir(), t)])
+endforeach
+
 with_tests = get_option('tests')
 kyua_exe = find_program('kyua', required : with_tests, disabler : true, native : true)
 atf_sh_exe = find_program('atf-sh', required : with_tests, disabler : true, native : true)
