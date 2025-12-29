@@ -387,7 +387,15 @@ load_test_case(char *testfile)
 	if (out == NULL)
 		goto cleanup;
 
-	out->name = strdup(basename(testfile));
+	char *nameptr;
+	if ((nameptr = strrchr(testfile, PKG_DIR_SEP_S)) != NULL)
+		nameptr++;
+	else if ((nameptr = strrchr(testfile, '/')) != NULL)
+		nameptr++;
+	else
+		nameptr = testfile;
+
+	out->name = strdup(nameptr);
 	pkgconf_parser_parse(testf, out, test_parser_ops, test_parser_warn, testfile);
 
 cleanup:
