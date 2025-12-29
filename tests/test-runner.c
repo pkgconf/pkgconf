@@ -702,8 +702,10 @@ main(int argc, char *argv[])
 	struct pkg_option options[] = {
 		{"test-fixtures", required_argument, NULL, 1},
 		{"debug", no_argument, NULL, 2},
+		{"test-case", required_argument, NULL, 3},
 		{NULL, 0, NULL, 0},
 	};
+	char *testcase = NULL;
 
 	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
@@ -715,13 +717,19 @@ main(int argc, char *argv[])
 		case 2:
 			debug = true;
 			break;
+		case 3:
+			testcase = pkg_optarg;
+			break;
 		}
 	}
 
 	if (test_fixtures_dir == NULL)
 		usage();
 
-	if (argc < 2)
+	if (testcase != NULL)
+		return process_test_case(testcase) ? EXIT_SUCCESS : EXIT_FAILURE;
+
+	if (argv[pkg_optind] == NULL)
 		usage();
 
 	return process_test_directory(argv[pkg_optind]) ? EXIT_SUCCESS : EXIT_FAILURE;
