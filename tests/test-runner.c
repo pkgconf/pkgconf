@@ -420,9 +420,8 @@ personality_for_test(const pkgconf_test_case_t *testcase)
 }
 
 static bool
-report_failure(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *expected, const pkgconf_buffer_t *actual, const char *buffername, const char *testname)
+report_failure(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *expected, const pkgconf_buffer_t *actual, const char *buffername)
 {
-	printf("FAIL: %s\n", testname);
 	fprintf(stderr,
 		"================================================================================\n"
 		"%s did not%s match:\n"
@@ -437,23 +436,94 @@ report_failure(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *expe
 }
 
 bool
-test_match_buffer(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *expected, const pkgconf_buffer_t *actual, const char *buffername, const char *testname)
+test_match_buffer(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *expected, const pkgconf_buffer_t *actual, const char *buffername)
 {
 	if (!pkgconf_buffer_len(expected))
 		return true;
 
 	if (!pkgconf_buffer_len(actual))
-		return report_failure(match, expected, actual, buffername, testname);
+		return report_failure(match, expected, actual, buffername);
 
 	if (match == MATCH_PARTIAL)
-		return pkgconf_buffer_contains(actual, expected) ? true : report_failure(match, expected, actual, buffername, testname);
+		return pkgconf_buffer_contains(actual, expected) ? true : report_failure(match, expected, actual, buffername);
 
-	return pkgconf_buffer_match(actual, expected) ? true : report_failure(match, expected, actual, buffername, testname);
+	return pkgconf_buffer_match(actual, expected) ? true : report_failure(match, expected, actual, buffername);
+}
+
+void
+annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test_output_t *out)
+{
+	pkgconf_buffer_t search_path_buf = PKGCONF_BUFFER_INITIALIZER;
+	const pkgconf_node_t *n;
+
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->search_path.head, n)
+	{
+		const pkgconf_path_t *path = n->data;
+
+		if (pkgconf_buffer_len(&search_path_buf))
+			pkgconf_buffer_push_byte(&search_path_buf, ' ');
+
+		pkgconf_buffer_append(&search_path_buf, path->path);
+	}
+
+	pkgconf_buffer_t wanted_flags_buf = PKGCONF_BUFFER_INITIALIZER;
+
+	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(test_flag_pairs); i++)
+	{
+		const pkgconf_test_flag_pair_t *pair = &test_flag_pairs[i];
+
+		if ((testcase->wanted_flags & pair->flag) == pair->flag)
+		{
+			if (pkgconf_buffer_len(&wanted_flags_buf))
+				pkgconf_buffer_push_byte(&wanted_flags_buf, ' ');
+
+			pkgconf_buffer_append(&wanted_flags_buf, pair->name);
+		}
+	}
+
+	pkgconf_buffer_t env_buf = PKGCONF_BUFFER_INITIALIZER;
+
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->env_vars.head, n)
+	{
+		const pkgconf_test_environ_t *env = n->data;
+
+		if (pkgconf_buffer_len(&env_buf))
+			pkgconf_buffer_append(&env_buf, "\n  ");
+
+		pkgconf_buffer_append_fmt(&env_buf, "%s: %s", env->key, env->value);
+	}
+
+	fprintf(stderr,
+		"--------------------------------------------------------------------------------\n"
+		"search-path: <%s>\n"
+		"wanted-flags: <%s>\n"
+                "environment:\n"
+                "  %s\n"
+		"query: [%s]\n"
+		"exit-code: %d\n"
+		"stdout: [%s] (%s)\n"
+		"stderr: [%s] (%s)\n"
+		"--------------------------------------------------------------------------------\n",
+		pkgconf_buffer_str_or_empty(&search_path_buf),
+		pkgconf_buffer_str_or_empty(&wanted_flags_buf),
+		pkgconf_buffer_str_or_empty(&env_buf),
+		pkgconf_buffer_str_or_empty(&testcase->query),
+		ret,
+		pkgconf_buffer_str_or_empty(&out->o_stdout),
+		testcase->match_stdout == MATCH_PARTIAL ? "partial" : "exact",
+		pkgconf_buffer_str_or_empty(&out->o_stderr),
+		testcase->match_stderr == MATCH_PARTIAL ? "partial" : "exact");
+
+	pkgconf_buffer_finalize(&search_path_buf);
+	pkgconf_buffer_finalize(&wanted_flags_buf);
+	pkgconf_buffer_finalize(&env_buf);
 }
 
 bool
 run_test_case(const pkgconf_test_case_t *testcase)
 {
+	bool passed = true;
+
 	pkgconf_cross_personality_t *personality = personality_for_test(testcase);
 	pkgconf_test_state_t state = {
 		.cli_state.want_flags = testcase->wanted_flags,
@@ -482,23 +552,26 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	if (pkgconf_buffer_len(&out->o_stderr))
 		pkgconf_buffer_trim_byte(&out->o_stderr);
 
-	if (!test_match_buffer(testcase->match_stdout, &testcase->expected_stdout, &out->o_stdout, "stdout", testcase->name))
-		return false;
+	if (!test_match_buffer(testcase->match_stdout, &testcase->expected_stdout, &out->o_stdout, "stdout"))
+		passed = false;
 
-	if (!test_match_buffer(testcase->match_stderr, &testcase->expected_stderr, &out->o_stderr, "stderr", testcase->name))
-		return false;
-
-	test_output_reset(out);
+	if (!test_match_buffer(testcase->match_stderr, &testcase->expected_stderr, &out->o_stderr, "stderr"))
+		passed = false;
 
 	if (ret != testcase->exitcode)
 	{
 		fprintf(stderr, "exitcode %d does not match expected %d\n", ret, testcase->exitcode);
-		return false;
+		passed = false;
 	}
 
-	printf("PASS: %s\n", testcase->name);
+	printf("%s: %s\n", passed ? "PASS" : "FAIL", testcase->name);
 
-	return true;
+	if (!passed)
+		annotate_result(testcase, ret, out);
+
+	test_output_reset(out);
+
+	return passed;
 }
 
 void
