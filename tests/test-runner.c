@@ -49,6 +49,7 @@ typedef struct test_case_ {
 	pkgconf_list_t env_vars;
 
 	pkgconf_buffer_t want_env_prefix;
+	pkgconf_buffer_t want_variable;
 	pkgconf_buffer_t fragment_filter;
 } pkgconf_test_case_t;
 
@@ -223,11 +224,7 @@ test_keyword_set_buffer(pkgconf_test_case_t *testcase, const char *keyword, cons
 	(void) warnprefix;
 
 	pkgconf_buffer_t *dest = (pkgconf_buffer_t *)((char *) testcase + offset);
-
-	pkgconf_buffer_t orig_value = PKGCONF_BUFFER_INITIALIZER;
-	pkgconf_buffer_append(&orig_value, value);
-	pkgconf_buffer_subst(dest, &orig_value, "%TEST_FIXTURES_DIR%", test_fixtures_dir);
-	pkgconf_buffer_finalize(&orig_value);
+	pkgconf_buffer_subst(dest, PKGCONF_BUFFER_FROM_STR(value), "%TEST_FIXTURES_DIR%", test_fixtures_dir);
 }
 
 static void
@@ -239,7 +236,7 @@ test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) testcase + offset);
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_append(&buf, value);
+	pkgconf_buffer_subst(&buf, PKGCONF_BUFFER_FROM_STR(value), "%TEST_FIXTURES_DIR%", test_fixtures_dir);
 	test_bufferset_extend(dest, &buf);
 	pkgconf_buffer_finalize(&buf);
 }
@@ -423,6 +420,7 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 	{"Query", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, query)},
 	{"WantedFlags", test_keyword_set_wanted_flags, offsetof(pkgconf_test_case_t, wanted_flags)},
 	{"WantEnvPrefix", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_env_prefix)},
+	{"WantVariable", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_variable)},
 };
 
 static void
@@ -632,6 +630,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	pkgconf_test_state_t state = {
 		.cli_state.want_flags = testcase->wanted_flags,
 		.cli_state.want_env_prefix = pkgconf_buffer_str(&testcase->want_env_prefix),
+		.cli_state.want_variable = pkgconf_buffer_str(&testcase->want_variable),
 		.cli_state.want_fragment_filter = pkgconf_buffer_str(&testcase->fragment_filter),
 		.testcase = testcase,
 	};
