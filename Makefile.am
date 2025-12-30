@@ -51,12 +51,17 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/pkg-config-path.test \
 		t/basic/print-variables-env.test \
 		t/basic/single-depth-selectors.test \
+		t/basic/static-archive-libs.test \
 		t/basic/uninstalled-not.test \
 		t/basic/uninstalled.test \
 		t/basic/variable-env.test \
 		t/basic/variable-no-recursion.test \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
+		t/solver/circular-reference-directpc.test \
+		t/solver/libs-intermediary.test \
+		t/solver/libs-metapackage.test \
+		t/solver/libs-static-ordering.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
 		t/sbom/license-isc.test \
