@@ -24,6 +24,7 @@ EXTRA_DIST =	pkg.m4 \
 		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
 		t/basic/noargs.test \
+		t/basic/arbitrary-path.test \
 		t/basic/exists-cflags-env.test \
 		t/basic/exists-cflags.test \
 		t/basic/exists-nonexistent.test \

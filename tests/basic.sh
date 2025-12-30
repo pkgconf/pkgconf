@@ -9,7 +9,6 @@ tests_init \
 	libs_static_ordering \
 	libs_metapackage \
 	pkg_config_path \
-	arbitary_path \
 	with_path \
 	relocatable \
 	single_depth_selectors \
@@ -76,14 +75,6 @@ with_path_body()
 	atf_check \
 		-o inline:"-L/test/lib -lbar -lfoo\n" \
 		pkgconf --with-path=${selfdir}/lib1 --with-path=${selfdir}/lib2 --libs bar
-}
-
-arbitary_path_body()
-{
-	cp ${selfdir}/lib1/foo.pc .
-	atf_check \
-		-o inline:"-L/test/lib -lfoo\n" \
-		pkgconf --libs foo.pc
 }
 
 relocatable_body()
