@@ -56,6 +56,9 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/uninstalled.test \
 		t/basic/variable-env.test \
 		t/basic/variable-no-recursion.test \
+		t/ordering/framework-1.test \
+		t/ordering/framework-2.test \
+		t/ordering/framework-3.test \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
 		t/solver/circular-reference-directpc.test \
@@ -317,6 +320,7 @@ CLEANFILES =	$(EXTRA_PROGRAMS) \
 
 check: pkgconf test-runner $(check_SCRIPTS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/basic
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/ordering
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/solver
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sbom
 	kyua --config=none test --kyuafile='$(top_builddir)/Kyuafile' \
