@@ -3,47 +3,10 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	bar \
 	baz \
 	quux \
 	moo \
 	meow
-
-bar_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o ignore \
-		pkgconf --libs provides-test-bar
-	atf_check \
-		-o ignore \
-		pkgconf --libs 'provides-test-bar = 1.1.1'
-	atf_check \
-		-o ignore \
-		pkgconf --libs 'provides-test-bar >= 1.1.1'
-	atf_check \
-		-o ignore \
-		pkgconf --libs 'provides-test-bar <= 1.1.1'
-	atf_check \
-		-o ignore \
-		pkgconf --libs 'provides-test-bar != 1.1.0'
-	atf_check \
-		-s exit:1 \
-		-e ignore \
-		-o ignore \
-		pkgconf --libs 'provides-test-bar != 1.1.1'
-	atf_check \
-		-o ignore \
-		pkgconf --libs 'provides-test-bar > 1.1.1'
-	atf_check \
-		-s exit:1 \
-		-e ignore \
-		-o ignore \
-		pkgconf --libs 'provides-test-bar <= 1.1.0'
-	atf_check \
-		-o ignore \
-		pkgconf --libs 'provides-test-bar <= 1.2.0'
-}
 
 baz_body()
 {

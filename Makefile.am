@@ -62,6 +62,15 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/libs-intermediary.test \
 		t/solver/libs-metapackage.test \
 		t/solver/libs-static-ordering.test \
+		t/solver/provides-bar-any.test \
+		t/solver/provides-bar-versioned-equal.test \
+		t/solver/provides-bar-versioned-greater-than-equal.test \
+		t/solver/provides-bar-versioned-greater-than.test \
+		t/solver/provides-bar-versioned-less-than-equal.test \
+		t/solver/provides-bar-versioned-less-than-new.test \
+		t/solver/provides-bar-versioned-less-than-old.test \
+		t/solver/provides-bar-versioned-not-equal-old.test \
+		t/solver/provides-bar-versioned-not-equal.test \
 		t/solver/provides-foo-any.test \
 		t/solver/provides-foo-versioned-exact.test \
 		t/solver/provides-foo-versioned-greater-than-equal.test \
