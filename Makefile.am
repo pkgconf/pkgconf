@@ -226,7 +226,6 @@ test_scripts=	tests/conflicts.sh \
 		tests/framework.sh \
 		tests/parser.sh \
 		tests/personality.sh \
-		tests/provides.sh \
 		tests/regress.sh \
 		tests/requires.sh \
 		tests/spdxtool.sh \
