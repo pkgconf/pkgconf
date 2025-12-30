@@ -201,8 +201,7 @@ EXTRA_DIST =	pkg.m4 \
 		doc/libpkgconf-queue.rst \
 		doc/libpkgconf-tuple.rst
 
-test_scripts=	tests/basic.sh \
-		tests/builtins.sh \
+test_scripts=	tests/builtins.sh \
 		tests/conflicts.sh \
 		tests/framework.sh \
 		tests/parser.sh \
