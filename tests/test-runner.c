@@ -24,6 +24,7 @@ static bool debug = false;
 typedef enum test_match_strategy_ {
 	MATCH_EXACT = 0,
 	MATCH_PARTIAL,
+	MATCH_EMPTY,
 } pkgconf_test_match_strategy_t;
 
 typedef struct test_bufferset_ {
@@ -74,12 +75,11 @@ typedef struct test_output_ {
 pkgconf_test_bufferset_t *
 test_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer)
 {
-	if (!pkgconf_buffer_len(buffer))
-		return NULL;
-
 	pkgconf_test_bufferset_t *set = calloc(1, sizeof(*set));
 
-	pkgconf_buffer_append(&set->buffer, pkgconf_buffer_str(buffer));
+	if (pkgconf_buffer_len(buffer))
+		pkgconf_buffer_append(&set->buffer, pkgconf_buffer_str(buffer));
+
 	pkgconf_node_insert_tail(&set->node, set, list);
 
 	return set;
@@ -414,6 +414,9 @@ test_keyword_set_match_strategy(pkgconf_test_case_t *testcase, const char *keywo
 
 	if (!strcasecmp(value, "partial"))
 		*dest = MATCH_PARTIAL;
+
+	if (!strcasecmp(value, "empty"))
+		*dest = MATCH_EMPTY;
 }
 
 static void
@@ -544,11 +547,16 @@ report_failure(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *expe
 bool
 test_match_buffer(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *expected, const pkgconf_buffer_t *actual, const char *buffername)
 {
-	if (!pkgconf_buffer_len(expected))
+	if (!pkgconf_buffer_len(expected) && match != MATCH_EMPTY)
 		return true;
 
 	if (!pkgconf_buffer_len(actual))
+	{
+		if (match == MATCH_EMPTY)
+			return true;
+
 		return report_failure(match, expected, actual, buffername);
+	}
 
 	if (match == MATCH_PARTIAL)
 		return pkgconf_buffer_contains(actual, expected) ? true : report_failure(match, expected, actual, buffername);
