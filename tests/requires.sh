@@ -10,19 +10,8 @@ tests_init \
 	cflags_libs_private \
 	argv_parse2 \
 	static_cflags \
-	private_duplication \
-	private_duplication_digraph \
-	foo_bar \
-	bar_foo \
 	foo_metapackage_3 \
 	libs_static2 \
-	missing \
-	requires_internal \
-	requires_internal_missing \
-	requires_internal_missing_nonstatic \
-	requires_internal_missing_nonstatic_cflags_libs \
-	requires_internal_missing_static_cflags \
-	requires_internal_collision \
 	orphaned_requires_private
 
 libs_body()
@@ -73,42 +62,6 @@ static_cflags_body()
 		pkgconf --static --cflags baz
 }
 
-private_duplication_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-lprivate -lbaz -lzee -lbar -lfoo\n" \
-		pkgconf --static --libs-only-l private-libs-duplication
-}
-
-private_duplication_digraph_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o 'match:"user:request" -> "private-libs-duplication"' \
-		-o 'match:"private-libs-duplication" -> "bar"' \
-		-o 'match:"private-libs-duplication" -> "baz"' \
-		-o 'match:"bar" -> "foo"' \
-		-o 'match:"baz" -> "foo"' \
-		pkgconf --static --libs-only-l private-libs-duplication --digraph
-}
-
-bar_foo_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-lbar -lfoo\n" \
-		pkgconf --static --libs-only-l bar foo
-}
-
-foo_bar_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-lbar -lfoo\n" \
-		pkgconf --static --libs-only-l foo bar
-}
-
 foo_metapackage_3_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
@@ -123,66 +76,6 @@ libs_static2_body()
 	atf_check \
 		-o inline:"-lbar -lbar-private -L/test/lib -lfoo\n" \
 		pkgconf --static --libs static-libs
-}
-
-missing_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-s exit:1 \
-		-e ignore \
-		-o ignore \
-		pkgconf --cflags missing-require
-}
-
-requires_internal_body()
-{
-	atf_check \
-		-o inline:"-lbar -lbar-private -L/test/lib -lfoo\n" \
-		pkgconf --with-path="${selfdir}/lib1" --static --libs requires-internal
-}
-
-requires_internal_missing_body()
-{
-	atf_check \
-		-s exit:1 \
-		-e ignore \
-		-o ignore \
-		pkgconf --with-path="${selfdir}/lib1" --static --libs requires-internal-missing
-}
-
-requires_internal_missing_nonstatic_body()
-{
-	atf_check \
-		-s exit:0 \
-		-e ignore \
-		-o ignore \
-		pkgconf --with-path="${selfdir}/lib1" --libs requires-internal-missing
-}
-
-requires_internal_missing_static_cflags_body()
-{
-	atf_check \
-		-s exit:0 \
-		-e ignore \
-		-o ignore \
-		pkgconf --with-path="${selfdir}/lib1" --static --cflags requires-internal-missing
-}
-
-requires_internal_missing_nonstatic_cflags_libs_body()
-{
-	atf_check \
-		-s exit:0 \
-		-e ignore \
-		-o ignore \
-		pkgconf --with-path="${selfdir}/lib1" --cflags --libs requires-internal-missing
-}
-
-requires_internal_collision_body()
-{
-	atf_check \
-		-o inline:"-I/test/local/include/foo\n" \
-		pkgconf --with-path="${selfdir}/lib1" --cflags requires-internal-collision
 }
 
 orphaned_requires_private_body()

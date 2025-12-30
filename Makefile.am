@@ -84,7 +84,10 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/libs-intermediary.test \
 		t/solver/libs-metapackage.test \
 		t/solver/libs-static-ordering.test \
+		t/solver/missing-required-dep.test \
 		t/solver/modversion-provides.test \
+		t/solver/private-libs-duplication-digraph.test \
+		t/solver/private-libs-duplication.test \
 		t/solver/provides-bar-any.test \
 		t/solver/provides-bar-versioned-equal.test \
 		t/solver/provides-bar-versioned-greater-than-equal.test \
@@ -106,6 +109,14 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/provides-print-simple.test \
 		t/solver/provides-request-simple.test \
 		t/solver/provides-request-simple-no-provides.test \
+		t/solver/query-order-1.test \
+		t/solver/query-order-2.test \
+		t/solver/requires-internal-collision.test \
+		t/solver/requires-internal-missing-nonstatic-cflags-libs.test \
+		t/solver/requires-internal-missing-nonstatic.test \
+		t/solver/requires-internal-missing-static-cflags.test \
+		t/solver/requires-internal-missing.test \
+		t/solver/requires-internal.test \
 		t/solver/requires-private-debounce.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
