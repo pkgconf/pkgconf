@@ -226,7 +226,6 @@ EXTRA_DIST =	pkg.m4 \
 		doc/libpkgconf-tuple.rst
 
 test_scripts=	tests/conflicts.sh \
-		tests/framework.sh \
 		tests/parser.sh \
 		tests/personality.sh \
 		tests/regress.sh \
