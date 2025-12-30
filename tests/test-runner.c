@@ -192,6 +192,40 @@ test_output_reset(pkgconf_test_output_t *out)
 	pkgconf_buffer_reset(&out->o_stderr);
 }
 
+static void
+handle_substs(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src)
+{
+	const struct subst_pair {
+		char *key;
+		char *value;
+	} subst_pairs[] = {
+		{"%TEST_FIXTURES_DIR%", test_fixtures_dir},
+		{"%DIR_SEP%", PKG_CONFIG_PATH_SEP_S},
+	};
+
+	pkgconf_buffer_t workbuf_src = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t workbuf_dest = PKGCONF_BUFFER_INITIALIZER;
+
+	if (!pkgconf_buffer_len(src))
+		return;
+
+	pkgconf_buffer_append(&workbuf_dest, pkgconf_buffer_str(src));
+
+	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(subst_pairs); i++)
+	{
+		pkgconf_buffer_reset(&workbuf_src);
+		pkgconf_buffer_append(&workbuf_src, pkgconf_buffer_str(&workbuf_dest));
+
+		pkgconf_buffer_reset(&workbuf_dest);
+		pkgconf_buffer_subst(&workbuf_dest, &workbuf_src, subst_pairs[i].key, subst_pairs[i].value);
+	}
+
+	pkgconf_buffer_append(dest, pkgconf_buffer_str(&workbuf_dest));
+
+	pkgconf_buffer_finalize(&workbuf_src);
+	pkgconf_buffer_finalize(&workbuf_dest);
+}
+
 typedef void (*test_keyword_func_t)(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value);
 
 typedef struct test_keyword_pair_ {
@@ -224,7 +258,7 @@ test_keyword_set_buffer(pkgconf_test_case_t *testcase, const char *keyword, cons
 	(void) warnprefix;
 
 	pkgconf_buffer_t *dest = (pkgconf_buffer_t *)((char *) testcase + offset);
-	pkgconf_buffer_subst(dest, PKGCONF_BUFFER_FROM_STR(value), "%TEST_FIXTURES_DIR%", test_fixtures_dir);
+	handle_substs(dest, PKGCONF_BUFFER_FROM_STR(value));
 }
 
 static void
@@ -236,7 +270,7 @@ test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) testcase + offset);
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_subst(&buf, PKGCONF_BUFFER_FROM_STR(value), "%TEST_FIXTURES_DIR%", test_fixtures_dir);
+	handle_substs(&buf, PKGCONF_BUFFER_FROM_STR(value));
 	test_bufferset_extend(dest, &buf);
 	pkgconf_buffer_finalize(&buf);
 }
@@ -397,12 +431,8 @@ test_keyword_set_environment(pkgconf_test_case_t *testcase, const char *keyword,
 
 	*eq++ = '\0';
 
-	pkgconf_buffer_t parsed_value = PKGCONF_BUFFER_INITIALIZER;
-	pkgconf_buffer_append(&parsed_value, eq);
-
 	pkgconf_buffer_t env_value = PKGCONF_BUFFER_INITIALIZER;
-	pkgconf_buffer_subst(&env_value, &parsed_value, "%TEST_FIXTURES_DIR%", test_fixtures_dir);
-	pkgconf_buffer_finalize(&parsed_value);
+	handle_substs(&env_value, PKGCONF_BUFFER_FROM_STR(eq));
 
 	test_environment_push(testcase, value, pkgconf_buffer_str(&env_value));
 	pkgconf_buffer_finalize(&env_value);
