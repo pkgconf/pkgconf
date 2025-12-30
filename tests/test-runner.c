@@ -44,6 +44,7 @@ typedef struct test_case_ {
 	pkgconf_list_t env_vars;
 
 	pkgconf_buffer_t want_env_prefix;
+	pkgconf_buffer_t fragment_filter;
 } pkgconf_test_case_t;
 
 typedef struct test_state_ {
@@ -352,6 +353,7 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 	{"ExpectedExitCode", test_keyword_set_int, offsetof(pkgconf_test_case_t, exitcode)},
 	{"ExpectedStderr", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, expected_stderr)},
 	{"ExpectedStdout", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, expected_stdout)},
+	{"FragmentFilter", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, fragment_filter)},
 	{"MatchStderr", test_keyword_set_match_strategy, offsetof(pkgconf_test_case_t, match_stderr)},
 	{"MatchStdout", test_keyword_set_match_strategy, offsetof(pkgconf_test_case_t, match_stdout)},
 	{"PackageSearchPath", test_keyword_set_path_list, offsetof(pkgconf_test_case_t, search_path)},
@@ -531,11 +533,13 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 		"stderr: [%s]\n"
 		"expected-stderr: [%s] (%s)\n"
 		"want-env-prefix: [%s]\n"
+		"fragment-filter: [%s]\n"
 		"--------------------------------------------------------------------------------\n",
 		pkgconf_buffer_str_or_empty(&out->o_stderr),
 		pkgconf_buffer_str_or_empty(&testcase->expected_stderr),
 		testcase->match_stderr == MATCH_PARTIAL ? "partial" : "exact",
-		pkgconf_buffer_str_or_empty(&testcase->want_env_prefix));
+		pkgconf_buffer_str_or_empty(&testcase->want_env_prefix),
+		pkgconf_buffer_str_or_empty(&testcase->fragment_filter));
 
 	pkgconf_buffer_finalize(&search_path_buf);
 	pkgconf_buffer_finalize(&wanted_flags_buf);
@@ -551,6 +555,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	pkgconf_test_state_t state = {
 		.cli_state.want_flags = testcase->wanted_flags,
 		.cli_state.want_env_prefix = pkgconf_buffer_str(&testcase->want_env_prefix),
+		.cli_state.want_fragment_filter = pkgconf_buffer_str(&testcase->fragment_filter),
 		.testcase = testcase,
 	};
 
@@ -611,6 +616,7 @@ free_test_case(pkgconf_test_case_t *testcase)
 	pkgconf_buffer_finalize(&testcase->expected_stdout);
 	pkgconf_buffer_finalize(&testcase->query);
 	pkgconf_buffer_finalize(&testcase->want_env_prefix);
+	pkgconf_buffer_finalize(&testcase->fragment_filter);
 
 	free(testcase->name);
 	free(testcase);
