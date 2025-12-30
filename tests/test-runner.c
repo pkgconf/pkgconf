@@ -26,16 +26,21 @@ typedef enum test_match_strategy_ {
 	MATCH_PARTIAL,
 } pkgconf_test_match_strategy_t;
 
+typedef struct test_bufferset_ {
+	pkgconf_node_t node;
+	pkgconf_buffer_t buffer;
+} pkgconf_test_bufferset_t;
+
 typedef struct test_case_ {
 	char *name;
 
 	pkgconf_list_t search_path;
 	pkgconf_buffer_t query;
 
-	pkgconf_buffer_t expected_stdout;
+	pkgconf_list_t expected_stdout;
 	pkgconf_test_match_strategy_t match_stdout;
 
-	pkgconf_buffer_t expected_stderr;
+	pkgconf_list_t expected_stderr;
 	pkgconf_test_match_strategy_t match_stderr;
 
 	int exitcode;
@@ -64,6 +69,36 @@ typedef struct test_output_ {
 	pkgconf_buffer_t o_stdout;
 	pkgconf_buffer_t o_stderr;
 } pkgconf_test_output_t;
+
+pkgconf_test_bufferset_t *
+test_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer)
+{
+	if (!pkgconf_buffer_len(buffer))
+		return NULL;
+
+	pkgconf_test_bufferset_t *set = calloc(1, sizeof(*set));
+
+	pkgconf_buffer_append(&set->buffer, pkgconf_buffer_freeze(buffer));
+	pkgconf_node_insert_tail(&set->node, set, list);
+
+	return set;
+}
+
+void
+test_bufferset_free(pkgconf_list_t *list)
+{
+	pkgconf_node_t *n, *tn;
+
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, tn, n)
+	{
+		pkgconf_test_bufferset_t *set = n->data;
+
+		pkgconf_buffer_finalize(&set->buffer);
+		pkgconf_node_delete(&set->node, list);
+
+		free(set);
+	}
+}
 
 void
 test_environment_push(pkgconf_test_case_t *testcase, const char *key, const char *value)
@@ -189,6 +224,19 @@ test_keyword_set_buffer(pkgconf_test_case_t *testcase, const char *keyword, cons
 
 	pkgconf_buffer_t *dest = (pkgconf_buffer_t *)((char *) testcase + offset);
 	pkgconf_buffer_append(dest, value);
+}
+
+static void
+test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+{
+	(void) keyword;
+	(void) warnprefix;
+
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) testcase + offset);
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+
+	pkgconf_buffer_append(&buf, value);
+	test_bufferset_extend(dest, &buf);
 }
 
 typedef struct test_flag_pair_ {
@@ -352,8 +400,8 @@ test_keyword_set_environment(pkgconf_test_case_t *testcase, const char *keyword,
 static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 	{"Environment", test_keyword_set_environment, offsetof(pkgconf_test_case_t, env_vars)},
 	{"ExpectedExitCode", test_keyword_set_int, offsetof(pkgconf_test_case_t, exitcode)},
-	{"ExpectedStderr", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, expected_stderr)},
-	{"ExpectedStdout", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, expected_stdout)},
+	{"ExpectedStderr", test_keyword_extend_bufferset, offsetof(pkgconf_test_case_t, expected_stderr)},
+	{"ExpectedStdout", test_keyword_extend_bufferset, offsetof(pkgconf_test_case_t, expected_stdout)},
 	{"FragmentFilter", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, fragment_filter)},
 	{"MatchStderr", test_keyword_set_match_strategy, offsetof(pkgconf_test_case_t, match_stderr)},
 	{"MatchStdout", test_keyword_set_match_strategy, offsetof(pkgconf_test_case_t, match_stdout)},
@@ -523,22 +571,36 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 		pkgconf_buffer_str_or_empty(&testcase->query),
 		ret);
 
-	fprintf(stderr,
-		"stdout: [%s]\n"
-                "expected-stdout: [%s] (%s)\n",
-		pkgconf_buffer_str_or_empty(&out->o_stdout),
-		pkgconf_buffer_str_or_empty(&testcase->expected_stdout),
-		testcase->match_stdout == MATCH_PARTIAL ? "partial" : "exact");
+	fprintf(stderr, "stdout: [%s]\n",
+		pkgconf_buffer_str_or_empty(&out->o_stdout));
+
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stdout.head, n)
+	{
+		pkgconf_test_bufferset_t *set = n->data;
+
+		fprintf(stderr,
+			"expected-stdout: [%s] (%s)\n",
+			pkgconf_buffer_str_or_empty(&set->buffer),
+			testcase->match_stdout == MATCH_PARTIAL ? "partial" : "exact");
+	}
+
+	fprintf(stderr,	"stderr: [%s]\n",
+		pkgconf_buffer_str_or_empty(&out->o_stderr));
+
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stderr.head, n)
+	{
+		pkgconf_test_bufferset_t *set = n->data;
+
+		fprintf(stderr,
+			"expected-stderr: [%s] (%s)\n",
+			pkgconf_buffer_str_or_empty(&set->buffer),
+			testcase->match_stderr == MATCH_PARTIAL ? "partial" : "exact");
+	}
 
 	fprintf(stderr,
-		"stderr: [%s]\n"
-		"expected-stderr: [%s] (%s)\n"
 		"want-env-prefix: [%s]\n"
 		"fragment-filter: [%s]\n"
 		"--------------------------------------------------------------------------------\n",
-		pkgconf_buffer_str_or_empty(&out->o_stderr),
-		pkgconf_buffer_str_or_empty(&testcase->expected_stderr),
-		testcase->match_stderr == MATCH_PARTIAL ? "partial" : "exact",
 		pkgconf_buffer_str_or_empty(&testcase->want_env_prefix),
 		pkgconf_buffer_str_or_empty(&testcase->fragment_filter));
 
@@ -587,11 +649,23 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	if (pkgconf_buffer_len(&out->o_stderr))
 		pkgconf_buffer_trim_byte(&out->o_stderr);
 
-	if (!test_match_buffer(testcase->match_stdout, &testcase->expected_stdout, &out->o_stdout, "stdout"))
-		passed = false;
+	pkgconf_node_t *n;
 
-	if (!test_match_buffer(testcase->match_stderr, &testcase->expected_stderr, &out->o_stderr, "stderr"))
-		passed = false;
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stdout.head, n)
+	{
+		pkgconf_test_bufferset_t *set = n->data;
+
+		if (!test_match_buffer(testcase->match_stdout, &set->buffer, &out->o_stdout, "stdout"))
+			passed = false;
+	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stderr.head, n)
+	{
+		pkgconf_test_bufferset_t *set = n->data;
+
+		if (!test_match_buffer(testcase->match_stderr, &set->buffer, &out->o_stderr, "stderr"))
+			passed = false;
+	}
 
 	if (ret != testcase->exitcode)
 	{
@@ -612,11 +686,12 @@ run_test_case(const pkgconf_test_case_t *testcase)
 void
 free_test_case(pkgconf_test_case_t *testcase)
 {
+	test_bufferset_free(&testcase->expected_stderr);
+	test_bufferset_free(&testcase->expected_stdout);
+
 	test_environment_free(&testcase->env_vars);
 	pkgconf_path_free(&testcase->search_path);
 
-	pkgconf_buffer_finalize(&testcase->expected_stderr);
-	pkgconf_buffer_finalize(&testcase->expected_stdout);
 	pkgconf_buffer_finalize(&testcase->query);
 	pkgconf_buffer_finalize(&testcase->want_env_prefix);
 	pkgconf_buffer_finalize(&testcase->fragment_filter);
