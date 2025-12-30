@@ -175,6 +175,7 @@ test_runner_exe = executable('test-runner',
 fixtures_dir = '@0@/tests'.format(meson.current_source_dir())
 test_suites = [
   'basic',
+  'solver',
 ]
 
 foreach t : test_suites
