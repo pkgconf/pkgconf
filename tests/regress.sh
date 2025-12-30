@@ -19,11 +19,8 @@ tests_init \
 	cflags_never_mergeback \
 	incomplete_libs \
 	incomplete_cflags \
-	isystem_munge_order \
 	isystem_munge_sysroot \
-	idirafter_munge_order \
 	idirafter_munge_sysroot \
-	idirafter_ordering \
 	modversion_common_prefix \
 	modversion_fullpath \
 	modversion_provides \
@@ -179,14 +176,6 @@ incomplete_cflags_body()
 		pkgconf --cflags incomplete
 }
 
-isystem_munge_order_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-isystem /opt/bad/include -isystem /opt/bad2/include\n" \
-		pkgconf --cflags isystem
-}
-
 isystem_munge_sysroot_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="${selfdir}"
@@ -195,28 +184,12 @@ isystem_munge_sysroot_body()
 		pkgconf --cflags isystem
 }
 
-idirafter_munge_order_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-idirafter /opt/bad/include -idirafter /opt/bad2/include\n" \
-		pkgconf --cflags idirafter
-}
-
 idirafter_munge_sysroot_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="${selfdir}"
 	atf_check \
 		-o match:"-idirafter ${selfdir}/opt/bad/include" \
 		pkgconf --cflags idirafter
-}
-
-idirafter_ordering_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-I/opt/bad/include1 -idirafter -I/opt/bad/include2 -I/opt/bad/include3\n" \
-		pkgconf --cflags idirafter-ordering
 }
 
 pcpath_body()

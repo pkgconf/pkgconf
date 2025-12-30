@@ -56,9 +56,13 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/uninstalled.test \
 		t/basic/variable-env.test \
 		t/basic/variable-no-recursion.test \
+		t/ordering/fragment-collision.test \
 		t/ordering/framework-1.test \
 		t/ordering/framework-2.test \
 		t/ordering/framework-3.test \
+		t/ordering/idirafter-munge-ordering.test \
+		t/ordering/idirafter-ordering.test \
+		t/ordering/isystem-munge-ordering.test \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
 		t/solver/circular-reference-directpc.test \
