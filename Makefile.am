@@ -62,6 +62,18 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/libs-intermediary.test \
 		t/solver/libs-metapackage.test \
 		t/solver/libs-static-ordering.test \
+		t/solver/provides-foo-any.test \
+		t/solver/provides-foo-versioned-exact.test \
+		t/solver/provides-foo-versioned-greater-than-equal.test \
+		t/solver/provides-foo-versioned-greater-than.test \
+		t/solver/provides-foo-versioned-less-than-equal.test \
+		t/solver/provides-foo-versioned-less-than.test \
+		t/solver/provides-foo-versioned-not-equal.test \
+		t/solver/provides-indirect-dependency-versioned.test \
+		t/solver/provides-indirect-dependency.test \
+		t/solver/provides-print-simple.test \
+		t/solver/provides-request-simple.test \
+		t/solver/provides-request-simple-no-provides.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
 		t/sbom/license-isc.test \
