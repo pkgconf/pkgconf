@@ -78,7 +78,7 @@ test_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer)
 
 	pkgconf_test_bufferset_t *set = calloc(1, sizeof(*set));
 
-	pkgconf_buffer_append(&set->buffer, pkgconf_buffer_freeze(buffer));
+	pkgconf_buffer_append(&set->buffer, pkgconf_buffer_str(buffer));
 	pkgconf_node_insert_tail(&set->node, set, list);
 
 	return set;
@@ -237,6 +237,7 @@ test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword
 
 	pkgconf_buffer_append(&buf, value);
 	test_bufferset_extend(dest, &buf);
+	pkgconf_buffer_finalize(&buf);
 }
 
 typedef struct test_flag_pair_ {
