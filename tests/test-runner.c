@@ -707,6 +707,7 @@ free_test_case(pkgconf_test_case_t *testcase)
 
 	pkgconf_buffer_finalize(&testcase->query);
 	pkgconf_buffer_finalize(&testcase->want_env_prefix);
+	pkgconf_buffer_finalize(&testcase->want_variable);
 	pkgconf_buffer_finalize(&testcase->fragment_filter);
 
 	free(testcase->name);
