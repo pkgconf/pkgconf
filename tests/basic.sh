@@ -3,15 +3,6 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	exists_version \
-	exists_version_bad \
-	exists_version_bad2 \
-	exists_version_bad3 \
-	exists_version_alt \
-	exists_cflags \
-	exists_cflags_env \
-	uninstalled_bad \
-	uninstalled \
 	libs_intermediary \
 	libs_circular1 \
 	libs_circular2 \
@@ -23,10 +14,7 @@ tests_init \
 	license_noassertion \
 	license_file_foo \
 	license_file_empty \
-	modversion_noflatten \
 	pkg_config_path \
-	nolibs \
-	nocflags \
 	arbitary_path \
 	with_path \
 	relocatable \
@@ -37,60 +25,6 @@ tests_init \
 	variable_env \
 	variable_no_recurse \
 	tuple_env
-
-exists_version_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		pkgconf --exists 'foo > 1.2'
-}
-
-exists_version_bad_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-s exit:1 \
-		pkgconf --exists 'foo > 1.2.3'
-}
-
-exists_version_alt_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		pkgconf --exists 'foo' '>' '1.2'
-}
-
-uninstalled_bad_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-s exit:1 \
-		pkgconf --uninstalled 'foo'
-}
-
-uninstalled_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		pkgconf --uninstalled 'omg'
-}
-
-exists_version_bad2_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-s exit:1 \
-		-e ignore \
-		pkgconf --exists 'foo >= '
-}
-
-exists_version_bad3_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-s exit:1 \
-		pkgconf --exists 'tilde >= 1.0.0'
-}
 
 libs_intermediary_body()
 {
@@ -168,22 +102,6 @@ with_path_body()
 		pkgconf --with-path=${selfdir}/lib1 --with-path=${selfdir}/lib2 --libs bar
 }
 
-nolibs_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"\n" \
-		pkgconf --libs nolib
-}
-
-nocflags_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"\n" \
-		pkgconf --cflags nocflag
-}
-
 arbitary_path_body()
 {
 	cp ${selfdir}/lib1/foo.pc .
@@ -248,27 +166,6 @@ source_empty_body()
 	atf_check \
 		-o inline:"bar: \nfoo: https://foo.bar/foo\n" \
 		pkgconf --with-path=${selfdir}/lib1 --source bar
-}
-
-modversion_noflatten_body()
-{
-	atf_check \
-		-o inline:"1.3\n" \
-		pkgconf --with-path=${selfdir}/lib1 --modversion bar
-}
-
-exists_cflags_body()
-{
-	atf_check \
-		-o inline:"-DHAVE_FOO\n" \
-		pkgconf --with-path=${selfdir}/lib1 --cflags --exists-cflags --fragment-filter=D foo
-}
-
-exists_cflags_env_body()
-{
-	atf_check \
-		-o inline:"FOO_CFLAGS='-DHAVE_FOO'\n" \
-		pkgconf --with-path=${selfdir}/lib1 --cflags --exists-cflags --fragment-filter=D --env=FOO foo
 }
 
 print_variables_env_body()

@@ -24,9 +24,15 @@ EXTRA_DIST =	pkg.m4 \
 		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
 		t/basic/noargs.test \
+		t/basic/exists-cflags-env.test \
+		t/basic/exists-cflags.test \
 		t/basic/exists-nonexistent.test \
-		t/basic/exists-version-with-tilde.test \
+		t/basic/exists-version-greater-than-with-tilde.test \
+		t/basic/exists-version-greater-than.test \
 		t/basic/exists-version-less-than-with-tilde.test \
+		t/basic/exists-version-malformed.test \
+		t/basic/exists-version-minimum.test \
+		t/basic/exists-version-with-tilde.test \
 		t/basic/libs.test \
 		t/basic/libs-cflags.test \
 		t/basic/libs-cflags-version.test \
@@ -36,6 +42,11 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/libs-cflags-version-not-provided.test \
 		t/basic/libs-env.test \
 		t/basic/malformed-empty-package.test \
+		t/basic/modversion-noflatten.test \
+		t/basic/nocflags.test \
+		t/basic/nolibs.test \
+		t/basic/uninstalled-not.test \
+		t/basic/uninstalled.test \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
@@ -266,8 +277,7 @@ CLEANFILES =	$(EXTRA_PROGRAMS) \
 		$(check_SCRIPTS)
 
 check: pkgconf test-runner $(check_SCRIPTS)
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests \
-		$(top_srcdir)/t/basic
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/basic
 	kyua --config=none test --kyuafile='$(top_builddir)/Kyuafile' \
 		--build-root='$(top_builddir)'
 
