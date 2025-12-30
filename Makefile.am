@@ -47,6 +47,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/modversion-noflatten.test \
 		t/basic/nocflags.test \
 		t/basic/nolibs.test \
+		t/basic/pkg-config-path.test \
 		t/basic/uninstalled-not.test \
 		t/basic/uninstalled.test \
 		t/solver/circular-reference-1.test \

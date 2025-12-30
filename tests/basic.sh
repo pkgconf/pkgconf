@@ -8,7 +8,6 @@ tests_init \
 	libs_static \
 	libs_static_ordering \
 	libs_metapackage \
-	pkg_config_path \
 	with_path \
 	single_depth_selectors \
 	print_variables_env \
@@ -53,17 +52,6 @@ libs_metapackage_body()
 	atf_check \
 		-o inline:"-L/test/lib -lbar -lfoo\n" \
 		pkgconf --static --libs metapackage-3
-}
-
-pkg_config_path_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1${PATH_SEP}${selfdir}/lib2"
-	atf_check \
-		-o inline:"-L/test/lib -lfoo\n" \
-		pkgconf --libs foo
-	atf_check \
-		-o inline:"-L/test/lib -lbar -lfoo\n" \
-		pkgconf --libs bar
 }
 
 with_path_body()
