@@ -49,6 +49,12 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/uninstalled.test \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
+		t/sbom/license-file-bar.test \
+		t/sbom/license-file-foo.test \
+		t/sbom/license-isc.test \
+		t/sbom/license-noassertion.test \
+		t/sbom/source-tag-bar.test \
+		t/sbom/source-tag-foo.test \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
@@ -281,6 +287,7 @@ CLEANFILES =	$(EXTRA_PROGRAMS) \
 check: pkgconf test-runner $(check_SCRIPTS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/basic
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/solver
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sbom
 	kyua --config=none test --kyuafile='$(top_builddir)/Kyuafile' \
 		--build-root='$(top_builddir)'
 

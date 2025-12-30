@@ -8,17 +8,11 @@ tests_init \
 	libs_static \
 	libs_static_ordering \
 	libs_metapackage \
-	license_isc \
-	license_noassertion \
-	license_file_foo \
-	license_file_empty \
 	pkg_config_path \
 	arbitary_path \
 	with_path \
 	relocatable \
 	single_depth_selectors \
-	source_foo \
-	source_empty \
 	print_variables_env \
 	variable_env \
 	variable_no_recurse \
@@ -106,48 +100,6 @@ single_depth_selectors_body()
 	atf_check \
 		-o inline:"foo\n" \
 		pkgconf --with-path=${selfdir}/lib3 --print-requires bar
-}
-
-license_isc_body()
-{
-	atf_check \
-		-o inline:"foo: ISC\n" \
-		pkgconf --with-path=${selfdir}/lib1 --license foo
-}
-
-license_noassertion_body()
-{
-	atf_check \
-		-o inline:"bar: NOASSERTION\nfoo: ISC\n" \
-		pkgconf --with-path=${selfdir}/lib1 --license bar
-}
-
-license_file_foo_body()
-{
-	atf_check \
-		-o inline:"foo: https://foo.bar/foo/COPYING\n" \
-		pkgconf --with-path=${selfdir}/lib1 --license-file foo
-}
-
-license_file_empty_body()
-{
-	atf_check \
-		-o inline:"bar: \nfoo: https://foo.bar/foo/COPYING\n" \
-		pkgconf --with-path=${selfdir}/lib1 --license-file bar
-}
-
-source_foo_body()
-{
-	atf_check \
-		-o inline:"foo: https://foo.bar/foo\n" \
-		pkgconf --with-path=${selfdir}/lib1 --source foo
-}
-
-source_empty_body()
-{
-	atf_check \
-		-o inline:"bar: \nfoo: https://foo.bar/foo\n" \
-		pkgconf --with-path=${selfdir}/lib1 --source bar
 }
 
 print_variables_env_body()
