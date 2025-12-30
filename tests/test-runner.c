@@ -124,7 +124,8 @@ static bool
 error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 {
 	(void) data;
-	pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDERR, "%s", msg);
+	pkgconf_test_state_t *state = client->client_data;
+	pkgconf_output_fmt(client->output, state->testcase->wanted_flags & PKG_ERRORS_ON_STDOUT ? PKGCONF_OUTPUT_STDOUT : PKGCONF_OUTPUT_STDERR, "%s", msg);
 	return true;
 }
 
@@ -238,10 +239,10 @@ static const pkgconf_test_flag_pair_t test_flag_pairs[] = {
 	{"no-uninstalled",	PKG_NO_UNINSTALLED},
 	{"path",		PKG_PATH},
 	{"print-errors",	PKG_PRINT_ERRORS},
+	{"print-requires",		PKG_REQUIRES},
+	{"print-requires-private",	PKG_REQUIRES_PRIVATE},
 	{"provides",		PKG_PROVIDES},
 	{"pure",		PKG_PURE},
-	{"requires",		PKG_REQUIRES},
-	{"requires-private",	PKG_REQUIRES_PRIVATE},
 	{"shared",		PKG_SHARED},
 	{"short-errors",	PKG_SHORT_ERRORS},
 	{"silence-errors",	PKG_SILENCE_ERRORS},
@@ -571,6 +572,8 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	pkgconf_buffer_append_fmt(&arg_buf, "pkgconf %s", pkgconf_buffer_str_or_empty(&testcase->query));
 	pkgconf_argv_split(pkgconf_buffer_str(&arg_buf), &test_argc, &test_argv);
 	pkgconf_buffer_finalize(&arg_buf);
+
+	pkgconf_client_set_warn_handler(&state.cli_state.pkg_client, error_handler, NULL);
 
 	if (debug)
 		pkgconf_client_set_trace_handler(&state.cli_state.pkg_client, debug_handler, NULL);

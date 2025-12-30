@@ -4,8 +4,6 @@
 
 tests_init \
 	libs_intermediary \
-	libs_circular1 \
-	libs_circular2 \
 	libs_circular_directpc \
 	libs_static \
 	libs_static_ordering \
@@ -32,22 +30,6 @@ libs_intermediary_body()
 	atf_check \
 		-o inline:"-lintermediary-1 -lintermediary-2 -lfoo -lbar -lbaz\n" \
 		pkgconf --libs intermediary-1 intermediary-2
-}
-
-libs_circular2_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"circular-1: breaking circular reference (circular-1 -> circular-2 -> circular-1)\n" \
-		pkgconf circular-2 --validate
-}
-
-libs_circular1_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"circular-3: breaking circular reference (circular-3 -> circular-1 -> circular-3)\n" \
-		pkgconf circular-1 --validate
 }
 
 libs_circular_directpc_body()
