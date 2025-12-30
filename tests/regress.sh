@@ -7,7 +7,6 @@ tests_init \
 	define_variable \
 	define_variable_override \
 	duplicate_tuple_upsert \
-	keep_system_libs \
 	libs \
 	libs_only \
 	libs_never_mergeback \
@@ -60,19 +59,6 @@ duplicate_tuple_upsert_body()
 {
 	atf_check -o inline:"/foo\n" \
 		pkgconf --variable=prefix --with-path=${selfdir}/lib1 duplicate-tuple
-}
-
-keep_system_libs_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	eval export "$LIBRARY_PATH_ENV"="/test/local/lib"
-	atf_check \
-		-o inline:"\n" \
-		pkgconf --libs-only-L cflags-libs-only
-
-	atf_check \
-		-o inline:"-L/test/local/lib\n" \
-		pkgconf --libs-only-L --keep-system-libs cflags-libs-only
 }
 
 libs_body()

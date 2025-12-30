@@ -42,6 +42,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/exists-version-with-tilde.test \
 		t/basic/incomplete-cflags.test \
 		t/basic/incomplete-libs.test \
+		t/basic/keep-system-libs.test \
+		t/basic/keep-system-libs-2.test \
 		t/basic/libs.test \
 		t/basic/libs-cflags.test \
 		t/basic/libs-cflags-version.test \
