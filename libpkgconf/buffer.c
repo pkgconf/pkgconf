@@ -191,3 +191,30 @@ pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *n
 
 	return memcmp(haystack_str, needle_str, pkgconf_buffer_len(haystack)) == 0;
 }
+
+void
+pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value)
+{
+	const char *iter = src->base;
+	size_t pattern_len = strlen(pattern);
+
+	if (!pkgconf_buffer_len(src))
+		return;
+
+	if (!pattern_len)
+	{
+		pkgconf_buffer_append(dest, pkgconf_buffer_str(src));
+		return;
+	}
+
+	while (iter < src->end)
+	{
+		if ((size_t)(src->end - iter) >= pattern_len && !memcmp(iter, pattern, pattern_len))
+		{
+			pkgconf_buffer_append(dest, value);
+			iter += pattern_len;
+		}
+		else
+			pkgconf_buffer_push_byte(dest, *iter++);
+	}
+}

@@ -461,6 +461,7 @@ PKGCONF_API void pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_l
 PKGCONF_API void pkgconf_buffer_join(pkgconf_buffer_t *buffer, char delim, ...);
 PKGCONF_API bool pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
 PKGCONF_API bool pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
+PKGCONF_API void pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value);
 static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer) {
 	return buffer->base;
 }
