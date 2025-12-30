@@ -325,6 +325,7 @@ static const pkgconf_test_flag_pair_t test_flag_pairs[] = {
 	{"print-errors",	PKG_PRINT_ERRORS},
 	{"print-requires",		PKG_REQUIRES},
 	{"print-requires-private",	PKG_REQUIRES_PRIVATE},
+	{"print-variables",		PKG_VARIABLES},
 	{"provides",		PKG_PROVIDES},
 	{"pure",		PKG_PURE},
 	{"shared",		PKG_SHARED},
@@ -335,7 +336,6 @@ static const pkgconf_test_flag_pair_t test_flag_pairs[] = {
 	{"static",		PKG_STATIC},
 	{"uninstalled",		PKG_UNINSTALLED},
 	{"validate",		PKG_VALIDATE},
-	{"variables",		PKG_VARIABLES},
 };
 
 static void
