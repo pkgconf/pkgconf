@@ -26,6 +26,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/noargs.test \
 		t/basic/arbitrary-path.test \
 		t/basic/define-prefix.test \
+		t/basic/env-tuple.test \
 		t/basic/exists-cflags-env.test \
 		t/basic/exists-cflags.test \
 		t/basic/exists-nonexistent.test \
@@ -48,8 +49,12 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/nocflags.test \
 		t/basic/nolibs.test \
 		t/basic/pkg-config-path.test \
+		t/basic/print-variables-env.test \
+		t/basic/single-depth-selectors.test \
 		t/basic/uninstalled-not.test \
 		t/basic/uninstalled.test \
+		t/basic/variable-env.test \
+		t/basic/variable-no-recursion.test \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
 		t/sbom/license-file-bar.test \
