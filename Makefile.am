@@ -76,6 +76,9 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
 		t/solver/circular-reference-directpc.test \
+		t/solver/depgraph-break-1.test \
+		t/solver/depgraph-break-2.test \
+		t/solver/depgraph-break-3.test \
 		t/solver/libs-intermediary.test \
 		t/solver/libs-metapackage.test \
 		t/solver/libs-static-ordering.test \
@@ -101,6 +104,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/provides-print-simple.test \
 		t/solver/provides-request-simple.test \
 		t/solver/provides-request-simple-no-provides.test \
+		t/solver/requires-private-debounce.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
 		t/sbom/license-isc.test \

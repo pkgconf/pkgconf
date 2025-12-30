@@ -4,9 +4,6 @@
 
 tests_init \
 	case_sensitivity \
-	depgraph_break_1 \
-	depgraph_break_2 \
-	depgraph_break_3 \
 	define_variable \
 	define_variable_override \
 	duplicate_tuple_upsert \
@@ -28,7 +25,6 @@ tests_init \
 	malformed_quoting \
 	explicit_sysroot \
 	empty_tuple \
-	solver_requires_private_debounce \
 	billion_laughs \
 	define_prefix_child_prefix_1 \
 	define_prefix_child_prefix_1_env
@@ -44,27 +40,6 @@ case_sensitivity_body()
 	atf_check \
 		-o inline:"4\n" \
 		pkgconf --variable=Foo case-sensitivity
-}
-
-depgraph_break_1_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check -s exit:1 -e ignore \
-		pkgconf --exists --print-errors 'foo > 0.6.0 foo < 0.8.0'
-}
-
-depgraph_break_2_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check -s exit:1 -e ignore \
-		pkgconf --exists --print-errors 'nonexisting foo <= 3'
-}
-
-depgraph_break_3_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check -s exit:1 -e ignore \
-		pkgconf --exists --print-errors 'depgraph-break'
 }
 
 define_variable_body()
@@ -191,12 +166,6 @@ empty_tuple_body()
 {
 	atf_check -o inline:"\n" \
 		pkgconf --with-path="${selfdir}/lib1" --cflags empty-tuple
-}
-
-solver_requires_private_debounce_body()
-{
-	atf_check -o inline:"-I/metapackage-1 -I/metapackage-2 -lmetapackage-1 -lmetapackage-2\n" \
-		pkgconf --with-path="${selfdir}/lib1" --cflags --libs metapackage
 }
 
 billion_laughs_body()
