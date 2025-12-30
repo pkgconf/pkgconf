@@ -10,7 +10,6 @@ tests_init \
 	libs_metapackage \
 	pkg_config_path \
 	with_path \
-	relocatable \
 	single_depth_selectors \
 	print_variables_env \
 	variable_env \
@@ -75,14 +74,6 @@ with_path_body()
 	atf_check \
 		-o inline:"-L/test/lib -lbar -lfoo\n" \
 		pkgconf --with-path=${selfdir}/lib1 --with-path=${selfdir}/lib2 --libs bar
-}
-
-relocatable_body()
-{
-	basedir=$(pkgconf --relocate ${selfdir})
-	atf_check \
-		-o inline:"${basedir}/lib-relocatable\n" \
-		pkgconf --define-prefix --variable=prefix ${basedir}/lib-relocatable/lib/pkgconfig/foo.pc
 }
 
 single_depth_selectors_body()
