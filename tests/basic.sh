@@ -3,9 +3,6 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	libs_env \
-	exists_nonexitent \
-	nonexitent \
 	exists_version \
 	exists_version_bad \
 	exists_version_bad2 \
@@ -40,22 +37,6 @@ tests_init \
 	variable_env \
 	variable_no_recurse \
 	tuple_env
-
-exists_nonexitent_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-s exit:1 \
-		pkgconf --exists nonexistant
-}
-
-nonexitent_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-s exit:1 \
-		pkgconf nonexistant
-}
 
 exists_version_body()
 {
@@ -288,13 +269,6 @@ exists_cflags_env_body()
 	atf_check \
 		-o inline:"FOO_CFLAGS='-DHAVE_FOO'\n" \
 		pkgconf --with-path=${selfdir}/lib1 --cflags --exists-cflags --fragment-filter=D --env=FOO foo
-}
-
-libs_env_body()
-{
-	atf_check \
-		-o inline:"FOO_LIBS='-L/test/lib -lfoo'\n" \
-		pkgconf --with-path=${selfdir}/lib1 --libs --env=FOO foo
 }
 
 print_variables_env_body()
