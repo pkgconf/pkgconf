@@ -23,9 +23,13 @@ EXTRA_DIST =	pkg.m4 \
 		libpkgconf/meson.build \
 		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
-		t/basic/noargs.test \
 		t/basic/arbitrary-path.test \
+		t/basic/builtin-pkg-config-exists.test \
+		t/basic/builtin-pkg-config-pc_path-variable.test \
+		t/basic/builtin-pkgconf-exists.test \
+		t/basic/builtin-pkgconf-pc_path-variable.test \
 		t/basic/define-prefix.test \
+		t/basic/direct-query-with-pkg_config_path.test \
 		t/basic/env-tuple.test \
 		t/basic/exists-cflags-env.test \
 		t/basic/exists-cflags.test \
@@ -36,6 +40,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/exists-version-malformed.test \
 		t/basic/exists-version-minimum.test \
 		t/basic/exists-version-with-tilde.test \
+		t/basic/incomplete-cflags.test \
+		t/basic/incomplete-libs.test \
 		t/basic/libs.test \
 		t/basic/libs-cflags.test \
 		t/basic/libs-cflags-version.test \
@@ -45,7 +51,10 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/libs-cflags-version-not-provided.test \
 		t/basic/libs-env.test \
 		t/basic/malformed-empty-package.test \
+		t/basic/modversion-fullpath.test \
 		t/basic/modversion-noflatten.test \
+		t/basic/modversion-uninstalled.test \
+		t/basic/noargs.test \
 		t/basic/nocflags.test \
 		t/basic/nolibs.test \
 		t/basic/pkg-config-path.test \
@@ -56,6 +65,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/uninstalled.test \
 		t/basic/variable-env.test \
 		t/basic/variable-no-recursion.test \
+		t/basic/variable.test \
 		t/ordering/fragment-collision.test \
 		t/ordering/framework-1.test \
 		t/ordering/framework-2.test \
@@ -69,6 +79,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/libs-intermediary.test \
 		t/solver/libs-metapackage.test \
 		t/solver/libs-static-ordering.test \
+		t/solver/modversion-provides.test \
 		t/solver/provides-bar-any.test \
 		t/solver/provides-bar-versioned-equal.test \
 		t/solver/provides-bar-versioned-greater-than-equal.test \

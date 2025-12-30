@@ -10,29 +10,20 @@ tests_init \
 	define_variable \
 	define_variable_override \
 	duplicate_tuple_upsert \
-	variable \
 	keep_system_libs \
 	libs \
 	libs_only \
 	libs_never_mergeback \
 	cflags_only \
 	cflags_never_mergeback \
-	incomplete_libs \
-	incomplete_cflags \
 	isystem_munge_sysroot \
 	idirafter_munge_sysroot \
 	modversion_common_prefix \
-	modversion_fullpath \
-	modversion_provides \
-	modversion_uninstalled \
 	modversion_one_word_expression \
 	modversion_two_word_expression \
 	modversion_three_word_expression \
 	modversion_one_word_expression_no_space \
 	modversion_one_word_expression_no_space_zero \
-	pcpath \
-	virtual_variable \
-	fragment_collision \
 	malformed_1 \
 	malformed_quoting \
 	explicit_sysroot \
@@ -96,14 +87,6 @@ duplicate_tuple_upsert_body()
 		pkgconf --variable=prefix --with-path=${selfdir}/lib1 duplicate-tuple
 }
 
-variable_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"/test/include\n" \
-		pkgconf --variable=includedir foo
-}
-
 keep_system_libs_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
@@ -160,22 +143,6 @@ cflags_never_mergeback_body()
 		pkgconf --cflags prefix-foo1 prefix-foo2
 }
 
-incomplete_libs_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"\n" \
-		pkgconf --libs incomplete
-}
-
-incomplete_cflags_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"\n" \
-		pkgconf --cflags incomplete
-}
-
 isystem_munge_sysroot_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="${selfdir}"
@@ -192,14 +159,6 @@ idirafter_munge_sysroot_body()
 		pkgconf --cflags idirafter
 }
 
-pcpath_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib2"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo\n" \
-		pkgconf --cflags ${selfdir}/lib3/bar.pc
-}
-
 sysroot_munge_body()
 {
 	sed "s|/sysroot/|${selfdir}/|g" ${selfdir}/lib1/sysroot-dir.pc > ${selfdir}/lib1/sysroot-dir-selfdir.pc
@@ -207,25 +166,6 @@ sysroot_munge_body()
 	atf_check \
 		-o inline:"-L${selfdir}/lib -lfoo\n" \
 		pkgconf --libs sysroot-dir-selfdir
-}
-
-virtual_variable_body()
-{
-	atf_check -s exit:0 \
-		pkgconf --exists pkg-config
-	atf_check -s exit:0 \
-		pkgconf --exists pkgconf
-
-	atf_check -o inline:"${pcpath}\n" \
-		pkgconf --variable=pc_path pkg-config
-	atf_check -o inline:"${pcpath}\n" \
-		pkgconf --variable=pc_path pkgconf
-}
-
-fragment_collision_body()
-{
-	atf_check -o inline:"-D_BAZ -D_BAR -D_FOO -D_THREAD_SAFE -pthread\n" \
-		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-collision
 }
 
 malformed_1_body()
@@ -269,24 +209,6 @@ modversion_common_prefix_body()
 {
 	atf_check -o inline:"foo: 1.2.3\nfoobar: 3.2.1\n" \
 		pkgconf --with-path="${selfdir}/lib1" --modversion --verbose foo foobar
-}
-
-modversion_fullpath_body()
-{
-	atf_check -o inline:"1.2.3\n" \
-		pkgconf --modversion "${selfdir}/lib1/foo.pc"
-}
-
-modversion_provides_body()
-{
-	atf_check -o inline:"1.2.3\n" \
-		pkgconf --with-path="${selfdir}/lib1" --modversion unavailable
-}
-
-modversion_uninstalled_body()
-{
-	atf_check -o inline:"1.2.3\n" \
-		pkgconf --with-path="${selfdir}/lib1" --modversion omg
 }
 
 modversion_one_word_expression_body()
