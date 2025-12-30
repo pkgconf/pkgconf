@@ -774,6 +774,12 @@ str_has_suffix(const char *str, const char *suffix)
 	return !strncasecmp(str + str_len - suf_len, suffix, suf_len);
 }
 
+int
+path_sort_cmp(const void *a, const void *b)
+{
+	return strcmp(*(const char **) a, *(const char **) b);
+}
+
 bool
 process_test_directory(char *dirpath)
 {
@@ -784,9 +790,10 @@ process_test_directory(char *dirpath)
 		fprintf(stderr, "failed to open test directory %s\n", dirpath);
 		return false;
 	}
+	char **paths = NULL;
+	size_t numpaths = 0;
 
 	struct dirent *dirent;
-
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
 	{
 		pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
@@ -805,6 +812,16 @@ process_test_directory(char *dirpath)
 			continue;
 		}
 
+		paths = pkgconf_reallocarray(paths, ++numpaths, sizeof(void *));
+		paths[numpaths - 1] = pathstr;
+	}
+
+	qsort(paths, numpaths, sizeof(void *), path_sort_cmp);
+
+	for (size_t i = 0; i < numpaths; i++)
+	{
+		char *pathstr = paths[i];
+
 		ret = process_test_case(pathstr);
 		free(pathstr);
 
@@ -812,6 +829,7 @@ process_test_directory(char *dirpath)
 			break;
 	}
 
+	free(paths);
 	closedir(dir);
 	return ret;
 }
