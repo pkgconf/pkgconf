@@ -118,12 +118,18 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/requires-internal-missing.test \
 		t/solver/requires-internal.test \
 		t/solver/requires-private-debounce.test \
+		t/solver/requires-private-missing.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
 		t/sbom/license-isc.test \
 		t/sbom/license-noassertion.test \
 		t/sbom/source-tag-bar.test \
 		t/sbom/source-tag-foo.test \
+		t/tuple/billion-laughs.test \
+		t/tuple/case-sensitivity-1.test \
+		t/tuple/case-sensitivity-2.test \
+		t/tuple/duplicate-upsert.test \
+		t/tuple/empty-tuple.test \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
@@ -354,6 +360,7 @@ check: pkgconf test-runner $(check_SCRIPTS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/ordering
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/solver
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sbom
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/tuple
 	kyua --config=none test --kyuafile='$(top_builddir)/Kyuafile' \
 		--build-root='$(top_builddir)'
 

@@ -11,8 +11,7 @@ tests_init \
 	argv_parse2 \
 	static_cflags \
 	foo_metapackage_3 \
-	libs_static2 \
-	orphaned_requires_private
+	libs_static2
 
 libs_body()
 {
@@ -76,15 +75,6 @@ libs_static2_body()
 	atf_check \
 		-o inline:"-lbar -lbar-private -L/test/lib -lfoo\n" \
 		pkgconf --static --libs static-libs
-}
-
-orphaned_requires_private_body()
-{
-	atf_check \
-		-s exit:1 \
-		-e ignore \
-		-o ignore \
-		pkgconf --with-path="${selfdir}/lib1" --cflags --libs orphaned-requires-private
 }
 
 cflags_libs_private_body()

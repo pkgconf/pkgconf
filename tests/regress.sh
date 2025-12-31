@@ -3,10 +3,8 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	case_sensitivity \
 	define_variable \
 	define_variable_override \
-	duplicate_tuple_upsert \
 	libs \
 	libs_only \
 	libs_never_mergeback \
@@ -23,23 +21,10 @@ tests_init \
 	malformed_1 \
 	malformed_quoting \
 	explicit_sysroot \
-	empty_tuple \
-	billion_laughs \
 	define_prefix_child_prefix_1 \
 	define_prefix_child_prefix_1_env
 
 #	sysroot_munge \
-
-case_sensitivity_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"3\n" \
-		pkgconf --variable=foo case-sensitivity
-	atf_check \
-		-o inline:"4\n" \
-		pkgconf --variable=Foo case-sensitivity
-}
 
 define_variable_body()
 {
@@ -53,12 +38,6 @@ define_variable_override_body()
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
 	atf_check -o inline:"/test\n" \
 		pkgconf --variable=prefix --define-variable='prefix=/test' typelibdir
-}
-
-duplicate_tuple_upsert_body()
-{
-	atf_check -o inline:"/foo\n" \
-		pkgconf --variable=prefix --with-path=${selfdir}/lib1 duplicate-tuple
 }
 
 libs_body()
@@ -146,18 +125,6 @@ explicit_sysroot_body()
 	export PKG_CONFIG_SYSROOT_DIR=${selfdir}
 	atf_check -o inline:"${selfdir}/usr/share/test\n" \
 		pkgconf --with-path="${selfdir}/lib1" --variable=pkgdatadir explicit-sysroot
-}
-
-empty_tuple_body()
-{
-	atf_check -o inline:"\n" \
-		pkgconf --with-path="${selfdir}/lib1" --cflags empty-tuple
-}
-
-billion_laughs_body()
-{
-	atf_check -o inline:"warning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\nwarning: truncating very long variable to 64KB\n" \
-		pkgconf --with-path="${selfdir}/lib1" --validate billion-laughs
 }
 
 modversion_common_prefix_body()
