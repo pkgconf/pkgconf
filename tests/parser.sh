@@ -3,13 +3,6 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	comments \
-	comments_in_fields \
-	dos \
-	no_trailing_newline \
-	argv_parse \
-	bad_option \
-	argv_parse_3 \
 	tilde_quoting \
 	paren_quoting \
 	multiline_field \
@@ -33,68 +26,7 @@ tests_init \
 	version_with_whitespace \
 	version_with_whitespace_2 \
 	version_with_whitespace_diagnostic \
-	fragment_groups \
-	fragment_groups_composite \
-	fragment_tree \
-	truncated \
-	c_comment
-
-comments_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-lfoo\n" \
-		pkgconf --libs comments
-}
-
-comments_in_fields_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-lfoo\n" \
-		pkgconf --libs comments-in-fields
-}
-
-dos_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-L/test/lib/dos-lineendings -ldos-lineendings\n" \
-		pkgconf --libs dos-lineendings
-}
-
-no_trailing_newline_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-I/test/include/no-trailing-newline\n" \
-		pkgconf --cflags no-trailing-newline
-}
-
-argv_parse_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-llib-3 -llib-1 -llib-2 -lpthread\n" \
-		pkgconf --libs argv-parse
-}
-
-bad_option_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-e ignore \
-		-s eq:1 \
-		pkgconf --exists -foo
-}
-
-argv_parse_3_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-llib-1 -pthread /test/lib/lib2.so\n" \
-		pkgconf --libs argv-parse-3
-}
+	fragment_tree
 
 tilde_quoting_body()
 {
@@ -285,34 +217,6 @@ version_with_whitespace_diagnostic_body()
 	atf_check \
 		-o match:warning \
 		pkgconf --with-path="${selfdir}/lib1" --validate malformed-version
-}
-
-fragment_groups_body()
-{
-	atf_check \
-		-o inline:'-Wl,--start-group -la -lb -Wl,--end-group -nodefaultlibs -Wl,--start-group -la -lgcc -Wl,--end-group -Wl,--gc-sections\n' \
-		pkgconf --with-path="${selfdir}/lib1" --libs fragment-groups
-}
-
-fragment_groups_composite_body()
-{
-	atf_check \
-		-o inline:'-Wl,--start-group -la -lb -Wl,--end-group -nodefaultlibs -Wl,--start-group -la -lgcc -Wl,--end-group -Wl,--gc-sections\n' \
-		pkgconf --with-path="${selfdir}/lib1" --libs fragment-groups-2
-}
-
-truncated_body()
-{
-	atf_check \
-		-o match:warning -s exit:1 \
-		pkgconf --with-path="${selfdir}/lib1" --validate truncated
-}
-
-c_comment_body()
-{
-	atf_check \
-		-o match:warning \
-		pkgconf --with-path="${selfdir}/lib1" --validate c-comment
 }
 
 fragment_tree_body()

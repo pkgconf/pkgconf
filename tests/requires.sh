@@ -8,7 +8,6 @@ tests_init \
 	libs_static \
 	libs_static_pure \
 	cflags_libs_private \
-	argv_parse2 \
 	static_cflags \
 	foo_metapackage_3 \
 	libs_static2
@@ -43,14 +42,6 @@ libs_static_pure_body()
 	atf_check \
 		-o inline:"-L/test/lib -lbaz -lfoo\n" \
 		pkgconf --static --pure --libs baz
-}
-
-argv_parse2_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-llib-1 -pthread /test/lib/lib2.so\n" \
-		pkgconf --static --libs argv-parse-2
 }
 
 static_cflags_body()

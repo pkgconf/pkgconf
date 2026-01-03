@@ -79,6 +79,17 @@ EXTRA_DIST =	pkg.m4 \
 		t/ordering/idirafter-munge-ordering.test \
 		t/ordering/idirafter-ordering.test \
 		t/ordering/isystem-munge-ordering.test \
+		t/parser/argv-parse-1.test \
+		t/parser/argv-parse-2.test \
+		t/parser/argv-parse-3.test \
+		t/parser/c-comments-should-warn.test \
+		t/parser/comments-in-fields.test \
+		t/parser/comments.test \
+		t/parser/dos-lineendings.test \
+		t/parser/fragment-groups-composite.test \
+		t/parser/fragment-groups.test \
+		t/parser/no-trailing-newline.test \
+		t/parser/truncated-files-should-fail-to-parse.test \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
 		t/solver/circular-reference-directpc.test \
@@ -375,6 +386,7 @@ CLEANFILES =	$(EXTRA_PROGRAMS) \
 check: pkgconf test-runner $(check_SCRIPTS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/basic
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/ordering
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/parser
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/solver
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sbom
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sysroot

@@ -176,6 +176,7 @@ fixtures_dir = '@0@/tests'.format(meson.current_source_dir())
 test_suites = [
   'basic',
   'ordering',
+  'parser',
   'solver',
   'sbom',
   'sysroot',
