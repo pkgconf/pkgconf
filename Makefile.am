@@ -125,6 +125,19 @@ EXTRA_DIST =	pkg.m4 \
 		t/sbom/license-noassertion.test \
 		t/sbom/source-tag-bar.test \
 		t/sbom/source-tag-foo.test \
+		t/sysroot/cflags-rewriting.test \
+		t/sysroot/no-pc_sysrootdir-rewriting-2.test \
+		t/sysroot/no-pc_sysrootdir-rewriting-3.test \
+		t/sysroot/no-pc_sysrootdir-rewriting-4.test \
+		t/sysroot/no-pc_sysrootdir-rewriting-5.test \
+		t/sysroot/no-pc_sysrootdir-rewriting-variable.test \
+		t/sysroot/skip-rewriting-when-sysroot-dir-is-root-dir.test \
+		t/sysroot/uninstalled-rewriting-fdo-rules-with-pc_sysrootdir.test \
+		t/sysroot/uninstalled-rewriting-fdo-rules.test \
+		t/sysroot/uninstalled-rewriting-pkgconf-1-rules.test \
+		t/sysroot/uninstalled-rewriting.test \
+		t/sysroot/variable-rewriting-1.test \
+		t/sysroot/variable-rewriting-2.test \
 		t/tuple/billion-laughs.test \
 		t/tuple/case-sensitivity-1.test \
 		t/tuple/case-sensitivity-2.test \
@@ -270,7 +283,6 @@ test_scripts=	tests/conflicts.sh \
 		tests/requires.sh \
 		tests/spdxtool.sh \
 		tests/symlink.sh \
-		tests/sysroot.sh \
 		tests/version.sh
 
 test_sh = $(test_scripts)
@@ -360,6 +372,7 @@ check: pkgconf test-runner $(check_SCRIPTS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/ordering
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/solver
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sbom
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sysroot
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/tuple
 	kyua --config=none test --kyuafile='$(top_builddir)/Kyuafile' \
 		--build-root='$(top_builddir)'

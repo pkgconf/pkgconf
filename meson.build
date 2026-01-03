@@ -178,6 +178,7 @@ test_suites = [
   'ordering',
   'solver',
   'sbom',
+  'sysroot',
   'tuple',
 ]
 
