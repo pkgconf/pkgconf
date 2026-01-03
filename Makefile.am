@@ -68,6 +68,10 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/variable-env.test \
 		t/basic/variable-no-recursion.test \
 		t/basic/variable.test \
+		t/ordering/flag-order-1.test \
+		t/ordering/flag-order-2.test \
+		t/ordering/flag-order-3.test \
+		t/ordering/flag-order-4.test \
 		t/ordering/fragment-collision.test \
 		t/ordering/framework-1.test \
 		t/ordering/framework-2.test \
