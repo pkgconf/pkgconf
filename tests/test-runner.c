@@ -18,6 +18,14 @@
 #include <cli/core.h>
 #include <cli/getopt_long.h>
 
+#if !defined(_WIN32) && !defined(__HAIKU__)
+# define PKGCONF_TEST_PLATFORM "unix"
+#elif !defined(_WIN32)
+# define PKGCONF_TEST_PLATFORM "haiku"
+#else
+# define PKGCONF_TEST_PLATFORM "windows"
+#endif
+
 static char *test_fixtures_dir = NULL;
 static bool debug = false;
 
@@ -52,6 +60,8 @@ typedef struct test_case_ {
 	pkgconf_buffer_t want_env_prefix;
 	pkgconf_buffer_t want_variable;
 	pkgconf_buffer_t fragment_filter;
+
+	pkgconf_buffer_t skip_platforms;
 } pkgconf_test_case_t;
 
 typedef struct test_state_ {
@@ -451,6 +461,7 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 	{"MatchStdout", test_keyword_set_match_strategy, offsetof(pkgconf_test_case_t, match_stdout)},
 	{"PackageSearchPath", test_keyword_set_path_list, offsetof(pkgconf_test_case_t, search_path)},
 	{"Query", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, query)},
+	{"SkipPlatforms", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, skip_platforms)},
 	{"WantedFlags", test_keyword_set_wanted_flags, offsetof(pkgconf_test_case_t, wanted_flags)},
 	{"WantEnvPrefix", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_env_prefix)},
 	{"WantVariable", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_variable)},
@@ -664,6 +675,14 @@ run_test_case(const pkgconf_test_case_t *testcase)
 {
 	bool passed = true;
 
+	const pkgconf_buffer_t *our_platform = PKGCONF_BUFFER_FROM_STR(PKGCONF_TEST_PLATFORM);
+	if (pkgconf_buffer_contains(&testcase->skip_platforms, our_platform))
+	{
+		printf("# test skipped on %s\nSKIP: %s\n",
+			pkgconf_buffer_str(our_platform), testcase->name);
+		return true;
+	}
+
 	pkgconf_cross_personality_t *personality = personality_for_test(testcase);
 	pkgconf_test_state_t state = {
 		.cli_state.want_flags = testcase->wanted_flags,
@@ -747,6 +766,7 @@ free_test_case(pkgconf_test_case_t *testcase)
 	pkgconf_buffer_finalize(&testcase->want_env_prefix);
 	pkgconf_buffer_finalize(&testcase->want_variable);
 	pkgconf_buffer_finalize(&testcase->fragment_filter);
+	pkgconf_buffer_finalize(&testcase->skip_platforms);
 
 	free(testcase->name);
 	free(testcase);
