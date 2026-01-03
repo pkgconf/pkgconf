@@ -3,13 +3,6 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	tilde_quoting \
-	paren_quoting \
-	multiline_field \
-	multiline_bogus_header \
-	escaped_backslash \
-	quoted \
-	variable_whitespace \
 	fragment_escaping_1 \
 	fragment_escaping_2 \
 	fragment_escaping_3 \
@@ -18,75 +11,12 @@ tests_init \
 	fragment_quoting_3 \
 	fragment_quoting_5 \
 	fragment_quoting_7 \
-	fragment_comment \
-	fragment_whitespace \
 	msvc_fragment_quoting \
 	msvc_fragment_render_cflags \
-	tuple_dequote \
 	version_with_whitespace \
 	version_with_whitespace_2 \
 	version_with_whitespace_diagnostic \
 	fragment_tree
-
-tilde_quoting_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-L~ -ltilde\n" \
-		pkgconf --libs tilde-quoting
-	atf_check \
-		-o inline:"-I~\n" \
-		pkgconf --cflags tilde-quoting
-}
-
-paren_quoting_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-L\$(libdir) -ltilde\n" \
-		pkgconf --libs paren-quoting
-}
-
-multiline_field_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-e ignore \
-		-o match:"multiline description" \
-		pkgconf --list-all
-}
-
-multiline_bogus_header_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-s eq:0 \
-		pkgconf --exists multiline-bogus
-}
-
-escaped_backslash_body()
-{
-	atf_check \
-		-e ignore \
-		-o inline:"-IC:\\\\\\\\A\n" \
-		pkgconf --with-path=${selfdir}/lib1 --cflags escaped-backslash
-}
-
-quoted_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-DQUOTED=\\\"bla\\\" -DA=\\\"escaped\\ string\\\'\\ literal\\\" -DB=\\\\\\1\$ -DC=bla\n" \
-		pkgconf --cflags quotes
-}
-
-variable_whitespace_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-I/test/include\n" \
-		pkgconf --cflags variable-whitespace
-}
 
 fragment_quoting_body()
 {
@@ -167,14 +97,6 @@ fragment_quoting_7a_body()
 	set +x
 }
 
-
-fragment_comment_body()
-{
-	atf_check \
-		-o inline:'kuku=\#ttt\n' \
-		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-comment
-}
-
 msvc_fragment_quoting_body()
 {
 	export PKG_CONFIG_PATH="${selfdir}/lib1"
@@ -189,13 +111,6 @@ msvc_fragment_render_cflags_body()
 	atf_check \
 		-o inline:'/I/test/include/foo /DFOO_STATIC \n' \
 		pkgconf --cflags --static --msvc-syntax foo
-}
-
-tuple_dequote_body()
-{
-	atf_check \
-		-o inline:'-L/test/lib -lfoo\n' \
-		pkgconf --with-path="${selfdir}/lib1" --libs tuple-quoting
 }
 
 version_with_whitespace_body()

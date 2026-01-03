@@ -86,10 +86,20 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/comments-in-fields.test \
 		t/parser/comments.test \
 		t/parser/dos-lineendings.test \
+		t/parser/escaped-backslashes-in-output.test \
+		t/parser/fragment-comment.test \
 		t/parser/fragment-groups-composite.test \
 		t/parser/fragment-groups.test \
+		t/parser/multiline-bogus-header.test \
+		t/parser/multiline-field.test \
 		t/parser/no-trailing-newline.test \
+		t/parser/paren-quoting.test \
+		t/parser/shell-quoted-output.test \
+		t/parser/tilde-quoting-1.test \
+		t/parser/tilde-quoting-2.test \
 		t/parser/truncated-files-should-fail-to-parse.test \
+		t/parser/tuple-dequote.test \
+		t/parser/variable-whitespace.test \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
 		t/solver/circular-reference-directpc.test \
