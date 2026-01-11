@@ -460,6 +460,7 @@ PKGCONF_API void pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out);
 PKGCONF_API void pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list va);
 PKGCONF_API void pkgconf_buffer_join(pkgconf_buffer_t *buffer, char delim, ...);
 PKGCONF_API bool pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
+PKGCONF_API bool pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, char needle);
 PKGCONF_API bool pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
 PKGCONF_API void pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value);
 static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer) {
@@ -496,6 +497,12 @@ static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer) {
 	char *out = strdup(pkgconf_buffer_str(buffer));
 	pkgconf_buffer_reset(buffer);
 	return out;
+}
+
+static inline void pkgconf_buffer_copy(pkgconf_buffer_t* buffer, pkgconf_buffer_t* newptr)
+{
+    pkgconf_buffer_reset(newptr);
+    pkgconf_buffer_append(newptr, pkgconf_buffer_str(buffer));
 }
 
 /* fileio.c */
