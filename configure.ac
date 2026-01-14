@@ -48,13 +48,21 @@ AC_SUBST([PKG_DEFAULT_PATH])
 
 AC_ARG_WITH([system-libdir],[AS_HELP_STRING([--with-system-libdir],[specify the
 	     system library directory (default LIBDIR)])],
-	     SYSTEM_LIBDIR="$withval", SYSTEM_LIBDIR="${libdir}")
+	     [SYSTEM_LIBDIR="$withval"], [
+	      AC_MSG_WARN([--with-system-libdir is not set, assuming ${libdir}])
+	      AC_MSG_WARN([It is important that this value be properly set for correct behavior!])
+	      SYSTEM_LIBDIR="${libdir}"
+	     ])
 
 AC_SUBST([SYSTEM_LIBDIR])
 
 AC_ARG_WITH([system-includedir],[AS_HELP_STRING([--with-system-includedir],[specify the
 	     system include directory (default INCLUDEDIR)])],
-	     SYSTEM_INCLUDEDIR="$withval", SYSTEM_INCLUDEDIR="${includedir}")
+	     [SYSTEM_INCLUDEDIR="$withval"], [
+	      AC_MSG_WARN([--with-system-includedir is not set, assuming ${includedir}])
+	      AC_MSG_WARN([It is important that this value be properly set for correct behavior!])
+	      SYSTEM_INCLUDEDIR="${includedir}"
+	     ])
 
 AC_SUBST([SYSTEM_INCLUDEDIR])
 
@@ -65,3 +73,14 @@ AC_PROG_LN_S
 
 AC_CONFIG_FILES([Makefile Kyuafile libpkgconf.pc tests/Kyuafile tests/test_env.sh])
 AC_OUTPUT
+
+cat << EOF
+Build configuration:
+
+	Default personality search paths:	${PERSONALITY_PATH}
+	Default package search paths:		${PKG_DEFAULT_PATH}
+	Default include search paths:		${SYSTEM_INCLUDEDIR}
+	Default library search paths:		${SYSTEM_LIBDIR}
+
+Incorrect paths may result in unexpected behavior from pkgconf.
+EOF
