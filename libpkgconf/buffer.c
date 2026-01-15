@@ -152,12 +152,14 @@ void pkgconf_buffer_vjoin(pkgconf_buffer_t* buffer, char delim, va_list src_va)
 	va_end(va);
 }
 
-void pkgconf_buffer_join(pkgconf_buffer_t* buffer, char delim, ...)
+// NOTE: due to C's rules regarding promotion in variable args and permissible variables, delim must
+// be an int here.
+void pkgconf_buffer_join(pkgconf_buffer_t* buffer, int delim, ...)
 {
 	va_list va;
 
 	va_start(va, delim);
-	pkgconf_buffer_vjoin(buffer, delim, va);
+	pkgconf_buffer_vjoin(buffer, (char)delim, va);
 	va_end(va);
 }
 
