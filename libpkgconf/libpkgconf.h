@@ -458,7 +458,7 @@ PKGCONF_API void pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer);
 PKGCONF_API void pkgconf_buffer_finalize(pkgconf_buffer_t *buffer);
 PKGCONF_API void pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out);
 PKGCONF_API void pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list va);
-PKGCONF_API void pkgconf_buffer_join(pkgconf_buffer_t *buffer, char delim, ...);
+PKGCONF_API void pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...);
 PKGCONF_API bool pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
 PKGCONF_API bool pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, char needle);
 PKGCONF_API bool pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
