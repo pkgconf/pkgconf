@@ -13,8 +13,8 @@
  * from the use of this software.
  */
 
-#include <libpkgconf/libpkgconf.h>
 #include <libpkgconf/stdinc.h>
+#include <libpkgconf/libpkgconf.h>
 
 /*
  * !doc
@@ -26,7 +26,8 @@
  * dynamically-allocated buffers.
  */
 
-static inline size_t target_allocation_size(size_t target_size)
+static inline size_t
+target_allocation_size(size_t target_size)
 {
 	return 4096 + (4096 * (target_size / 4096));
 }
@@ -43,18 +44,19 @@ buffer_debug(pkgconf_buffer_t *buffer)
 }
 #endif
 
-void pkgconf_buffer_append(pkgconf_buffer_t* buffer, const char* text)
+void
+pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 {
 	size_t needed = strlen(text) + 1;
 	size_t newsize = pkgconf_buffer_len(buffer) + needed;
 
-	char* newbase = realloc(buffer->base, target_allocation_size(newsize));
+	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
 
 	/* XXX: silently failing here is antisocial */
 	if (newbase == NULL)
 		return;
 
-	char* newend = newbase + pkgconf_buffer_len(buffer);
+	char *newend = newbase + pkgconf_buffer_len(buffer);
 	pkgconf_strlcpy(newend, text, needed);
 
 	buffer->base = newbase;
@@ -63,10 +65,11 @@ void pkgconf_buffer_append(pkgconf_buffer_t* buffer, const char* text)
 	*buffer->end = '\0';
 }
 
-void pkgconf_buffer_append_vfmt(pkgconf_buffer_t* buffer, const char* fmt, va_list src_va)
+void
+pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list src_va)
 {
 	va_list va;
-	char* buf;
+	char *buf;
 	size_t needed;
 
 	va_copy(va, src_va);
@@ -84,7 +87,8 @@ void pkgconf_buffer_append_vfmt(pkgconf_buffer_t* buffer, const char* fmt, va_li
 	free(buf);
 }
 
-void pkgconf_buffer_append_fmt(pkgconf_buffer_t* buffer, const char* fmt, ...)
+void
+pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...)
 {
 	va_list va;
 
@@ -93,16 +97,17 @@ void pkgconf_buffer_append_fmt(pkgconf_buffer_t* buffer, const char* fmt, ...)
 	va_end(va);
 }
 
-void pkgconf_buffer_push_byte(pkgconf_buffer_t* buffer, char byte)
+void
+pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 {
 	size_t newsize = pkgconf_buffer_len(buffer) + 1;
-	char* newbase = realloc(buffer->base, target_allocation_size(newsize));
+	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
 
 	/* XXX: silently failing here remains antisocial */
 	if (newbase == NULL)
 		return;
 
-	char* newend = newbase + newsize;
+	char *newend = newbase + newsize;
 	*(newend - 1) = byte;
 	*newend = '\0';
 
@@ -110,23 +115,26 @@ void pkgconf_buffer_push_byte(pkgconf_buffer_t* buffer, char byte)
 	buffer->end = newend;
 }
 
-void pkgconf_buffer_trim_byte(pkgconf_buffer_t* buffer)
+void
+pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer)
 {
 	size_t newsize = pkgconf_buffer_len(buffer) - 1;
-	char* newbase = realloc(buffer->base, target_allocation_size(newsize));
+	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
 
 	buffer->base = newbase;
 	buffer->end = newbase + newsize;
 	*(buffer->end) = '\0';
 }
 
-void pkgconf_buffer_finalize(pkgconf_buffer_t* buffer)
+void
+pkgconf_buffer_finalize(pkgconf_buffer_t *buffer)
 {
 	free(buffer->base);
 	buffer->base = buffer->end = NULL;
 }
 
-void pkgconf_buffer_fputs(pkgconf_buffer_t* buffer, FILE* out)
+void
+pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out)
 {
 	if (pkgconf_buffer_len(buffer) != 0)
 		fputs(pkgconf_buffer_str(buffer), out);
@@ -134,14 +142,15 @@ void pkgconf_buffer_fputs(pkgconf_buffer_t* buffer, FILE* out)
 	fputc('\n', out);
 }
 
-void pkgconf_buffer_vjoin(pkgconf_buffer_t* buffer, char delim, va_list src_va)
+void
+pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list src_va)
 {
 	va_list va;
-	const char* arg;
+	const char *arg;
 
 	va_copy(va, src_va);
 
-	while ((arg = va_arg(va, const char*)) != NULL)
+	while ((arg = va_arg(va, const char *)) != NULL)
 	{
 		if (pkgconf_buffer_str(buffer) != NULL)
 			pkgconf_buffer_push_byte(buffer, delim);
@@ -154,7 +163,8 @@ void pkgconf_buffer_vjoin(pkgconf_buffer_t* buffer, char delim, va_list src_va)
 
 // NOTE: due to C's rules regarding promotion in variable args and permissible variables, delim must
 // be an int here.
-void pkgconf_buffer_join(pkgconf_buffer_t* buffer, int delim, ...)
+void
+pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...)
 {
 	va_list va;
 
@@ -163,24 +173,27 @@ void pkgconf_buffer_join(pkgconf_buffer_t* buffer, int delim, ...)
 	va_end(va);
 }
 
-bool pkgconf_buffer_contains(const pkgconf_buffer_t* haystack, const pkgconf_buffer_t* needle)
+bool
+pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle)
 {
-	const char* haystack_str = pkgconf_buffer_str_or_empty(haystack);
-	const char* needle_str = pkgconf_buffer_str_or_empty(needle);
+	const char *haystack_str = pkgconf_buffer_str_or_empty(haystack);
+	const char *needle_str = pkgconf_buffer_str_or_empty(needle);
 
 	return strstr(haystack_str, needle_str) != NULL;
 }
 
-bool pkgconf_buffer_contains_byte(const pkgconf_buffer_t* haystack, char needle)
+bool
+pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, char needle)
 {
-	const char* haystack_str = pkgconf_buffer_str_or_empty(haystack);
+	const char *haystack_str = pkgconf_buffer_str_or_empty(haystack);
 	return strchr(haystack_str, needle) != NULL;
 }
 
-bool pkgconf_buffer_match(const pkgconf_buffer_t* haystack, const pkgconf_buffer_t* needle)
+bool
+pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle)
 {
-	const char* haystack_str = pkgconf_buffer_str_or_empty(haystack);
-	const char* needle_str = pkgconf_buffer_str_or_empty(needle);
+	const char *haystack_str = pkgconf_buffer_str_or_empty(haystack);
+	const char *needle_str = pkgconf_buffer_str_or_empty(needle);
 
 	if (pkgconf_buffer_len(haystack) != pkgconf_buffer_len(needle))
 		return false;
@@ -188,10 +201,10 @@ bool pkgconf_buffer_match(const pkgconf_buffer_t* haystack, const pkgconf_buffer
 	return memcmp(haystack_str, needle_str, pkgconf_buffer_len(haystack)) == 0;
 }
 
-void pkgconf_buffer_subst(pkgconf_buffer_t* dest, const pkgconf_buffer_t* src, const char* pattern,
-			  const char* value)
+void
+pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value)
 {
-	const char* iter = src->base;
+	const char *iter = src->base;
 	size_t pattern_len = strlen(pattern);
 
 	if (!pkgconf_buffer_len(src))

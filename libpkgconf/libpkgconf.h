@@ -499,7 +499,7 @@ static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer) {
 	return out;
 }
 
-static inline void pkgconf_buffer_copy(pkgconf_buffer_t* buffer, pkgconf_buffer_t* newptr)
+static inline void pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_t *newptr)
 {
     pkgconf_buffer_reset(newptr);
     pkgconf_buffer_append(newptr, pkgconf_buffer_str(buffer));
