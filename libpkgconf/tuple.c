@@ -405,6 +405,20 @@ char* pkgconf_tuple_parse(const pkgconf_client_t* client, pkgconf_list_t* vars, 
 	else
 		ret = strdup(pkgconf_buffer_str(&buf));
 
+	if (should_rewrite_sysroot(client, vars, ret, flags))
+	{
+		const char *sysroot_dir = find_sysroot(client, vars);
+		char cleanpath[PKGCONF_ITEM_SIZE];
+
+		pkgconf_strlcpy(cleanpath,
+		                ret + strlen(sysroot_dir),
+		                sizeof cleanpath);
+		pkgconf_path_relocate(cleanpath, sizeof cleanpath);
+
+		free(ret);
+		ret = strdup(cleanpath);
+	}
+
 	pkgconf_buffer_finalize(&buf);
 	return ret;
 }
