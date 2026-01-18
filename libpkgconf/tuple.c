@@ -312,94 +312,96 @@ pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const c
 char *
 pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const char *value, unsigned int flags)
 {
+	char buf[PKGCONF_BUFSIZE];
 	const char *ptr;
+	char *bptr = buf;
 	const char *sysroot_dir = find_sysroot(client, vars);
-	pkgconf_buffer_t out = PKGCONF_BUFFER_INITIALIZER;
-	char *ret;
-	const char *s;
 
-	if (value == NULL)
-		value = "";
-
-	/* legacy sysroot prefix behaviour */
 	if (!(client->flags & PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES) &&
 		(!(flags & PKGCONF_PKG_PROPF_UNINSTALLED) || (client->flags & PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES)))
 	{
-		if (*value == '/' && sysroot_dir && *sysroot_dir && strncmp(value, sysroot_dir, strlen(sysroot_dir)))
-			pkgconf_buffer_append(&out, sysroot_dir);
+		if (*value == '/' && sysroot_dir != NULL && *sysroot_dir && strncmp(value, sysroot_dir, strlen(sysroot_dir)))
+			bptr += pkgconf_strlcpy(buf, sysroot_dir, sizeof buf);
 	}
 
-	for (ptr = value; *ptr != '\0'; ptr++)
+	for (ptr = value; *ptr != '\0' && bptr - buf < PKGCONF_BUFSIZE; ptr++)
 	{
-		if (pkgconf_buffer_len(&out) >= PKGCONF_BUFSIZE - 1)
-			break;
-
-		if (*ptr != '$' || *(ptr + 1) != '{')
-		{
-			pkgconf_buffer_push_byte(&out, *ptr);
-			continue;
-		}
-
-		/* ${var} expansion */
+		if (*ptr != '$' || (*ptr == '$' && *(ptr + 1) != '{'))
+			*bptr++ = *ptr;
+		else if (*(ptr + 1) == '{')
 		{
 			char varname[PKGCONF_ITEM_SIZE];
+			char *vend = varname + PKGCONF_ITEM_SIZE - 1;
 			char *vptr = varname;
-			char *vend = varname + sizeof(varname) - 1;
 			const char *pptr;
-			char *kv;
+			char *kv, *parsekv;
 
 			*vptr = '\0';
 
-			for (pptr = ptr + 2; *pptr && *pptr != '}'; pptr++)
+			for (pptr = ptr + 2; *pptr != '\0'; pptr++)
 			{
-				if (vptr < vend)
-					*vptr++ = *pptr;
+				if (*pptr != '}')
+				{
+					if (vptr < vend)
+						*vptr++ = *pptr;
+					else
+					{
+						*vptr = '\0';
+						break;
+					}
+				}
+				else
+				{
+					*vptr = '\0';
+					break;
+				}
 			}
-			*vptr = '\0';
-
-			if (*pptr == '}')
-				ptr = pptr;
 
 			PKGCONF_TRACE(client, "lookup tuple %s", varname);
 
-			/* global override first */
+			size_t remain = PKGCONF_BUFSIZE - (bptr - buf);
+			ptr += (pptr - ptr);
 			kv = pkgconf_tuple_find_global(client, varname);
-			if (kv == NULL)
-				kv = pkgconf_tuple_find(client, vars, varname);
-
 			if (kv != NULL)
 			{
-				size_t remain = (PKGCONF_BUFSIZE - 1) - pkgconf_buffer_len(&out);
-				size_t kvlen;
-				char *expanded = NULL;
-
-				if (kv == pkgconf_tuple_find_global(client, varname))
-					expanded = kv;
-				else
-					expanded = pkgconf_tuple_parse(client, vars, kv, flags);
-
-				kvlen = strlen(expanded);
-
-				if (kvlen > remain)
+				size_t nlen = pkgconf_strlcpy(bptr, kv, remain);
+				if (nlen > remain)
 				{
 					pkgconf_warn(client, "warning: truncating very long variable to 64KB\n");
-					pkgconf_buffer_append_fmt(&out, "%.*s", (int)remain, expanded);
-					if (expanded != kv)
-						free(expanded);
+
+					bptr = buf + (PKGCONF_BUFSIZE - 1);
 					break;
 				}
 
-				pkgconf_buffer_append(&out, expanded);
+				bptr += nlen;
+			}
+			else
+			{
+				kv = pkgconf_tuple_find(client, vars, varname);
 
-				if (expanded != kv)
-					free(expanded);
+				if (kv != NULL)
+				{
+					size_t nlen;
+
+					parsekv = pkgconf_tuple_parse(client, vars, kv, flags);
+					nlen = pkgconf_strlcpy(bptr, parsekv, remain);
+					free(parsekv);
+
+					if (nlen > remain)
+					{
+						pkgconf_warn(client, "warning: truncating very long variable to 64KB\n");
+
+						bptr = buf + (PKGCONF_BUFSIZE - 1);
+						break;
+					}
+
+					bptr += nlen;
+				}
 			}
 		}
 	}
 
-	/* Extract result */
-	s = pkgconf_buffer_str(&out);
-	ret = strdup(s != NULL ? s : "");
+	*bptr = '\0';
 
 	/*
 	 * Sigh.  Somebody actually attempted to use freedesktop.org pkg-config's broken sysroot support,
@@ -418,19 +420,17 @@ pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const 
 	 *
 	 * New in 1.9: Only attempt to rewrite the sysroot if we are not processing an uninstalled package.
 	 */
-	if (ret && should_rewrite_sysroot(client, vars, ret, flags))
+	if (should_rewrite_sysroot(client, vars, buf, flags))
 	{
 		char cleanpath[PKGCONF_ITEM_SIZE];
 
-		pkgconf_strlcpy(cleanpath, ret + strlen(sysroot_dir), sizeof cleanpath);
+		pkgconf_strlcpy(cleanpath, buf + strlen(sysroot_dir), sizeof cleanpath);
 		pkgconf_path_relocate(cleanpath, sizeof cleanpath);
 
-		free(ret);
-		ret = strdup(cleanpath);
+		return strdup(cleanpath);
 	}
 
-	pkgconf_buffer_finalize(&out);
-	return ret;
+	return strdup(buf);
 }
 
 /*
