@@ -156,12 +156,13 @@ pkgconf_tuple_find_delete(pkgconf_list_t *list, const char *key)
 static char *
 dequote(const char *value)
 {
-	char *buf = calloc(1, (strlen(value) + 1) * 2);
-	char *bptr = buf;
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 	const char *i;
 	char quote = 0;
 
-	if (*value == '\'' || *value == '"')
+	if (value == NULL || *value == '\0')
+		return strdup("");
+	else if (*value == '\'' || *value == '"')
 		quote = *value;
 
 	for (i = value; *i != '\0'; i++)
@@ -169,13 +170,13 @@ dequote(const char *value)
 		if (*i == '\\' && quote && *(i + 1) == quote)
 		{
 			i++;
-			*bptr++ = *i;
+			pkgconf_buffer_push_byte(&buf, *i);
 		}
 		else if (*i != quote)
-			*bptr++ = *i;
+			pkgconf_buffer_push_byte(&buf, *i);
 	}
 
-	return buf;
+	return pkgconf_buffer_freeze(&buf);
 }
 
 static const char *
