@@ -326,6 +326,12 @@ static void pkgconf_tuple_parse_into(const pkgconf_client_t* client, pkgconf_lis
 
 	for (ptr = value; *ptr != '\0'; ptr++)
 	{
+		char varname[PKGCONF_ITEM_SIZE];
+		char* vptr = varname;
+		char* vend = varname + sizeof varname - 1;
+		const char* pptr;
+		const char* kv;
+
 		if (*ptr != '$' || *(ptr + 1) != '{')
 		{
 			pkgconf_buffer_push_byte(out, *ptr);
@@ -333,48 +339,46 @@ static void pkgconf_tuple_parse_into(const pkgconf_client_t* client, pkgconf_lis
 		}
 
 		/* ${var} expansion */
+		*vptr = '\0';
+
+		for (pptr = ptr + 2; *pptr && *pptr != '}'; pptr++)
 		{
-			char varname[PKGCONF_ITEM_SIZE];
-			char* vptr = varname;
-			char* vend = varname + sizeof varname - 1;
-			const char* pptr;
-			const char* kv;
+			if (vptr < vend)
+				*vptr++ = *pptr;
+		}
+		*vptr = '\0';
 
-			*vptr = '\0';
+		if (*pptr == '}')
+			ptr = pptr;
 
-			for (pptr = ptr + 2; *pptr && *pptr != '}'; pptr++)
+		PKGCONF_TRACE(client, "lookup tuple %s", varname);
+
+		kv = pkgconf_tuple_find_global(client, varname);
+		if (kv == NULL)
+			kv = pkgconf_tuple_find(client, vars, varname);
+
+
+		if (kv != NULL)
+		{
+			if (kv == value)
 			{
-				if (vptr < vend)
-					*vptr++ = *pptr;
+				/* preserve literal self-reference */
+				pkgconf_buffer_append_fmt(out, "${%s}", varname);
+				continue;
 			}
-			*vptr = '\0';
 
-			if (*pptr == '}')
-				ptr = pptr;
+			size_t before = pkgconf_buffer_len(out);
 
-			PKGCONF_TRACE(client, "lookup tuple %s", varname);
+			pkgconf_tuple_parse_into(client, vars, kv, flags, out);
 
-			kv = pkgconf_tuple_find_global(client, varname);
-			if (kv == NULL)
-				kv = pkgconf_tuple_find(client, vars, varname);
-
-			if (kv != NULL)
+			if (pkgconf_buffer_len(out) >= PKGCONF_BUFSIZE - 1)
 			{
-				size_t before = pkgconf_buffer_len(out);
-
-				pkgconf_tuple_parse_into(client, vars, kv, flags, out);
-
-				if (pkgconf_buffer_len(out) >= PKGCONF_BUFSIZE - 1)
-				{
-					pkgconf_warn(
-					    client,
-					    "warning: truncating very long variable to 64KB\n");
-					return;
-				}
-
-				if (pkgconf_buffer_len(out) == before)
-					return;
+				pkgconf_warn(client, "warning: truncating very long variable to 64KB\n");
+				return;
 			}
+
+			if (pkgconf_buffer_len(out) == before)
+				return;
 		}
 	}
 }
