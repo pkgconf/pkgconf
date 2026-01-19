@@ -773,6 +773,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 void
 free_test_case(pkgconf_test_case_t *testcase)
 {
+	test_bufferset_free(&testcase->define_variables);
 	test_bufferset_free(&testcase->expected_stderr);
 	test_bufferset_free(&testcase->expected_stdout);
 
