@@ -339,6 +339,18 @@ pkgconf_queue_verify(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_lis
 		}
 	}
 
+	if (!(client->flags & PKGCONF_PKG_PKGF_SKIP_CONFLICTS))
+	{
+		PKGCONF_TRACE(client, "checking for conflicts");
+
+		result = pkgconf_pkg_walk_conflicts_list(client, world, &world->conflicts);
+		if (result != PKGCONF_PKG_ERRF_OK)
+		{
+			pkgconf_solution_free(client, &initial_world);
+			return result;
+		}
+	}
+
 	/* free the initial solution */
 	pkgconf_solution_free(client, &initial_world);
 
