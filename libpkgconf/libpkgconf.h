@@ -360,6 +360,7 @@ PKGCONF_API void pkgconf_pkg_unref(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 PKGCONF_API void pkgconf_pkg_free(pkgconf_client_t *client, pkgconf_pkg_t *pkg);
 PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_find(pkgconf_client_t *client, const char *name);
 PKGCONF_API unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int skip_flags);
+PKGCONF_API unsigned int pkgconf_pkg_walk_conflicts_list(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *deplist);
 PKGCONF_API unsigned int pkgconf_pkg_verify_graph(pkgconf_client_t *client, pkgconf_pkg_t *root, int depth);
 PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_verify_dependency(pkgconf_client_t *client, pkgconf_dependency_t *pkgdep, unsigned int *eflags);
 PKGCONF_API const char *pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep);

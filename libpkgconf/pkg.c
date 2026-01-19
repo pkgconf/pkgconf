@@ -1621,7 +1621,7 @@ next:
 	return eflags;
 }
 
-static inline unsigned int
+unsigned int
 pkgconf_pkg_walk_conflicts_list(pkgconf_client_t *client,
 	pkgconf_pkg_t *root, pkgconf_list_t *deplist)
 {
