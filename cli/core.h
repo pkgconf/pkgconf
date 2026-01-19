@@ -82,9 +82,9 @@ typedef struct {
 	const char *want_env_prefix;
 
 	char *required_pkgconfig_version;
-	char *required_exact_module_version;
-	char *required_max_module_version;
-	char *required_module_version;
+	const char *required_exact_module_version;
+	const char *required_max_module_version;
+	const char *required_module_version;
 
 	FILE *error_msgout;
 	FILE *logfile_out;
