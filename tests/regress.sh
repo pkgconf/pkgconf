@@ -8,7 +8,6 @@ tests_init \
 	libs_never_mergeback \
 	cflags_only \
 	cflags_never_mergeback \
-	modversion_common_prefix \
 	modversion_one_word_expression \
 	modversion_two_word_expression \
 	modversion_three_word_expression \
@@ -89,12 +88,6 @@ explicit_sysroot_body()
 	export PKG_CONFIG_SYSROOT_DIR=${selfdir}
 	atf_check -o inline:"${selfdir}/usr/share/test\n" \
 		pkgconf --with-path="${selfdir}/lib1" --variable=pkgdatadir explicit-sysroot
-}
-
-modversion_common_prefix_body()
-{
-	atf_check -o inline:"foo: 1.2.3\nfoobar: 3.2.1\n" \
-		pkgconf --with-path="${selfdir}/lib1" --modversion --verbose foo foobar
 }
 
 modversion_one_word_expression_body()

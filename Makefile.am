@@ -58,6 +58,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/modversion-fullpath.test \
 		t/basic/modversion-noflatten.test \
 		t/basic/modversion-uninstalled.test \
+		t/basic/modversion-verbose-prefix.test \
 		t/basic/noargs.test \
 		t/basic/nocflags.test \
 		t/basic/nolibs.test \
