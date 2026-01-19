@@ -112,6 +112,9 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
 		t/solver/circular-reference-directpc.test \
+		t/solver/conflicts-solution-error.test \
+		t/solver/conflicts-solution-ignore.test \
+		t/solver/conflicts-solution-is-fine-standalone.test \
 		t/solver/depgraph-break-1.test \
 		t/solver/depgraph-break-2.test \
 		t/solver/depgraph-break-3.test \
@@ -317,7 +320,7 @@ EXTRA_DIST =	pkg.m4 \
 		doc/libpkgconf-queue.rst \
 		doc/libpkgconf-tuple.rst
 
-test_scripts=	tests/conflicts.sh \
+test_scripts=	\
 		tests/parser.sh \
 		tests/personality.sh \
 		tests/regress.sh \
