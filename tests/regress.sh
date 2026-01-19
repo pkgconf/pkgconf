@@ -6,8 +6,6 @@ tests_init \
 	libs \
 	libs_only \
 	libs_never_mergeback \
-	cflags_only \
-	cflags_never_mergeback \
 	modversion_one_word_expression \
 	modversion_two_word_expression \
 	modversion_three_word_expression \
@@ -42,22 +40,6 @@ libs_never_mergeback_body()
 	atf_check \
 		-o inline:"-L/test/bar/lib -lfoo1 -lfoo2\n" \
 		pkgconf --libs prefix-foo1 prefix-foo2
-}
-
-cflags_only_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-I/test/local/include/foo\n" \
-		pkgconf --cflags-only-I --cflags-only-other cflags-libs-only
-}
-
-cflags_never_mergeback_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-I/test/bar/include/foo -DBAR -fPIC -DFOO\n" \
-		pkgconf --cflags prefix-foo1 prefix-foo2
 }
 
 sysroot_munge_body()

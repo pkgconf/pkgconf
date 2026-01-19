@@ -71,6 +71,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/variable-env.test \
 		t/basic/variable-no-recursion.test \
 		t/basic/variable.test \
+		t/ordering/cflags-never-mergeback.test \
+		t/ordering/cflags-only.test \
 		t/ordering/flag-order-1.test \
 		t/ordering/flag-order-2.test \
 		t/ordering/flag-order-3.test \
