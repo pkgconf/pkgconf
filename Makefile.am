@@ -93,6 +93,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/fragment-comment.test \
 		t/parser/fragment-groups-composite.test \
 		t/parser/fragment-groups.test \
+		t/parser/malformed-no-newlines.test \
+		t/parser/malformed-quoting.test \
 		t/parser/multiline-bogus-header.test \
 		t/parser/multiline-field.test \
 		t/parser/no-trailing-newline.test \

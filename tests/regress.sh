@@ -13,8 +13,6 @@ tests_init \
 	modversion_three_word_expression \
 	modversion_one_word_expression_no_space \
 	modversion_one_word_expression_no_space_zero \
-	malformed_1 \
-	malformed_quoting \
 	explicit_sysroot
 
 #	sysroot_munge \
@@ -69,18 +67,6 @@ sysroot_munge_body()
 	atf_check \
 		-o inline:"-L${selfdir}/lib -lfoo\n" \
 		pkgconf --libs sysroot-dir-selfdir
-}
-
-malformed_1_body()
-{
-	atf_check -s exit:1 -o ignore \
-		pkgconf --validate --with-path="${selfdir}/lib1" malformed-1
-}
-
-malformed_quoting_body()
-{
-	atf_check -s exit:0 -o ignore \
-		pkgconf --validate --with-path="${selfdir}/lib1" malformed-quoting
 }
 
 explicit_sysroot_body()
