@@ -1153,55 +1153,36 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 
 	if (state->required_module_version != NULL || state->required_exact_module_version != NULL || state->required_max_module_version != NULL)
 	{
-		pkgconf_pkg_t *pkg = NULL;
 		const char *target_version = NULL;
+		pkgconf_pkg_comparator_t compare;
 
 		if (state->required_module_version != NULL)
+		{
 			target_version = state->required_module_version;
+			compare = PKGCONF_CMP_GREATER_THAN_EQUAL;
+		}
 		else if (state->required_exact_module_version != NULL)
+		{
 			target_version = state->required_exact_module_version;
+			compare = PKGCONF_CMP_EQUAL;
+		}
 		else if (state->required_max_module_version != NULL)
+		{
 			target_version = state->required_max_module_version;
+			compare = PKGCONF_CMP_LESS_THAN_EQUAL;
+		}
 
 		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
-			pkgconf_dependency_t *pkgiter = node->data;
-			int result;
+			pkgconf_dependency_t *dep = node->data;
 
-			pkg = pkgconf_pkg_find(&state->pkg_client, pkgiter->package);
-			if (pkg == NULL)
-			{
-				if (state->want_flags & PKG_PRINT_ERRORS)
-					pkgconf_error(&state->pkg_client, "Package '%s' was not found\n", pkgiter->package);
+			/* already constrained at query level */
+			if (dep->compare != PKGCONF_CMP_ANY)
+				continue;
 
-				ret = EXIT_FAILURE;
-				goto cleanup;
-			}
-
-			result = pkgconf_compare_version(pkg->version, target_version);
-			if (state->required_module_version != NULL && result >= 0)
-			{
-				ret = EXIT_SUCCESS;
-				goto cleanup;
-			}
-			else if (state->required_exact_module_version != NULL && result == 0)
-			{
-				ret = EXIT_SUCCESS;
-				goto cleanup;
-			}
-			else if (state->required_max_module_version != NULL && result <= 0)
-			{
-				ret = EXIT_SUCCESS;
-				goto cleanup;
-			}
+			dep->compare = compare;
+			dep->version = strdup(target_version);
 		}
-
-		ret = EXIT_FAILURE;
-cleanup:
-		if (pkg != NULL)
-			pkgconf_pkg_unref(&state->pkg_client, pkg);
-		pkgconf_dependency_free(&deplist);
-		goto out;
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
