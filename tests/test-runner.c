@@ -64,6 +64,8 @@ typedef struct test_case_ {
 	pkgconf_buffer_t skip_platforms;
 
 	pkgconf_list_t define_variables;
+
+	int verbosity;
 } pkgconf_test_case_t;
 
 typedef struct test_state_ {
@@ -465,6 +467,7 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 	{"PackageSearchPath", test_keyword_set_path_list, offsetof(pkgconf_test_case_t, search_path)},
 	{"Query", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, query)},
 	{"SkipPlatforms", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, skip_platforms)},
+	{"VerbosityLevel", test_keyword_set_int, offsetof(pkgconf_test_case_t, verbosity)},
 	{"WantedFlags", test_keyword_set_wanted_flags, offsetof(pkgconf_test_case_t, wanted_flags)},
 	{"WantEnvPrefix", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_env_prefix)},
 	{"WantVariable", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_variable)},
@@ -628,12 +631,14 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
                 "environment:\n"
                 "  %s\n"
 		"query: [%s]\n"
-		"exit-code: %d\n",
+		"exit-code: %d\n"
+		"verbosity: %d\n",
 		pkgconf_buffer_str_or_empty(&search_path_buf),
 		pkgconf_buffer_str_or_empty(&wanted_flags_buf),
 		pkgconf_buffer_str_or_empty(&env_buf),
 		pkgconf_buffer_str_or_empty(&testcase->query),
-		ret);
+		ret,
+		testcase->verbosity);
 
 	fprintf(stderr, "stdout: [%s]\n",
 		pkgconf_buffer_str_or_empty(&out->o_stdout));
@@ -699,6 +704,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 		.cli_state.want_env_prefix = pkgconf_buffer_str(&testcase->want_env_prefix),
 		.cli_state.want_variable = pkgconf_buffer_str(&testcase->want_variable),
 		.cli_state.want_fragment_filter = pkgconf_buffer_str(&testcase->fragment_filter),
+		.cli_state.verbosity = testcase->verbosity,
 		.testcase = testcase,
 	};
 
