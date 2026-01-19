@@ -3,8 +3,6 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	define_variable \
-	define_variable_override \
 	libs \
 	libs_only \
 	libs_never_mergeback \
@@ -25,20 +23,6 @@ tests_init \
 	define_prefix_child_prefix_1_env
 
 #	sysroot_munge \
-
-define_variable_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check -o inline:"\\\${libdir}/typelibdir\n" \
-		pkgconf --variable=typelibdir --define-variable='libdir=\${libdir}' typelibdir
-}
-
-define_variable_override_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check -o inline:"/test\n" \
-		pkgconf --variable=prefix --define-variable='prefix=/test' typelibdir
-}
 
 libs_body()
 {

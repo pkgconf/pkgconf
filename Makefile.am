@@ -167,6 +167,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/tuple/billion-laughs.test \
 		t/tuple/case-sensitivity-1.test \
 		t/tuple/case-sensitivity-2.test \
+		t/tuple/define-variable-override.test \
+		t/tuple/define-variable.test \
 		t/tuple/duplicate-upsert.test \
 		t/tuple/empty-tuple.test \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
