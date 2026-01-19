@@ -9,7 +9,6 @@ tests = [
   'requires',
   'spdxtool',
   'symlink',
-  'version',
 ]
 
 

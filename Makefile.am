@@ -72,6 +72,12 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/variable-env.test \
 		t/basic/variable-no-recursion.test \
 		t/basic/variable.test \
+		t/basic/version-atleast-1.test \
+		t/basic/version-atleast-2.test \
+		t/basic/version-exact-1.test \
+		t/basic/version-exact-2.test \
+		t/basic/version-max-1.test \
+		t/basic/version-max-2.test \
 		t/ordering/cflags-never-mergeback.test \
 		t/ordering/cflags-only.test \
 		t/ordering/flag-order-1.test \
@@ -326,8 +332,7 @@ test_scripts=	\
 		tests/regress.sh \
 		tests/requires.sh \
 		tests/spdxtool.sh \
-		tests/symlink.sh \
-		tests/version.sh
+		tests/symlink.sh
 
 test_sh = $(test_scripts)
 check_SCRIPTS = ${test_sh:.sh=}
