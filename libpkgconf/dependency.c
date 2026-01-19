@@ -211,6 +211,9 @@ pkgconf_dependency_free_one(pkgconf_dependency_t *dep)
 	if (dep->version != NULL)
 		free(dep->version);
 
+	if (dep->why != NULL)
+		free(dep->why);
+
 	free(dep);
 }
 

@@ -102,6 +102,8 @@ struct pkgconf_dependency_ {
 
 	int refcount;
 	pkgconf_client_t *owner;
+
+	char *why;
 };
 
 struct pkgconf_tuple_ {

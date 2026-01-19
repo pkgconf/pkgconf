@@ -277,6 +277,7 @@ pkgconf_queue_collect_conflicts(pkgconf_client_t *client,
 			pkgconf_dependency_t *conflict = cnode->data;
 			pkgconf_dependency_t *flattened_conflict = pkgconf_dependency_copy(client, conflict);
 
+			flattened_conflict->why = strdup(pkg->id);
 			pkgconf_node_insert(&flattened_conflict->iter, flattened_conflict, &world->conflicts);
 		}
 	}

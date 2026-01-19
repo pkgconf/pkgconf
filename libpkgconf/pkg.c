@@ -1647,7 +1647,7 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_client_t *client,
 			if (eflags == PKGCONF_PKG_ERRF_OK)
 			{
 				pkgconf_error(client, "Version '%s' of '%s' conflicts with '%s' due to satisfying conflict rule '%s %s%s%s'.\n",
-					pkgdep->version, pkgdep->realname, root->realname, parentnode->package, pkgconf_pkg_get_comparator(parentnode),
+					pkgdep->version, pkgdep->id, parentnode->why, parentnode->package, pkgconf_pkg_get_comparator(parentnode),
 					parentnode->version != NULL ? " " : "", parentnode->version != NULL ? parentnode->version : "");
 
 				if (!(client->flags & PKGCONF_PKG_PKGF_SIMPLIFY_ERRORS))
