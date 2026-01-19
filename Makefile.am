@@ -29,6 +29,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/builtin-pkgconf-exists.test \
 		t/basic/builtin-pkgconf-pc_path-variable.test \
 		t/basic/define-prefix.test \
+		t/basic/define-prefix-child-prefix-env.test \
+		t/basic/define-prefix-child-prefix.test \
 		t/basic/direct-query-with-pkg_config_path.test \
 		t/basic/env-tuple.test \
 		t/basic/exists-cflags-env.test \
