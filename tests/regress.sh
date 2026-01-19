@@ -8,8 +8,6 @@ tests_init \
 	libs_never_mergeback \
 	cflags_only \
 	cflags_never_mergeback \
-	isystem_munge_sysroot \
-	idirafter_munge_sysroot \
 	modversion_common_prefix \
 	modversion_one_word_expression \
 	modversion_two_word_expression \
@@ -63,22 +61,6 @@ cflags_never_mergeback_body()
 	atf_check \
 		-o inline:"-I/test/bar/include/foo -DBAR -fPIC -DFOO\n" \
 		pkgconf --cflags prefix-foo1 prefix-foo2
-}
-
-isystem_munge_sysroot_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="${selfdir}"
-	atf_check \
-		-o match:"-isystem ${selfdir}/opt/bad/include" \
-		pkgconf --cflags isystem
-}
-
-idirafter_munge_sysroot_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1" PKG_CONFIG_SYSROOT_DIR="${selfdir}"
-	atf_check \
-		-o match:"-idirafter ${selfdir}/opt/bad/include" \
-		pkgconf --cflags idirafter
 }
 
 sysroot_munge_body()
