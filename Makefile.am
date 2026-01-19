@@ -143,6 +143,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/provides-print-simple.test \
 		t/solver/provides-request-simple.test \
 		t/solver/provides-request-simple-no-provides.test \
+		t/solver/query-no-space-0.test \
+		t/solver/query-no-space-1.test \
 		t/solver/query-order-1.test \
 		t/solver/query-order-2.test \
 		t/solver/requires-internal-collision.test \
