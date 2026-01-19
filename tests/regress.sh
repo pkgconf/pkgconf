@@ -3,9 +3,6 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	libs \
-	libs_only \
-	libs_never_mergeback \
 	modversion_one_word_expression \
 	modversion_two_word_expression \
 	modversion_three_word_expression \
@@ -14,33 +11,6 @@ tests_init \
 	explicit_sysroot
 
 #	sysroot_munge \
-
-libs_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-L/test/local/lib -lfoo\n" \
-		pkgconf --libs cflags-libs-only
-}
-
-libs_only_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-L/test/local/lib -lfoo\n" \
-		pkgconf --libs-only-L --libs-only-l cflags-libs-only
-}
-
-libs_never_mergeback_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-L/test/bar/lib -lfoo1\n" \
-		pkgconf --libs prefix-foo1
-	atf_check \
-		-o inline:"-L/test/bar/lib -lfoo1 -lfoo2\n" \
-		pkgconf --libs prefix-foo1 prefix-foo2
-}
 
 sysroot_munge_body()
 {

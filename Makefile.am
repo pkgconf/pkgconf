@@ -54,6 +54,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/libs-cflags-version-not.test \
 		t/basic/libs-cflags-version-not-provided.test \
 		t/basic/libs-env.test \
+		t/basic/libs-only.test \
 		t/basic/malformed-empty-package.test \
 		t/basic/modversion-fullpath.test \
 		t/basic/modversion-noflatten.test \
@@ -84,6 +85,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/ordering/idirafter-munge-ordering.test \
 		t/ordering/idirafter-ordering.test \
 		t/ordering/isystem-munge-ordering.test \
+		t/ordering/libs-never-mergeback.test \
 		t/parser/argv-parse-1.test \
 		t/parser/argv-parse-2.test \
 		t/parser/argv-parse-3.test \
