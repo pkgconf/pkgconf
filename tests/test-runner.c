@@ -62,6 +62,8 @@ typedef struct test_case_ {
 	pkgconf_buffer_t fragment_filter;
 
 	pkgconf_buffer_t skip_platforms;
+
+	pkgconf_list_t define_variables;
 } pkgconf_test_case_t;
 
 typedef struct test_state_ {
@@ -452,6 +454,7 @@ test_keyword_set_environment(pkgconf_test_case_t *testcase, const char *keyword,
 }
 
 static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
+	{"DefineVariable", test_keyword_extend_bufferset, offsetof(pkgconf_test_case_t, define_variables)},
 	{"Environment", test_keyword_set_environment, offsetof(pkgconf_test_case_t, env_vars)},
 	{"ExpectedExitCode", test_keyword_set_int, offsetof(pkgconf_test_case_t, exitcode)},
 	{"ExpectedStderr", test_keyword_extend_bufferset, offsetof(pkgconf_test_case_t, expected_stderr)},
@@ -658,6 +661,13 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 			testcase->match_stderr == MATCH_PARTIAL ? "partial" : "exact");
 	}
 
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->define_variables.head, n)
+	{
+		pkgconf_test_bufferset_t *set = n->data;
+
+		fprintf(stderr,	"define-variable: [%s]\n", pkgconf_buffer_str_or_empty(&set->buffer));
+	}
+
 	fprintf(stderr,
 		"want-env-prefix: [%s]\n"
 		"fragment-filter: [%s]\n"
@@ -697,6 +707,15 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	pkgconf_client_init(&state.cli_state.pkg_client, error_handler, NULL, personality, &state, environ_lookup_handler);
 	pkgconf_client_set_output(&state.cli_state.pkg_client, &out->output);
 
+	pkgconf_node_t *n;
+
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->define_variables.head, n)
+	{
+		pkgconf_test_bufferset_t *set = n->data;
+
+		pkgconf_tuple_define_global(&state.cli_state.pkg_client, pkgconf_buffer_str_or_empty(&set->buffer));
+	}
+
 	pkgconf_buffer_t arg_buf = PKGCONF_BUFFER_INITIALIZER;
 	int test_argc = 0;
 	char **test_argv = NULL;
@@ -718,8 +737,6 @@ run_test_case(const pkgconf_test_case_t *testcase)
 
 	if (pkgconf_buffer_len(&out->o_stderr))
 		pkgconf_buffer_trim_byte(&out->o_stderr);
-
-	pkgconf_node_t *n;
 
 	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stdout.head, n)
 	{
