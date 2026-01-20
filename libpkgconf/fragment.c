@@ -494,55 +494,27 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	}
 }
 
-static inline char *
-fragment_quote(const pkgconf_fragment_t *frag)
+static void
+fragment_quote(pkgconf_buffer_t *out, const pkgconf_fragment_t *frag)
 {
-	const char *src = frag->data;
-	ssize_t outlen = strlen(src) + 10;
-	char *out, *dst;
-
 	if (frag->data == NULL)
-		return NULL;
+		return;
 
-	out = dst = calloc(1, outlen);
-	if (out == NULL)
-		return NULL;
+	const pkgconf_buffer_t *src = PKGCONF_BUFFER_FROM_STR(frag->data);
+	pkgconf_span_t quote_spans[] = {
+		{ 0x00, 0x1f },
+		{ (unsigned char)(frag->children.head != NULL ? '!' : ' '), (unsigned char)'#' },
+		{ (unsigned char)'%', (unsigned char)'\'' },
+		{ (unsigned char)'*', (unsigned char)'*' },
+		{ (unsigned char)';', (unsigned char)'<' },
+		{ (unsigned char)'>', (unsigned char)'?' },
+		{ (unsigned char)'[', (unsigned char)']' },
+		{ (unsigned char)'`', (unsigned char)'`' },
+		{ (unsigned char)'{', (unsigned char)'}' },
+		{ 0x7f, 0xff },
+	};
 
-	for (; *src; src++)
-	{
-		if (((*src < ' ') ||
-		    (*src >= (' ' + (frag->children.head != NULL ? 1 : 0)) && *src < '$') ||
-		    (*src > '$' && *src < '(') ||
-		    (*src > ')' && *src < '+') ||
-		    (*src > ':' && *src < '=') ||
-		    (*src > '=' && *src < '@') ||
-		    (*src > 'Z' && *src < '^') ||
-		    (*src == '`') ||
-		    (*src > 'z' && *src < '~') ||
-		    (*src > '~')))
-			*dst++ = '\\';
-
-		*dst++ = *src;
-
-		if ((ptrdiff_t)(dst - out) + 2 > outlen)
-		{
-			ptrdiff_t offset = dst - out;
-			outlen *= 2;
-
-			char *newout = realloc(out, outlen);
-			if (newout == NULL)
-			{
-				free(out);
-				return NULL;
-			}
-
-			out = newout;
-			dst = out + offset;
-		}
-	}
-
-	*dst = 0;
-	return out;
+	pkgconf_buffer_escape(out, src, quote_spans, PKGCONF_ARRAY_SIZE(quote_spans));
 }
 
 static inline size_t
@@ -557,9 +529,10 @@ pkgconf_fragment_len(const pkgconf_fragment_t *frag)
 	{
 		pkgconf_node_t *iter;
 
-		char *quoted = fragment_quote(frag);
-		len += strlen(quoted);
-		free(quoted);
+		pkgconf_buffer_t quoted = PKGCONF_BUFFER_INITIALIZER;
+		fragment_quote(&quoted, frag);
+		len += pkgconf_buffer_len(&quoted);
+		pkgconf_buffer_finalize(&quoted);
 
 		PKGCONF_FOREACH_LIST_ENTRY(frag->children.head, iter)
 		{
@@ -592,19 +565,15 @@ static inline size_t
 fragment_render_item(const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf, char delim)
 {
 	const pkgconf_node_t *iter;
+	pkgconf_buffer_t quoted = PKGCONF_BUFFER_INITIALIZER;
 
-	char *quoted = fragment_quote(frag);
-	if (quoted == NULL)
-		return 0;
+	fragment_quote(&quoted, frag);
 
 	if (frag->type)
 		pkgconf_buffer_append_fmt(buf, "-%c", frag->type);
 
-	if (quoted != NULL)
-	{
-		pkgconf_buffer_append(buf, quoted);
-		free(quoted);
-	}
+	pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(&quoted));
+	pkgconf_buffer_finalize(&quoted);
 
 	PKGCONF_FOREACH_LIST_ENTRY(frag->children.head, iter)
 	{
