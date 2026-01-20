@@ -1,5 +1,5 @@
 # pkg.m4 - Macros to locate and use pkg-config.   -*- Autoconf -*-
-# serial 15 (pkgconf)
+# serial 16 (pkgconf)
 
 dnl Copyright © 2004 Scott James Remnant <scott@netsplit.com>.
 dnl Copyright © 2012-2015 Dan Nicholson <dbn.lists@gmail.com>
@@ -300,7 +300,7 @@ AC_ARG_WITH(with_arg,
     [AS_TR_SH([with_]with_arg)=def_arg])
 
 AS_CASE([$AS_TR_SH([with_]with_arg)],
-            [yes],[PKG_CHECK_MODULES([$1],[$2],$3,$4)],
+            [yes],[PKG_CHECK_MODULES([$1],[$2],[$3],[$4])],
             [auto],[PKG_CHECK_MODULES([$1],[$2],
                                         [m4_n([def_action_if_found]) $3],
                                         [m4_n([def_action_if_not_found]) $4])])
