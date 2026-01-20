@@ -501,7 +501,7 @@ fragment_quote(pkgconf_buffer_t *out, const pkgconf_fragment_t *frag)
 		return;
 
 	const pkgconf_buffer_t *src = PKGCONF_BUFFER_FROM_STR(frag->data);
-	pkgconf_span_t quote_spans[] = {
+	const pkgconf_span_t quote_spans[] = {
 		{ 0x00, 0x1f },
 		{ (unsigned char)' ', (unsigned char)'#' },
 		{ (unsigned char)'%', (unsigned char)'\'' },
