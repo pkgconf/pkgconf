@@ -516,11 +516,7 @@ fragment_quote(const pkgconf_fragment_t *frag)
 		    (*src > ')' && *src < '+') ||
 		    (*src > ':' && *src < '=') ||
 		    (*src > '=' && *src < '@') ||
-		    (*src > 'Z' && *src < '\\') ||
-#ifndef _WIN32
-		    (*src == '\\') ||
-#endif
-		    (*src > '\\' && *src < '^') ||
+		    (*src > 'Z' && *src < '^') ||
 		    (*src == '`') ||
 		    (*src > 'z' && *src < '~') ||
 		    (*src > '~')))
