@@ -227,3 +227,20 @@ pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const 
 			pkgconf_buffer_push_byte(dest, *iter++);
 	}
 }
+
+void
+pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans)
+{
+	const char *p = pkgconf_buffer_str(src);
+
+	if (!pkgconf_buffer_len(src))
+		return;
+
+	for (; *p; p++)
+	{
+		if (pkgconf_span_contains((unsigned char) *p, spans, nspans))
+			pkgconf_buffer_push_byte(dest, '\\');
+
+		pkgconf_buffer_push_byte(dest, *p);
+	}
+}

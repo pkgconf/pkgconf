@@ -49,6 +49,7 @@ typedef struct pkgconf_pkg_ pkgconf_pkg_t;
 typedef struct pkgconf_dependency_ pkgconf_dependency_t;
 typedef struct pkgconf_tuple_ pkgconf_tuple_t;
 typedef struct pkgconf_buffer_ pkgconf_buffer_t;
+typedef struct pkgconf_span_ pkgconf_span_t;
 typedef struct pkgconf_fragment_ pkgconf_fragment_t;
 typedef struct pkgconf_path_ pkgconf_path_t;
 typedef struct pkgconf_client_ pkgconf_client_t;
@@ -453,6 +454,19 @@ PKGCONF_API void pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_
 PKGCONF_API void pkgconf_path_prepend_list(pkgconf_list_t *dst, const pkgconf_list_t *src);
 
 /* buffer.c */
+struct pkgconf_span_ {
+	unsigned char lo;
+	unsigned char hi;	/* inclusive */
+};
+
+static inline bool pkgconf_span_contains(unsigned char c, const pkgconf_span_t *spans, size_t nspans) {
+	for (size_t i = 0; i < nspans; i++)
+		if (c >= spans[i].lo && c <= spans[i].hi)
+			return true;
+
+	return false;
+}
+
 PKGCONF_API void pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text);
 PKGCONF_API void pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...) PRINTFLIKE(2, 3);
 PKGCONF_API void pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list va);
@@ -466,6 +480,7 @@ PKGCONF_API bool pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const
 PKGCONF_API bool pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, char needle);
 PKGCONF_API bool pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
 PKGCONF_API void pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value);
+PKGCONF_API void pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans);
 static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer) {
 	return buffer->base;
 }
