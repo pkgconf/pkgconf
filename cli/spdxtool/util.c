@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <ctype.h>
+#include "util.h"
 
 /*
  * !doc
