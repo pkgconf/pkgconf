@@ -364,7 +364,8 @@ dist_man_MANS    = 		\
 	man/pkgconf.1		\
 	man/pkg.m4.7		\
 	man/pc.5		\
-	man/pkgconf-personality.5
+	man/pkgconf-personality.5	\
+	man/spdxtool.1
 
 pkgconf_LDADD    = libpkgconf.la
 pkgconf_SOURCES  = \
