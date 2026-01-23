@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-#define PKGCONF_BUFSIZE	(65535)
+#define PKGCONF_BUFSIZE (65535)
 
 typedef enum {
 	PKGCONF_CMP_NOT_EQUAL,

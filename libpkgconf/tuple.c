@@ -156,12 +156,13 @@ pkgconf_tuple_find_delete(pkgconf_list_t *list, const char *key)
 static char *
 dequote(const char *value)
 {
-	char *buf = calloc(1, (strlen(value) + 1) * 2);
-	char *bptr = buf;
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 	const char *i;
 	char quote = 0;
 
-	if (*value == '\'' || *value == '"')
+	if (value == NULL || *value == '\0')
+		return strdup("");
+	else if (*value == '\'' || *value == '"')
 		quote = *value;
 
 	for (i = value; *i != '\0'; i++)
@@ -169,13 +170,13 @@ dequote(const char *value)
 		if (*i == '\\' && quote && *(i + 1) == quote)
 		{
 			i++;
-			*bptr++ = *i;
+			pkgconf_buffer_push_byte(&buf, *i);
 		}
 		else if (*i != quote)
-			*bptr++ = *i;
+			pkgconf_buffer_push_byte(&buf, *i);
 	}
 
-	return buf;
+	return pkgconf_buffer_freeze(&buf);
 }
 
 static const char *
@@ -294,6 +295,94 @@ pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const c
 	return NULL;
 }
 
+/* Internal helper to parse tuple values using a caller-managed buffer. */
+static void pkgconf_tuple_parse_into(const pkgconf_client_t* client, pkgconf_list_t* vars, const char* value, unsigned int flags, pkgconf_buffer_t* out)
+{
+	const char* ptr;
+	const char* sysroot_dir;
+
+	if (value == NULL || out == NULL)
+		return;
+
+	if (pkgconf_buffer_len(out) > PKGCONF_BUFSIZE - 1)
+	{
+		pkgconf_warn(client, "warning: truncating very long variable to 64KB\n");
+		return;
+	}
+
+	sysroot_dir = find_sysroot(client, vars);
+
+	/*
+	 * legacy sysroot prefix behaviour
+	 */
+	if (!(client->flags & PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES) &&
+	    (!(flags & PKGCONF_PKG_PROPF_UNINSTALLED) ||
+	     (client->flags & PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES)))
+	{
+		if (*value == '/' && sysroot_dir && *sysroot_dir &&
+		    strncmp(value, sysroot_dir, strlen(sysroot_dir)))
+			pkgconf_buffer_append(out, sysroot_dir);
+	}
+
+	for (ptr = value; *ptr != '\0'; ptr++)
+	{
+		char varname[PKGCONF_ITEM_SIZE];
+		char* vptr = varname;
+		char* vend = varname + sizeof varname - 1;
+		const char* pptr;
+		const char* kv;
+
+		if (*ptr != '$' || *(ptr + 1) != '{')
+		{
+			pkgconf_buffer_push_byte(out, *ptr);
+			continue;
+		}
+
+		/* ${var} expansion */
+		*vptr = '\0';
+
+		for (pptr = ptr + 2; *pptr && *pptr != '}'; pptr++)
+		{
+			if (vptr < vend)
+				*vptr++ = *pptr;
+		}
+		*vptr = '\0';
+
+		if (*pptr == '}')
+			ptr = pptr;
+
+		PKGCONF_TRACE(client, "lookup tuple %s", varname);
+
+		kv = pkgconf_tuple_find_global(client, varname);
+		if (kv == NULL)
+			kv = pkgconf_tuple_find(client, vars, varname);
+
+
+		if (kv != NULL)
+		{
+			if (kv == value)
+			{
+				/* preserve literal self-reference */
+				pkgconf_buffer_append_fmt(out, "${%s}", varname);
+				continue;
+			}
+
+			size_t before = pkgconf_buffer_len(out);
+
+			pkgconf_tuple_parse_into(client, vars, kv, flags, out);
+
+			if (pkgconf_buffer_len(out) >= PKGCONF_BUFSIZE - 1)
+			{
+				pkgconf_warn(client, "warning: truncating very long variable to 64KB\n");
+				return;
+			}
+
+			if (pkgconf_buffer_len(out) == before)
+				return;
+		}
+	}
+}
+
 /*
  * !doc
  *
@@ -308,128 +397,34 @@ pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const c
  *    :return: the variable data with any variables substituted
  *    :rtype: char *
  */
-char *
-pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *vars, const char *value, unsigned int flags)
+char* pkgconf_tuple_parse(const pkgconf_client_t* client, pkgconf_list_t* vars, const char* value, unsigned int flags)
 {
-	char buf[PKGCONF_BUFSIZE];
-	const char *ptr;
-	char *bptr = buf;
-	const char *sysroot_dir = find_sysroot(client, vars);
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+	char* ret;
 
-	if (!(client->flags & PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES) &&
-		(!(flags & PKGCONF_PKG_PROPF_UNINSTALLED) || (client->flags & PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES)))
+	pkgconf_tuple_parse_into(client, vars, value, flags, &buf);
+
+	if (pkgconf_buffer_len(&buf) == 0)
+		ret = strdup("");
+	else
+		ret = strdup(pkgconf_buffer_str(&buf));
+
+	if (should_rewrite_sysroot(client, vars, ret, flags))
 	{
-		if (*value == '/' && sysroot_dir != NULL && *sysroot_dir && strncmp(value, sysroot_dir, strlen(sysroot_dir)))
-			bptr += pkgconf_strlcpy(buf, sysroot_dir, sizeof buf);
-	}
-
-	for (ptr = value; *ptr != '\0' && bptr - buf < PKGCONF_BUFSIZE; ptr++)
-	{
-		if (*ptr != '$' || (*ptr == '$' && *(ptr + 1) != '{'))
-			*bptr++ = *ptr;
-		else if (*(ptr + 1) == '{')
-		{
-			char varname[PKGCONF_ITEM_SIZE];
-			char *vend = varname + PKGCONF_ITEM_SIZE - 1;
-			char *vptr = varname;
-			const char *pptr;
-			char *kv, *parsekv;
-
-			*vptr = '\0';
-
-			for (pptr = ptr + 2; *pptr != '\0'; pptr++)
-			{
-				if (*pptr != '}')
-				{
-					if (vptr < vend)
-						*vptr++ = *pptr;
-					else
-					{
-						*vptr = '\0';
-						break;
-					}
-				}
-				else
-				{
-					*vptr = '\0';
-					break;
-				}
-			}
-
-			PKGCONF_TRACE(client, "lookup tuple %s", varname);
-
-			size_t remain = PKGCONF_BUFSIZE - (bptr - buf);
-			ptr += (pptr - ptr);
-			kv = pkgconf_tuple_find_global(client, varname);
-			if (kv != NULL)
-			{
-				size_t nlen = pkgconf_strlcpy(bptr, kv, remain);
-				if (nlen > remain)
-				{
-					pkgconf_warn(client, "warning: truncating very long variable to 64KB\n");
-
-					bptr = buf + (PKGCONF_BUFSIZE - 1);
-					break;
-				}
-
-				bptr += nlen;
-			}
-			else
-			{
-				kv = pkgconf_tuple_find(client, vars, varname);
-
-				if (kv != NULL)
-				{
-					size_t nlen;
-
-					parsekv = pkgconf_tuple_parse(client, vars, kv, flags);
-					nlen = pkgconf_strlcpy(bptr, parsekv, remain);
-					free(parsekv);
-
-					if (nlen > remain)
-					{
-						pkgconf_warn(client, "warning: truncating very long variable to 64KB\n");
-
-						bptr = buf + (PKGCONF_BUFSIZE - 1);
-						break;
-					}
-
-					bptr += nlen;
-				}
-			}
-		}
-	}
-
-	*bptr = '\0';
-
-	/*
-	 * Sigh.  Somebody actually attempted to use freedesktop.org pkg-config's broken sysroot support,
-	 * which was written by somebody who did not understand how sysroots are supposed to work.  This
-	 * results in an incorrect path being built as the sysroot will be prepended twice, once explicitly,
-	 * and once by variable expansion (the pkgconf approach).  We could simply make ${pc_sysrootdir} blank,
-	 * but sometimes it is necessary to know the explicit sysroot path for other reasons, so we can't really
-	 * do that.
-	 *
-	 * As a result, we check to see if ${pc_sysrootdir} is prepended as a duplicate, and if so, remove the
-	 * prepend.  This allows us to handle both our approach and the broken freedesktop.org implementation's
-	 * approach.  Because a path can be shorter than ${pc_sysrootdir}, we do some checks first to ensure it's
-	 * safe to skip ahead in the string to scan for our sysroot dir.
-	 *
-	 * Finally, we call pkgconf_path_relocate() to clean the path of spurious elements.
-	 *
-	 * New in 1.9: Only attempt to rewrite the sysroot if we are not processing an uninstalled package.
-	 */
-	if (should_rewrite_sysroot(client, vars, buf, flags))
-	{
+		const char *sysroot_dir = find_sysroot(client, vars);
 		char cleanpath[PKGCONF_ITEM_SIZE];
 
-		pkgconf_strlcpy(cleanpath, buf + strlen(sysroot_dir), sizeof cleanpath);
+		pkgconf_strlcpy(cleanpath,
+		                ret + strlen(sysroot_dir),
+		                sizeof cleanpath);
 		pkgconf_path_relocate(cleanpath, sizeof cleanpath);
 
-		return strdup(cleanpath);
+		free(ret);
+		ret = strdup(cleanpath);
 	}
 
-	return strdup(buf);
+	pkgconf_buffer_finalize(&buf);
+	return ret;
 }
 
 /*
