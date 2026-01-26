@@ -469,7 +469,7 @@ static inline bool pkgconf_span_contains(unsigned char c, const pkgconf_span_t *
 
 PKGCONF_API void pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text);
 PKGCONF_API void pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...) PRINTFLIKE(2, 3);
-PKGCONF_API void pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list va);
+PKGCONF_API void pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list va) PRINTFLIKE(2, 0);
 PKGCONF_API void pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte);
 PKGCONF_API void pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer);
 PKGCONF_API void pkgconf_buffer_finalize(pkgconf_buffer_t *buffer);
@@ -547,8 +547,8 @@ struct pkgconf_output_ {
 
 PKGCONF_API bool pkgconf_output_putbuf(pkgconf_output_t *output, pkgconf_output_stream_t stream, const pkgconf_buffer_t *buffer, bool newline);
 PKGCONF_API bool pkgconf_output_puts(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *str);
-PKGCONF_API bool pkgconf_output_fmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *fmt, ...);
-PKGCONF_API bool pkgconf_output_vfmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *fmt, va_list va);
+PKGCONF_API bool pkgconf_output_fmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *fmt, ...) PRINTFLIKE(3,4);
+PKGCONF_API bool pkgconf_output_vfmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *fmt, va_list va_src) PRINTFLIKE(3,0);
 PKGCONF_API pkgconf_output_t *pkgconf_output_default(void);
 
 #ifdef __cplusplus
