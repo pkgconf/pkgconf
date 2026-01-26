@@ -22,7 +22,7 @@ typedef struct spdxtool_core_agent_
 {
 	int refcount;
 	char *spdx_id;
-	char *type;
+	const char *type;
 	char *creation_info;
 	char *name;
 } spdxtool_core_agent_t;
@@ -31,17 +31,17 @@ typedef struct spdxtool_core_creation_info_
 {
 	int refcount;
 	char *id;
-	char *type;
+	const char *type;
 	char *created;
 	char *created_by;
-	char *created_using;
+	const char *created_using;
 	const char *spec_version;
 } spdxtool_core_creation_info_t;
 
 typedef struct spdxtool_core_spdx_document
 {
 	int refcount;
-	char *type;
+	const char *type;
 	char *spdx_id;
 	char *creation_info;
 	char *agent;
@@ -54,7 +54,7 @@ typedef struct spdxtool_software_sbom_
 {
 	int refcount;
 	char *spdx_id;
-	char *type;
+	const char *type;
 	char *creation_info;
 	char *sbom_type;
 	spdxtool_core_spdx_document_t *spdx_document;
@@ -64,7 +64,7 @@ typedef struct spdxtool_software_sbom_
 typedef struct spdxtool_simplelicensing_license_expression_
 {
 	int refcount;
-	char *type;
+	const char *type;
 	char *spdx_id;
 	char *license_expression;
 } spdxtool_simplelicensing_license_expression_t;
@@ -72,7 +72,7 @@ typedef struct spdxtool_simplelicensing_license_expression_
 typedef struct spdxtool_core_relationship_
 {
 	int refcount;
-	char *type;
+	const char *type;
 	char *spdx_id;
 	char *creation_info;
 	char *from;
@@ -102,10 +102,10 @@ const char *
 spdxtool_util_get_spdx_license(pkgconf_client_t *client);
 
 char *
-spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, char *part);
+spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, const char *part);
 
 char *
-spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, char *part, char *string_id);
+spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, char *string_id);
 
 char *
 spdxtool_util_get_iso8601_time(time_t *wanted_time);

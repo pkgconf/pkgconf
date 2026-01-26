@@ -167,7 +167,7 @@ spdxtool_core_creation_info_new(pkgconf_client_t *client, char *agent_id, char *
 		creation_struct->created = time;
 	}
 	creation_struct->created_by = agent_id;
-	creation_struct->created_using="pkgconf spdxtool";
+	creation_struct->created_using = "pkgconf spdxtool";
 	creation_struct->spec_version = spdxtool_util_get_spdx_version(client);
 	return creation_struct;
 }
@@ -237,7 +237,7 @@ spdxtool_core_creation_info_serialize(pkgconf_client_t *client, pkgconf_buffer_t
 	spdxtool_serialize_parm_and_char(buffer, "createdBy", '[', 3, false);
 	spdxtool_serialize_string(buffer, creation_struct->created_by, 4, false);
 	spdxtool_serialize_array_end(buffer, 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "specVersion", (char *)creation_struct->spec_version, 3, false);
+	spdxtool_serialize_parm_and_string(buffer, "specVersion", creation_struct->spec_version, 3, false);
 	spdxtool_serialize_obj_end(buffer, 2, last);
 }
 

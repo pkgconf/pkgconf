@@ -20,13 +20,13 @@ extern "C" {
 #endif
 
 void
-spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *string, unsigned int level, bool comma);
+spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, const char *parm, const char *string, unsigned int level, bool comma);
 
 void
-spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, unsigned int level, bool comma);
+spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, const char *parm, char ch, unsigned int level, bool comma);
 
 void
-spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, char *parm, int integer, unsigned int level, bool comma);
+spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, const char *parm, int integer, unsigned int level, bool comma);
 
 void
 spdxtool_serialize_string(pkgconf_buffer_t *buffer, char *string, unsigned int level, bool comma);

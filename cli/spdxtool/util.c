@@ -151,7 +151,7 @@ static size_t last_id = 0;
  *    :return: URI
  */
 char *
-spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, char *part)
+spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, const char *part)
 {
 	const 	char *global_xsd_any_uri = spdxtool_util_get_uri_root(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
@@ -176,7 +176,7 @@ spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, char *part)
  *    :return: URI
  */
 char *
-spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, char *part, char *string_id)
+spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, char *string_id)
 {
 	const 	char *global_xsd_any_uri = spdxtool_util_get_uri_root(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
