@@ -61,7 +61,7 @@ serialize_end_object(pkgconf_buffer_t *buffer, char ch, unsigned int level, bool
  *    :return: nothing
  */
 void
-spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *string, unsigned int level, bool more)
+spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, const char *parm, const char *string, unsigned int level, bool more)
 {
 	serialize_add_indent(buffer, level);
 	pkgconf_buffer_append_fmt(buffer, "\"%s\": \"%s\"", parm, string);
@@ -83,7 +83,7 @@ spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, char *parm, char *s
  *    :return: nothing
  */
 void
-spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, unsigned int level, bool more)
+spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, const char *parm, char ch, unsigned int level, bool more)
 {
 	serialize_add_indent(buffer, level);
 	pkgconf_buffer_append_fmt(buffer, "\"%s\": %c", parm, ch);
@@ -105,7 +105,7 @@ spdxtool_serialize_parm_and_char(pkgconf_buffer_t *buffer, char *parm, char ch, 
  *    :return: nothing
  */
 void
-spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, char *parm, int integer, unsigned int level, bool more)
+spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, const char *parm, int integer, unsigned int level, bool more)
 {
 	serialize_add_indent(buffer, level);
 	pkgconf_buffer_append_fmt(buffer, "\"%s\": %d", parm, integer);

@@ -133,8 +133,8 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, char *creation_tim
 	int eflag;
 	pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
 
-	char *agent_name_string = "Default";
-	char *creation_id_string = "_:creationinfo_1";
+	const char *agent_name_string = "Default";
+	const char *creation_id_string = "_:creationinfo_1";
 	char *creation_time_string = NULL;
 
 
@@ -232,10 +232,12 @@ main(int argc, char *argv[])
 	char *creation_time = NULL;
 	char *creation_id = NULL;
 	char *agent_name = NULL;
+	char world_id[] = "virtual:world";
+	char world_realname[] = "virtual world package";
 	pkgconf_pkg_t world =
 	{
-		.id = "virtual:world",
-		.realname = "virtual world package",
+		.id = world_id,
+		.realname = world_realname,
 		.flags = PKGCONF_PKG_PROPF_STATIC | PKGCONF_PKG_PROPF_VIRTUAL,
 	};
 
