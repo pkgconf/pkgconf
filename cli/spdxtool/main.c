@@ -87,11 +87,11 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
 
-	spdxtool_software_sbom_t *sbom = spdxtool_software_sbom_new(client, spdxtool_util_get_spdx_id_string(client, "software_Sbom", pkg->realname), strdup(document->creation_info), strdup("build"));
+	spdxtool_software_sbom_t *sbom = spdxtool_software_sbom_new(client, spdxtool_util_get_spdx_id_string(client, "software_Sbom", pkg->id), strdup(document->creation_info), strdup("build"));
 	sbom->spdx_document = document;
 	sbom->rootElement = pkg;
 
-	package_spdx = spdxtool_util_get_spdx_id_string(client, "Package", pkg->realname);
+	package_spdx = spdxtool_util_get_spdx_id_string(client, "Package", pkg->id);
 
 	pkgconf_tuple_add(client, &pkg->vars, "spdxId", package_spdx, false, 0);
 	free(package_spdx);
@@ -102,13 +102,13 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 
 	if (pkg->license != NULL)
 	{
-		snprintf(spdx_id_name, 1024, "%s/hasDeclaredLicense", pkg->realname);
+		snprintf(spdx_id_name, 1024, "%s/hasDeclaredLicense", pkg->id);
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
 		pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0);
 		free(package_spdx);
 		package_spdx = NULL;
 
-		snprintf(spdx_id_name, 1024, "%s/hasConcludedLicense", pkg->realname);
+		snprintf(spdx_id_name, 1024, "%s/hasConcludedLicense", pkg->id);
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
 		pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0);
 		free(package_spdx);
