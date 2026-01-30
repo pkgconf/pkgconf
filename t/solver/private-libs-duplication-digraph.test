@@ -1,5 +1,5 @@
 PackageSearchPath: lib1
-WantedFlags: static libs-only-libname digraph
+WantedFlags: static libs-only-libname digraph print-digraph-query-nodes
 Query: private-libs-duplication
 ExpectedStdout: "user:request" -> "private-libs-duplication"
 ExpectedStdout: "private-libs-duplication" -> "bar"
