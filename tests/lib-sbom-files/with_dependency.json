@@ -39,7 +39,7 @@
                 "https://github.com/pkgconf/pkgconf/Package/test2"
             ],
             "element": [
-                "https://github.com/pkgconf/pkgconf/Releationship/test2/dependsOn/test3",
+                "https://github.com/pkgconf/pkgconf/Relationship/test2/dependsOn/test3",
                 "https://github.com/pkgconf/pkgconf/Relationship/test2/hasDeclaredLicense",
                 "https://github.com/pkgconf/pkgconf/Relationship/test2/hasConcludedLicense"
             ]
@@ -78,7 +78,7 @@
         {
             "@type": "Relationship",
             "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/Releationship/test2/dependsOn/test3",
+            "spdxId": "https://github.com/pkgconf/pkgconf/Relationship/test2/dependsOn/test3",
             "from": "https://github.com/pkgconf/pkgconf/Package/test2",
             "to": [
                 "https://github.com/pkgconf/pkgconf/Package/test3"
@@ -143,7 +143,7 @@
                 "https://github.com/pkgconf/pkgconf/Agent/default",
                 "https://github.com/pkgconf/pkgconf/simplelicensing_LicenseExpression/BSD-2-Clause",
                 "https://github.com/pkgconf/pkgconf/simplelicensing_LicenseExpression/BSD-4-Clause",
-                "https://github.com/pkgconf/pkgconf/Releationship/test2/dependsOn/test3",
+                "https://github.com/pkgconf/pkgconf/Relationship/test2/dependsOn/test3",
                 "https://github.com/pkgconf/pkgconf/Relationship/test2/hasDeclaredLicense",
                 "https://github.com/pkgconf/pkgconf/Relationship/test2/hasConcludedLicense",
                 "https://github.com/pkgconf/pkgconf/Relationship/test3/hasDeclaredLicense",
