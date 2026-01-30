@@ -125,7 +125,7 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 
 	fprintf(sbom_out, "##### Package: %s\n\n", sbom_identity(pkg));
 
-	fprintf(sbom_out, "PackageName: %s\n", sbom_identity(pkg));
+	fprintf(sbom_out, "PackageName: %s\n", pkg->id);
 	fprintf(sbom_out, "SPDXID: SPDXRef-Package-%s\n", sbom_spdx_identity(pkg));
 	fprintf(sbom_out, "PackageVersion: %s\n", pkg->version);
 	fprintf(sbom_out, "PackageDownloadLocation: NOASSERTION\n");
