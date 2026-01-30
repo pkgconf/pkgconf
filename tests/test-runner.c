@@ -340,6 +340,7 @@ static const pkgconf_test_flag_pair_t test_flag_pairs[] = {
 	{"no-provides",		PKG_NO_PROVIDES},
 	{"no-uninstalled",	PKG_NO_UNINSTALLED},
 	{"path",		PKG_PATH},
+	{"print-digraph-query-nodes", PKG_PRINT_DIGRAPH_QUERY_NODES},
 	{"print-errors",	PKG_PRINT_ERRORS},
 	{"print-provides",		PKG_PROVIDES},
 	{"print-requires",		PKG_REQUIRES},
