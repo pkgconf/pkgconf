@@ -220,6 +220,7 @@ static bool
 apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
 {
 	int eflag;
+	pkgconf_cli_state_t *state = client->client_data;
 	pkgconf_list_t *list = data;
 	pkgconf_pkg_t *last_seen = NULL;
 	pkgconf_node_t *iter;
@@ -227,20 +228,25 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int ma
 	pkgconf_output_puts(client->output, PKGCONF_OUTPUT_STDOUT,
 		"digraph deptree {\n"
 		"edge [color=blue len=7.5 fontname=Sans fontsize=8]\n"
-		"node [fontname=Sans fontsize=8]\n"
-		"\"user:request\" [fontname=Sans fontsize=8]");
+		"node [fontname=Sans fontsize=8]\n");
 
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
+	if (state->want_flags & PKG_PRINT_DIGRAPH_QUERY_NODES)
 	{
-		pkgconf_queue_t *pkgq = iter->data;
-		pkgconf_pkg_t *pkg = pkgconf_pkg_find(client, pkgq->package);
+		pkgconf_output_puts(client->output, PKGCONF_OUTPUT_STDOUT,
+			"\"user:request\" [fontname=Sans fontsize=8]\n");
 
-		pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT,
-			"\"user:request\" -> \"%s\" [fontname=Sans fontsize=8]\n",
-			pkg == NULL ? pkgq->package : pkg->id);
+		PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
+		{
+			pkgconf_queue_t *pkgq = iter->data;
+			pkgconf_pkg_t *pkg = pkgconf_pkg_find(client, pkgq->package);
 
-		if (pkg != NULL)
-			pkgconf_pkg_unref(client, pkg);
+			pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT,
+				"\"user:request\" -> \"%s\" [fontname=Sans fontsize=8]\n",
+				pkg == NULL ? pkgq->package : pkg->id);
+
+			if (pkg != NULL)
+				pkgconf_pkg_unref(client, pkg);
+		}
 	}
 
 	eflag = pkgconf_pkg_traverse(client, world, print_digraph_node, &last_seen, maxdepth, 0);

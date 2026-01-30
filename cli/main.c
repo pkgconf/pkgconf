@@ -178,6 +178,7 @@ usage(void)
 	printf("  --print-variables                 print all known variables in module to stdout\n");
 #ifndef PKGCONF_LITE
 	printf("  --digraph                         print entire dependency graph in graphviz 'dot' format\n");
+	printf("  --print-digraph-query-nodes       also print query nodes in 'dot' format\n");
 	printf("  --solution                        print dependency graph solution in a simple format\n");
 #endif
 	printf("  --keep-system-cflags              keep -I%s entries in cflags output\n", SYSTEM_INCLUDEDIR);
@@ -304,6 +305,9 @@ main(int argc, char *argv[])
 		{ "fragment-tree", no_argument, &state.want_flags, PKG_FRAGMENT_TREE },
 		{ "source", no_argument, &state.want_flags, PKG_DUMP_SOURCE },
 		{ "newlines", no_argument, &state.want_flags, PKG_NEWLINES },
+#ifndef PKGCONF_LITE
+		{ "print-digraph-query-nodes", no_argument, &state.want_flags, PKG_PRINT_DIGRAPH_QUERY_NODES },
+#endif
 		{ NULL, 0, NULL, 0 }
 	};
 
