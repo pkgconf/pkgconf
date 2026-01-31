@@ -3,9 +3,6 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	fragment_escaping_1 \
-	fragment_escaping_2 \
-	fragment_escaping_3 \
 	fragment_quoting \
 	fragment_quoting_2 \
 	fragment_quoting_3 \
@@ -51,27 +48,6 @@ fragment_quoting_7_body()
 	atf_check \
 		-o inline:"-Dhello=10 -Dworld=+32 -DDEFINED_FROM_PKG_CONFIG=hello\\ world\n" \
 		pkgconf --cflags fragment-quoting-7
-}
-
-fragment_escaping_1_body()
-{
-	atf_check \
-		-o inline:"-IC:\\\\\\\\D\\ E\n" \
-		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-escaping-1
-}
-
-fragment_escaping_2_body()
-{
-	atf_check \
-		-o inline:"-IC:\\\\\\\\D\\ E\n" \
-		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-escaping-2
-}
-
-fragment_escaping_3_body()
-{
-	atf_check \
-		-o inline:"-IC:\\\\\\\\D\\ E\n" \
-		pkgconf --with-path="${selfdir}/lib1" --cflags fragment-escaping-3
 }
 
 fragment_quoting_7a_body()

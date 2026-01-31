@@ -101,6 +101,9 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/dos-lineendings.test \
 		t/parser/escaped-backslashes-in-output.test \
 		t/parser/fragment-comment.test \
+		t/parser/fragment-escaping-1.test \
+		t/parser/fragment-escaping-2.test \
+		t/parser/fragment-escaping-3.test \
 		t/parser/fragment-groups-composite.test \
 		t/parser/fragment-groups.test \
 		t/parser/malformed-no-newlines.test \
