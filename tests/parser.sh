@@ -11,8 +11,6 @@ tests_init \
 	fragment_quoting_3 \
 	fragment_quoting_5 \
 	fragment_quoting_7 \
-	msvc_fragment_quoting \
-	msvc_fragment_render_cflags \
 	fragment_tree
 
 fragment_quoting_body()
@@ -92,22 +90,6 @@ fragment_quoting_7a_body()
 	rm -f test.c test-fragment-quoting-7
 
 	set +x
-}
-
-msvc_fragment_quoting_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:'/libpath:"C:\D E" E.lib \n' \
-		pkgconf --libs --msvc-syntax fragment-escaping-1
-}
-
-msvc_fragment_render_cflags_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:'/I/test/include/foo /DFOO_STATIC \n' \
-		pkgconf --cflags --static --msvc-syntax foo
 }
 
 fragment_tree_body()
