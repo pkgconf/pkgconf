@@ -106,6 +106,11 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/fragment-escaping-3.test \
 		t/parser/fragment-groups-composite.test \
 		t/parser/fragment-groups.test \
+		t/parser/fragment-quoting-2.test \
+		t/parser/fragment-quoting-3.test \
+		t/parser/fragment-quoting-5.test \
+		t/parser/fragment-quoting-7.test \
+		t/parser/fragment-quoting.test \
 		t/parser/malformed-no-newlines.test \
 		t/parser/malformed-quoting.test \
 		t/parser/msvc-fragment-quoting.test \

@@ -3,52 +3,7 @@
 . $(atf_get_srcdir)/test_env.sh
 
 tests_init \
-	fragment_quoting \
-	fragment_quoting_2 \
-	fragment_quoting_3 \
-	fragment_quoting_5 \
-	fragment_quoting_7 \
 	fragment_tree
-
-fragment_quoting_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\"/test/share/doc\\\"\n" \
-		pkgconf --cflags fragment-quoting
-}
-
-fragment_quoting_2_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED=/test/share/doc\n" \
-		pkgconf --cflags fragment-quoting-2
-}
-
-fragment_quoting_3_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED=\\\"/test/share/doc\\\"\n" \
-		pkgconf --cflags fragment-quoting-3
-}
-
-fragment_quoting_5_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-fPIC -I/test/include/foo -DQUOTED=/test/share/doc\n" \
-		pkgconf --cflags fragment-quoting-5
-}
-
-fragment_quoting_7_body()
-{
-	export PKG_CONFIG_PATH="${selfdir}/lib1"
-	atf_check \
-		-o inline:"-Dhello=10 -Dworld=+32 -DDEFINED_FROM_PKG_CONFIG=hello\\ world\n" \
-		pkgconf --cflags fragment-quoting-7
-}
 
 fragment_quoting_7a_body()
 {
