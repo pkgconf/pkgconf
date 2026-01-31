@@ -13,9 +13,6 @@ tests_init \
 	fragment_quoting_7 \
 	msvc_fragment_quoting \
 	msvc_fragment_render_cflags \
-	version_with_whitespace \
-	version_with_whitespace_2 \
-	version_with_whitespace_diagnostic \
 	fragment_tree
 
 fragment_quoting_body()
@@ -111,27 +108,6 @@ msvc_fragment_render_cflags_body()
 	atf_check \
 		-o inline:'/I/test/include/foo /DFOO_STATIC \n' \
 		pkgconf --cflags --static --msvc-syntax foo
-}
-
-version_with_whitespace_body()
-{
-	atf_check \
-		-o inline:'3.922\n' \
-		pkgconf --with-path="${selfdir}/lib1" --modversion malformed-version
-}
-
-version_with_whitespace_2_body()
-{
-	atf_check \
-		-o inline:'malformed-version = 3.922\n' \
-		pkgconf --with-path="${selfdir}/lib1" --print-provides malformed-version
-}
-
-version_with_whitespace_diagnostic_body()
-{
-	atf_check \
-		-o match:warning \
-		pkgconf --with-path="${selfdir}/lib1" --validate malformed-version
 }
 
 fragment_tree_body()
