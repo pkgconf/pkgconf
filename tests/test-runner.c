@@ -70,6 +70,8 @@ typedef struct test_case_ {
 	pkgconf_buffer_t atleast_version;
 	pkgconf_buffer_t exact_version;
 	pkgconf_buffer_t max_version;
+
+	pkgconf_buffer_t want_personality;
 } pkgconf_test_case_t;
 
 typedef struct test_state_ {
@@ -478,6 +480,7 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 	{"VerbosityLevel", test_keyword_set_int, offsetof(pkgconf_test_case_t, verbosity)},
 	{"WantedFlags", test_keyword_set_wanted_flags, offsetof(pkgconf_test_case_t, wanted_flags)},
 	{"WantEnvPrefix", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_env_prefix)},
+	{"WantPersonality", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_personality)},
 	{"WantVariable", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_variable)},
 };
 
@@ -541,6 +544,9 @@ cleanup:
 pkgconf_cross_personality_t *
 personality_for_test(const pkgconf_test_case_t *testcase)
 {
+	if (pkgconf_buffer_len(&testcase->want_personality))
+		return pkgconf_cross_personality_find(pkgconf_buffer_str(&testcase->want_personality));
+
 	pkgconf_cross_personality_t *pers = calloc(1, sizeof(*pers));
 	if (pers == NULL)
 		return NULL;
@@ -805,6 +811,7 @@ free_test_case(pkgconf_test_case_t *testcase)
 	pkgconf_buffer_finalize(&testcase->atleast_version);
 	pkgconf_buffer_finalize(&testcase->exact_version);
 	pkgconf_buffer_finalize(&testcase->max_version);
+	pkgconf_buffer_finalize(&testcase->want_personality);
 
 	free(testcase->name);
 	free(testcase);
