@@ -117,7 +117,7 @@ spdxtool_core_agent_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer
 {
 	(void) client;
 	spdxtool_serialize_obj_start(buffer, 2);
-	spdxtool_serialize_parm_and_string(buffer, "@type", agent_struct->type, 3, 1);
+	spdxtool_serialize_parm_and_string(buffer, "type", agent_struct->type, 3, 1);
 	spdxtool_serialize_parm_and_string(buffer, "creationInfo", agent_struct->creation_info, 3, 1);
 	spdxtool_serialize_parm_and_string(buffer, "spdxId", agent_struct->spdx_id, 3, 1);
 	spdxtool_serialize_parm_and_string(buffer, "name", agent_struct->name, 3, 0);
@@ -231,7 +231,7 @@ spdxtool_core_creation_info_serialize(pkgconf_client_t *client, pkgconf_buffer_t
 	(void) client;
 
 	spdxtool_serialize_obj_start(buffer, 2);
-	spdxtool_serialize_parm_and_string(buffer, "@type", creation_struct->type, 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "type", creation_struct->type, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "@id", creation_struct->id, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "created", creation_struct->created, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "createdBy", '[', 3, false);
@@ -520,7 +520,7 @@ spdxtool_core_spdx_document_serialize(pkgconf_client_t *client, pkgconf_buffer_t
 	}
 
 	spdxtool_serialize_obj_start(buffer, 2);
-	spdxtool_serialize_parm_and_string(buffer, "@type", spdx_struct->type, 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "type", spdx_struct->type, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "creationInfo", spdx_struct->creation_info, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "spdxId", spdx_struct->spdx_id, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "rootElement", '[', 3, false);
@@ -678,7 +678,7 @@ spdxtool_core_relationship_serialize(pkgconf_client_t *client, pkgconf_buffer_t 
 	(void) client;
 
 	spdxtool_serialize_obj_start(buffer, 2);
-	spdxtool_serialize_parm_and_string(buffer, "@type", relationship_struct->type, 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "type", relationship_struct->type, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "creationInfo", relationship_struct->creation_info, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "spdxId", relationship_struct->spdx_id, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "from", relationship_struct->from, 3, true);
