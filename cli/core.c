@@ -181,7 +181,7 @@ print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 	if (pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE)
 		pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, " fontcolor=gray color=gray");
 
-	pkgconf_output_puts(client->output, PKGCONF_OUTPUT_STDOUT, "]");
+	pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, " label=\"%s@%s\"]\n", pkg->id, pkg->version);
 
 	if (last_seen != NULL)
 	{
