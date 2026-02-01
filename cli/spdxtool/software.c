@@ -115,7 +115,7 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 	char *value;
 
 	spdxtool_serialize_obj_start(buffer, 2);
-	spdxtool_serialize_parm_and_string(buffer, "@type", sbom_struct->type, 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "type", sbom_struct->type, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "creationInfo", sbom_struct->creation_info, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "spdxId", sbom_struct->spdx_id, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "software_sbomType", '[', 3, false);
@@ -189,7 +189,7 @@ spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *
 	(void) last;
 
 	spdxtool_serialize_obj_start(buffer, 2);
-	spdxtool_serialize_parm_and_string(buffer, "@type", "software_Package", 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "type", "software_Package", 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "creationInfo", pkgconf_tuple_find(client, &pkg->vars, "creationInfo"), 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "spdxId", pkgconf_tuple_find(client, &pkg->vars, "spdxId"), 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "name", pkg->realname, 3, true);
