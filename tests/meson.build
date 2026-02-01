@@ -6,7 +6,6 @@ tests = [
   'parser',
   'personality',
   'regress',
-  'requires',
   'spdxtool',
   'symlink',
 ]

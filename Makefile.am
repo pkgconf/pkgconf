@@ -131,6 +131,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
 		t/solver/circular-reference-directpc.test \
+		t/solver/compound-foo-metapackage-3.test \
 		t/solver/conflicts-solution-error.test \
 		t/solver/conflicts-solution-ignore.test \
 		t/solver/conflicts-solution-is-fine-standalone.test \
@@ -169,14 +170,22 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/query-no-space-1.test \
 		t/solver/query-order-1.test \
 		t/solver/query-order-2.test \
+		t/solver/requires-cflags-libs-private-1.test \
+		t/solver/requires-cflags-libs-private-2.test \
 		t/solver/requires-internal-collision.test \
 		t/solver/requires-internal-missing-nonstatic-cflags-libs.test \
 		t/solver/requires-internal-missing-nonstatic.test \
 		t/solver/requires-internal-missing-static-cflags.test \
 		t/solver/requires-internal-missing.test \
 		t/solver/requires-internal.test \
+		t/solver/requires-libs-cflags.test \
+		t/solver/requires-libs-static-2.test \
+		t/solver/requires-libs-static-pure.test \
+		t/solver/requires-libs-static.test \
+		t/solver/requires-libs.test \
 		t/solver/requires-private-debounce.test \
 		t/solver/requires-private-missing.test \
+		t/solver/requires-static-cflags.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
 		t/sbom/license-isc.test \
@@ -343,7 +352,6 @@ test_scripts=	\
 		tests/parser.sh \
 		tests/personality.sh \
 		tests/regress.sh \
-		tests/requires.sh \
 		tests/spdxtool.sh \
 		tests/symlink.sh
 
