@@ -128,6 +128,10 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/version-with-whitespace-2.test \
 		t/parser/version-with-whitespace-diagnostic.test \
 		t/parser/version-with-whitespace.test \
+		t/personality/dump-personality.test \
+		t/personality/pc-path-var.test \
+		t/personality/pc-system-includedirs.test \
+		t/personality/pc-system-libdirs.test \
 		t/solver/circular-reference-1.test \
 		t/solver/circular-reference-2.test \
 		t/solver/circular-reference-directpc.test \
@@ -350,7 +354,6 @@ EXTRA_DIST =	pkg.m4 \
 
 test_scripts=	\
 		tests/parser.sh \
-		tests/personality.sh \
 		tests/regress.sh \
 		tests/spdxtool.sh \
 		tests/symlink.sh
@@ -442,6 +445,7 @@ check: pkgconf test-runner $(check_SCRIPTS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/basic
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/ordering
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/parser
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/personality
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/solver
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sbom
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sysroot

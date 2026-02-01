@@ -177,6 +177,7 @@ test_suites = [
   'basic',
   'ordering',
   'parser',
+  'personality',
   'solver',
   'sbom',
   'sysroot',

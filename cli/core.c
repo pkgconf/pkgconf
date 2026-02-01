@@ -935,7 +935,7 @@ error:
 
 #ifndef PKGCONF_LITE
 static void
-dump_personality(const pkgconf_cross_personality_t *p)
+dump_personality(pkgconf_output_t *output, const pkgconf_cross_personality_t *p)
 {
 	pkgconf_buffer_t pc_path_buf = PKGCONF_BUFFER_INITIALIZER;
 	path_list_to_buffer(&p->dir_list, &pc_path_buf, ':');
@@ -946,14 +946,14 @@ dump_personality(const pkgconf_cross_personality_t *p)
 	pkgconf_buffer_t pc_system_includedirs_buf = PKGCONF_BUFFER_INITIALIZER;
 	path_list_to_buffer(&p->filter_includedirs, &pc_system_includedirs_buf, ':');
 
-	printf("Triplet: %s\n", p->name);
+	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "Triplet: %s\n", p->name);
 
 	if (p->sysroot_dir)
-		printf("SysrootDir: %s\n", p->sysroot_dir);
+		pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SysrootDir: %s\n", p->sysroot_dir);
 
-	printf("DefaultSearchPaths: %s\n", pc_path_buf.base);
-	printf("SystemIncludePaths: %s\n", pc_system_includedirs_buf.base);
-	printf("SystemLibraryPaths: %s\n", pc_system_libdirs_buf.base);
+	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "DefaultSearchPaths: %s\n", pc_path_buf.base);
+	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SystemIncludePaths: %s\n", pc_system_includedirs_buf.base);
+	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SystemLibraryPaths: %s\n", pc_system_libdirs_buf.base);
 
 	pkgconf_buffer_finalize(&pc_path_buf);
 	pkgconf_buffer_finalize(&pc_system_libdirs_buf);
@@ -983,7 +983,7 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 #ifndef PKGCONF_LITE
 	if ((state->want_flags & PKG_DUMP_PERSONALITY) == PKG_DUMP_PERSONALITY)
 	{
-		dump_personality(state->pkg_client.personality);
+		dump_personality(state->pkg_client.output, state->pkg_client.personality);
 
 		ret = EXIT_SUCCESS;
 		goto out;
