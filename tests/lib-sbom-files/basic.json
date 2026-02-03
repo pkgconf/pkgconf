@@ -2,13 +2,13 @@
     "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
     "@graph": [
         {
-            "@type": "Agent",
+            "type": "Agent",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/Agent/default",
             "name": "Default"
         },
         {
-            "@type": "CreationInfo",
+            "type": "CreationInfo",
             "@id": "_:creationinfo_1",
             "created": "test",
             "createdBy": [
@@ -17,13 +17,13 @@
             "specVersion": "3.0.1"
         },
         {
-            "@type": "simplelicensing_LicenseExpression",
+            "type": "simplelicensing_LicenseExpression",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/simplelicensing_LicenseExpression/BSD-4-Clause",
             "simplelicensing_licenseExpression": "BSD-4-Clause"
         },
         {
-            "@type": "software_Sbom",
+            "type": "software_Sbom",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test3",
             "software_sbomType": [
@@ -38,7 +38,7 @@
             ]
         },
         {
-            "@type": "software_Package",
+            "type": "software_Package",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/Package/test3",
             "name": "test3",
@@ -49,7 +49,7 @@
             "software_packageVersion": "3.0.0"
         },
         {
-            "@type": "Relationship",
+            "type": "Relationship",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/Relationship/test3/hasDeclaredLicense",
             "from": "https://github.com/pkgconf/pkgconf/Package/test3",
@@ -59,7 +59,7 @@
             "relationshipType": "hasDeclaredLicense"
         },
         {
-            "@type": "Relationship",
+            "type": "Relationship",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/Relationship/test3/hasConcludedLicense",
             "from": "https://github.com/pkgconf/pkgconf/Package/test3",
@@ -69,7 +69,7 @@
             "relationshipType": "hasConcludedLicense"
         },
         {
-            "@type": "SpdxDocument",
+            "type": "SpdxDocument",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/spdxDocument/1",
             "rootElement": [
