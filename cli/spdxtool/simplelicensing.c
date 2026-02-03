@@ -110,7 +110,7 @@ spdxtool_simplelicensing_licenseExpression_serialize(pkgconf_client_t *client, p
 		spdxtool_simplelicensing_license_expression_t *expression = iter->data;
 
 		spdxtool_serialize_obj_start(buffer, 2);
-		spdxtool_serialize_parm_and_string(buffer, "@type", "simplelicensing_LicenseExpression", 3, true);
+		spdxtool_serialize_parm_and_string(buffer, "type", "simplelicensing_LicenseExpression", 3, true);
 		spdxtool_serialize_parm_and_string(buffer, "creationInfo", spdx_struct->creation_info, 3, true);
 		spdxtool_serialize_parm_and_string(buffer, "spdxId",expression->spdx_id, 3, true);
 		spdxtool_serialize_parm_and_string(buffer, "simplelicensing_licenseExpression",  expression->license_expression, 3, false);
