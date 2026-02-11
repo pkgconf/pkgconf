@@ -92,7 +92,7 @@ typedef struct test_output_ {
 	pkgconf_buffer_t o_stderr;
 } pkgconf_test_output_t;
 
-pkgconf_test_bufferset_t *
+static pkgconf_test_bufferset_t *
 test_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer)
 {
 	pkgconf_test_bufferset_t *set = calloc(1, sizeof(*set));
@@ -105,7 +105,7 @@ test_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer)
 	return set;
 }
 
-void
+static void
 test_bufferset_free(pkgconf_list_t *list)
 {
 	pkgconf_node_t *n, *tn;
@@ -121,7 +121,7 @@ test_bufferset_free(pkgconf_list_t *list)
 	}
 }
 
-void
+static void
 test_environment_push(pkgconf_test_case_t *testcase, const char *key, const char *value)
 {
 	pkgconf_test_environ_t *env = calloc(1, sizeof(*env));
@@ -133,7 +133,7 @@ test_environment_push(pkgconf_test_case_t *testcase, const char *key, const char
 	pkgconf_node_insert_tail(&env->node, env, &testcase->env_vars);
 }
 
-void
+static void
 test_environment_free(pkgconf_list_t *env_list)
 {
 	pkgconf_node_t *n, *tn;
@@ -216,8 +216,8 @@ static void
 handle_substs(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src)
 {
 	const struct subst_pair {
-		char *key;
-		char *value;
+		const char *key;
+		const char *value;
 	} subst_pairs[] = {
 		{"%TEST_FIXTURES_DIR%", test_fixtures_dir},
 		{"%DIR_SEP%", PKG_CONFIG_PATH_SEP_S},
@@ -513,7 +513,7 @@ test_parser_warn(void *p, const char *fmt, ...)
 	va_end(va);
 }
 
-pkgconf_test_case_t *
+static pkgconf_test_case_t *
 load_test_case(char *testfile)
 {
 	FILE *testf = fopen(testfile, "r");
@@ -541,7 +541,7 @@ cleanup:
 }
 
 /* we use a custom personality to ensure the tests are fully hermetic */
-pkgconf_cross_personality_t *
+static pkgconf_cross_personality_t *
 personality_for_test(const pkgconf_test_case_t *testcase)
 {
 	if (pkgconf_buffer_len(&testcase->want_personality))
@@ -575,7 +575,7 @@ report_failure(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *expe
 	return false;
 }
 
-bool
+static bool
 test_match_buffer(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *expected, const pkgconf_buffer_t *actual, const char *buffername)
 {
 	if (!pkgconf_buffer_len(expected) && match != MATCH_EMPTY)
@@ -595,7 +595,7 @@ test_match_buffer(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *e
 	return pkgconf_buffer_match(actual, expected) ? true : report_failure(match, expected, actual, buffername);
 }
 
-void
+static void
 annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test_output_t *out)
 {
 	pkgconf_buffer_t search_path_buf = PKGCONF_BUFFER_INITIALIZER;
@@ -699,7 +699,7 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 	pkgconf_buffer_finalize(&env_buf);
 }
 
-bool
+static bool
 run_test_case(const pkgconf_test_case_t *testcase)
 {
 	bool passed = true;
@@ -793,7 +793,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	return passed;
 }
 
-void
+static void
 free_test_case(pkgconf_test_case_t *testcase)
 {
 	test_bufferset_free(&testcase->define_variables);
@@ -817,7 +817,7 @@ free_test_case(pkgconf_test_case_t *testcase)
 	free(testcase);
 }
 
-bool
+static bool
 process_test_case(char *testcase_file)
 {
 	pkgconf_test_case_t *testcase = load_test_case(testcase_file);
@@ -847,13 +847,13 @@ str_has_suffix(const char *str, const char *suffix)
 	return !strncasecmp(str + str_len - suf_len, suffix, suf_len);
 }
 
-int
+static int
 path_sort_cmp(const void *a, const void *b)
 {
 	return strcmp(*(const char **) a, *(const char **) b);
 }
 
-bool
+static bool
 process_test_directory(char *dirpath)
 {
 	bool ret = true;
@@ -907,7 +907,7 @@ process_test_directory(char *dirpath)
 	return ret;
 }
 
-void
+static void
 usage(void)
 {
 	fprintf(stderr, "usage: test-runner --test-fixtures <path-to-fixtures> <path-to-tests>\n");
