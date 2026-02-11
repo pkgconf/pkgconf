@@ -28,7 +28,7 @@
  */
 
 struct pkgconf_fragment_check {
-	char *token;
+	const char *token;
 	size_t len;
 };
 
