@@ -367,6 +367,7 @@ nobase_pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/l
 libpkgconf_la_SOURCES  =	\
 		libpkgconf/audit.c		\
 		libpkgconf/buffer.c		\
+		libpkgconf/bytecode.c		\
 		libpkgconf/cache.c		\
 		libpkgconf/client.c		\
 		libpkgconf/pkg.c		\

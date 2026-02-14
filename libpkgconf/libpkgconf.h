@@ -252,6 +252,38 @@ struct pkgconf_cross_personality_ {
 	bool want_default_pure;
 };
 
+/* bytecode.c */
+enum pkgconf_bytecode_op {
+	PKGCONF_BYTECODE_OP_TEXT = 1,
+	PKGCONF_BYTECODE_OP_VAR = 2,
+	PKGCONF_BYTECODE_OP_SYSROOT = 3,
+};
+
+typedef struct {
+	enum pkgconf_bytecode_op tag;
+	uint32_t size;
+	char data[];
+} pkgconf_bytecode_op_t;
+
+typedef struct {
+	const uint8_t *base;
+	size_t len;
+} pkgconf_bytecode_t;
+
+static inline const pkgconf_bytecode_op_t *
+pkgconf_bytecode_op_next(const pkgconf_bytecode_op_t *op)
+{
+	return (const pkgconf_bytecode_op_t *)
+		((const uint8_t *)op + sizeof(*op) + op->size);
+}
+
+typedef struct pkgconf_bytecode_eval_ctx_ {
+	pkgconf_client_t *client;
+	const pkgconf_list_t *tuples;
+} pkgconf_bytecode_eval_ctx_t;
+
+PKGCONF_API bool pkgconf_bytecode_eval(pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot);
+
 /* client.c */
 PKGCONF_API void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);
 PKGCONF_API pkgconf_client_t * pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);
