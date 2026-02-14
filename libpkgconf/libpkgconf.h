@@ -279,10 +279,15 @@ pkgconf_bytecode_op_next(const pkgconf_bytecode_op_t *op)
 
 typedef struct pkgconf_bytecode_eval_ctx_ {
 	pkgconf_client_t *client;
-	const pkgconf_list_t *tuples;
+	const pkgconf_list_t *vars;
 } pkgconf_bytecode_eval_ctx_t;
 
 PKGCONF_API bool pkgconf_bytecode_eval(pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot);
+PKGCONF_API void pkgconf_bytecode_emit(pkgconf_buffer_t *buf, enum pkgconf_bytecode_op tag, const void *data, uint32_t size);
+PKGCONF_API void pkgconf_bytecode_emit_text(pkgconf_buffer_t *buf, const char *p, size_t n);
+PKGCONF_API void pkgconf_bytecode_emit_var(pkgconf_buffer_t *buf, const char *name, size_t nlen);
+PKGCONF_API void pkgconf_bytecode_emit_sysroot(pkgconf_buffer_t *buf);
+PKGCONF_API void pkgconf_bytecode_from_buffer(pkgconf_bytecode_t *bc, const pkgconf_buffer_t *buf);
 
 /* client.c */
 PKGCONF_API void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);
