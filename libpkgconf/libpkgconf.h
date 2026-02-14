@@ -468,6 +468,7 @@ static inline bool pkgconf_span_contains(unsigned char c, const pkgconf_span_t *
 }
 
 PKGCONF_API void pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text);
+PKGCONF_API void pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n);
 PKGCONF_API void pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...) PRINTFLIKE(2, 3);
 PKGCONF_API void pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list va) PRINTFLIKE(2, 0);
 PKGCONF_API void pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte);

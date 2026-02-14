@@ -66,6 +66,28 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 }
 
 void
+pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
+{
+	if (n == 0)
+		return;
+
+	if (p[n - 1] == '\0')
+	{
+		pkgconf_buffer_append(buf, p);
+		return;
+	}
+
+	char *tmp = malloc(n + 1);
+	if (tmp == NULL)
+		return;
+
+	memcpy(tmp, p, n);
+	tmp[n] = '\0';
+	pkgconf_buffer_append(buf, tmp);
+	free(tmp);
+}
+
+void
 pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list src_va)
 {
 	va_list va;
