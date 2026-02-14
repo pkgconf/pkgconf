@@ -60,6 +60,7 @@ pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 			break;
 
 		case PKGCONF_BYTECODE_OP_SYSROOT:
+			pkgconf_buffer_append(out, pkgconf_buffer_str_or_empty(&ctx->sysroot));
 			if (saw_sysroot != NULL)
 				*saw_sysroot = true;
 			break;
@@ -75,6 +76,38 @@ pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 	return true;
 }
 
+static void
+pkgconf_bytecode_eval_ctx_init(pkgconf_bytecode_eval_ctx_t *ctx,
+	pkgconf_client_t *client,
+	const pkgconf_list_t *vars)
+{
+	memset(ctx, 0, sizeof(*ctx));
+
+	ctx->client = client;
+	ctx->vars = vars;
+
+	const char *raw = pkgconf_client_get_sysroot_dir(client);
+
+	/* disabled sysroot cases */
+	if (raw == NULL || *raw == '\0')
+		return;
+
+	if (raw[0] == '.' && raw[1] == '\0')
+		return;
+
+	if (raw[0] == '/' && raw[1] == '\0')
+		return;
+
+	pkgconf_buffer_append(&ctx->sysroot, raw);
+
+	while (pkgconf_buffer_len(&ctx->sysroot) > 1 && ctx->sysroot.end[-1] == '/')
+		pkgconf_buffer_trim_byte(&ctx->sysroot);
+
+	/* if normalization yields "/", disable by making buffer empty */
+	if (pkgconf_buffer_len(&ctx->sysroot) == 1 && ctx->sysroot.base[0] == '/')
+		pkgconf_buffer_trim_byte(&ctx->sysroot);
+}
+
 bool
 pkgconf_bytecode_eval(pkgconf_client_t *client,
 	const pkgconf_list_t *vars,
@@ -85,10 +118,8 @@ pkgconf_bytecode_eval(pkgconf_client_t *client,
 	if (client == NULL || bc == NULL || out == NULL)
 		return false;
 
-	pkgconf_bytecode_eval_ctx_t ctx = {
-		.client = client,
-		.vars = vars,
-	};
+	pkgconf_bytecode_eval_ctx_t ctx;
+	pkgconf_bytecode_eval_ctx_init(&ctx, client, vars);
 
 	if (saw_sysroot != NULL)
 		*saw_sysroot = false;

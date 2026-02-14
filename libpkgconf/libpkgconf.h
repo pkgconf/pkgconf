@@ -280,6 +280,8 @@ pkgconf_bytecode_op_next(const pkgconf_bytecode_op_t *op)
 typedef struct pkgconf_bytecode_eval_ctx_ {
 	pkgconf_client_t *client;
 	const pkgconf_list_t *vars;
+
+	pkgconf_buffer_t sysroot;
 } pkgconf_bytecode_eval_ctx_t;
 
 PKGCONF_API bool pkgconf_bytecode_eval(pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot);
