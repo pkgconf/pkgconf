@@ -365,23 +365,23 @@ SUFFIXES=	.sh
 
 nobase_pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h libpkgconf/libpkgconf-api.h
 libpkgconf_la_SOURCES  =	\
+		libpkgconf/argvsplit.c		\
 		libpkgconf/audit.c		\
+		libpkgconf/bsdstubs.c		\
 		libpkgconf/buffer.c		\
 		libpkgconf/bytecode.c		\
 		libpkgconf/cache.c		\
 		libpkgconf/client.c		\
-		libpkgconf/pkg.c		\
-		libpkgconf/bsdstubs.c		\
-		libpkgconf/fragment.c		\
-		libpkgconf/argvsplit.c		\
-		libpkgconf/fileio.c		\
-		libpkgconf/tuple.c		\
 		libpkgconf/dependency.c		\
-		libpkgconf/queue.c		\
+		libpkgconf/fileio.c		\
+		libpkgconf/fragment.c		\
 		libpkgconf/output.c		\
+		libpkgconf/parser.c		\
 		libpkgconf/path.c		\
 		libpkgconf/personality.c	\
-		libpkgconf/parser.c		\
+		libpkgconf/pkg.c		\
+		libpkgconf/queue.c		\
+		libpkgconf/tuple.c		\
 		libpkgconf/variable.c
 libpkgconf_la_LDFLAGS = -no-undefined -version-info 7:0:0 -export-symbols-regex '^pkgconf_'
 
