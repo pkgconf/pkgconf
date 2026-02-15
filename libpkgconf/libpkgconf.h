@@ -252,6 +252,68 @@ struct pkgconf_cross_personality_ {
 	bool want_default_pure;
 };
 
+/* bytecode.c */
+enum pkgconf_bytecode_op {
+	PKGCONF_BYTECODE_OP_TEXT = 1,
+	PKGCONF_BYTECODE_OP_VAR = 2,
+	PKGCONF_BYTECODE_OP_SYSROOT = 3,
+};
+
+typedef struct {
+	enum pkgconf_bytecode_op tag;
+	uint32_t size;
+	char data[];
+} pkgconf_bytecode_op_t;
+
+typedef struct {
+	const uint8_t *base;
+	size_t len;
+} pkgconf_bytecode_t;
+
+static inline const pkgconf_bytecode_op_t *
+pkgconf_bytecode_op_next(const pkgconf_bytecode_op_t *op)
+{
+	return (const pkgconf_bytecode_op_t *)
+		((const uint8_t *)op + sizeof(*op) + op->size);
+}
+
+typedef struct pkgconf_bytecode_eval_ctx_ {
+	pkgconf_client_t *client;
+	const pkgconf_list_t *vars;
+
+	pkgconf_buffer_t sysroot;
+} pkgconf_bytecode_eval_ctx_t;
+
+PKGCONF_API bool pkgconf_bytecode_eval(pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot);
+PKGCONF_API void pkgconf_bytecode_emit(pkgconf_buffer_t *buf, enum pkgconf_bytecode_op tag, const void *data, uint32_t size);
+PKGCONF_API void pkgconf_bytecode_emit_text(pkgconf_buffer_t *buf, const char *p, size_t n);
+PKGCONF_API void pkgconf_bytecode_emit_var(pkgconf_buffer_t *buf, const char *name, size_t nlen);
+PKGCONF_API void pkgconf_bytecode_emit_sysroot(pkgconf_buffer_t *buf);
+PKGCONF_API void pkgconf_bytecode_from_buffer(pkgconf_bytecode_t *bc, const pkgconf_buffer_t *buf);
+
+/* variable.c */
+typedef struct pkgconf_variable_ {
+	pkgconf_node_t iter;
+
+	char *key;
+
+	pkgconf_buffer_t bcbuf;
+	pkgconf_bytecode_t bc;
+
+	unsigned int flags;
+
+	bool expanding;
+} pkgconf_variable_t;
+
+#define PKGCONF_VARIABLEF_OVERRIDE  PKGCONF_PKG_TUPLEF_OVERRIDE
+
+PKGCONF_API pkgconf_variable_t *pkgconf_variable_new(const char *key);
+PKGCONF_API void pkgconf_variable_free(pkgconf_variable_t *v);
+PKGCONF_API pkgconf_variable_t *pkgconf_variable_find(pkgconf_list_t *vars, const char *key);
+PKGCONF_API pkgconf_variable_t *pkgconf_variable_get_or_create(pkgconf_list_t *vars, const char *key);
+PKGCONF_API void pkgconf_variable_delete(pkgconf_list_t *vars, pkgconf_variable_t *v);
+PKGCONF_API void pkgconf_variable_list_free(pkgconf_list_t *vars);
+
 /* client.c */
 PKGCONF_API void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);
 PKGCONF_API pkgconf_client_t * pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);
@@ -471,6 +533,7 @@ PKGCONF_API void pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *tex
 PKGCONF_API void pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n);
 PKGCONF_API void pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...) PRINTFLIKE(2, 3);
 PKGCONF_API void pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list va) PRINTFLIKE(2, 0);
+PKGCONF_API void pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text);
 PKGCONF_API void pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte);
 PKGCONF_API void pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer);
 PKGCONF_API void pkgconf_buffer_finalize(pkgconf_buffer_t *buffer);
@@ -522,6 +585,13 @@ static inline void pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_
 {
     pkgconf_buffer_reset(newptr);
     pkgconf_buffer_append(newptr, pkgconf_buffer_str(buffer));
+}
+
+static inline bool pkgconf_str_eq_slice(const char *s, const char *p, size_t n)
+{
+	return s != NULL &&
+		strncmp(s, p, n) == 0 &&
+		s[n] == '\0';
 }
 
 /* fileio.c */
