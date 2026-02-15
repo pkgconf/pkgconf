@@ -435,18 +435,21 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 	 */
 	if (strcmp(keyword, pkg->owner->prefix_varname))
 	{
-		if (pkg->orig_prefix != NULL)
+		if (pkgconf_buffer_len(&pkg->orig_prefix) != 0)
 		{
-			const size_t oplen = strlen(pkg->orig_prefix->value);
+			const char *op = pkgconf_buffer_str_or_empty(&pkg->orig_prefix);
+			const size_t oplen = pkgconf_buffer_len(&pkg->orig_prefix);
 
-			if (is_path_prefix_equal(canonicalized_value, pkg->orig_prefix->value, oplen))
+			if (is_path_prefix_equal(canonicalized_value, op, oplen))
 			{
-				char newvalue[PKGCONF_ITEM_SIZE];
+				pkgconf_buffer_t newvalue = PKGCONF_BUFFER_INITIALIZER;
 
-				pkgconf_strlcpy(newvalue, pkg->prefix->value, sizeof newvalue);
-				pkgconf_strlcat(newvalue, canonicalized_value + oplen, sizeof newvalue);
+				pkgconf_buffer_append(&newvalue, pkgconf_buffer_str_or_empty(&pkg->calculated_prefix));
+				pkgconf_buffer_append(&newvalue, canonicalized_value + oplen);
 
-				pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, newvalue, false, pkg->flags);
+				pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, pkgconf_buffer_str(&newvalue), false, pkg->flags);
+				pkgconf_buffer_finalize(&newvalue);
+
 				return;
 			}
 		}
@@ -461,8 +464,11 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 		if (relvalue != NULL)
 		{
 			char *prefix_value = convert_path_to_value(relvalue);
-			pkg->orig_prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, "orig_prefix", canonicalized_value, true, pkg->flags);
-			pkg->prefix = pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, prefix_value, false, pkg->flags);
+
+			pkgconf_buffer_append(&pkg->orig_prefix, canonicalized_value);
+			pkgconf_buffer_append(&pkg->calculated_prefix, prefix_value);
+
+			pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, prefix_value, false, pkg->flags);
 			free(prefix_value);
 		}
 		else
@@ -565,6 +571,9 @@ pkg_free_object(pkgconf_pkg_t *pkg)
 
 	if (pkg->source != NULL)
 		free(pkg->source);
+
+	pkgconf_buffer_finalize(&pkg->orig_prefix);
+	pkgconf_buffer_finalize(&pkg->calculated_prefix);
 
 	free(pkg);
 }

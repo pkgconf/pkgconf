@@ -174,11 +174,8 @@ struct pkgconf_pkg_ {
 
 	pkgconf_client_t *owner;
 
-	/* these resources are owned by the package and do not need special management,
-	 * under no circumstance attempt to allocate or free objects belonging to these pointers
-	 */
-	pkgconf_tuple_t *orig_prefix;
-	pkgconf_tuple_t *prefix;
+	pkgconf_buffer_t orig_prefix;
+	pkgconf_buffer_t calculated_prefix;
 
 	uint64_t serial;
 	uint64_t identifier;
