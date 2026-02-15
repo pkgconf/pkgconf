@@ -587,6 +587,13 @@ static inline void pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_
     pkgconf_buffer_append(newptr, pkgconf_buffer_str(buffer));
 }
 
+static inline bool pkgconf_str_eq_slice(const char *s, const char *p, size_t n)
+{
+	return s != NULL &&
+		strncmp(s, p, n) == 0 &&
+		s[n] == '\0';
+}
+
 /* fileio.c */
 PKGCONF_API bool pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream);
 
