@@ -13,6 +13,7 @@
  * from the use of this software.
  */
 
+#include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
 /*
@@ -253,4 +254,60 @@ pkgconf_bytecode_from_buffer(pkgconf_bytecode_t *bc, const pkgconf_buffer_t *buf
 {
 	bc->base = (const uint8_t *)buf->base;
 	bc->len = (size_t)(buf->end - buf->base);
+}
+
+void
+pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value)
+{
+	const char *p, *text_start;
+
+	if (out == NULL || value == NULL)
+		return;
+
+	p = value;
+	text_start = value;
+
+	for (; *p != '\0'; p++)
+	{
+		if (*p != '$' || p[1] != '{')
+			continue;
+
+		if (p > text_start)
+			pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start));
+
+		const char *name = p + 2;
+		const char *q = name;
+
+		for (; *q != '\0' && *q != '}'; q++)
+			;
+
+		/* make sure a variable expansion ends with } */
+		if (*q != '}')
+		{
+			text_start = p;
+			continue;
+		}
+
+		/* if this is not a valid variable, emit it as text */
+		size_t nlen = (size_t)(q - name);
+		if (nlen == 0 || nlen >= PKGCONF_ITEM_SIZE)
+		{
+			pkgconf_bytecode_emit_text(out, p, (size_t)((q + 1) - p));
+			p = q;
+			text_start = p + 1;
+			continue;
+		}
+
+		/* we need to special-case ${pc_sysrootdir} and emit OP_SYSROOT instead... */
+		if (nlen == strlen("pc_sysrootdir") && !memcmp(name, "pc_sysrootdir", nlen))
+			pkgconf_bytecode_emit_sysroot(out);
+		else
+			pkgconf_bytecode_emit_var(out, name, nlen);
+
+		p = q;
+		text_start = p + 1;
+	}
+
+	if (p > text_start)
+		pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start));
 }
