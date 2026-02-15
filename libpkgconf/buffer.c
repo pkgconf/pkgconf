@@ -124,10 +124,13 @@ pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text)
 {
 	pkgconf_buffer_t tmpbuf = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_append(&tmpbuf, text);
+	if (text != NULL)
+		pkgconf_buffer_append(&tmpbuf, text);
 	pkgconf_buffer_append(&tmpbuf, pkgconf_buffer_str_or_empty(buffer));
 
-	pkgconf_buffer_copy(&tmpbuf, buffer);
+	if (pkgconf_buffer_len(&tmpbuf))
+		pkgconf_buffer_copy(&tmpbuf, buffer);
+
 	pkgconf_buffer_finalize(&tmpbuf);
 }
 
