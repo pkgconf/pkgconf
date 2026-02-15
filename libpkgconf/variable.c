@@ -125,3 +125,36 @@ pkgconf_variable_list_free(pkgconf_list_t *vars)
 		pkgconf_variable_free(v);
 	}
 }
+
+bool
+pkgconf_variable_eval(pkgconf_client_t *client,
+	const pkgconf_list_t *tuples,
+	const pkgconf_variable_t *v,
+	pkgconf_buffer_t *out,
+	bool *saw_sysroot)
+{
+	if (client == NULL || tuples == NULL || v == NULL || out == NULL)
+		return false;
+
+	return pkgconf_bytecode_eval(client, tuples, &v->bc, out, saw_sysroot);
+}
+
+char *
+pkgconf_variable_eval_str(pkgconf_client_t *client,
+	const pkgconf_list_t *tuples,
+	const pkgconf_variable_t *v,
+	bool *saw_sysroot)
+{
+	pkgconf_buffer_t out = PKGCONF_BUFFER_INITIALIZER;
+
+	if (client == NULL || tuples == NULL || v == NULL)
+		return NULL;
+
+	if (!pkgconf_variable_eval(client, tuples, v, &out, saw_sysroot))
+	{
+		pkgconf_buffer_finalize(&out);
+		return NULL;
+	}
+
+	return pkgconf_buffer_freeze(&out);
+}

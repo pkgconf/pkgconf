@@ -310,6 +310,8 @@ PKGCONF_API pkgconf_variable_t *pkgconf_variable_find(pkgconf_list_t *vars, cons
 PKGCONF_API pkgconf_variable_t *pkgconf_variable_get_or_create(pkgconf_list_t *vars, const char *key);
 PKGCONF_API void pkgconf_variable_delete(pkgconf_list_t *vars, pkgconf_variable_t *v);
 PKGCONF_API void pkgconf_variable_list_free(pkgconf_list_t *vars);
+PKGCONF_API bool pkgconf_variable_eval(pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_variable_t *v, pkgconf_buffer_t *out, bool *saw_sysroot);
+PKGCONF_API char *pkgconf_variable_eval_str(pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_variable_t *v, bool *saw_sysroot);
 
 /* client.c */
 PKGCONF_API void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);
