@@ -26,6 +26,44 @@
  * evaluating variable expansion bytecode.
  */
 
+#define PKGCONF_EVAL_MAX_OUTPUT (PKGCONF_BUFSIZE - 1)
+
+static bool
+pkgconf_bytecode_eval_append_slice(pkgconf_bytecode_eval_ctx_t *ctx,
+	pkgconf_buffer_t *out,
+	const char *p,
+	size_t n)
+{
+	size_t cur = pkgconf_buffer_len(out);
+
+	if (cur >= PKGCONF_EVAL_MAX_OUTPUT)
+		return false;
+
+	if (n > PKGCONF_EVAL_MAX_OUTPUT - cur)
+	{
+		pkgconf_warn(ctx->client,
+			"warning: truncating very long variable to 64KB\n");
+
+		n = PKGCONF_EVAL_MAX_OUTPUT - cur;
+		pkgconf_buffer_append_slice(out, p, n);
+		return false;
+	}
+
+	pkgconf_buffer_append_slice(out, p, n);
+	return true;
+}
+
+static bool
+pkgconf_bytecode_eval_append(pkgconf_bytecode_eval_ctx_t *ctx,
+	pkgconf_buffer_t *out,
+	const char *s)
+{
+	if (s == NULL || *s == '\0')
+		return true;
+
+	return pkgconf_bytecode_eval_append_slice(ctx, out, s, strlen(s));
+}
+
 static bool
 pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 	const pkgconf_bytecode_t *bc,
@@ -132,7 +170,8 @@ pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 		switch (op->tag)
 		{
 		case PKGCONF_BYTECODE_OP_TEXT:
-			pkgconf_buffer_append_slice(out, op->data, op->size);
+			if (!pkgconf_bytecode_eval_append_slice(ctx, out, op->data, op->size))
+				return false;
 			break;
 
 		case PKGCONF_BYTECODE_OP_VAR:
@@ -141,9 +180,10 @@ pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 			break;
 
 		case PKGCONF_BYTECODE_OP_SYSROOT:
-			pkgconf_buffer_append(out, pkgconf_buffer_str_or_empty(&ctx->sysroot));
 			if (saw_sysroot != NULL)
 				*saw_sysroot = true;
+			if (!pkgconf_bytecode_eval_append(ctx, out, pkgconf_buffer_str_or_empty(&ctx->sysroot)))
+				return false;
 			break;
 
 		default:
