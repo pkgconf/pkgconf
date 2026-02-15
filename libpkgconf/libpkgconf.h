@@ -291,6 +291,29 @@ PKGCONF_API void pkgconf_bytecode_emit_var(pkgconf_buffer_t *buf, const char *na
 PKGCONF_API void pkgconf_bytecode_emit_sysroot(pkgconf_buffer_t *buf);
 PKGCONF_API void pkgconf_bytecode_from_buffer(pkgconf_bytecode_t *bc, const pkgconf_buffer_t *buf);
 
+/* variable.c */
+typedef struct pkgconf_variable_ {
+	pkgconf_node_t iter;
+
+	char *key;
+
+	pkgconf_buffer_t bcbuf;
+	pkgconf_bytecode_t bc;
+
+	unsigned int flags;
+
+	bool expanding;
+} pkgconf_variable_t;
+
+#define PKGCONF_VARIABLEF_OVERRIDE  PKGCONF_PKG_TUPLEF_OVERRIDE
+
+PKGCONF_API pkgconf_variable_t *pkgconf_variable_new(const char *key);
+PKGCONF_API void pkgconf_variable_free(pkgconf_variable_t *v);
+PKGCONF_API pkgconf_variable_t *pkgconf_variable_find(pkgconf_list_t *vars, const char *key);
+PKGCONF_API pkgconf_variable_t *pkgconf_variable_get_or_create(pkgconf_list_t *vars, const char *key);
+PKGCONF_API void pkgconf_variable_delete(pkgconf_list_t *vars, pkgconf_variable_t *v);
+PKGCONF_API void pkgconf_variable_list_free(pkgconf_list_t *vars);
+
 /* client.c */
 PKGCONF_API void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);
 PKGCONF_API pkgconf_client_t * pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);

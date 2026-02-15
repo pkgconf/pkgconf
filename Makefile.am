@@ -381,7 +381,8 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/output.c		\
 		libpkgconf/path.c		\
 		libpkgconf/personality.c	\
-		libpkgconf/parser.c
+		libpkgconf/parser.c		\
+		libpkgconf/variable.c
 libpkgconf_la_LDFLAGS = -no-undefined -version-info 7:0:0 -export-symbols-regex '^pkgconf_'
 
 dist_man_MANS    = 		\
