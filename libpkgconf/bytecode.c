@@ -29,6 +29,84 @@ static bool
 pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 	const pkgconf_bytecode_t *bc,
 	pkgconf_buffer_t *out,
+	bool *saw_sysroot);
+
+static pkgconf_variable_t *
+pkgconf_bytecode_eval_scan(const pkgconf_list_t *vars,
+	const char *name, size_t nlen,
+	unsigned int require_flags,
+	unsigned int forbid_flags)
+{
+	const pkgconf_node_t *node;
+
+	PKGCONF_FOREACH_LIST_ENTRY(vars->head, node)
+	{
+		pkgconf_variable_t *v = node->data;
+
+		if ((v->flags & require_flags) != require_flags)
+			continue;
+
+		if ((v->flags & forbid_flags) != 0)
+			continue;
+
+		if (pkgconf_str_eq_slice(v->key, name, nlen))
+			return v;
+	}
+
+	return NULL;
+}
+
+static pkgconf_variable_t *
+pkgconf_bytecode_eval_lookup_var(pkgconf_bytecode_eval_ctx_t *ctx,
+	const char *name, size_t nlen)
+{
+	pkgconf_variable_t *v;
+
+	if ((v = pkgconf_bytecode_eval_scan(&ctx->client->global_vars, name, nlen, PKGCONF_VARIABLEF_OVERRIDE, 0)) != NULL)
+		return v;
+
+	if ((v = pkgconf_bytecode_eval_scan(ctx->vars, name, nlen, 0, 0)) != NULL)
+		return v;
+
+	if ((v = pkgconf_bytecode_eval_scan(&ctx->client->global_vars, name, nlen, 0, PKGCONF_VARIABLEF_OVERRIDE)) != NULL)
+		return v;
+
+	return NULL;
+}
+
+static bool
+pkgconf_bytecode_eval_var(pkgconf_bytecode_eval_ctx_t *ctx,
+	const char *name, size_t nlen,
+	pkgconf_buffer_t *out,
+	bool *saw_sysroot)
+{
+	pkgconf_variable_t *v;
+
+	v = pkgconf_bytecode_eval_lookup_var(ctx, name, nlen);
+	if (v == NULL)
+		return true;
+
+	if (v->expanding)
+		return false;
+
+	v->expanding = true;
+
+	bool inner_saw = false;
+	bool ok = pkgconf_bytecode_eval_internal(ctx, &v->bc, out, &inner_saw);
+
+	v->expanding = false;
+
+	if (!ok)
+		return false;
+
+	*saw_sysroot |= inner_saw;
+	return true;
+}
+
+static bool
+pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
+	const pkgconf_bytecode_t *bc,
+	pkgconf_buffer_t *out,
 	bool *saw_sysroot)
 {
 	(void) ctx;
@@ -57,6 +135,8 @@ pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 			break;
 
 		case PKGCONF_BYTECODE_OP_VAR:
+			if (!pkgconf_bytecode_eval_var(ctx, op->data, op->size, out, saw_sysroot))
+				return false;
 			break;
 
 		case PKGCONF_BYTECODE_OP_SYSROOT:
