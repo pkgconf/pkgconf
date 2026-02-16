@@ -45,62 +45,10 @@ fragment_should_quote(const pkgconf_fragment_t *frag)
 	return false;
 }
 
-static inline size_t
-fragment_len(const pkgconf_fragment_t *frag)
-{
-	size_t len = 1;
-
-	if (frag->type)
-		len += 2;
-
-	if (frag->data != NULL)
-	{
-		len += strlen(frag->data);
-
-		if (fragment_should_quote(frag))
-			len += 2;
-	}
-
-	return len;
-}
-
 static inline bool
 allowed_fragment(const pkgconf_fragment_t *frag)
 {
 	return !(!frag->type || frag->data == NULL || strchr("DILl", frag->type) == NULL);
-}
-
-static size_t
-msvc_renderer_render_len(const pkgconf_list_t *list, bool escape)
-{
-	(void) escape;
-
-	size_t out = 1;		/* trailing nul */
-	pkgconf_node_t *node;
-
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
-	{
-		const pkgconf_fragment_t *frag = node->data;
-
-		if (!allowed_fragment(frag))
-			continue;
-
-		switch (frag->type)
-		{
-			case 'L':
-				out += 9; /* "/libpath:" */
-				break;
-			case 'l':
-				out += 4; /* ".lib" */
-				break;
-			default:
-				break;
-		}
-
-		out += fragment_len(frag);
-	}
-
-	return out;
 }
 
 static void
@@ -143,7 +91,6 @@ msvc_renderer_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool
 }
 
 static pkgconf_fragment_render_ops_t msvc_renderer_ops = {
-	.render_len = msvc_renderer_render_len,
 	.render_buf = msvc_renderer_render_buf
 };
 
