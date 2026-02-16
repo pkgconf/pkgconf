@@ -20,17 +20,14 @@
 #include "renderer-msvc.h"
 
 static inline bool
-fragment_should_quote(const pkgconf_fragment_t *frag)
+should_quote(const pkgconf_buffer_t *buf)
 {
 	const char *src;
 
-	if (frag->data == NULL)
-		return false;
-
-	for (src = frag->data; *src; src++)
+	for (src = buf->base; *src && src < buf->end; src++)
 	{
 		if (((*src < ' ') ||
-		    (*src >= (' ' + (frag->children.head != NULL ? 1 : 0)) && *src < '$') ||
+		    (*src >= (' ') && *src < '$') ||
 		    (*src > '$' && *src < '(') ||
 		    (*src > ')' && *src < '+') ||
 		    (*src > ':' && *src < '=') ||
@@ -52,46 +49,44 @@ allowed_fragment(const pkgconf_fragment_t *frag)
 }
 
 static void
-msvc_renderer_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, char delim)
+msvc_renderer_render(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf)
 {
-	pkgconf_node_t *node;
+	pkgconf_buffer_t tmpbuf = PKGCONF_BUFFER_INITIALIZER;
+	bool escape = ctx->escape;
 
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
-	{
-		const pkgconf_fragment_t *frag = node->data;
+	if (!allowed_fragment(frag))
+		return;
 
-		if (!allowed_fragment(frag))
-			continue;
-
-		switch(frag->type) {
-		case 'D':
-		case 'I':
-			pkgconf_buffer_append_fmt(buf, "/%c", frag->type);
-			break;
-		case 'L':
-			pkgconf_buffer_append(buf, "/libpath:");
-			break;
-		}
-
-		escape = fragment_should_quote(frag);
-
-		if (escape)
-			pkgconf_buffer_push_byte(buf, '"');
-
-		pkgconf_buffer_append(buf, frag->data);
-
-		if (frag->type == 'l')
-			pkgconf_buffer_append(buf, ".lib");
-
-		if (escape)
-			pkgconf_buffer_push_byte(buf, '"');
-
-		pkgconf_buffer_push_byte(buf, delim);
+	switch(frag->type) {
+	case 'D':
+	case 'I':
+		pkgconf_buffer_append_fmt(buf, "/%c", frag->type);
+		break;
+	case 'L':
+		pkgconf_buffer_append(buf, "/libpath:");
+		break;
 	}
+
+	pkgconf_buffer_append(&tmpbuf, frag->data);
+
+	if (frag->type == 'l')
+		pkgconf_buffer_append(&tmpbuf, ".lib");
+
+	escape = should_quote(&tmpbuf);
+
+	if (escape)
+		pkgconf_buffer_push_byte(buf, '"');
+
+	pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(&tmpbuf));
+
+	if (escape)
+		pkgconf_buffer_push_byte(buf, '"');
+
+	pkgconf_buffer_finalize(&tmpbuf);
 }
 
 static pkgconf_fragment_render_ops_t msvc_renderer_ops = {
-	.render_buf = msvc_renderer_render_buf
+	.render = msvc_renderer_render
 };
 
 pkgconf_fragment_render_ops_t *

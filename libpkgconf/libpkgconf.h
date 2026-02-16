@@ -450,8 +450,13 @@ PKGCONF_API int pkgconf_argv_split(const char *src, int *argc, char ***argv);
 PKGCONF_API void pkgconf_argv_free(char **argv);
 
 /* fragment.c */
+typedef struct pkgconf_fragment_render_ctx_ {
+	const bool escape;
+	const char delim;
+} pkgconf_fragment_render_ctx_t;
+
 typedef struct pkgconf_fragment_render_ops_ {
-	void (*render_buf)(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, char delim);
+	void (*render)(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf);
 } pkgconf_fragment_render_ops_t;
 
 typedef bool (*pkgconf_fragment_filter_func_t)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data);
