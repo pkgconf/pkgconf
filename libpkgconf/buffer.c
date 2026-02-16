@@ -71,20 +71,8 @@ pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
 	if (n == 0)
 		return;
 
-	if (p[n - 1] == '\0')
-	{
-		pkgconf_buffer_append(buf, p);
-		return;
-	}
-
-	char *tmp = malloc(n + 1);
-	if (tmp == NULL)
-		return;
-
-	memcpy(tmp, p, n);
-	tmp[n] = '\0';
-	pkgconf_buffer_append(buf, tmp);
-	free(tmp);
+	for (size_t i = 0; i < n; i++)
+		pkgconf_buffer_push_byte(buf, p[i]);
 }
 
 void
