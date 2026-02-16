@@ -355,28 +355,36 @@ pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value)
 		pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start));
 }
 
-char *
-pkgconf_bytecode_eval_str(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot)
+bool
+pkgconf_bytecode_eval_str_to_buf(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot, pkgconf_buffer_t *out)
 {
 	pkgconf_buffer_t bcbuf = PKGCONF_BUFFER_INITIALIZER;
-	pkgconf_buffer_t out = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_bytecode_t bc;
+	bool ret = false;
 
 	pkgconf_bytecode_compile(&bcbuf, input);
 	pkgconf_bytecode_from_buffer(&bc, &bcbuf);
 
-	if (!pkgconf_bytecode_eval(client, vars, &bc, &out, saw_sysroot))
-	{
-		pkgconf_buffer_finalize(&bcbuf);
+	ret = pkgconf_bytecode_eval(client, vars, &bc, out, saw_sysroot);
 
+	pkgconf_buffer_finalize(&bcbuf);
+
+	return ret;
+}
+
+char *
+pkgconf_bytecode_eval_str(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot)
+{
+	pkgconf_buffer_t out = PKGCONF_BUFFER_INITIALIZER;
+
+	if (!pkgconf_bytecode_eval_str_to_buf(client, vars, input, saw_sysroot, &out))
+	{
 		if (pkgconf_buffer_len(&out) > 0)
 			return pkgconf_buffer_freeze(&out);
 
 		pkgconf_buffer_finalize(&out);
 		return NULL;
 	}
-
-	pkgconf_buffer_finalize(&bcbuf);
 
 	if (pkgconf_buffer_len(&out) == 0)
 	{
