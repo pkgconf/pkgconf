@@ -450,9 +450,13 @@ PKGCONF_API int pkgconf_argv_split(const char *src, int *argc, char ***argv);
 PKGCONF_API void pkgconf_argv_free(char **argv);
 
 /* fragment.c */
+typedef struct pkgconf_fragment_render_ctx_ {
+	const bool escape;
+	const char delim;
+} pkgconf_fragment_render_ctx_t;
+
 typedef struct pkgconf_fragment_render_ops_ {
-	size_t (*render_len)(const pkgconf_list_t *list, bool escape);
-	void (*render_buf)(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, char delim);
+	void (*render)(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf);
 } pkgconf_fragment_render_ops_t;
 
 typedef bool (*pkgconf_fragment_filter_func_t)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data);
@@ -464,7 +468,6 @@ PKGCONF_API void pkgconf_fragment_copy_list(const pkgconf_client_t *client, pkgc
 PKGCONF_API void pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node);
 PKGCONF_API void pkgconf_fragment_free(pkgconf_list_t *list);
 PKGCONF_API void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, void *data);
-PKGCONF_API size_t pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops);
 PKGCONF_API void pkgconf_fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim);
 PKGCONF_API bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag);
 

@@ -517,52 +517,8 @@ fragment_quote(pkgconf_buffer_t *out, const pkgconf_fragment_t *frag)
 	pkgconf_buffer_escape(out, src, quote_spans, PKGCONF_ARRAY_SIZE(quote_spans));
 }
 
-static inline size_t
-pkgconf_fragment_len(const pkgconf_fragment_t *frag)
-{
-	size_t len = 1;
-
-	if (frag->type)
-		len += 2;
-
-	if (frag->data != NULL)
-	{
-		pkgconf_node_t *iter;
-
-		pkgconf_buffer_t quoted = PKGCONF_BUFFER_INITIALIZER;
-		fragment_quote(&quoted, frag);
-		len += pkgconf_buffer_len(&quoted);
-		pkgconf_buffer_finalize(&quoted);
-
-		PKGCONF_FOREACH_LIST_ENTRY(frag->children.head, iter)
-		{
-			const pkgconf_fragment_t *child_frag = iter->data;
-			len += pkgconf_fragment_len(child_frag) + 1;
-		}
-	}
-
-	return len;
-}
-
-static size_t
-fragment_render_len(const pkgconf_list_t *list, bool escape)
-{
-	(void) escape;
-
-	size_t out = 1;		/* trailing nul */
-	pkgconf_node_t *node;
-
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
-	{
-		const pkgconf_fragment_t *frag = node->data;
-		out += pkgconf_fragment_len(frag);
-	}
-
-	return out;
-}
-
-static inline size_t
-fragment_render_item(const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf, char delim)
+static void
+fragment_render(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf)
 {
 	const pkgconf_node_t *iter;
 	pkgconf_buffer_t quoted = PKGCONF_BUFFER_INITIALIZER;
@@ -579,56 +535,14 @@ fragment_render_item(const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf, char
 	{
 		const pkgconf_fragment_t *child_frag = iter->data;
 
-		pkgconf_buffer_push_byte(buf, delim);
-		fragment_render_item(child_frag, buf, delim);
-	}
-
-	return pkgconf_buffer_len(buf);
-}
-
-static void
-fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, char delim)
-{
-	(void) escape;
-
-	pkgconf_node_t *node;
-
-	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
-	{
-		const pkgconf_fragment_t *frag = node->data;
-		fragment_render_item(frag, buf, delim);
-
-		if (node->next != NULL)
-			pkgconf_buffer_push_byte(buf, delim);
+		pkgconf_buffer_push_byte(buf, ctx->delim);
+		fragment_render(ctx, child_frag, buf);
 	}
 }
 
 static const pkgconf_fragment_render_ops_t default_render_ops = {
-	.render_len = fragment_render_len,
-	.render_buf = fragment_render_buf
+	.render = fragment_render
 };
-
-/*
- * !doc
- *
- * .. c:function:: size_t pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops)
- *
- *    Calculates the required memory to store a `fragment list` when rendered as a string.
- *
- *    :param pkgconf_list_t* list: The `fragment list` being rendered.
- *    :param bool escape: Whether or not to escape special shell characters (deprecated).
- *    :param pkgconf_fragment_render_ops_t* ops: An optional ops structure to use for custom renderers, else ``NULL``.
- *    :return: the amount of bytes required to represent the `fragment list` when rendered
- *    :rtype: size_t
- */
-size_t
-pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape, const pkgconf_fragment_render_ops_t *ops)
-{
-	(void) escape;
-
-	ops = ops != NULL ? ops : &default_render_ops;
-	return ops->render_len(list, true);
-}
 
 /*
  * !doc
@@ -638,8 +552,7 @@ pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape, const pkgco
  *    Renders a `fragment list` into a buffer.
  *
  *    :param pkgconf_list_t* list: The `fragment list` being rendered.
- *    :param char* buf: The buffer to render the fragment list into.
- *    :param size_t buflen: The length of the buffer.
+ *    :param pkgconf_buffer_t* buf: The buffer to render the fragment list into.
  *    :param bool escape: Whether or not to escape special shell characters (deprecated).
  *    :param pkgconf_fragment_render_ops_t* ops: An optional ops structure to use for custom renderers, else ``NULL``.
  *    :param char delim: The delimiter to use between fragments.
@@ -648,10 +561,22 @@ pkgconf_fragment_render_len(const pkgconf_list_t *list, bool escape, const pkgco
 void
 pkgconf_fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim)
 {
-	(void) escape;
+	pkgconf_node_t *node;
+	pkgconf_fragment_render_ctx_t ctx = {
+		.escape = escape,
+		.delim = delim,
+	};
 
 	ops = ops != NULL ? ops : &default_render_ops;
-	ops->render_buf(list, buf, true, delim);
+
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+	{
+		const pkgconf_fragment_t *frag = node->data;
+		ops->render(&ctx, frag, buf);
+
+		if (node->next != NULL)
+			pkgconf_buffer_push_byte(buf, ctx.delim);
+	}
 }
 
 /*
