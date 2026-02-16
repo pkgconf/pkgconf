@@ -500,8 +500,10 @@ apply_env_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *
 				}
 			}
 
+			char *val = pkgconf_variable_eval_str(client, &pkg->vars, tuple, NULL);
 			pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT,
-				"%s='%s'\n", havebuf, tuple->value);
+				"%s='%s'\n", havebuf, val);
+			free(val);
 		}
 	}
 }

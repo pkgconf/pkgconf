@@ -60,9 +60,9 @@ pkgconf_variable_free(pkgconf_variable_t *v)
 }
 
 pkgconf_variable_t *
-pkgconf_variable_find(pkgconf_list_t *vars, const char *key)
+pkgconf_variable_find(const pkgconf_list_t *vars, const char *key)
 {
-	pkgconf_node_t *n;
+	const pkgconf_node_t *n;
 
 	if (vars == NULL || key == NULL)
 		return NULL;

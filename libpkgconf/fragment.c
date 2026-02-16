@@ -151,7 +151,7 @@ pkgconf_fragment_is_special(const char *string)
 }
 
 static inline void
-pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen, const char *source, const char *sysroot_dir, unsigned int flags)
+pkgconf_fragment_munge(pkgconf_client_t *client, char *buf, size_t buflen, const char *source, const char *sysroot_dir, unsigned int flags)
 {
 	*buf = '\0';
 
@@ -171,7 +171,7 @@ pkgconf_fragment_munge(const pkgconf_client_t *client, char *buf, size_t buflen,
 }
 
 static inline char *
-pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source, unsigned int flags)
+pkgconf_fragment_copy_munged(pkgconf_client_t *client, const char *source, unsigned int flags)
 {
 	char mungebuf[PKGCONF_ITEM_SIZE];
 	pkgconf_fragment_munge(client, mungebuf, sizeof mungebuf, source, client->sysroot_dir, flags);
@@ -193,7 +193,7 @@ pkgconf_fragment_copy_munged(const pkgconf_client_t *client, const char *source,
  *    :return: nothing
  */
 void
-pkgconf_fragment_insert(const pkgconf_client_t *client, pkgconf_list_t *list, char type, const char *data, bool tail)
+pkgconf_fragment_insert(pkgconf_client_t *client, pkgconf_list_t *list, char type, const char *data, bool tail)
 {
 	pkgconf_fragment_t *frag;
 
@@ -224,7 +224,7 @@ pkgconf_fragment_insert(const pkgconf_client_t *client, pkgconf_list_t *list, ch
  *    :return: nothing
  */
 void
-pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
+pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
 {
 	pkgconf_list_t *target = list;
 	pkgconf_fragment_t *frag;
@@ -639,11 +639,11 @@ pkgconf_fragment_free(pkgconf_list_t *list)
  *    :return: true on success, false on parse error
  */
 bool
-pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
+pkgconf_fragment_parse(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
 {
 	int i, ret, argc;
 	char **argv;
-	char *repstr = pkgconf_tuple_parse(client, vars, value, flags);
+	char *repstr = pkgconf_bytecode_eval_str(client, vars, value, NULL);
 
 	PKGCONF_TRACE(client, "post-subst: [%s] -> [%s]", value, repstr);
 

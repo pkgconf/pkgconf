@@ -104,7 +104,7 @@ pkgconf_bytecode_eval_lookup_var(pkgconf_bytecode_eval_ctx_t *ctx,
 	if ((v = pkgconf_bytecode_eval_scan(&ctx->client->global_vars, name, nlen, PKGCONF_VARIABLEF_OVERRIDE, 0)) != NULL)
 		return v;
 
-	if ((v = pkgconf_bytecode_eval_scan(ctx->vars, name, nlen, 0, 0)) != NULL)
+	if (ctx->vars != NULL && (v = pkgconf_bytecode_eval_scan(ctx->vars, name, nlen, 0, 0)) != NULL)
 		return v;
 
 	if ((v = pkgconf_bytecode_eval_scan(&ctx->client->global_vars, name, nlen, 0, PKGCONF_VARIABLEF_OVERRIDE)) != NULL)
@@ -138,7 +138,9 @@ pkgconf_bytecode_eval_var(pkgconf_bytecode_eval_ctx_t *ctx,
 	if (!ok)
 		return false;
 
-	*saw_sysroot |= inner_saw;
+	if (saw_sysroot != NULL)
+		*saw_sysroot |= inner_saw;
+
 	return true;
 }
 
@@ -170,6 +172,7 @@ pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 		switch (op->tag)
 		{
 		case PKGCONF_BYTECODE_OP_TEXT:
+			/* this only fails due to truncation */
 			if (!pkgconf_bytecode_eval_append_slice(ctx, out, op->data, op->size))
 				return false;
 			break;
@@ -199,7 +202,7 @@ pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 
 static void
 pkgconf_bytecode_eval_ctx_init(pkgconf_bytecode_eval_ctx_t *ctx,
-	pkgconf_client_t *client,
+	const pkgconf_client_t *client,
 	const pkgconf_list_t *vars)
 {
 	memset(ctx, 0, sizeof(*ctx));
@@ -230,7 +233,7 @@ pkgconf_bytecode_eval_ctx_init(pkgconf_bytecode_eval_ctx_t *ctx,
 }
 
 bool
-pkgconf_bytecode_eval(pkgconf_client_t *client,
+pkgconf_bytecode_eval(const pkgconf_client_t *client,
 	const pkgconf_list_t *vars,
 	const pkgconf_bytecode_t *bc,
 	pkgconf_buffer_t *out,
@@ -350,4 +353,36 @@ pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value)
 
 	if (p > text_start)
 		pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start));
+}
+
+char *
+pkgconf_bytecode_eval_str(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot)
+{
+	pkgconf_buffer_t bcbuf = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t out = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_bytecode_t bc;
+
+	pkgconf_bytecode_compile(&bcbuf, input);
+	pkgconf_bytecode_from_buffer(&bc, &bcbuf);
+
+	if (!pkgconf_bytecode_eval(client, vars, &bc, &out, saw_sysroot))
+	{
+		pkgconf_buffer_finalize(&bcbuf);
+
+		if (pkgconf_buffer_len(&out) > 0)
+			return pkgconf_buffer_freeze(&out);
+
+		pkgconf_buffer_finalize(&out);
+		return NULL;
+	}
+
+	pkgconf_buffer_finalize(&bcbuf);
+
+	if (pkgconf_buffer_len(&out) == 0)
+	{
+		pkgconf_buffer_finalize(&out);
+		return strdup("");
+	}
+
+	return pkgconf_buffer_freeze(&out);
 }
