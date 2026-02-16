@@ -58,6 +58,29 @@ pkgconf_fragment_is_greedy(const char *string)
 }
 
 static inline bool
+pkgconf_fragment_should_check_sysroot(const char *string)
+{
+	static const struct pkgconf_fragment_check check_fragments[] = {
+		{"-F", 2},
+		{"-I", 2},
+		{"-L", 2},
+	};
+
+	if (*string != '-')
+		return false;
+
+	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(check_fragments); i++)
+		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
+		{
+			/* if it is the bare flag, then we want the next token to be the data */
+			if (!*(string + check_fragments[i].len))
+				return true;
+		}
+
+	return false;
+}
+
+static inline bool
 pkgconf_fragment_is_unmergeable(const char *string)
 {
 	static const struct pkgconf_fragment_check check_fragments[] = {
