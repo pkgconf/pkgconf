@@ -254,3 +254,34 @@ spdxtool_util_string_correction(char *str)
 
 	return str;
 }
+
+/*
+ * !doc
+ *
+ * .. c:function:: char *spdxtool_util_tuple_lookup(pkgconf_client_t *client, pkgconf_list_t *vars, const char *key)
+ *
+ *    Lowercase string and change spaces to '_'
+ *
+ *    :param pkgconf_client_t *client: client to use for the lookup
+ *    :param pkgconf_list_t *vars: locally-scoped vars to look through
+ *    :param char *key: key to lookup
+ *    :return: Converted string
+ */
+char *
+spdxtool_util_tuple_lookup(pkgconf_client_t *client, pkgconf_list_t *vars, const char *key)
+{
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_bytecode_eval_ctx_t ctx = {
+		.client = client,
+		.vars = vars,
+	};
+
+	pkgconf_variable_t *v = pkgconf_bytecode_eval_lookup_var(&ctx, key, strlen(key));
+	if (v == NULL)
+		return NULL;
+
+	if (!pkgconf_variable_eval(client, vars, v, &buf, NULL))
+		return NULL;
+
+	return pkgconf_buffer_freeze(&buf);
+}

@@ -116,6 +116,9 @@ spdxtool_util_get_current_iso8601_time(void);
 char *
 spdxtool_util_string_correction(char *str);
 
+char *
+spdxtool_util_tuple_lookup(pkgconf_client_t *client, pkgconf_list_t *vars, const char *key);
+
 #ifdef __cplusplus
 }
 #endif
