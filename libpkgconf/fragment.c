@@ -321,6 +321,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 	if (frag == NULL)
 	{
 		PKGCONF_TRACE(client, "failed to add new fragment due to allocation failure to list @%p", target);
+		free(string);
 		return;
 	}
 
@@ -344,7 +345,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 	}
 	else
 	{
-		if (client->sysroot_dir != NULL && list->tail != NULL)
+		if (client->sysroot_dir != NULL && list->tail != NULL && list->tail->data != NULL)
 		{
 			pkgconf_fragment_t *last = list->tail->data;
 
