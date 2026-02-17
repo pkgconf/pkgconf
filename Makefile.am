@@ -197,6 +197,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/sbom/source-tag-bar.test \
 		t/sbom/source-tag-foo.test \
 		t/sysroot/cflags-rewriting.test \
+		t/sysroot/explicit-sysroot.test \
 		t/sysroot/idirafter-munge-sysroot.test \
 		t/sysroot/isystem-munge-sysroot.test \
 		t/sysroot/no-pc_sysrootdir-rewriting-2.test \
