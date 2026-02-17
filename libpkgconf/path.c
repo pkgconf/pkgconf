@@ -455,3 +455,47 @@ pkgconf_path_build_from_registry(void *hKey, pkgconf_list_t *dir_list, bool filt
 	return added;
 }
 #endif
+
+bool
+pkgconf_path_is_plausible(const pkgconf_buffer_t *buf)
+{
+	const char *s;
+
+	if (buf == NULL)
+		return false;
+
+	s = pkgconf_buffer_str(buf);
+	if (s == NULL)
+		return false;
+
+	/* skip leading whitespace */
+	while (*s != '\0' && isspace((unsigned char)*s))
+		s++;
+
+	if (*s == '\0')
+		return false;
+
+	/* POSIX absolute path */
+	if (*s == '/')
+		return true;
+
+	/* ./ or ../ relative path */
+	if (s[0] == '.' && (s[1] == '/' || s[1] == '\\'))
+		return true;
+
+	if (s[0] == '.' && s[1] == '.' && (s[2] == '/' || s[2] == '\\'))
+		return true;
+
+	/* Windows drive path: C:/... or C:\... */
+	if (isalpha((unsigned char)s[0]) && s[1] == ':' && (s[2] == '/' || s[2] == '\\'))
+		return true;
+
+	/* anything with a path separator seems plausible, for example "Program Files/MySDK" */
+	for (const char *p = s; *p != '\0'; p++)
+	{
+		if (*p == '/' || *p == '\\')
+			return true;
+	}
+
+	return false;
+}
