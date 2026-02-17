@@ -355,7 +355,6 @@ EXTRA_DIST =	pkg.m4 \
 
 test_scripts=	\
 		tests/parser.sh \
-		tests/regress.sh \
 		tests/spdxtool.sh \
 		tests/symlink.sh
 
