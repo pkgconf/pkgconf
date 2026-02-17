@@ -71,20 +71,8 @@ pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
 	if (n == 0)
 		return;
 
-	if (p[n - 1] == '\0')
-	{
-		pkgconf_buffer_append(buf, p);
-		return;
-	}
-
-	char *tmp = malloc(n + 1);
-	if (tmp == NULL)
-		return;
-
-	memcpy(tmp, p, n);
-	tmp[n] = '\0';
-	pkgconf_buffer_append(buf, tmp);
-	free(tmp);
+	for (size_t i = 0; i < n; i++)
+		pkgconf_buffer_push_byte(buf, p[i]);
 }
 
 void
@@ -208,6 +196,15 @@ pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...)
 	va_start(va, delim);
 	pkgconf_buffer_vjoin(buffer, (char)delim, va);
 	va_end(va);
+}
+
+bool
+pkgconf_buffer_has_prefix(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *prefix)
+{
+	const char *haystack_str = pkgconf_buffer_str_or_empty(haystack);
+	const char *prefix_str = pkgconf_buffer_str_or_empty(prefix);
+
+	return strncmp(haystack_str, prefix_str, strlen(prefix_str)) == 0;
 }
 
 bool

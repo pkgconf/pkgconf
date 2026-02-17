@@ -148,7 +148,7 @@ pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, cons
 	(void) warnprefix;
 
 	char **dest = (char **)((char *) pkg + offset);
-	*dest = pkgconf_tuple_parse(client, &pkg->vars, value, pkg->flags);
+	*dest = pkgconf_bytecode_eval_str(client, &pkg->vars, value, NULL);
 }
 
 static void
@@ -160,7 +160,7 @@ pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, co
 	char **dest = (char **)((char *) pkg + offset);
 
 	/* cut at any detected whitespace */
-	p = pkgconf_tuple_parse(client, &pkg->vars, value, pkg->flags);
+	p = pkgconf_bytecode_eval_str(client, &pkg->vars, value, NULL);
 
 	len = strcspn(p, " \t");
 	if (len != strlen(p))
@@ -179,15 +179,7 @@ static void
 pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
-
-	/* we patch client-wide sysroot dir and then patch it back when it is overridden */
-	char *sysroot_dir = client->sysroot_dir;
-	char *pkg_sysroot_dir = pkgconf_tuple_find(client, &pkg->vars, "pc_sysrootdir");
-	if (pkg_sysroot_dir != NULL)
-		client->sysroot_dir = pkg_sysroot_dir;
-
 	bool ret = pkgconf_fragment_parse(client, dest, &pkg->vars, value, pkg->flags);
-	client->sysroot_dir = sysroot_dir;
 
 	if (!ret)
 	{

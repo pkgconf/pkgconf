@@ -35,7 +35,7 @@ typedef struct spdxtool_core_creation_info_
 	char *created;
 	char *created_by;
 	const char *created_using;
-	const char *spec_version;
+	char *spec_version;
 } spdxtool_core_creation_info_t;
 
 typedef struct spdxtool_core_spdx_document
@@ -115,6 +115,9 @@ spdxtool_util_get_current_iso8601_time(void);
 
 char *
 spdxtool_util_string_correction(char *str);
+
+char *
+spdxtool_util_tuple_lookup(pkgconf_client_t *client, pkgconf_list_t *vars, const char *key);
 
 #ifdef __cplusplus
 }

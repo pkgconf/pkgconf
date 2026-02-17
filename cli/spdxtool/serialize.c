@@ -127,7 +127,7 @@ spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, const char *parm, int 
  *    :return: nothing
  */
 void
-spdxtool_serialize_string(pkgconf_buffer_t *buffer, char *string, unsigned int level, bool more)
+spdxtool_serialize_string(pkgconf_buffer_t *buffer, const char *string, unsigned int level, bool more)
 {
 	serialize_add_indent(buffer, level);
 	pkgconf_buffer_push_byte(buffer, '"');

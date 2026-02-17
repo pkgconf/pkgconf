@@ -231,6 +231,8 @@ pkgconf_client_deinit(pkgconf_client_t *client)
 	pkgconf_path_free(&client->dir_list);
 	pkgconf_cache_free(client);
 
+	pkgconf_buffer_finalize(&client->_scratch_buffer);
+
 	memset(client, '\0', sizeof(*client));
 }
 

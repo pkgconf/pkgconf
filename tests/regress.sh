@@ -19,6 +19,6 @@ sysroot_munge_body()
 explicit_sysroot_body()
 {
 	export PKG_CONFIG_SYSROOT_DIR=${selfdir}
-	atf_check -o inline:"${selfdir}/usr/share/test\n" \
+	atf_check -o inline:"${selfdir}//usr/share/test\n" \
 		pkgconf --with-path="${selfdir}/lib1" --variable=pkgdatadir explicit-sysroot
 }

@@ -168,7 +168,7 @@ spdxtool_core_creation_info_new(pkgconf_client_t *client, char *agent_id, char *
 	}
 	creation_struct->created_by = agent_id;
 	creation_struct->created_using = "pkgconf spdxtool";
-	creation_struct->spec_version = spdxtool_util_get_spdx_version(client);
+	creation_struct->spec_version = strdup(spdxtool_util_get_spdx_version(client));
 	return creation_struct;
 }
 
@@ -208,6 +208,8 @@ spdxtool_core_creation_info_free(spdxtool_core_creation_info_t *creation_struct)
 		creation_struct->created_by = NULL;
 	}
 
+	if(creation_struct->spec_version)
+		free(creation_struct->spec_version);
 
 	free(creation_struct);
 }

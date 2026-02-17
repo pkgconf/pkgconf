@@ -319,7 +319,7 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 	char *cnameptr = cmpname;
 	char *cnameend = cmpname + PKGCONF_ITEM_SIZE - 1;
 
-	if (!*depends)
+	if (!depends || !*depends)
 		return;
 
 	memset(cmpname, '\0', sizeof cmpname);
@@ -466,7 +466,7 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 void
 pkgconf_dependency_parse(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist, const char *depends, unsigned int flags)
 {
-	char *kvdepends = pkgconf_tuple_parse(client, &pkg->vars, depends, pkg->flags);
+	char *kvdepends = pkgconf_bytecode_eval_str(client, &pkg->vars, depends, NULL);
 
 	pkgconf_dependency_parse_str(client, deplist, kvdepends, flags);
 	free(kvdepends);

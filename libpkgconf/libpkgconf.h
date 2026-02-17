@@ -47,7 +47,6 @@ typedef enum {
 
 typedef struct pkgconf_pkg_ pkgconf_pkg_t;
 typedef struct pkgconf_dependency_ pkgconf_dependency_t;
-typedef struct pkgconf_tuple_ pkgconf_tuple_t;
 typedef struct pkgconf_buffer_ pkgconf_buffer_t;
 typedef struct pkgconf_span_ pkgconf_span_t;
 typedef struct pkgconf_fragment_ pkgconf_fragment_t;
@@ -107,6 +106,48 @@ struct pkgconf_dependency_ {
 	char *why;
 };
 
+struct pkgconf_buffer_ {
+	char *base;
+	char *end;
+};
+
+enum pkgconf_bytecode_op {
+	PKGCONF_BYTECODE_OP_TEXT = 1,
+	PKGCONF_BYTECODE_OP_VAR = 2,
+	PKGCONF_BYTECODE_OP_SYSROOT = 3,
+	PKGCONF_BYTECODE_OP_PREFIX = 4,
+};
+
+typedef struct {
+	enum pkgconf_bytecode_op tag;
+	uint32_t size;
+	char data[];
+} pkgconf_bytecode_op_t;
+
+typedef struct {
+	const uint8_t *base;
+	size_t len;
+} pkgconf_bytecode_t;
+
+typedef struct pkgconf_variable_ {
+	pkgconf_node_t iter;
+
+	char *key;
+
+	pkgconf_buffer_t bcbuf;
+	pkgconf_bytecode_t bc;
+
+	unsigned int flags;
+
+	bool expanding;
+} pkgconf_variable_t;
+
+#define PKGCONF_VARIABLEF_OVERRIDE		0x1
+
+typedef pkgconf_variable_t pkgconf_tuple_t;
+
+#define PKGCONF_PKG_TUPLEF_OVERRIDE		PKGCONF_VARIABLEF_OVERRIDE
+
 struct pkgconf_tuple_ {
 	pkgconf_node_t iter;
 
@@ -115,13 +156,6 @@ struct pkgconf_tuple_ {
 
 	unsigned int flags;
 };
-
-struct pkgconf_buffer_ {
-	char *base;
-	char *end;
-};
-
-#define PKGCONF_PKG_TUPLEF_OVERRIDE		0x1
 
 struct pkgconf_path_ {
 	pkgconf_node_t lnode;
@@ -233,6 +267,8 @@ struct pkgconf_client_ {
 	pkgconf_output_t *output;
 
 	const pkgconf_cross_personality_t *personality;
+
+	pkgconf_buffer_t _scratch_buffer;
 };
 
 struct pkgconf_cross_personality_ {
@@ -250,23 +286,6 @@ struct pkgconf_cross_personality_ {
 };
 
 /* bytecode.c */
-enum pkgconf_bytecode_op {
-	PKGCONF_BYTECODE_OP_TEXT = 1,
-	PKGCONF_BYTECODE_OP_VAR = 2,
-	PKGCONF_BYTECODE_OP_SYSROOT = 3,
-};
-
-typedef struct {
-	enum pkgconf_bytecode_op tag;
-	uint32_t size;
-	char data[];
-} pkgconf_bytecode_op_t;
-
-typedef struct {
-	const uint8_t *base;
-	size_t len;
-} pkgconf_bytecode_t;
-
 static inline const pkgconf_bytecode_op_t *
 pkgconf_bytecode_op_next(const pkgconf_bytecode_op_t *op)
 {
@@ -275,38 +294,29 @@ pkgconf_bytecode_op_next(const pkgconf_bytecode_op_t *op)
 }
 
 typedef struct pkgconf_bytecode_eval_ctx_ {
-	pkgconf_client_t *client;
+	const pkgconf_client_t *client;
 	const pkgconf_list_t *vars;
 
 	pkgconf_buffer_t sysroot;
 } pkgconf_bytecode_eval_ctx_t;
 
-PKGCONF_API bool pkgconf_bytecode_eval(pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot);
+PKGCONF_API bool pkgconf_bytecode_eval(const pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot);
 PKGCONF_API void pkgconf_bytecode_emit(pkgconf_buffer_t *buf, enum pkgconf_bytecode_op tag, const void *data, uint32_t size);
 PKGCONF_API void pkgconf_bytecode_emit_text(pkgconf_buffer_t *buf, const char *p, size_t n);
 PKGCONF_API void pkgconf_bytecode_emit_var(pkgconf_buffer_t *buf, const char *name, size_t nlen);
 PKGCONF_API void pkgconf_bytecode_emit_sysroot(pkgconf_buffer_t *buf);
 PKGCONF_API void pkgconf_bytecode_from_buffer(pkgconf_bytecode_t *bc, const pkgconf_buffer_t *buf);
+PKGCONF_API void pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value);
+PKGCONF_API bool pkgconf_bytecode_eval_str_to_buf(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot, pkgconf_buffer_t *out);
+PKGCONF_API char *pkgconf_bytecode_eval_str(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot);
+PKGCONF_API pkgconf_variable_t *pkgconf_bytecode_eval_lookup_var(pkgconf_bytecode_eval_ctx_t *ctx, const char *name, size_t nlen);
+PKGCONF_API bool pkgconf_bytecode_references_var(const pkgconf_buffer_t *buf, const char *key);
+PKGCONF_API bool pkgconf_bytecode_rewrite_selfrefs(pkgconf_buffer_t *out, const pkgconf_buffer_t *rhs, const char *key, const pkgconf_buffer_t *prev);
 
 /* variable.c */
-typedef struct pkgconf_variable_ {
-	pkgconf_node_t iter;
-
-	char *key;
-
-	pkgconf_buffer_t bcbuf;
-	pkgconf_bytecode_t bc;
-
-	unsigned int flags;
-
-	bool expanding;
-} pkgconf_variable_t;
-
-#define PKGCONF_VARIABLEF_OVERRIDE  PKGCONF_PKG_TUPLEF_OVERRIDE
-
 PKGCONF_API pkgconf_variable_t *pkgconf_variable_new(const char *key);
 PKGCONF_API void pkgconf_variable_free(pkgconf_variable_t *v);
-PKGCONF_API pkgconf_variable_t *pkgconf_variable_find(pkgconf_list_t *vars, const char *key);
+PKGCONF_API pkgconf_variable_t *pkgconf_variable_find(const pkgconf_list_t *vars, const char *key);
 PKGCONF_API pkgconf_variable_t *pkgconf_variable_get_or_create(pkgconf_list_t *vars, const char *key);
 PKGCONF_API void pkgconf_variable_delete(pkgconf_list_t *vars, pkgconf_variable_t *v);
 PKGCONF_API void pkgconf_variable_list_free(pkgconf_list_t *vars);
@@ -460,9 +470,9 @@ typedef struct pkgconf_fragment_render_ops_ {
 } pkgconf_fragment_render_ops_t;
 
 typedef bool (*pkgconf_fragment_filter_func_t)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data);
-PKGCONF_API bool pkgconf_fragment_parse(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags);
-PKGCONF_API void pkgconf_fragment_insert(const pkgconf_client_t *client, pkgconf_list_t *list, char type, const char *data, bool tail);
-PKGCONF_API void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags);
+PKGCONF_API bool pkgconf_fragment_parse(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags);
+PKGCONF_API void pkgconf_fragment_insert(pkgconf_client_t *client, pkgconf_list_t *list, char type, const char *data, bool tail);
+PKGCONF_API void pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *string, unsigned int flags);
 PKGCONF_API void pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private);
 PKGCONF_API void pkgconf_fragment_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base);
 PKGCONF_API void pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node);
@@ -473,12 +483,11 @@ PKGCONF_API bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client,
 
 /* tuple.c */
 PKGCONF_API pkgconf_tuple_t *pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *parent, const char *key, const char *value, bool parse, unsigned int flags);
-PKGCONF_API char *pkgconf_tuple_find(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key);
-PKGCONF_API char *pkgconf_tuple_parse(const pkgconf_client_t *client, pkgconf_list_t *list, const char *value, unsigned int flags);
+PKGCONF_API const char *pkgconf_tuple_find(pkgconf_client_t *client, pkgconf_list_t *list, const char *key);
 PKGCONF_API void pkgconf_tuple_free(pkgconf_list_t *list);
 PKGCONF_API void pkgconf_tuple_free_entry(pkgconf_tuple_t *tuple, pkgconf_list_t *list);
 PKGCONF_API void pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *value);
-PKGCONF_API char *pkgconf_tuple_find_global(const pkgconf_client_t *client, const char *key);
+PKGCONF_API const char *pkgconf_tuple_find_global(pkgconf_client_t *client, const char *key);
 PKGCONF_API void pkgconf_tuple_free_global(pkgconf_client_t *client);
 PKGCONF_API void pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv);
 
@@ -516,6 +525,7 @@ PKGCONF_API void pkgconf_path_free(pkgconf_list_t *dirlist);
 PKGCONF_API bool pkgconf_path_relocate(char *buf, size_t buflen);
 PKGCONF_API void pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_t *src);
 PKGCONF_API void pkgconf_path_prepend_list(pkgconf_list_t *dst, const pkgconf_list_t *src);
+PKGCONF_API bool pkgconf_path_is_plausible(const pkgconf_buffer_t *buf);
 
 /* buffer.c */
 struct pkgconf_span_ {
@@ -542,6 +552,7 @@ PKGCONF_API void pkgconf_buffer_finalize(pkgconf_buffer_t *buffer);
 PKGCONF_API void pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out);
 PKGCONF_API void pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list va);
 PKGCONF_API void pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...);
+PKGCONF_API bool pkgconf_buffer_has_prefix(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *prefix);
 PKGCONF_API bool pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
 PKGCONF_API bool pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, char needle);
 PKGCONF_API bool pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
@@ -567,7 +578,7 @@ static inline char pkgconf_buffer_lastc(const pkgconf_buffer_t *buffer) {
 }
 
 #define PKGCONF_BUFFER_INITIALIZER { NULL, NULL }
-#define PKGCONF_BUFFER_FROM_STR(str) &(const pkgconf_buffer_t){ .base = str, .end = str + strlen(str) }
+#define PKGCONF_BUFFER_FROM_STR(str) &(const pkgconf_buffer_t){ .base = str, .end = str + (str != NULL ? strlen(str) : 0) }
 
 static inline void pkgconf_buffer_reset(pkgconf_buffer_t *buffer) {
 	pkgconf_buffer_finalize(buffer);
@@ -585,8 +596,8 @@ static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer) {
 
 static inline void pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_t *newptr)
 {
-    pkgconf_buffer_reset(newptr);
-    pkgconf_buffer_append(newptr, pkgconf_buffer_str(buffer));
+	pkgconf_buffer_reset(newptr);
+	pkgconf_buffer_append_slice(newptr, pkgconf_buffer_str(buffer), pkgconf_buffer_len(buffer));
 }
 
 static inline bool pkgconf_str_eq_slice(const char *s, const char *p, size_t n)

@@ -29,7 +29,7 @@ void
 spdxtool_serialize_parm_and_int(pkgconf_buffer_t *buffer, const char *parm, int integer, unsigned int level, bool comma);
 
 void
-spdxtool_serialize_string(pkgconf_buffer_t *buffer, char *string, unsigned int level, bool comma);
+spdxtool_serialize_string(pkgconf_buffer_t *buffer, const char *string, unsigned int level, bool comma);
 
 void
 spdxtool_serialize_obj_start(pkgconf_buffer_t *buffer, unsigned int level);

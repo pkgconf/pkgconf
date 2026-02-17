@@ -113,6 +113,7 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 {
 	pkgconf_node_t *node = NULL;
 	char *value;
+	char *spdx_id = spdxtool_util_tuple_lookup(client, &sbom_struct->rootElement->vars, "spdxId");
 
 	spdxtool_serialize_obj_start(buffer, 2);
 	spdxtool_serialize_parm_and_string(buffer, "type", sbom_struct->type, 3, true);
@@ -122,7 +123,7 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 	spdxtool_serialize_string(buffer, sbom_struct->sbom_type, 4, false);
 	spdxtool_serialize_array_end(buffer, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "rootElement", '[', 3, false);
-	spdxtool_serialize_string(buffer, pkgconf_tuple_find(client, &sbom_struct->rootElement->vars, "spdxId"), 4, false);
+	spdxtool_serialize_string(buffer, spdx_id, 4, false);
 	spdxtool_serialize_array_end(buffer, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "element", '[', 3, false);
 	PKGCONF_FOREACH_LIST_ENTRY(sbom_struct->rootElement->required.head, node)
@@ -144,24 +145,26 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 		free(spdx_id_relation);
 	}
 
-	value = pkgconf_tuple_find(client, &sbom_struct->rootElement->vars, "hasDeclaredLicense");
+	value = spdxtool_util_tuple_lookup(client, &sbom_struct->rootElement->vars, "hasDeclaredLicense");
 	if (value != NULL)
 	{
 		spdxtool_serialize_string(buffer, value, 4, true);
-		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, strdup(value));
+		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, value);
 	}
 
-	value = pkgconf_tuple_find(client, &sbom_struct->rootElement->vars, "hasConcludedLicense");
+	value = spdxtool_util_tuple_lookup(client, &sbom_struct->rootElement->vars, "hasConcludedLicense");
 	if (value != NULL)
 	{
 		spdxtool_serialize_string(buffer, value, 4, false);
-		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, strdup(value));
+		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, value);
 	}
 
 	spdxtool_serialize_array_end(buffer, 3, false);
 	spdxtool_serialize_obj_end(buffer, 2, last);
 
 	spdxtool_software_package_serialize(client, buffer, sbom_struct->rootElement, false);
+
+	free(spdx_id);
 }
 
 /*
@@ -183,18 +186,21 @@ void
 spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, pkgconf_pkg_t *pkg, bool last)
 {
 	spdxtool_core_relationship_t *relationship_struct = NULL;
-	char *spdx_id_license = NULL, *tuple_license;
+	char *spdx_id_license = NULL, *tuple_license = NULL;
+	char *creation_info = spdxtool_util_tuple_lookup(client, &pkg->vars, "creationInfo");
+	char *spdx_id = spdxtool_util_tuple_lookup(client, &pkg->vars, "spdxId");
+	char *agent = spdxtool_util_tuple_lookup(client, &pkg->vars, "agent");
 	pkgconf_node_t *node = NULL;
 
 	(void) last;
 
 	spdxtool_serialize_obj_start(buffer, 2);
 	spdxtool_serialize_parm_and_string(buffer, "type", "software_Package", 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "creationInfo", pkgconf_tuple_find(client, &pkg->vars, "creationInfo"), 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "spdxId", pkgconf_tuple_find(client, &pkg->vars, "spdxId"), 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "creationInfo", creation_info, 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "spdxId", spdx_id, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "name", pkg->realname, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "originatedBy", '[', 3, false);
-	spdxtool_serialize_string(buffer, pkgconf_tuple_find(client, &pkg->vars, "agent"), 4, false);
+	spdxtool_serialize_string(buffer, agent, 4, false);
 	spdxtool_serialize_array_end(buffer, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "software_copyrightText", "NOASSERTION", 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "software_packageVersion", pkg->version, 3, false);
@@ -203,18 +209,18 @@ spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *
 	/* These are must so add them right a way */
 	spdx_id_license = spdxtool_util_get_spdx_id_string(client, "simplelicensing_LicenseExpression", pkg->license);
 
-	tuple_license = pkgconf_tuple_find(client, &pkg->vars, "hasDeclaredLicense");
+	tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasDeclaredLicense");
 	if (tuple_license != NULL)
 	{
-		relationship_struct = spdxtool_core_relationship_new(client, strdup(pkgconf_tuple_find(client, &pkg->vars, "creationInfo")), strdup(tuple_license), strdup(pkgconf_tuple_find(client, &pkg->vars, "spdxId")), strdup(spdx_id_license), strdup("hasDeclaredLicense"));
+		relationship_struct = spdxtool_core_relationship_new(client, strdup(creation_info), tuple_license, strdup(spdx_id), strdup(spdx_id_license), strdup("hasDeclaredLicense"));
 		spdxtool_core_relationship_serialize(client, buffer, relationship_struct, true);
 		spdxtool_core_relationship_free(relationship_struct);
 	}
 
-	tuple_license = pkgconf_tuple_find(client, &pkg->vars, "hasConcludedLicense");
+	tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasConcludedLicense");
 	if (tuple_license != NULL)
 	{
-		relationship_struct = spdxtool_core_relationship_new(client, strdup(pkgconf_tuple_find(client, &pkg->vars, "creationInfo")), strdup(tuple_license), strdup(pkgconf_tuple_find(client, &pkg->vars, "spdxId")), spdx_id_license, strdup("hasConcludedLicense"));
+		relationship_struct = spdxtool_core_relationship_new(client, strdup(creation_info), tuple_license, strdup(spdx_id), spdx_id_license, strdup("hasConcludedLicense"));
 		spdxtool_core_relationship_serialize(client, buffer, relationship_struct, true);
 		spdxtool_core_relationship_free(relationship_struct);
 	}
@@ -234,8 +240,12 @@ spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *
 		// new package spdxId which will be hopefully come later on
 		spdx_id_package = spdxtool_util_get_spdx_id_string(client, "Package", match->id);
 
-		relationship_struct = spdxtool_core_relationship_new(client, strdup(pkgconf_tuple_find(client, &pkg->vars, "creationInfo")), spdx_id_relation, strdup(pkgconf_tuple_find(client, &pkg->vars, "spdxId")), spdx_id_package, strdup("dependsOn"));
+		relationship_struct = spdxtool_core_relationship_new(client, strdup(creation_info), spdx_id_relation, strdup(spdx_id), spdx_id_package, strdup("dependsOn"));
 		spdxtool_core_relationship_serialize(client, buffer, relationship_struct, true);
 		spdxtool_core_relationship_free(relationship_struct);
 	}
+
+	free(creation_info);
+	free(spdx_id);
+	free(agent);
 }
