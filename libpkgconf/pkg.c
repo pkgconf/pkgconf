@@ -179,15 +179,7 @@ static void
 pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
-
-	/* we patch client-wide sysroot dir and then patch it back when it is overridden */
-	char *sysroot_dir = client->sysroot_dir;
-	const char *pkg_sysroot_dir = pkgconf_tuple_find(client, &pkg->vars, "pc_sysrootdir");
-	if (pkg_sysroot_dir != NULL)
-		client->sysroot_dir = (char *) pkg_sysroot_dir;
-
 	bool ret = pkgconf_fragment_parse(client, dest, &pkg->vars, value, pkg->flags);
-	client->sysroot_dir = sysroot_dir;
 
 	if (!ret)
 	{
