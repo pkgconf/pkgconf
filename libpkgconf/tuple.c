@@ -111,6 +111,9 @@ pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv)
 	char *value;
 	pkgconf_tuple_t *tuple;
 
+	if (workbuf == NULL)
+		goto out;
+
 	value = strchr(workbuf, '=');
 	if (value == NULL)
 		goto out;
@@ -132,6 +135,9 @@ dequote(const char *value)
 	char *bptr = buf;
 	const char *i;
 	char quote = 0;
+
+	if (buf == NULL)
+		return NULL;
 
 	if (*value == '\'' || *value == '"')
 		quote = *value;
@@ -177,6 +183,8 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 		return NULL;
 
 	dequote_value = dequote(value);
+	if (dequote_value == NULL)
+		return NULL;
 
 	pkgconf_variable_t *v = pkgconf_variable_get_or_create(list, key);
 	if (v == NULL)
