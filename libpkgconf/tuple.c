@@ -227,6 +227,7 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 
 	pkgconf_buffer_copy(&rhs_bcbuf, &v->bcbuf);
 	pkgconf_bytecode_from_buffer(&v->bc, &v->bcbuf);
+	pkgconf_buffer_finalize(&rhs_bcbuf);
 
 	return (pkgconf_tuple_t *) v;
 }
