@@ -394,3 +394,38 @@ pkgconf_bytecode_eval_str(const pkgconf_client_t *client, const pkgconf_list_t *
 
 	return pkgconf_buffer_freeze(&out);
 }
+
+bool
+pkgconf_bytecode_references_var(const pkgconf_buffer_t *buf, const char *key)
+{
+	const uint8_t *p, *end;
+	size_t klen;
+
+	if (buf == NULL || key == NULL)
+		return false;
+
+	klen = strlen(key);
+	p = (uint8_t *) buf->base;
+	end = (uint8_t *) buf->end;
+
+	while (p < end)
+	{
+		const pkgconf_bytecode_op_t *op = (const pkgconf_bytecode_op_t *)p;
+
+		if (p + sizeof(*op) > end)
+			return false;
+
+		if (p + sizeof(*op) + op->size > end)
+			return false;
+
+		if (op->tag == PKGCONF_BYTECODE_OP_VAR)
+		{
+			if (op->size == (uint32_t) klen && pkgconf_str_eq_slice(op->data, key, klen))
+				return true;
+		}
+
+		p += sizeof(*op) + op->size;
+	}
+
+	return false;
+}

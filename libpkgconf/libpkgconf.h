@@ -310,6 +310,7 @@ PKGCONF_API void pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *val
 PKGCONF_API bool pkgconf_bytecode_eval_str_to_buf(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot, pkgconf_buffer_t *out);
 PKGCONF_API char *pkgconf_bytecode_eval_str(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot);
 PKGCONF_API pkgconf_variable_t *pkgconf_bytecode_eval_lookup_var(pkgconf_bytecode_eval_ctx_t *ctx, const char *name, size_t nlen);
+PKGCONF_API bool pkgconf_bytecode_references_var(const pkgconf_buffer_t *buf, const char *key);
 
 /* variable.c */
 PKGCONF_API pkgconf_variable_t *pkgconf_variable_new(const char *key);
