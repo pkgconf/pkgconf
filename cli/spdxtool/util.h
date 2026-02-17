@@ -35,7 +35,7 @@ typedef struct spdxtool_core_creation_info_
 	char *created;
 	char *created_by;
 	const char *created_using;
-	const char *spec_version;
+	char *spec_version;
 } spdxtool_core_creation_info_t;
 
 typedef struct spdxtool_core_spdx_document

@@ -112,7 +112,7 @@ void
 spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom_struct, bool last)
 {
 	pkgconf_node_t *node = NULL;
-	char *value;
+	const char *value;
 
 	spdxtool_serialize_obj_start(buffer, 2);
 	spdxtool_serialize_parm_and_string(buffer, "type", sbom_struct->type, 3, true);
@@ -183,7 +183,8 @@ void
 spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, pkgconf_pkg_t *pkg, bool last)
 {
 	spdxtool_core_relationship_t *relationship_struct = NULL;
-	char *spdx_id_license = NULL, *tuple_license;
+	char *spdx_id_license = NULL;
+	const char *tuple_license;
 	pkgconf_node_t *node = NULL;
 
 	(void) last;
