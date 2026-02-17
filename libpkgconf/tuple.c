@@ -279,9 +279,7 @@ void
 pkgconf_tuple_free_entry(pkgconf_tuple_t *tuple, pkgconf_list_t *list)
 {
 	pkgconf_node_delete(&tuple->iter, list);
-
-	free(tuple->key);
-	free(tuple);
+	pkgconf_variable_free(tuple);
 }
 
 /*
