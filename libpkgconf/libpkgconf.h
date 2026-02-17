@@ -594,8 +594,8 @@ static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer) {
 
 static inline void pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_t *newptr)
 {
-    pkgconf_buffer_reset(newptr);
-    pkgconf_buffer_append(newptr, pkgconf_buffer_str(buffer));
+	pkgconf_buffer_reset(newptr);
+	pkgconf_buffer_append_slice(newptr, pkgconf_buffer_str(buffer), pkgconf_buffer_len(buffer));
 }
 
 static inline bool pkgconf_str_eq_slice(const char *s, const char *p, size_t n)
