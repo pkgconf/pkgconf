@@ -239,6 +239,8 @@ pkgconf_bytecode_eval(const pkgconf_client_t *client,
 	pkgconf_buffer_t *out,
 	bool *saw_sysroot)
 {
+	bool ret;
+
 	if (client == NULL || bc == NULL || out == NULL)
 		return false;
 
@@ -248,7 +250,11 @@ pkgconf_bytecode_eval(const pkgconf_client_t *client,
 	if (saw_sysroot != NULL)
 		*saw_sysroot = false;
 
-	return pkgconf_bytecode_eval_internal(&ctx, bc, out, saw_sysroot);
+	ret = pkgconf_bytecode_eval_internal(&ctx, bc, out, saw_sysroot);
+
+	pkgconf_buffer_finalize(&ctx.sysroot);
+
+	return ret;
 }
 
 void
