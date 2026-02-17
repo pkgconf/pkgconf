@@ -95,7 +95,7 @@ pkgconf_bytecode_eval_scan(const pkgconf_list_t *vars,
 	return NULL;
 }
 
-static pkgconf_variable_t *
+pkgconf_variable_t *
 pkgconf_bytecode_eval_lookup_var(pkgconf_bytecode_eval_ctx_t *ctx,
 	const char *name, size_t nlen)
 {
