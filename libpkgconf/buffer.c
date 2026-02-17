@@ -199,6 +199,15 @@ pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...)
 }
 
 bool
+pkgconf_buffer_has_prefix(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *prefix)
+{
+	const char *haystack_str = pkgconf_buffer_str_or_empty(haystack);
+	const char *prefix_str = pkgconf_buffer_str_or_empty(prefix);
+
+	return strncmp(haystack_str, prefix_str, strlen(prefix_str)) == 0;
+}
+
+bool
 pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle)
 {
 	const char *haystack_str = pkgconf_buffer_str_or_empty(haystack);
