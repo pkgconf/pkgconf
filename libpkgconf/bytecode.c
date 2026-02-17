@@ -429,3 +429,53 @@ pkgconf_bytecode_references_var(const pkgconf_buffer_t *buf, const char *key)
 
 	return false;
 }
+
+static bool
+pkgconf_bytecode_op_is_selfref(const pkgconf_bytecode_op_t *op, const char *key)
+{
+	const size_t klen = strlen(key);
+
+	if (op->tag != PKGCONF_BYTECODE_OP_VAR)
+		return false;
+
+	if (op->size != (uint32_t) klen)
+		return false;
+
+	return pkgconf_str_eq_slice(op->data, key, klen);
+}
+
+static void
+pkgconf_bytecode_append_stream(pkgconf_buffer_t *dst, const pkgconf_buffer_t *bcbuf)
+{
+	if (dst == NULL || bcbuf == NULL || pkgconf_buffer_str(bcbuf) == NULL)
+		return;
+
+	pkgconf_buffer_append_slice(dst, pkgconf_buffer_str(bcbuf), pkgconf_buffer_len(bcbuf));
+}
+
+bool
+pkgconf_bytecode_rewrite_selfrefs(pkgconf_buffer_t *out, const pkgconf_buffer_t *rhs, const char *key, const pkgconf_buffer_t *prev)
+{
+	const uint8_t *p = (uint8_t *) rhs->base;
+	const uint8_t *end = (uint8_t *) rhs->end;
+
+	while (p < end)
+	{
+		const pkgconf_bytecode_op_t *op = (const pkgconf_bytecode_op_t *)p;
+
+		if (p + sizeof(*op) > end)
+			return false;
+
+		if (p + sizeof(*op) + op->size > end)
+			return false;
+
+		if (pkgconf_bytecode_op_is_selfref(op, key))
+			pkgconf_bytecode_append_stream(out, prev);
+		else
+			pkgconf_buffer_append_slice(out, (const char *) op, sizeof(*op) + op->size);
+
+		p += sizeof(*op) + op->size;
+	}
+
+	return true;
+}
