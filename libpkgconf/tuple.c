@@ -169,27 +169,63 @@ pkgconf_tuple_t *
 pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *key, const char *value, bool parse, unsigned int flags)
 {
 	char *dequote_value;
+	pkgconf_buffer_t rhs_bcbuf = PKGCONF_BUFFER_INITIALIZER;
 
 	(void) client;
-
-	dequote_value = dequote(value);
 
 	if (list == NULL || key == NULL || value == NULL)
 		return NULL;
 
+	dequote_value = dequote(value);
+
 	pkgconf_variable_t *v = pkgconf_variable_get_or_create(list, key);
 	if (v == NULL)
+	{
+		free(dequote_value);
 		return NULL;
+	}
 
 	v->flags = flags;
 
-	pkgconf_buffer_reset(&v->bcbuf);
+	if (!parse)
+	{
+		pkgconf_buffer_reset(&v->bcbuf);
+		pkgconf_bytecode_emit_text(&v->bcbuf, dequote_value, strlen(dequote_value));
+		pkgconf_bytecode_from_buffer(&v->bc, &v->bcbuf);
+		free(dequote_value);
+		return (pkgconf_tuple_t *) v;
+	}
 
-	if (parse)
-		pkgconf_bytecode_compile(&v->bcbuf, dequote_value);
-	else
-		pkgconf_bytecode_emit_text(&v->bcbuf, dequote_value, strlen(value));
+	pkgconf_bytecode_compile(&rhs_bcbuf, dequote_value);
+	free(dequote_value);
 
+	/* ugh, we are doing var=${var}/foo stuff */
+	if (pkgconf_bytecode_references_var(&rhs_bcbuf, key))
+	{
+		pkgconf_buffer_t old_bcbuf = PKGCONF_BUFFER_INITIALIZER;
+		pkgconf_buffer_t new_bcbuf = PKGCONF_BUFFER_INITIALIZER;
+
+		/* preserve the old bytecode */
+		pkgconf_buffer_copy(&v->bcbuf, &old_bcbuf);
+
+		/* splice the selfrefs, using the old bytecode instead of ${var} */
+		if (!pkgconf_bytecode_rewrite_selfrefs(&new_bcbuf, &rhs_bcbuf, key, &old_bcbuf))
+		{
+			pkgconf_buffer_finalize(&old_bcbuf);
+			pkgconf_buffer_finalize(&new_bcbuf);
+			pkgconf_buffer_finalize(&rhs_bcbuf);
+
+			return NULL;
+		}
+
+		/* copy the spliced bytecode back to &rhs_bcbuf, replacing its contents */
+		pkgconf_buffer_copy(&new_bcbuf, &rhs_bcbuf);
+
+		pkgconf_buffer_finalize(&old_bcbuf);
+		pkgconf_buffer_finalize(&new_bcbuf);
+	}
+
+	pkgconf_buffer_copy(&rhs_bcbuf, &v->bcbuf);
 	pkgconf_bytecode_from_buffer(&v->bc, &v->bcbuf);
 
 	return (pkgconf_tuple_t *) v;
