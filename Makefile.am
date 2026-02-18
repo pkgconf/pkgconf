@@ -435,7 +435,7 @@ test_runner_SOURCES = \
 	cli/renderer-msvc.c \
 	tests/test-runner.c
 
-dist_doc_DATA = README.md AUTHORS
+dist_doc_DATA = DCO README.md AUTHORS
 
 m4datadir              = $(datadir)/aclocal
 m4data_DATA            = pkg.m4
