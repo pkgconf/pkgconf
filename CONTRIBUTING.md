@@ -58,7 +58,7 @@ Contributions produced primarily by autonomous or agentic systems
 are not permitted.
 
 If tools are used during the development of a contribution, the
-contribution remains responsible for the final work.  The submitted
+contributor remains responsible for the final work.  The submitted
 contribution must reflect deliberate human authorship and the
 contributor must be able to clearly describe its origin.
 
