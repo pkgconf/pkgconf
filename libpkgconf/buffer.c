@@ -29,7 +29,7 @@
 static inline size_t
 target_allocation_size(size_t target_size)
 {
-	return 4096 + (4096 * (target_size / 4096));
+	return 128 + (128 * (target_size / 128));
 }
 
 #if 0
