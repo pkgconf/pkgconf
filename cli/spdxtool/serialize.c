@@ -14,6 +14,43 @@
 #include "core.h"
 #include "serialize.h"
 
+static void
+serialize_json_escape_string(pkgconf_buffer_t *buffer, const char *s)
+{
+	for (const char *p = s; *p; p++)
+	{
+		switch (*p)
+		{
+		case '\"':
+			pkgconf_buffer_append(buffer, "\\\"");
+			break;
+		case '\\':
+			pkgconf_buffer_append(buffer, "\\\\");
+			break;
+		case '\b':
+			pkgconf_buffer_append(buffer, "\\b");
+			break;
+		case '\f':
+			pkgconf_buffer_append(buffer, "\\f");
+			break;
+		case '\n':
+			pkgconf_buffer_append(buffer, "\\n");
+			break;
+		case '\r':
+			pkgconf_buffer_append(buffer, "\\r");
+			break;
+		case '\t':
+			pkgconf_buffer_append(buffer, "\\t");
+			break;
+		default:
+			if (*p < 0x20)
+				pkgconf_buffer_append_fmt(buffer, "\\u%04x", (unsigned int)*p);
+			else
+				pkgconf_buffer_push_byte(buffer, *p);
+		}
+	}
+}
+
 static inline void
 serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level)
 {
@@ -64,7 +101,9 @@ void
 spdxtool_serialize_parm_and_string(pkgconf_buffer_t *buffer, const char *parm, const char *string, unsigned int level, bool more)
 {
 	serialize_add_indent(buffer, level);
-	pkgconf_buffer_append_fmt(buffer, "\"%s\": \"%s\"", parm, string);
+	pkgconf_buffer_append_fmt(buffer, "\"%s\": \"", parm);
+	serialize_json_escape_string(buffer, string != NULL ? string : "");
+	pkgconf_buffer_push_byte(buffer, '"');
 	serialize_next_line(buffer, more);
 }
 
@@ -131,7 +170,7 @@ spdxtool_serialize_string(pkgconf_buffer_t *buffer, const char *string, unsigned
 {
 	serialize_add_indent(buffer, level);
 	pkgconf_buffer_push_byte(buffer, '"');
-	pkgconf_buffer_append(buffer, string);
+	serialize_json_escape_string(buffer, string != NULL ? string : "");
 	pkgconf_buffer_push_byte(buffer, '"');
 	serialize_next_line(buffer, more);
 }
