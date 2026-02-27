@@ -295,92 +295,35 @@ spdxtool_core_spdx_document_new(pkgconf_client_t *client, char *spdx_id, char *c
 void
 spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx_struct)
 {
-	pkgconf_node_t *iter = NULL;
-	pkgconf_node_t *iter_last = NULL;
+	pkgconf_node_t *iter = NULL, *iter_next = NULL;
 
 	if(!spdx_struct)
 	{
 		return;
 	}
 
-	if(spdx_struct->spdx_id)
-	{
-		free(spdx_struct->spdx_id);
-		spdx_struct->spdx_id = NULL;
-	}
+	free(spdx_struct->spdx_id);
+	free(spdx_struct->creation_info);
+	free(spdx_struct->agent);
 
-	if(spdx_struct->creation_info)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(spdx_struct->rootElement.head, iter_next, iter)
 	{
-		free(spdx_struct->creation_info);
-		spdx_struct->creation_info = NULL;
-	}
-
-	if(spdx_struct->agent)
-	{
-		free(spdx_struct->agent);
-		spdx_struct->agent = NULL;
-	}
-
-	iter_last = NULL;
-	PKGCONF_FOREACH_LIST_ENTRY(spdx_struct->rootElement.head, iter)
-	{
-		if(iter_last)
-		{
-			free(iter_last);
-			iter_last = NULL;
-		}
-
 		spdxtool_software_sbom_t *sbom = iter->data;
 		spdxtool_software_sbom_free(sbom);
-		iter->data = NULL;
-		iter_last = iter;
+		free(iter);
 	}
 
-	if(iter_last)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(spdx_struct->element.head, iter_next, iter)
 	{
-		free(iter_last);
-		iter_last = NULL;
-	}
-
-
-	iter_last = NULL;
-	PKGCONF_FOREACH_LIST_ENTRY(spdx_struct->element.head, iter)
-	{
-		if(iter_last)
-		{
-			free(iter_last);
-			iter_last = NULL;
-		}
-
 		free(iter->data);
-		iter_last = iter;
+		free(iter);
 	}
 
-	if(iter_last)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(spdx_struct->licenses.head, iter_next, iter)
 	{
-		free(iter_last);
-		iter_last = NULL;
-	}
-
-
-	iter_last = NULL;
-	PKGCONF_FOREACH_LIST_ENTRY(spdx_struct->licenses.head, iter)
-	{
-		if(iter_last)
-		{
-			free(iter_last);
-			iter_last = NULL;
-		}
 		spdxtool_simplelicensing_license_expression_t *expression = iter->data;
 		spdxtool_simplelicensing_licenseExpression_free(expression);
-		iter->data = NULL;
-		iter_last = iter;
-	}
-
-	if(iter_last)
-	{
-		free(iter_last);
-		iter_last = NULL;
+		free(iter);
 	}
 
 	free(spdx_struct);
