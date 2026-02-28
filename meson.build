@@ -200,7 +200,7 @@ test_runner_exe = executable('test-runner',
   link_with : libpkgconf,
   c_args : build_static,
   include_directories : cli_include,
-  install : true)
+  install : false)
 
 fixtures_dir = '@0@/tests'.format(meson.current_source_dir())
 test_suites = [
