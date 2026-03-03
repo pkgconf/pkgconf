@@ -1,7 +1,10 @@
 project('pkgconf', 'c',
   version : '2.5.1',
   license : 'ISC',
-  default_options : ['c_std=c99'],
+  default_options : [
+    'c_std=c99',
+    'warning_level=2',
+  ],
   meson_version: '>=0.52',
 )
 
@@ -14,7 +17,6 @@ if cc.get_id() != 'msvc'
     '-D_DEFAULT_SOURCE',
     '-D_POSIX_C_SOURCE=200809L',
     cc.get_supported_arguments(
-      '-Wall',
       '-Wcast-align',
       '-Wdate-time',
       '-Wextra',
@@ -33,7 +35,6 @@ if cc.get_id() != 'msvc'
   )
 else
   add_project_arguments(
-    '-Wall',
     '/wd4130',
     '/wd4200',
     '/wd4774',
