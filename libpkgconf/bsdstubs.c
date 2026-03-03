@@ -158,7 +158,7 @@ pkgconf_strndup(const char *src, size_t len)
 }
 
 #if !HAVE_DECL_REALLOCARRAY
-void *
+static inline void *
 reallocarray(void *ptr, size_t m, size_t n)
 {
 	if (n && m > -1 / n)
