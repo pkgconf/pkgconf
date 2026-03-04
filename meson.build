@@ -47,6 +47,15 @@ else
   )
 endif
 
+fuzzing = get_option('fuzzing')
+
+if host_machine.system() != 'windows' and cc.get_id() == 'clang' and fuzzing
+  add_project_arguments('-fno-omit-frame-pointer', language: 'c')
+elif fuzzing
+  warning('fuzzing requested, but not on a supported platform.  a clang compiler in a unix-like environment is required')
+  fuzzing = false
+endif
+
 cdata = configuration_data()
 
 check_functions = [
@@ -142,6 +151,10 @@ dep_libpkgconf = declare_dependency(
   link_with : libpkgconf,
   include_directories : include_directories('.'),
 )
+
+if fuzzing
+  subdir('fuzzer')
+endif
 
 # If we have a new enough meson override the dependency so that only
 # `dependency('libpkgconf')` is required from the consumer
