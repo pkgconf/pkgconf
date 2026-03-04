@@ -487,8 +487,9 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 };
 
 static void
-test_keyword_set(pkgconf_test_case_t *testcase, const char *warnprefix, const char *keyword, char *value)
+test_keyword_set(void *data, const char *warnprefix, const char *keyword, const char *value)
 {
+	pkgconf_test_case_t *testcase = data;
 	const pkgconf_test_keyword_pair_t *pair = bsearch(keyword,
 		test_keyword_pairs, PKGCONF_ARRAY_SIZE(test_keyword_pairs),
 		sizeof(*pair), test_keyword_pair_cmp);
