@@ -1393,8 +1393,9 @@ pkgconf_pkg_scan_provides_vercmp(const pkgconf_dependency_t *pkgdep, const pkgco
  * attempt to match a single package's Provides rules against the requested dependency node.
  */
 static bool
-pkgconf_pkg_scan_provides_entry(const pkgconf_pkg_t *pkg, const pkgconf_pkg_scan_providers_ctx_t *ctx)
+pkgconf_pkg_scan_provides_entry(const pkgconf_pkg_t *pkg, void *data)
 {
+	const pkgconf_pkg_scan_providers_ctx_t *ctx = data;
 	const pkgconf_dependency_t *pkgdep = ctx->pkgdep;
 	pkgconf_node_t *node;
 
@@ -1421,7 +1422,7 @@ pkgconf_pkg_scan_providers(pkgconf_client_t *client, pkgconf_dependency_t *pkgde
 		.pkgdep = pkgdep,
 	};
 
-	pkg = pkgconf_scan_all(client, &ctx, (pkgconf_pkg_iteration_func_t) pkgconf_pkg_scan_provides_entry);
+	pkg = pkgconf_scan_all(client, &ctx, pkgconf_pkg_scan_provides_entry);
 	if (pkg != NULL)
 	{
 		pkgdep->match = pkgconf_pkg_ref(client, pkg);
