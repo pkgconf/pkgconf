@@ -486,11 +486,12 @@ static const pkgconf_parser_operand_func_t pkg_parser_funcs[256] = {
 	['='] = pkgconf_pkg_parser_value_set
 };
 
-static void pkg_warn_func(pkgconf_pkg_t *pkg, const char *fmt, ...) PRINTFLIKE(2, 3);
+static void pkg_warn_func(void *pkg_p, const char *fmt, ...) PRINTFLIKE(2, 3);
 
 static void
-pkg_warn_func(pkgconf_pkg_t *pkg, const char *fmt, ...)
+pkg_warn_func(void *pkg_p, const char *fmt, ...)
 {
+	pkgconf_pkg_t *pkg = pkg_p;
 	char buf[PKGCONF_ITEM_SIZE];
 	va_list va;
 
@@ -691,7 +692,7 @@ pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsign
 			*idptr = '\0';
 	}
 
-	pkgconf_parser_parse(f, pkg, pkg_parser_funcs, (pkgconf_parser_warn_func_t) pkg_warn_func, pkg->filename);
+	pkgconf_parser_parse(f, pkg, pkg_parser_funcs, pkg_warn_func, pkg->filename);
 	fclose(f);
 
 	if (!pkgconf_pkg_validate(client, pkg))
