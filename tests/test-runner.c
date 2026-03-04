@@ -248,7 +248,7 @@ handle_substs(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src)
 	pkgconf_buffer_finalize(&workbuf_dest);
 }
 
-typedef void (*test_keyword_func_t)(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value);
+typedef void (*test_keyword_func_t)(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value);
 
 typedef struct test_keyword_pair_ {
 	const char *keyword;
@@ -264,7 +264,7 @@ test_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-test_keyword_set_int(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+test_keyword_set_int(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) warnprefix;
@@ -274,17 +274,17 @@ test_keyword_set_int(pkgconf_test_case_t *testcase, const char *keyword, const c
 }
 
 static void
-test_keyword_set_buffer(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+test_keyword_set_buffer(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) warnprefix;
 
 	pkgconf_buffer_t *dest = (pkgconf_buffer_t *)((char *) testcase + offset);
-	handle_substs(dest, PKGCONF_BUFFER_FROM_STR(value));
+	handle_substs(dest, PKGCONF_BUFFER_FROM_STR((char *) value));
 }
 
 static void
-test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) warnprefix;
@@ -292,7 +292,7 @@ test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) testcase + offset);
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
-	handle_substs(&buf, PKGCONF_BUFFER_FROM_STR(value));
+	handle_substs(&buf, PKGCONF_BUFFER_FROM_STR((char *) value));
 	test_bufferset_extend(dest, &buf);
 	pkgconf_buffer_finalize(&buf);
 }
@@ -362,7 +362,7 @@ static const pkgconf_test_flag_pair_t test_flag_pairs[] = {
 };
 
 static void
-test_keyword_set_wanted_flags(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+test_keyword_set_wanted_flags(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	int i;
 	int flagcount;
@@ -418,7 +418,7 @@ prefixed_path_split(const char *text, pkgconf_list_t *dirlist, const char *prefi
 }
 
 static void
-test_keyword_set_path_list(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+test_keyword_set_path_list(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) warnprefix;
@@ -428,7 +428,7 @@ test_keyword_set_path_list(pkgconf_test_case_t *testcase, const char *keyword, c
 }
 
 static void
-test_keyword_set_match_strategy(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+test_keyword_set_match_strategy(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) warnprefix;
@@ -443,7 +443,7 @@ test_keyword_set_match_strategy(pkgconf_test_case_t *testcase, const char *keywo
 }
 
 static void
-test_keyword_set_environment(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+test_keyword_set_environment(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) offset;
