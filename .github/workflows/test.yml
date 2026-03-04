@@ -218,7 +218,7 @@ jobs:
 
       - name: Build
         run: |
-          CC=clang meson _build -Dwerror=true -Db_sanitize=address -Db_sanitize=undefined -Db_lundef=false
+          CC=clang meson _build -Dwerror=true -Db_sanitize=address,undefined -Db_lundef=false
           meson compile -C _build
 
       - name: Run tests
