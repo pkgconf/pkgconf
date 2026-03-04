@@ -18,7 +18,6 @@ if cc.get_id() != 'msvc'
     '-D_POSIX_C_SOURCE=200809L',
     cc.get_supported_arguments(
       '-Wdate-time',
-      '-Wextra',
       '-Wformat=2',
       '-Wimplicit-function-declaration',
       '-Wmisleading-indentation',
