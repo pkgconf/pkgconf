@@ -161,6 +161,8 @@ pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, co
 
 	/* cut at any detected whitespace */
 	p = pkgconf_bytecode_eval_str(client, &pkg->vars, value, NULL);
+	if (p == NULL)
+		return;
 
 	len = strcspn(p, " \t");
 	if (len != strlen(p))
