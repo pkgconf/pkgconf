@@ -583,7 +583,7 @@ static inline char pkgconf_buffer_lastc(const pkgconf_buffer_t *buffer) {
 }
 
 #define PKGCONF_BUFFER_INITIALIZER { NULL, NULL }
-#define PKGCONF_BUFFER_FROM_STR(str) &(const pkgconf_buffer_t){ .base = str, .end = str + (str != NULL ? strlen(str) : 0) }
+#define PKGCONF_BUFFER_FROM_STR(str) &(const pkgconf_buffer_t){ .base = str, .end = ((str) ? &(str)[strlen(str)] : (str)) }
 
 static inline void pkgconf_buffer_reset(pkgconf_buffer_t *buffer) {
 	pkgconf_buffer_finalize(buffer);
