@@ -26,6 +26,8 @@
 # define PKGCONF_TEST_PLATFORM "windows"
 #endif
 
+static void test_parser_warn(void *p, const char *fmt, ...) PRINTFLIKE(2, 3);
+
 static pkgconf_buffer_t test_fixtures_dir = PKGCONF_BUFFER_INITIALIZER;
 static bool debug = false;
 
