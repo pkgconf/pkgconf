@@ -164,7 +164,7 @@ valid_triplet(const char *triplet)
 	return true;
 }
 
-typedef void (*personality_keyword_func_t)(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value);
+typedef void (*personality_keyword_func_t)(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value);
 typedef struct {
 	const char *keyword;
 	const personality_keyword_func_t func;
@@ -172,7 +172,7 @@ typedef struct {
 } personality_keyword_pair_t;
 
 static void
-personality_bool_func(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+personality_bool_func(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) warnprefix;
@@ -182,7 +182,7 @@ personality_bool_func(pkgconf_cross_personality_t *p, const char *keyword, const
 }
 
 static void
-personality_copy_func(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+personality_copy_func(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) warnprefix;
@@ -192,7 +192,7 @@ personality_copy_func(pkgconf_cross_personality_t *p, const char *keyword, const
 }
 
 static void
-personality_fragment_func(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, char *value)
+personality_fragment_func(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) warnprefix;
