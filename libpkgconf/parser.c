@@ -21,6 +21,7 @@ void
 pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, pkgconf_buffer_t *buffer, const char *warnprefix)
 {
 	char op, *p, *key, *value;
+	size_t vallen;
 
 	p = buffer->base;
 	if (p == NULL)
@@ -61,7 +62,10 @@ pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops
 		p++;
 
 	value = p;
-	p = value + (strlen(value) - 1);
+	vallen = strlen(value);
+	if (vallen)
+		p = value + (vallen - 1);
+
 	while (*p && isspace((unsigned char) *p) && p > value)
 	{
 		if (op == '=')
@@ -73,6 +77,7 @@ pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops
 		*p = '\0';
 		p--;
 	}
+
 	if (ops[(unsigned char) op])
 		ops[(unsigned char) op](data, warnprefix, key, value);
 }
