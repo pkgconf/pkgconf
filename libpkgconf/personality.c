@@ -220,8 +220,9 @@ personality_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-personality_keyword_set(pkgconf_cross_personality_t *p, const char *warnprefix, const char *keyword, char *value)
+personality_keyword_set(void *data, const char *warnprefix, const char *keyword, const char *value)
 {
+	pkgconf_cross_personality_t *p = data;
 	const personality_keyword_pair_t *pair = bsearch(keyword,
 		personality_keyword_pairs, PKGCONF_ARRAY_SIZE(personality_keyword_pairs),
 		sizeof(personality_keyword_pair_t), personality_keyword_pair_cmp);
