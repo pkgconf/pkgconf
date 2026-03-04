@@ -17,7 +17,6 @@ if cc.get_id() != 'msvc'
     '-D_DEFAULT_SOURCE',
     '-D_POSIX_C_SOURCE=200809L',
     cc.get_supported_arguments(
-      '-Wcast-align',
       '-Wdate-time',
       '-Wextra',
       '-Wformat=2',
