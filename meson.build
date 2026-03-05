@@ -5,7 +5,7 @@ project('pkgconf', 'c',
     'c_std=c99',
     'warning_level=2',
   ],
-  meson_version: '>=0.52',
+  meson_version: '>=0.56',
 )
 
 cc = meson.get_compiler('c')
