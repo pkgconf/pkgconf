@@ -148,6 +148,10 @@ pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, cons
 	(void) warnprefix;
 
 	char **dest = (char **)((char *) pkg + offset);
+
+	if (*dest != NULL)
+		free(*dest);
+
 	*dest = pkgconf_bytecode_eval_str(client, &pkg->vars, value, NULL);
 }
 
@@ -173,6 +177,9 @@ pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, co
 		pkgconf_warn(client, "%s: warning: malformed version field with whitespace, trimming to [%s]\n",
 			     warnprefix, p);
 	}
+
+	if (*dest != NULL)
+		free(*dest);
 
 	*dest = p;
 }
