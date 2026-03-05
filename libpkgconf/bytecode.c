@@ -27,6 +27,7 @@
  */
 
 #define PKGCONF_EVAL_MAX_OUTPUT (PKGCONF_BUFSIZE - 1)
+#define PKGCONF_EVAL_MAX_ITERATIONS (512)
 
 static bool
 pkgconf_bytecode_eval_append_slice(pkgconf_bytecode_eval_ctx_t *ctx,
@@ -157,6 +158,14 @@ pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 
 	const uint8_t *p = bc->base;
 	const uint8_t *end = bc->base + bc->len;
+
+	if (++ctx->expansions > PKGCONF_EVAL_MAX_ITERATIONS)
+	{
+		pkgconf_warn(ctx->client,
+			"warning: bytecode program exceeds iteration limit (" SIZE_FMT_SPECIFIER ")\n",
+			ctx->expansions - 1);
+		return false;
+	}
 
 	while (p < end)
 	{

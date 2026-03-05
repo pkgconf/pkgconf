@@ -303,6 +303,8 @@ typedef struct pkgconf_bytecode_eval_ctx_ {
 	const pkgconf_list_t *vars;
 
 	pkgconf_buffer_t sysroot;
+
+	size_t expansions;
 } pkgconf_bytecode_eval_ctx_t;
 
 PKGCONF_API bool pkgconf_bytecode_eval(const pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot);

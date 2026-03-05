@@ -1,5 +1,5 @@
 PackageSearchPath: lib1
 WantedFlags: validate
 Query: billion-laughs
-ExpectedStderr: warning: truncating very long variable to 64KB
+ExpectedStderr: warning: bytecode program exceeds iteration limit (512)
 MatchStderr: partial
