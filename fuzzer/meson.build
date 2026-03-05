@@ -8,7 +8,16 @@ parser_fuzzer_exe = executable(
   link_args: ['-fsanitize=fuzzer'],
 )
 
+fuzz_root = join_paths(meson.project_build_root(), 'fuzz')
+corpus_dir = join_paths(fuzz_root, 'corpus')
+seed_dir = join_paths(meson.project_source_root(), 'tests', 'lib1')
+
+run_target(
+  'fuzz-prepare',
+  command: ['mkdir', '-p', corpus_dir]
+)
+
 run_target(
   'fuzz-parser',
-  command: [parser_fuzzer_exe, '@0@/tests/lib1'.format(meson.project_source_root())]
+  command: [parser_fuzzer_exe, corpus_dir, seed_dir]
 )
