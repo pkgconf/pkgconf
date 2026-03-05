@@ -897,11 +897,12 @@ process_test_directory(char *dirpath)
 		char *pathstr = paths[i];
 
 		ret = process_test_case(pathstr);
-		free(pathstr);
-
 		if (!ret)
 			break;
 	}
+
+	for (size_t i = 0; i < numpaths; i++)
+		free(paths[i]);
 
 	free(paths);
 	closedir(dir);
