@@ -178,9 +178,10 @@ jobs:
           muon setup -Dwerror=true _build
           samu -C _build
 
-      # - name: Run tests
-      #   run: |
-      #     muon test -v -C _build
+      - name: Run tests
+        run: |
+          cd _build
+          muon test -v -v
 
   alpine-autotools:
     runs-on: ubuntu-latest
