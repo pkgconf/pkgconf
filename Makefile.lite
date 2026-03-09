@@ -65,11 +65,11 @@ libpkgconf/config.h:
 	@echo '#define HAVE_DECL_REALLOCARRAY 1' >> $@
 
 pkgconf-lite: preflight libpkgconf/config.h ${PKGCONF_OBJS}
-	${CC} ${STATIC} -o $@ ${PKGCONF_OBJS}
+	${CC} ${CFLAGS} ${STATIC} -o $@ ${PKGCONF_OBJS}
 	${STRIP} $@
 
 test-runner-lite: preflight libpkgconf/config.h ${TEST_RUNNER_OBJS}
-	${CC} ${STATIC} -o $@ ${TEST_RUNNER_OBJS}
+	${CC} ${CFLAGS} ${STATIC} -o $@ ${TEST_RUNNER_OBJS}
 	${STRIP} $@
 
 check: test-runner-lite
