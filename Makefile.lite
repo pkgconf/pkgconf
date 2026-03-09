@@ -31,6 +31,7 @@ SRCS = \
 	libpkgconf/queue.c		\
 	libpkgconf/tuple.c		\
 	libpkgconf/variable.c		\
+	libpkgconf/version.c		\
 	cli/getopt_long.c		\
 	cli/main.c			\
 	cli/core.c
