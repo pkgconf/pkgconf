@@ -47,9 +47,10 @@ libpkgconf/config.h:
 	@echo '#define PACKAGE_BUGREPORT "https://git.dereferenced.org/pkgconf/pkgconf/issues"' >> $@
 	@echo '#define PACKAGE_VERSION "2.5.1"' >> $@
 	@echo '#define PACKAGE PACKAGE_NAME " " PACKAGE_VERSION' >> $@
-	@echo '#define HAVE_STRLCPY' >> $@
-	@echo '#define HAVE_STRLCAT' >> $@
-	@echo '#define HAVE_STRNDUP' >> $@
+	@echo '#define HAVE_DECL_STRLCPY 1' >> $@
+	@echo '#define HAVE_DECL_STRLCAT 1' >> $@
+	@echo '#define HAVE_DECL_STRNDUP 1' >> $@
+	@echo '#define HAVE_DECL_REALLOCARRAY 1' >> $@
 
 pkgconf-lite: preflight libpkgconf/config.h ${OBJS}
 	${CC} ${STATIC} -o $@ ${OBJS}
