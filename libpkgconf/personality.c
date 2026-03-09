@@ -40,29 +40,28 @@ build_default_search_path(pkgconf_list_t* dirlist)
 {
 #ifdef _WIN32
 	char namebuf[MAX_PATH];
-	char outbuf[MAX_PATH];
+	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 	char *p;
 
 	int sizepath = GetModuleFileName(NULL, namebuf, sizeof namebuf);
 	char * winslash;
 	namebuf[sizepath] = '\0';
-	while ((winslash = strchr (namebuf, '\\')) != NULL)
-	{
+
+	while ((winslash = strchr(namebuf, '\\')) != NULL)
 		*winslash = '/';
-	}
+
 	p = strrchr(namebuf, '/');
 	if (p == NULL)
 		pkgconf_path_split(PKG_DEFAULT_PATH, dirlist, true);
-
 	*p = '\0';
-	pkgconf_strlcpy(outbuf, namebuf, sizeof outbuf);
-	pkgconf_strlcat(outbuf, "/", sizeof outbuf);
-	pkgconf_strlcat(outbuf, "../lib/pkgconfig", sizeof outbuf);
-	pkgconf_path_add(outbuf, dirlist, true);
-	pkgconf_strlcpy(outbuf, namebuf, sizeof outbuf);
-	pkgconf_strlcat(outbuf, "/", sizeof outbuf);
-	pkgconf_strlcat(outbuf, "../share/pkgconfig", sizeof outbuf);
-	pkgconf_path_add(outbuf, dirlist, true);
+
+	pkgconf_buffer_append_fmt(&pathbuf, "%s/../lib/pkgconfig", namebuf);
+	pkgconf_path_add(pkgconf_buffer_str(&pathbuf), dirlist, true);
+	pkgconf_buffer_reset(&pathbuf);
+
+	pkgconf_buffer_append_fmt(&pathbuf, "%s/../share/pkgconfig", namebuf);
+	pkgconf_path_add(pkgconf_buffer_str(&pathbuf), dirlist, true);
+	pkgconf_buffer_finalize(&pathbuf);
 #elif __HAIKU__
 	char **paths;
 	size_t count;
@@ -254,32 +253,38 @@ personality_warn_func(void *p, const char *fmt, ...)
 static pkgconf_cross_personality_t *
 load_personality_with_path(const char *path, const char *triplet, bool datadir)
 {
-	char pathbuf[PKGCONF_ITEM_SIZE];
+	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 	FILE *f;
 	pkgconf_cross_personality_t *p;
 
 	/* if triplet is null, assume that path is a direct path to the personality file */
 	if (triplet == NULL)
-		pkgconf_strlcpy(pathbuf, path, sizeof pathbuf);
+		pkgconf_buffer_append(&pathbuf, path);
 	else if (datadir)
-		snprintf(pathbuf, sizeof pathbuf, "%s/pkgconfig/personality.d/%s.personality", path, triplet);
+		pkgconf_buffer_append_fmt(&pathbuf, "%s/pkgconfig/personality.d/%s.personality", path, triplet);
 	else
-		snprintf(pathbuf, sizeof pathbuf, "%s/%s.personality", path, triplet);
+		pkgconf_buffer_append_fmt(&pathbuf, "%s/%s.personality", path, triplet);
 
 	p = calloc(1, sizeof(pkgconf_cross_personality_t));
 	if (p == NULL)
+	{
+		pkgconf_buffer_finalize(&pathbuf);
 		return NULL;
+	}
 
 	if (triplet != NULL)
 		p->name = strdup(triplet);
 
-	f = fopen(pathbuf, "r");
-	if (f == NULL) {
+	f = fopen(pkgconf_buffer_str(&pathbuf), "r");
+	if (f == NULL)
+	{
+		pkgconf_buffer_finalize(&pathbuf);
 		pkgconf_cross_personality_deinit(p);
 		return NULL;
 	}
 
-	pkgconf_parser_parse(f, p, personality_parser_ops, personality_warn_func, pathbuf);
+	pkgconf_parser_parse(f, p, personality_parser_ops, personality_warn_func, pkgconf_buffer_str(&pathbuf));
+	pkgconf_buffer_finalize(&pathbuf);
 
 	return p;
 }
@@ -301,7 +306,6 @@ pkgconf_cross_personality_find(const char *triplet)
 	pkgconf_node_t *n;
 	pkgconf_cross_personality_t *out = NULL;
 #if ! defined(_WIN32) && ! defined(__HAIKU__)
-	char pathbuf[PKGCONF_ITEM_SIZE];
 	const char *envvar;
 #endif
 
@@ -316,12 +320,16 @@ pkgconf_cross_personality_find(const char *triplet)
 	envvar = getenv("XDG_DATA_HOME");
 	if (envvar != NULL)
 		pkgconf_path_add(envvar, &plist, true);
-	else {
+	else
+	{
 		envvar = getenv("HOME");
-		if (envvar != NULL) {
-			pkgconf_strlcpy(pathbuf, envvar, sizeof pathbuf);
-			pkgconf_strlcat(pathbuf, "/.local/share", sizeof pathbuf);
-			pkgconf_path_add(pathbuf, &plist, true);
+		if (envvar != NULL)
+		{
+			pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
+
+			pkgconf_buffer_append_fmt(&pathbuf, "%s/.local/share", envvar);
+			pkgconf_path_add(pkgconf_buffer_str(&pathbuf), &plist, true);
+			pkgconf_buffer_finalize(&pathbuf);
 		}
 	}
 
