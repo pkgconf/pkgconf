@@ -1,3 +1,4 @@
+SkipPlatforms: lite
 PackageSearchPath: lib1
 WantedFlags: static libs-only-libname digraph print-digraph-query-nodes
 Query: private-libs-duplication

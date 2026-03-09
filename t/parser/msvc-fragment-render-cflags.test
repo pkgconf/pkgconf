@@ -1,3 +1,4 @@
+SkipPlatforms: lite
 PackageSearchPath: lib1
 WantedFlags: cflags static msvc-syntax
 Query: foo
