@@ -175,6 +175,7 @@ environ_lookup_handler(const pkgconf_client_t *client, const char *key)
 	return NULL;
 }
 
+#ifndef PKGCONF_LITE
 static bool
 debug_handler(const char *msg, const pkgconf_client_t *client, void *data)
 {
@@ -183,6 +184,7 @@ debug_handler(const char *msg, const pkgconf_client_t *client, void *data)
 	fprintf(stderr, "%s", msg);
 	return true;
 }
+#endif
 
 static bool
 error_handler(const char *msg, const pkgconf_client_t *client, void *data)
