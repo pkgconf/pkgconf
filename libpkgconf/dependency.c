@@ -37,19 +37,16 @@ typedef enum {
 
 #define DEBUG_PARSE 0
 
-static const char *
-dependency_to_str(const pkgconf_dependency_t *dep, char *buf, size_t buflen)
+static inline const char *
+dependency_to_buf(const pkgconf_dependency_t *dep, pkgconf_buffer_t *buf)
 {
-	pkgconf_strlcpy(buf, dep->package, buflen);
-	if (dep->version != NULL)
-	{
-		pkgconf_strlcat(buf, " ", buflen);
-		pkgconf_strlcat(buf, pkgconf_pkg_get_comparator(dep), buflen);
-		pkgconf_strlcat(buf, " ", buflen);
-		pkgconf_strlcat(buf, dep->version, buflen);
-	}
+	pkgconf_buffer_reset(buf);
+	pkgconf_buffer_append(buf, dep->package);
 
-	return buf;
+	if (dep->version != NULL)
+		pkgconf_buffer_append_fmt(buf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
+
+	return pkgconf_buffer_str(buf);
 }
 
 /* find a colliding dependency that is coloured differently */
@@ -75,29 +72,33 @@ find_colliding_dependency(const pkgconf_dependency_t *dep, const pkgconf_list_t 
 static inline pkgconf_dependency_t *
 add_or_replace_dependency_node(pkgconf_client_t *client, pkgconf_dependency_t *dep, pkgconf_list_t *list)
 {
-	char depbuf[PKGCONF_ITEM_SIZE];
+	pkgconf_buffer_t depbuf = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_dependency_t *dep2 = find_colliding_dependency(dep, list);
+	const char *depstr = dependency_to_buf(dep, &depbuf);
 
 	/* there is already a node in the graph which describes this dependency */
 	if (dep2 != NULL)
 	{
-		char depbuf2[PKGCONF_ITEM_SIZE];
+		pkgconf_buffer_t depbuf2 = PKGCONF_BUFFER_INITIALIZER;
+		const char *depstr2 = dependency_to_buf(dep2, &depbuf2);
 
 		PKGCONF_TRACE(client, "dependency collision: [%s/%x] -- [%s/%x]",
-			      dependency_to_str(dep, depbuf, sizeof depbuf), dep->flags,
-			      dependency_to_str(dep2, depbuf2, sizeof depbuf2), dep2->flags);
+			      depstr, dep->flags, depstr2, dep2->flags);
 
 		/* prefer the uncoloured node, either dep or dep2 */
 		if (dep->flags && dep2->flags == 0)
 		{
-			PKGCONF_TRACE(client, "dropping dependency [%s]@%p because of collision", depbuf, dep);
+			PKGCONF_TRACE(client, "dropping dependency [%s]@%p because of collision", depstr, dep);
 
+			pkgconf_buffer_finalize(&depbuf);
+			pkgconf_buffer_finalize(&depbuf2);
 			pkgconf_dependency_unref(dep->owner, dep);
+
 			return NULL;
 		}
 		else if (dep2->flags && dep->flags == 0)
 		{
-			PKGCONF_TRACE(client, "dropping dependency [%s]@%p because of collision", depbuf2, dep2);
+			PKGCONF_TRACE(client, "dropping dependency [%s]@%p because of collision", depstr2, dep2);
 
 			pkgconf_node_delete(&dep2->iter, list);
 			pkgconf_dependency_unref(dep2->owner, dep2);
@@ -110,10 +111,14 @@ add_or_replace_dependency_node(pkgconf_client_t *client, pkgconf_dependency_t *d
 			 * fragment deduplication will handle the excessive fragments.
 			 */
 			PKGCONF_TRACE(client, "keeping both dependencies (harmless)");
+
+		pkgconf_buffer_finalize(&depbuf2);
 	}
 
-	PKGCONF_TRACE(client, "added dependency [%s] to list @%p; flags=%x", dependency_to_str(dep, depbuf, sizeof depbuf), list, dep->flags);
+	PKGCONF_TRACE(client, "added dependency [%s] to list @%p; flags=%x", depstr, list, dep->flags);
 	pkgconf_node_insert_tail(&dep->iter, pkgconf_dependency_ref(dep->owner, dep), list);
+
+	pkgconf_buffer_finalize(&depbuf);
 
 	/* This dependency is intentionally unowned.
 	 *
