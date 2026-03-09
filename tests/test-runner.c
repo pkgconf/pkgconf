@@ -18,12 +18,16 @@
 #include <cli/core.h>
 #include <cli/getopt_long.h>
 
-#if !defined(_WIN32) && !defined(__HAIKU__)
-# define PKGCONF_TEST_PLATFORM "unix"
-#elif !defined(_WIN32)
-# define PKGCONF_TEST_PLATFORM "haiku"
+#ifndef PKGCONF_LITE
+# if !defined(_WIN32) && !defined(__HAIKU__)
+#  define PKGCONF_TEST_PLATFORM "unix"
+# elif !defined(_WIN32)
+#  define PKGCONF_TEST_PLATFORM "haiku"
+# else
+#  define PKGCONF_TEST_PLATFORM "windows"
+# endif
 #else
-# define PKGCONF_TEST_PLATFORM "windows"
+# define PKGCONF_TEST_PLATFORM "lite"
 #endif
 
 static void test_parser_warn(void *p, const char *fmt, ...) PRINTFLIKE(2, 3);
@@ -73,7 +77,9 @@ typedef struct test_case_ {
 	pkgconf_buffer_t exact_version;
 	pkgconf_buffer_t max_version;
 
+#ifndef PKGCONF_LITE
 	pkgconf_buffer_t want_personality;
+#endif
 } pkgconf_test_case_t;
 
 typedef struct test_state_ {
@@ -482,7 +488,9 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 	{"VerbosityLevel", test_keyword_set_int, offsetof(pkgconf_test_case_t, verbosity)},
 	{"WantedFlags", test_keyword_set_wanted_flags, offsetof(pkgconf_test_case_t, wanted_flags)},
 	{"WantEnvPrefix", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_env_prefix)},
+#ifndef PKGCONF_LITE
 	{"WantPersonality", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_personality)},
+#endif
 	{"WantVariable", test_keyword_set_buffer, offsetof(pkgconf_test_case_t, want_variable)},
 };
 
@@ -545,8 +553,10 @@ cleanup:
 static pkgconf_cross_personality_t *
 personality_for_test(const pkgconf_test_case_t *testcase)
 {
+#ifndef PKGCONF_LITE
 	if (pkgconf_buffer_len(&testcase->want_personality))
 		return pkgconf_cross_personality_find(pkgconf_buffer_str(&testcase->want_personality));
+#endif
 
 	pkgconf_cross_personality_t *pers = calloc(1, sizeof(*pers));
 	if (pers == NULL)
@@ -750,8 +760,10 @@ run_test_case(const pkgconf_test_case_t *testcase)
 
 	pkgconf_client_set_warn_handler(&state.cli_state.pkg_client, error_handler, NULL);
 
+#ifndef PKGCONF_LITE
 	if (debug)
 		pkgconf_client_set_trace_handler(&state.cli_state.pkg_client, debug_handler, NULL);
+#endif
 
 	int ret = pkgconf_cli_run(&state.cli_state, test_argc, test_argv, 1);
 	pkgconf_argv_free(test_argv);
@@ -812,7 +824,10 @@ free_test_case(pkgconf_test_case_t *testcase)
 	pkgconf_buffer_finalize(&testcase->atleast_version);
 	pkgconf_buffer_finalize(&testcase->exact_version);
 	pkgconf_buffer_finalize(&testcase->max_version);
+
+#ifndef PKGCONF_LITE
 	pkgconf_buffer_finalize(&testcase->want_personality);
+#endif
 
 	free(testcase->name);
 	free(testcase);
