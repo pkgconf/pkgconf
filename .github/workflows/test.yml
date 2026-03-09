@@ -247,3 +247,28 @@ jobs:
       - name: Run tests
         run: |
           meson test -v -C _build
+
+  lite:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Update system and add dependencies
+        run: |
+          apk update
+          apk add build-base clang cmd:llvm-symbolizer compiler-rt
+
+      - name: Build
+        run: |
+          export CC=clang
+          export CFLAGS="-O2 -Wall -Wextra -ggdb3 -fsanitize=address,undefined"
+          make -f Makefile.lite PKG_DEFAULT_PATH="/usr/lib/pkgconfig:/usr/share/pkgconfig" SYSTEM_LIBDIR="/usr/lib" SYSTEM_INCLUDEDIR="/usr/include" -j $(nproc)
+
+      - name: Run tests
+        run: |
+          export CC=clang
+          export CFLAGS="-O2 -Wall -Wextra -ggdb3 -fsanitize=address,undefined"
+          make -f Makefile.lite PKG_DEFAULT_PATH="/usr/lib/pkgconfig:/usr/share/pkgconfig" SYSTEM_LIBDIR="/usr/lib" SYSTEM_INCLUDEDIR="/usr/include" -j $(nproc) check
