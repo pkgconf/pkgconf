@@ -17,6 +17,193 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+typedef enum {
+	PKGCONF_VERSION_TOKEN_END = 0,
+	PKGCONF_VERSION_TOKEN_TILDE,
+	PKGCONF_VERSION_TOKEN_NUMERIC,
+	PKGCONF_VERSION_TOKEN_ALPHA,
+	PKGCONF_VERSION_TOKEN_OTHER
+} pkgconf_version_token_kind_t;
+
+typedef struct {
+	pkgconf_version_token_kind_t kind;
+	const char *start;
+	const char *end;
+} pkgconf_version_token_t;
+
+typedef struct {
+	const char *cur;
+} pkgconf_version_iter_t;
+
+static inline bool
+pkgconf_version_is_separator(unsigned char ch)
+{
+	return !isalnum(ch) && ch != '~';
+}
+
+static const char *
+pkgconf_version_skip_separators(const char *s)
+{
+	while (*s && pkgconf_version_is_separator((unsigned char)*s))
+		s++;
+
+	return s;
+}
+
+static pkgconf_version_token_t
+pkgconf_version_next_token(pkgconf_version_iter_t *it)
+{
+	pkgconf_version_token_t tok;
+	const char *s = pkgconf_version_skip_separators(it->cur);
+
+	tok.start = s;
+	tok.end = s;
+	tok.kind = PKGCONF_VERSION_TOKEN_END;
+
+	if (*s == '\0')
+	{
+		it->cur = s;
+		return tok;
+	}
+
+	if (*s == '~')
+	{
+		tok.kind = PKGCONF_VERSION_TOKEN_TILDE;
+		tok.end = s + 1;
+		it->cur = tok.end;
+		return tok;
+	}
+
+	if (isdigit((unsigned char)*s))
+	{
+		tok.kind = PKGCONF_VERSION_TOKEN_NUMERIC;
+		while (*tok.end && isdigit((unsigned char)*tok.end))
+			tok.end++;
+		it->cur = tok.end;
+		return tok;
+	}
+
+	if (isalpha((unsigned char)*s))
+	{
+		tok.kind = PKGCONF_VERSION_TOKEN_ALPHA;
+		while (*tok.end && isalpha((unsigned char)*tok.end))
+			tok.end++;
+		it->cur = tok.end;
+		return tok;
+	}
+
+	tok.kind = PKGCONF_VERSION_TOKEN_OTHER;
+	tok.end = s + 1;
+	it->cur = tok.end;
+
+	return tok;
+}
+
+static int
+pkgconf_version_compare_numeric(const pkgconf_version_token_t *a, const pkgconf_version_token_t *b)
+{
+	const char *ap = a->start;
+	const char *bp = b->start;
+	size_t alen, blen;
+	int ret;
+
+	while (ap < a->end && *ap == '0')
+		ap++;
+
+	while (bp < b->end && *bp == '0')
+		bp++;
+
+	alen = (size_t)(a->end - ap);
+	blen = (size_t)(b->end - bp);
+
+	if (alen > blen)
+		return 1;
+	if (alen < blen)
+		return -1;
+
+	if (alen == 0)
+		return 0;
+
+	ret = strncmp(ap, bp, alen);
+	if (ret < 0)
+		return -1;
+	if (ret > 0)
+		return 1;
+
+	return 0;
+}
+
+static int
+pkgconf_version_compare_alpha(const pkgconf_version_token_t *a, const pkgconf_version_token_t *b)
+{
+	size_t alen = (size_t)(a->end - a->start);
+	size_t blen = (size_t)(b->end - b->start);
+	size_t len = alen < blen ? alen : blen;
+	int ret;
+
+	ret = strncmp(a->start, b->start, len);
+	if (ret < 0)
+		return -1;
+	if (ret > 0)
+		return 1;
+
+	if (alen < blen)
+		return -1;
+	if (alen > blen)
+		return 1;
+
+	return 0;
+}
+
+static int
+pkgconf_version_compare_token(const pkgconf_version_token_t *a, const pkgconf_version_token_t *b)
+{
+	if (a->kind == PKGCONF_VERSION_TOKEN_TILDE || b->kind == PKGCONF_VERSION_TOKEN_TILDE)
+        {
+		if (a->kind != PKGCONF_VERSION_TOKEN_TILDE)
+			return 1;
+		if (b->kind != PKGCONF_VERSION_TOKEN_TILDE)
+			return -1;
+
+		return 0;
+	}
+
+	if (a->kind == PKGCONF_VERSION_TOKEN_END || b->kind == PKGCONF_VERSION_TOKEN_END)
+	{
+		if (a->kind == PKGCONF_VERSION_TOKEN_END && b->kind == PKGCONF_VERSION_TOKEN_END)
+			return 0;
+		if (a->kind == PKGCONF_VERSION_TOKEN_END)
+			return -1;
+
+		return 1;
+	}
+
+	/* left-side is numeric, beats any right-side non-numeric */
+	if (a->kind == PKGCONF_VERSION_TOKEN_NUMERIC)
+	{
+		if (b->kind != PKGCONF_VERSION_TOKEN_NUMERIC)
+			return 1;
+
+		return pkgconf_version_compare_numeric(a, b);
+	}
+
+	/* left-side is alpha, any right-side non-alpha wins */
+	if (a->kind == PKGCONF_VERSION_TOKEN_ALPHA)
+	{
+		if (b->kind != PKGCONF_VERSION_TOKEN_ALPHA)
+			return -1;
+
+		return pkgconf_version_compare_alpha(a, b);
+	}
+
+	if (a->kind < b->kind)
+		return -1;
+	if (a->kind > b->kind)
+		return 1;
+
+	return 0;
+}
+
 /*
  * !doc
  *
@@ -32,122 +219,30 @@
 int
 pkgconf_compare_version(const char *a, const char *b)
 {
-	char oldch1, oldch2;
-	char buf1[PKGCONF_ITEM_SIZE], buf2[PKGCONF_ITEM_SIZE];
-	char *str1, *str2;
-	char *one, *two;
-	int ret;
-	bool isnum;
+        pkgconf_version_iter_t ia, ib;
 
-	/* optimization: if version matches then it's the same version. */
-	if (a == NULL)
-		return -1;
+        if (a == NULL)
+                return -1;
+        if (b == NULL)
+                return 1;
 
-	if (b == NULL)
-		return 1;
+        if (!strcasecmp(a, b))
+                return 0;
 
-	if (!strcasecmp(a, b))
-		return 0;
+        ia.cur = a;
+        ib.cur = b;
 
-	pkgconf_strlcpy(buf1, a, sizeof buf1);
-	pkgconf_strlcpy(buf2, b, sizeof buf2);
+        for (;;)
+        {
+                pkgconf_version_token_t ta = pkgconf_version_next_token(&ia);
+                pkgconf_version_token_t tb = pkgconf_version_next_token(&ib);
+                int ret = pkgconf_version_compare_token(&ta, &tb);
 
-	one = buf1;
-	two = buf2;
+                if (ret != 0)
+                        return ret;
 
-	while (*one || *two)
-	{
-		while (*one && !isalnum((unsigned char)*one) && *one != '~')
-			one++;
-		while (*two && !isalnum((unsigned char)*two) && *two != '~')
-			two++;
-
-		if (*one == '~' || *two == '~')
-		{
-			if (*one != '~')
-				return 1;
-			if (*two != '~')
-				return -1;
-
-			one++;
-			two++;
-			continue;
-		}
-
-		if (!(*one && *two))
-			break;
-
-		str1 = one;
-		str2 = two;
-
-		if (isdigit((unsigned char)*str1))
-		{
-			while (*str1 && isdigit((unsigned char)*str1))
-				str1++;
-
-			while (*str2 && isdigit((unsigned char)*str2))
-				str2++;
-
-			isnum = true;
-		}
-		else
-		{
-			while (*str1 && isalpha((unsigned char)*str1))
-				str1++;
-
-			while (*str2 && isalpha((unsigned char)*str2))
-				str2++;
-
-			isnum = false;
-		}
-
-		oldch1 = *str1;
-		oldch2 = *str2;
-
-		*str1 = '\0';
-		*str2 = '\0';
-
-		if (one == str1)
-			return -1;
-
-		if (two == str2)
-			return (isnum ? 1 : -1);
-
-		if (isnum)
-		{
-			size_t onelen, twolen;
-
-			while (*one == '0')
-				one++;
-
-			while (*two == '0')
-				two++;
-
-			onelen = strlen(one);
-			twolen = strlen(two);
-
-			if (onelen > twolen)
-				return 1;
-			else if (twolen > onelen)
-				return -1;
-		}
-
-		ret = strcmp(one, two);
-		if (ret != 0)
-			return ret < 0 ? -1 : 1;
-
-		*str1 = oldch1;
-		*str2 = oldch2;
-
-		one = str1;
-		two = str2;
-	}
-
-	if ((!*one) && (!*two))
-		return 0;
-
-	if (!*one)
-		return -1;
-
-	return 1;
+                if (ta.kind == PKGCONF_VERSION_TOKEN_END &&
+                    tb.kind == PKGCONF_VERSION_TOKEN_END)
+                        return 0;
+        }
 }
