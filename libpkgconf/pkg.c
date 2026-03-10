@@ -336,25 +336,23 @@ determine_prefix(const pkgconf_pkg_t *pkg, pkgconf_buffer_t *pathbuf)
 static char *
 convert_path_to_value(const char *path)
 {
-	char *buf = calloc(1, (strlen(path) + 1) * 2);
-	if (buf == NULL)
-		return NULL;
-
-	char *bptr = buf;
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 	const char *i;
 
 	for (i = path; *i != '\0'; i++)
 	{
 		if (*i == PKG_DIR_SEP_S)
-			*bptr++ = '/';
-		else if (*i == ' ') {
-			*bptr++ = '\\';
-			*bptr++ = *i;
-		} else
-			*bptr++ = *i;
+			pkgconf_buffer_push_byte(&buf, '/');
+		else if (*i == ' ')
+		{
+			pkgconf_buffer_push_byte(&buf, '\\');
+			pkgconf_buffer_push_byte(&buf, ' ');
+		}
+		else
+			pkgconf_buffer_push_byte(&buf, *i);
 	}
 
-	return buf;
+	return pkgconf_buffer_freeze(&buf);
 }
 
 static void
