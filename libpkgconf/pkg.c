@@ -847,19 +847,19 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
 	{
-		char filebuf[PKGCONF_ITEM_SIZE];
+		pkgconf_buffer_t filebuf = PKGCONF_BUFFER_INITIALIZER;
 		pkgconf_pkg_t *pkg;
 
-		pkgconf_strlcpy(filebuf, path, sizeof filebuf);
-		pkgconf_strlcat(filebuf, "/", sizeof filebuf);
-		pkgconf_strlcat(filebuf, dirent->d_name, sizeof filebuf);
+		pkgconf_buffer_join(&filebuf, '/', path, dirent->d_name, NULL);
 
-		if (!str_has_suffix(filebuf, PKG_CONFIG_EXT))
+		if (!str_has_suffix(pkgconf_buffer_str(&filebuf), PKG_CONFIG_EXT))
 			continue;
 
-		PKGCONF_TRACE(client, "trying file [%s]", filebuf);
+		PKGCONF_TRACE(client, "trying file [%s]", pkgconf_buffer_str(&filebuf));
 
-		pkg = pkgconf_pkg_new_from_path(client, filebuf, 0);
+		pkg = pkgconf_pkg_new_from_path(client, pkgconf_buffer_str(&filebuf), 0);
+		pkgconf_buffer_finalize(&filebuf);
+
 		if (pkg != NULL)
 		{
 			if (func(pkg, data))
