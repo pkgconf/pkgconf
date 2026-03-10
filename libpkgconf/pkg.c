@@ -414,7 +414,7 @@ lookup_val_from_env(const pkgconf_client_t *client, const char *pkg_id, const ch
 static void
 pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *keyword, const char *value)
 {
-	char canonicalized_value[PKGCONF_ITEM_SIZE];
+	pkgconf_buffer_t canonicalized_value = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_pkg_t *pkg = opaque;
 	const char *env_content;
 
@@ -427,13 +427,13 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 		value = env_content;
 	}
 
-	pkgconf_strlcpy(canonicalized_value, value, sizeof canonicalized_value);
-	canonicalize_path(canonicalized_value);
+	pkgconf_buffer_append(&canonicalized_value, value);
+	canonicalize_path(canonicalized_value.base);
 
 	if (!(pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
 	{
 		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true, pkg->flags);
-		return;
+		goto out;
 	}
 
 	/* Some pc files will use absolute paths for all of their directories
@@ -447,17 +447,17 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 			const char *op = pkgconf_buffer_str_or_empty(&pkg->orig_prefix);
 			const size_t oplen = pkgconf_buffer_len(&pkg->orig_prefix);
 
-			if (is_path_prefix_equal(canonicalized_value, op, oplen))
+			if (is_path_prefix_equal(pkgconf_buffer_str(&canonicalized_value), op, oplen))
 			{
 				pkgconf_buffer_t newvalue = PKGCONF_BUFFER_INITIALIZER;
 
 				pkgconf_buffer_append(&newvalue, pkgconf_buffer_str_or_empty(&pkg->calculated_prefix));
-				pkgconf_buffer_append(&newvalue, canonicalized_value + oplen);
+				pkgconf_buffer_append(&newvalue, pkgconf_buffer_str(&canonicalized_value) + oplen);
 
 				pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, pkgconf_buffer_str(&newvalue), false, pkg->flags);
 				pkgconf_buffer_finalize(&newvalue);
 
-				return;
+				goto out;
 			}
 		}
 
@@ -472,7 +472,7 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 		{
 			char *prefix_value = convert_path_to_value(relvalue);
 
-			pkgconf_buffer_append(&pkg->orig_prefix, canonicalized_value);
+			pkgconf_buffer_append(&pkg->orig_prefix, pkgconf_buffer_str(&canonicalized_value));
 			pkgconf_buffer_append(&pkg->calculated_prefix, prefix_value);
 
 			pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, prefix_value, false, pkg->flags);
@@ -483,6 +483,9 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 
 		pkgconf_buffer_finalize(&pathbuf);
 	}
+
+out:
+	pkgconf_buffer_finalize(&canonicalized_value);
 }
 
 typedef struct {
