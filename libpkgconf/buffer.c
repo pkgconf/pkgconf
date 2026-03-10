@@ -57,7 +57,7 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 		return;
 
 	char *newend = newbase + pkgconf_buffer_len(buffer);
-	pkgconf_strlcpy(newend, text, needed);
+	memcpy(newend, text, needed);
 
 	buffer->base = newbase;
 	buffer->end = newend + (needed - 1);
