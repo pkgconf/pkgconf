@@ -22,7 +22,7 @@ AX_CHECK_COMPILE_FLAG([-std=gnu99], [CFLAGS="$CFLAGS -std=gnu99"], [
 	AX_CHECK_COMPILE_FLAG([-std=c99], [CFLAGS="$CFLAGS -std=c99"])
 ])
 AC_CONFIG_HEADERS([libpkgconf/config.h])
-AC_CHECK_DECLS([strlcpy, strndup], [], [], [[#include <string.h>]])
+AC_CHECK_DECLS([strndup], [], [], [[#include <string.h>]])
 AC_CHECK_DECLS([pledge, unveil], [], [], [[#include <unistd.h>]])
 AC_CHECK_DECLS([readlinkat], [], [], [[#include <unistd.h>]])
 AC_CHECK_DECLS([reallocarray], [], [], [[#include <stdlib.h>]])
