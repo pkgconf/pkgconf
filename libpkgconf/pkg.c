@@ -853,7 +853,10 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 		pkgconf_buffer_join(&filebuf, '/', path, dirent->d_name, NULL);
 
 		if (!str_has_suffix(pkgconf_buffer_str(&filebuf), PKG_CONFIG_EXT))
+		{
+			pkgconf_buffer_finalize(&filebuf);
 			continue;
+		}
 
 		PKGCONF_TRACE(client, "trying file [%s]", pkgconf_buffer_str(&filebuf));
 
