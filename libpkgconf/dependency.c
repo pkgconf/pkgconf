@@ -314,30 +314,25 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 {
 	parse_state_t state = OUTSIDE_MODULE;
 	pkgconf_pkg_comparator_t compare = PKGCONF_CMP_ANY;
-	char cmpname[PKGCONF_ITEM_SIZE];
-	size_t package_sz = 0, version_sz = 0, buf_sz = 0;
-	char *buf;
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t cmpname = PKGCONF_BUFFER_INITIALIZER;
+	size_t package_sz = 0, version_sz = 0;
 	char *start = NULL;
 	char *ptr = NULL;
 	char *vstart = NULL;
 	char *package = NULL, *version = NULL;
-	char *cnameptr = cmpname;
-	char *cnameend = cmpname + PKGCONF_ITEM_SIZE - 1;
+	char *opstart = NULL;
 
-	if (!depends || !*depends)
+	if (depends == NULL || *depends == '\0')
 		return;
 
-	memset(cmpname, '\0', sizeof cmpname);
+	pkgconf_buffer_append(&buf, depends);
+	pkgconf_buffer_append(&buf, " ");
 
-	buf_sz = (strlen(depends) * 2) + 1;
-	buf = calloc(1, buf_sz);
-	if (buf == NULL)
-		return;
+	if (buf.base == NULL)
+		goto out;
 
-	pkgconf_strlcpy(buf, depends, buf_sz);
-	pkgconf_strlcat(buf, " ", buf_sz);
-
-	start = ptr = buf;
+	start = ptr = buf.base;
 
 	while (*ptr)
 	{
@@ -399,23 +394,20 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 		case BEFORE_OPERATOR:
 			if (PKGCONF_IS_OPERATOR_CHAR(*ptr))
 			{
+				opstart = ptr;
 				state = INSIDE_OPERATOR;
-				if (cnameptr < cnameend)
-					*cnameptr++ = *ptr;
 			}
 
 			break;
 
 		case INSIDE_OPERATOR:
 			if (PKGCONF_IS_OPERATOR_CHAR(*ptr))
-			{
-				if (cnameptr < cnameend)
-					*cnameptr++ = *ptr;
 				break;
-			}
 
+			pkgconf_buffer_reset(&cmpname);
+			pkgconf_buffer_append_slice(&cmpname, opstart, ptr - opstart);
+			compare = pkgconf_pkg_comparator_lookup_by_name(pkgconf_buffer_str(&cmpname));
 			state = AFTER_OPERATOR;
-			compare = pkgconf_pkg_comparator_lookup_by_name(cmpname);
 			// fallthrough
 
 		case AFTER_OPERATOR:
@@ -436,9 +428,9 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 				pkgconf_dependency_addraw(client, deplist_head, package, package_sz, version, version_sz, compare, flags);
 
 				compare = PKGCONF_CMP_ANY;
-				cnameptr = cmpname;
-				memset(cmpname, 0, sizeof cmpname);
 				package_sz = 0;
+				opstart = NULL;
+				pkgconf_buffer_reset(&cmpname);
 			}
 
 			if (state == OUTSIDE_MODULE)
@@ -449,7 +441,9 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 		ptr++;
 	}
 
-	free(buf);
+out:
+	pkgconf_buffer_finalize(&cmpname);
+	pkgconf_buffer_finalize(&buf);
 }
 
 /*
