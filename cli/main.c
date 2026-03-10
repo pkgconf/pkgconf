@@ -43,12 +43,14 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 static void
 relocate_path(const char *path)
 {
-	char buf[PKGCONF_BUFSIZE];
+	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_strlcpy(buf, path, sizeof buf);
-	pkgconf_path_relocate(buf, sizeof buf);
+	pkgconf_buffer_append(&pathbuf, path);
+	pkgconf_path_relocate(&pathbuf);
 
-	printf("%s\n", buf);
+	printf("%s\n", pkgconf_buffer_str(&pathbuf));
+
+	pkgconf_buffer_finalize(&pathbuf);
 }
 
 #ifndef PKGCONF_LITE

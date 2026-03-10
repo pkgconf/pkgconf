@@ -529,7 +529,7 @@ PKGCONF_API size_t pkgconf_path_build_from_registry(/* HKEY -> HANDLE -> PVOID *
 #endif
 PKGCONF_API bool pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist);
 PKGCONF_API void pkgconf_path_free(pkgconf_list_t *dirlist);
-PKGCONF_API bool pkgconf_path_relocate(char *buf, size_t buflen);
+PKGCONF_API bool pkgconf_path_relocate(pkgconf_buffer_t *buf);
 PKGCONF_API void pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_t *src);
 PKGCONF_API void pkgconf_path_prepend_list(pkgconf_list_t *dst, const pkgconf_list_t *src);
 PKGCONF_API bool pkgconf_path_is_plausible(const pkgconf_buffer_t *buf);

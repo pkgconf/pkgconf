@@ -24,9 +24,9 @@
 
 static bool
 #ifdef PKGCONF_CACHE_INODES
-path_list_contains_entry(const char *text, pkgconf_list_t *dirlist, struct stat *st)
+path_list_contains_entry(const pkgconf_buffer_t *text, pkgconf_list_t *dirlist, struct stat *st)
 #else
-path_list_contains_entry(const char *text, pkgconf_list_t *dirlist)
+path_list_contains_entry(const pkgconf_buffer_t *text, pkgconf_list_t *dirlist)
 #endif
 {
 	pkgconf_node_t *n;
@@ -40,7 +40,7 @@ path_list_contains_entry(const char *text, pkgconf_list_t *dirlist)
 			return true;
 #endif
 
-		if (!strcmp(text, pn->path))
+		if (!strcmp(pkgconf_buffer_str(text), pn->path))
 			return true;
 	}
 
@@ -62,39 +62,42 @@ static pkgconf_path_t *
 prepare_path_node(const char *text, pkgconf_list_t *dirlist, bool filter)
 {
 	pkgconf_path_t *node;
-	char path[PKGCONF_ITEM_SIZE];
+	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_strlcpy(path, text, sizeof path);
-	pkgconf_path_relocate(path, sizeof path);
+	pkgconf_buffer_append(&pathbuf, text);
+	pkgconf_path_relocate(&pathbuf);
 
 #ifdef PKGCONF_CACHE_INODES
 	struct stat st;
 
 	if (filter)
 	{
-		if (lstat(path, &st) == -1)
+		if (lstat(pkgconf_buffer_str(&pathbuf), &st) == -1)
 			return NULL;
 		if (S_ISLNK(st.st_mode))
 		{
-			char pathbuf[PKGCONF_ITEM_SIZE * 4];
-			char *linkdest = realpath(path, pathbuf);
+			char realpathbuf[PKGCONF_ITEM_SIZE * 4];
+			char *linkdest = realpath(pkgconf_buffer_str(&pathbuf), realpathbuf);
 
 			if (linkdest != NULL && stat(linkdest, &st) == -1)
 				return NULL;
 		}
-		if (path_list_contains_entry(path, dirlist, &st))
+		if (path_list_contains_entry(&pathbuf, dirlist, &st))
 			return NULL;
 	}
 #else
-	if (filter && path_list_contains_entry(path, dirlist))
+	if (filter && path_list_contains_entry(&pathbuf, dirlist))
 		return NULL;
 #endif
 
 	node = calloc(1, sizeof(pkgconf_path_t));
 	if (node == NULL)
+	{
+		pkgconf_buffer_finalize(&pathbuf);
 		return NULL;
+	}
 
-	node->path = strdup(path);
+	node->path = pkgconf_buffer_freeze(&pathbuf);
 
 #ifdef PKGCONF_CACHE_INODES
 	if (filter) {
@@ -232,21 +235,27 @@ bool
 pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
 {
 	pkgconf_node_t *n = NULL;
-	char relocated[PKGCONF_ITEM_SIZE];
+	pkgconf_buffer_t relocated = PKGCONF_BUFFER_INITIALIZER;
 	const char *cpath = path;
 
-	pkgconf_strlcpy(relocated, path, sizeof relocated);
-	if (pkgconf_path_relocate(relocated, sizeof relocated))
-		cpath = relocated;
+	pkgconf_buffer_append(&relocated, path);
+	cpath = pkgconf_buffer_str(&relocated);
+
+	if (pkgconf_path_relocate(&relocated))
+		cpath = pkgconf_buffer_str(&relocated);
 
 	PKGCONF_FOREACH_LIST_ENTRY(dirlist->head, n)
 	{
 		pkgconf_path_t *pnode = n->data;
 
 		if (!strcmp(pnode->path, cpath))
+		{
+			pkgconf_buffer_finalize(&relocated);
 			return true;
+		}
 	}
 
+	pkgconf_buffer_finalize(&relocated);
 	return false;
 }
 
@@ -347,11 +356,12 @@ pkgconf_path_free(pkgconf_list_t *dirlist)
 }
 
 static char *
-normpath(const char *path)
+normpath(const pkgconf_buffer_t *pathbuf)
 {
-	if (!path)
+	if (!pathbuf || pkgconf_buffer_len(pathbuf) == 0)
 		return NULL;
 
+	const char *path = pkgconf_buffer_str(pathbuf);
 	char *copy = strdup(path);
 	if (NULL == copy)
 		return NULL;
@@ -376,30 +386,23 @@ normpath(const char *path)
 /*
  * !doc
  *
- * .. c:function:: bool pkgconf_path_relocate(char *buf, size_t buflen)
+ * .. c:function:: bool pkgconf_path_relocate(pkgconf_buffer_t *buf)
  *
  *    Relocates a path, possibly calling normpath() on it.
  *
- *    :param char* buf: The path to relocate.
- *    :param size_t buflen: The buffer length the path is contained in.
+ *    :param pkgconf_buffer_t* buf: The path to relocate.
  *    :return: true on success, false on error
  *    :rtype: bool
  */
 bool
-pkgconf_path_relocate(char *buf, size_t buflen)
+pkgconf_path_relocate(pkgconf_buffer_t *buf)
 {
 	char *tmpbuf;
 
 	if ((tmpbuf = normpath(buf)) != NULL)
 	{
-		size_t tmpbuflen = strlen(tmpbuf);
-		if (tmpbuflen > buflen)
-		{
-			free(tmpbuf);
-			return false;
-		}
-
-		pkgconf_strlcpy(buf, tmpbuf, buflen);
+		pkgconf_buffer_reset(buf);
+		pkgconf_buffer_append(buf, tmpbuf);
 		free(tmpbuf);
 	}
 
