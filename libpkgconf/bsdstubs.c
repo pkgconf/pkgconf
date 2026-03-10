@@ -23,7 +23,12 @@ static inline char *
 strndup(const char *src, size_t len)
 {
 	char *out = malloc(len + 1);
-	pkgconf_strlcpy(out, src, len + 1);
+	if (out == NULL)
+		return NULL;
+
+	memcpy(out, src, len);
+	out[len] = '\0';
+
 	return out;
 }
 #endif
