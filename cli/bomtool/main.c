@@ -62,13 +62,13 @@ sbom_spdx_identity(pkgconf_pkg_t *pkg)
 	return buf;
 }
 
-static const char *
+static char *
 sbom_name(pkgconf_pkg_t *world)
 {
-	static char buf[PKGCONF_BUFSIZE];
+	pkgconf_buffer_t name = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_node_t *node;
 
-	pkgconf_strlcpy(buf, "SBOM-SPDX", sizeof buf);
+	pkgconf_buffer_append(&name, "SBOM-SPDX");
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, node)
 	{
@@ -81,27 +81,28 @@ sbom_name(pkgconf_pkg_t *world)
 		if (!dep->match)
 			continue;
 
-		pkgconf_strlcat(buf, "-", sizeof buf);
-		pkgconf_strlcat(buf, sbom_spdx_identity(match), sizeof buf);
+		pkgconf_buffer_append_fmt(&name, "-%s", sbom_spdx_identity(match));
 	}
 
-	return buf;
+	return pkgconf_buffer_freeze(&name);
 }
 
 static void
 write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
 {
 	(void) client;
-	(void) world;
+	char *docname = sbom_name(world);
 
 	fprintf(sbom_out, "SPDXVersion: %s\n", spdx_version);
 	fprintf(sbom_out, "DataLicense: %s\n", bom_license);
 	fprintf(sbom_out, "SPDXID: %s\n", document_ref);
-	fprintf(sbom_out, "DocumentName: %s\n", sbom_name(world));
+	fprintf(sbom_out, "DocumentName: %s\n", docname);
 	fprintf(sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION);
 	fprintf(sbom_out, "Creator: Tool: bomtool %s\n", PACKAGE_VERSION);
 
 	fprintf(sbom_out, "\n\n");
+
+	free(docname);
 }
 
 static const char *
