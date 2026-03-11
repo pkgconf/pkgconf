@@ -524,7 +524,7 @@ spdxtool_core_spdx_document_serialize(pkgconf_client_t *client, pkgconf_buffer_t
  *    :return: NULL if some problem occurs and SpdxDocument struct if not
  */
 spdxtool_core_relationship_t *
-spdxtool_core_relationship_new(pkgconf_client_t *client, char *creation_info_id, char *spdx_id, char *from, char *to, char *relationship_type)
+spdxtool_core_relationship_new(pkgconf_client_t *client, char *creation_info_id, char *spdx_id, char *from, pkgconf_list_t *to, char *relationship_type)
 {
 	spdxtool_core_relationship_t *relationship = NULL;
 
@@ -591,7 +591,7 @@ spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship_struc
 
 	if(relationship_struct->to)
 	{
-		free(relationship_struct->to);
+		pkgconf_fragment_free(relationship_struct->to);
 		relationship_struct->to = NULL;
 	}
 
@@ -620,6 +620,8 @@ spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship_struc
 void
 spdxtool_core_relationship_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_core_relationship_t *relationship_struct, bool last)
 {
+	pkgconf_node_t *node = NULL;
+	bool is_last = 0;
 	(void) client;
 
 	spdxtool_serialize_obj_start(buffer, 2);
@@ -628,7 +630,17 @@ spdxtool_core_relationship_serialize(pkgconf_client_t *client, pkgconf_buffer_t 
 	spdxtool_serialize_parm_and_string(buffer, "spdxId", relationship_struct->spdx_id, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "from", relationship_struct->from, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "to", '[', 3, false);
-	spdxtool_serialize_string(buffer, relationship_struct->to, 4, false);
+	PKGCONF_FOREACH_LIST_ENTRY(relationship_struct->to->head, node)
+	{
+		const pkgconf_fragment_t *frag = node->data;
+		is_last = false;
+
+		if(node->next != NULL)
+		{
+			is_last = true;
+		}
+		spdxtool_serialize_string(buffer, frag->data, 4, is_last);
+	}
 	spdxtool_serialize_array_end(buffer, 3, true);
 	spdxtool_serialize_parm_and_string(buffer, "relationshipType", relationship_struct->relationship_type, 3, false);
 	spdxtool_serialize_obj_end(buffer, 2, last);
