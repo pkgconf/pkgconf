@@ -115,6 +115,12 @@ not described as dependencies should be specified here.
 (optional; fragment list)
 .It License
 The asserted SPDX license tag that should be applied to the given package.
+One should try to determine the correct SPDX license tag for package
+from the SPDX License list. If a standard license name isn't available, use the
+LicenseRef-tag. For complex licensing details, utilize
+SPDX expression notation.
+It’s possible to assign multiple license tags in pc-file, which are
+then merged together with an 'AND' when rendering output.
 (optional; literal; pkgconf extension)
 .It License.file
 License file location for whole license text.
