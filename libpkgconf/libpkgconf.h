@@ -190,12 +190,13 @@ struct pkgconf_pkg_ {
 	char *description;
 	char *url;
 	char *pc_filedir;
-	char *license;
 	char *maintainer;
 	char *copyright;
 	char *source;
 	char *license_file;
 	char *why;
+
+	pkgconf_list_t license;
 
 	pkgconf_list_t libs;
 	pkgconf_list_t libs_private;
@@ -487,6 +488,11 @@ PKGCONF_API void pkgconf_fragment_free(pkgconf_list_t *list);
 PKGCONF_API void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, void *data);
 PKGCONF_API void pkgconf_fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim);
 PKGCONF_API bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag);
+
+/* license.c */
+PKGCONF_API void pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *expression, unsigned int flags);
+PKGCONF_API void pkgconf_license_evaluate(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist, const char *depends, unsigned int flags);
+PKGCONF_API void pkgconf_license_fragment_render(pkgconf_client_t *client, const pkgconf_list_t *list, pkgconf_buffer_t *buf);
 
 /* tuple.c */
 PKGCONF_API pkgconf_tuple_t *pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *parent, const char *key, const char *value, bool parse, unsigned int flags);

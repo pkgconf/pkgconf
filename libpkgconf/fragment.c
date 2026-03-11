@@ -701,7 +701,6 @@ pkgconf_fragment_free(pkgconf_list_t *list)
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
 	{
 		pkgconf_fragment_t *frag = node->data;
-
 		pkgconf_fragment_free(&frag->children);
 		free(frag->data);
 		free(frag);

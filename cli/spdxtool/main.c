@@ -77,12 +77,11 @@ write_jsonld_header(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_buff
 static void
 generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 {
-	(void) client;
 	pkgconf_node_t *node = NULL;
 	spdxtool_core_spdx_document_t *document = (spdxtool_core_spdx_document_t *)ptr;
 	char *package_spdx = NULL;
 	char spdx_id_name[1024];
-
+	(void) client;
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
@@ -100,7 +99,7 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	pkgconf_tuple_add(client, &pkg->vars, "creationInfo", document->creation_info, false, 0);
 	pkgconf_tuple_add(client, &pkg->vars, "agent", document->agent, false, 0);
 
-	if (pkg->license != NULL)
+	if (pkg->license.head != NULL)
 	{
 		snprintf(spdx_id_name, 1024, "%s/hasDeclaredLicense", pkg->id);
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
@@ -114,7 +113,14 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 		free(package_spdx);
 		package_spdx = NULL;
 
-		spdxtool_core_spdx_document_add_license(client, document, pkg->license);
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->license.head, node)
+		{
+			const pkgconf_fragment_t *frag = node->data;
+			if (frag->type == 'L')
+			{
+				spdxtool_core_spdx_document_add_license(client, document, frag->data);
+			}
+		}
 	}
 
 	node = calloc(1, sizeof(pkgconf_node_t));

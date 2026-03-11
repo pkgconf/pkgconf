@@ -376,6 +376,7 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/dependency.c		\
 		libpkgconf/fileio.c		\
 		libpkgconf/fragment.c		\
+		libpkgconf/license.c		\
 		libpkgconf/output.c		\
 		libpkgconf/parser.c		\
 		libpkgconf/path.c		\
