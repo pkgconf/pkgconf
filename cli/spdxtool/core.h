@@ -44,10 +44,10 @@ spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_s
 
 
 void
-spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, char *license);
+spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *license);
 
 void
-spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, char *element);
+spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *element);
 
 
 void

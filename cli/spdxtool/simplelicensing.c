@@ -116,6 +116,6 @@ spdxtool_simplelicensing_licenseExpression_serialize(pkgconf_client_t *client, p
 		spdxtool_serialize_parm_and_string(buffer, "simplelicensing_licenseExpression",  expression->license_expression, 3, false);
 		spdxtool_serialize_obj_end(buffer, 2, true);
 
-		spdxtool_core_spdx_document_add_element(client, spdx_struct, strdup(expression->spdx_id));
+		spdxtool_core_spdx_document_add_element(client, spdx_struct, expression->spdx_id);
 	}
 }

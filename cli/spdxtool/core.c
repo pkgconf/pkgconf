@@ -140,7 +140,7 @@ spdxtool_core_agent_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer
  *    :return: NULL if some problem occurs and CreationInfo struct if not
  */
 spdxtool_core_creation_info_t *
-spdxtool_core_creation_info_new(pkgconf_client_t *client, char *agent_id, char *id, char *time)
+spdxtool_core_creation_info_new(pkgconf_client_t* client, char* agent_id, char* id, char* time)
 {
 	spdxtool_core_creation_info_t *creation_struct = NULL;
 
@@ -266,7 +266,7 @@ spdxtool_core_spdx_document_new(pkgconf_client_t *client, char *spdx_id, char *c
 		return NULL;
 	}
 
-	(void)client;
+	(void) client;
 
 	spdx_struct = calloc(1, sizeof(spdxtool_core_spdx_document_t));
 
@@ -349,7 +349,6 @@ spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_s
 
 	(void) client;
 
-
 	if(!license)
 	{
 		return false;
@@ -370,7 +369,7 @@ spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_s
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, char *license)
+ * .. c:function:: void spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *license)
  *
  *    Add license to SpdxDocument and make sure that specific license is not already there.
  *
@@ -380,12 +379,12 @@ spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_s
  *    :return: nothing
  */
 void
-spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, char *license)
+spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *license)
 {
 	pkgconf_node_t *node = NULL;
+	char *nlicense = NULL;
 
-
-	if(!license)
+	if(!license || !spdx_struct)
 	{
 		return;
 	}
@@ -401,14 +400,23 @@ spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_
 		pkgconf_error(client, "Memory exhausted! Cant't add license to spdx_document.");
 		return;
 	}
-	spdxtool_simplelicensing_license_expression_t *expression = spdxtool_simplelicensing_licenseExpression_new(client, license);
+
+	nlicense = strdup(license);
+	if(!nlicense)
+	{
+		pkgconf_error(client, "Memory exhausted! Can't add license to spdx_document.");
+		free(node);
+		return;
+	}
+
+	spdxtool_simplelicensing_license_expression_t *expression = spdxtool_simplelicensing_licenseExpression_new(client, nlicense);
 	pkgconf_node_insert_tail(node, expression, &spdx_struct->licenses);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, char *element)
+ * .. c:function:: void spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *element)
  *
  *    Add element spdxId to SpdxDocument
  *
@@ -418,13 +426,12 @@ spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_
  *    :return: nothing
  */
 void
-spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, char *element)
+spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *element)
 {
 	pkgconf_node_t *node = NULL;
+	char *nelement = NULL;
 
-	(void) client;
-
-	if(!element)
+	if(!element || !spdx_struct)
 	{
 		return;
 	}
@@ -432,10 +439,19 @@ spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_
 	node = calloc(1, sizeof(pkgconf_node_t));
 	if(!node)
 	{
-		pkgconf_error(NULL, "Memory exhausted! Can't add spdx_id's to spdx_document.");
+		pkgconf_error(client, "Memory exhausted! Can't add spdx_id's to spdx_document.");
 		return;
 	}
-	pkgconf_node_insert_tail(node, element, &spdx_struct->element);
+
+	nelement = strdup(element);
+	if(!nelement)
+	{
+		pkgconf_error(client, "Memory exhausted! Can't add spdx_id's to spdx_document.");
+		free(node);
+		return;
+	}
+
+	pkgconf_node_insert_tail(node, nelement, &spdx_struct->element);
 }
 
 /*

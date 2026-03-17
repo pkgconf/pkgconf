@@ -140,7 +140,7 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 
 		spdxtool_serialize_string(buffer, spdx_id_relation, 4, true);
 
-		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, strdup(spdx_id_relation));
+		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, spdx_id_relation);
 
 		free(spdx_id_relation);
 	}
@@ -150,6 +150,7 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 	{
 		spdxtool_serialize_string(buffer, value, 4, true);
 		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, value);
+		free(value);
 	}
 
 	value = spdxtool_util_tuple_lookup(client, &sbom_struct->rootElement->vars, "hasConcludedLicense");
@@ -157,6 +158,7 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 	{
 		spdxtool_serialize_string(buffer, value, 4, false);
 		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, value);
+		free(value);
 	}
 
 	spdxtool_serialize_array_end(buffer, 3, false);
