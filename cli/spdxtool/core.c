@@ -140,7 +140,7 @@ spdxtool_core_agent_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer
  *    :return: NULL if some problem occurs and CreationInfo struct if not
  */
 spdxtool_core_creation_info_t *
-spdxtool_core_creation_info_new(pkgconf_client_t* client, char* agent_id, char* id, char* time)
+spdxtool_core_creation_info_new(pkgconf_client_t *client, char *agent_id, char *id, char *time)
 {
 	spdxtool_core_creation_info_t *creation_struct = NULL;
 
@@ -338,7 +338,7 @@ spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx_struct)
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param spdxtool_core_spdx_document_t *spdx_struct: SpdxDocument struct being used.
- *    :param char *license: SPDX name of license
+ *    :param const char *license: SPDX name of license
  *    :return: true is license is there and false if not
  */
 bool
@@ -375,7 +375,7 @@ spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_s
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param spdxtool_core_spdx_document_t *spdx_struct: SpdxDocument struct being used.
- *    :param char *license: SPDX name of license
+ *    :param const char *license: SPDX name of license
  *    :return: nothing
  */
 void
