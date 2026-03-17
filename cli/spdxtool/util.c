@@ -166,20 +166,20 @@ spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, const char *part)
 /*
  * !doc
  *
- * .. c:function:: char *spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, char *part, char *string_id)
+ * .. c:function:: char *spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, const char *string_id)
  *
  *    Get string id URI
  *    looks something like: https://test/part/string_id
  *
  *    :param pkgconf_client_t* client: The pkgconf client being accessed.
- *    :param char* part: subdir part of URI.
- *    :param char* string_id: String ID.
+ *    :param const char* part: subdir part of URI.
+ *    :param const char* string_id: String ID.
  *    :return: URI
  */
 char *
-spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, char *string_id)
+spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, const char *string_id)
 {
-	const 	char *global_xsd_any_uri = spdxtool_util_get_uri_root(client);
+	const char *global_xsd_any_uri = spdxtool_util_get_uri_root(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
 
 	pkgconf_buffer_join(&current_uri, '/', global_xsd_any_uri, part, string_id, NULL);

@@ -22,7 +22,7 @@ extern "C" {
 
 
 spdxtool_simplelicensing_license_expression_t *
-spdxtool_simplelicensing_licenseExpression_new(pkgconf_client_t *client, char *license);
+spdxtool_simplelicensing_licenseExpression_new(pkgconf_client_t *client, const char *license);
 
 void
 spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license_expression_t *expression_struct);
