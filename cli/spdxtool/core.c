@@ -518,20 +518,20 @@ spdxtool_core_spdx_document_serialize(pkgconf_client_t *client, pkgconf_buffer_t
 /*
  * !doc
  *
- * .. c:function:: spdxtool_core_relationship_t *spdxtool_core_relationship_new(pkgconf_client_t *client, char *creation_info_id, char *spdx_id, char *from, char *to, char *relationship_type)
+ * .. c:function:: spdxtool_core_relationship_t *spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_info_id, const char *spdx_id, const char *from, const char *to, const char *relationship_type)
  *
  *    Create new /Core/Relationship struct
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
- *    :param char *creation_id: Id for creation info
- *    :param char *spdx_id: Id of this SpdxDocument
- *    :param char *from: from spdxId
- *    :param char *to: to spdxId
- *    :param char *relationship_type: These can be found on SPDX documentation
+ *    :param const char *creation_id: Id for creation info
+ *    :param const char *spdx_id: Id of this SpdxDocument
+ *    :param const char *from: from spdxId
+ *    :param const char *to: to spdxId
+ *    :param const char *relationship_type: These can be found on SPDX documentation
  *    :return: NULL if some problem occurs and SpdxDocument struct if not
  */
 spdxtool_core_relationship_t *
-spdxtool_core_relationship_new(pkgconf_client_t *client, char *creation_info_id, char *spdx_id, char *from, char *to, char *relationship_type)
+spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_info_id, const char *spdx_id, const char *from, const char *to, const char *relationship_type)
 {
 	spdxtool_core_relationship_t *relationship = NULL;
 
@@ -540,10 +540,7 @@ spdxtool_core_relationship_new(pkgconf_client_t *client, char *creation_info_id,
 		return NULL;
 	}
 
-	(void) client;
-
 	relationship = calloc(1, sizeof(spdxtool_core_relationship_t));
-
 	if(!relationship)
 	{
 		pkgconf_error(client, "Memory exhausted! Can't create relationship struct.");
@@ -551,11 +548,18 @@ spdxtool_core_relationship_new(pkgconf_client_t *client, char *creation_info_id,
 	}
 
 	relationship->type = "Relationship";
-	relationship->creation_info = creation_info_id;
-	relationship->spdx_id = spdx_id;
-	relationship->from = from;
-	relationship->to = to;
-	relationship->relationship_type = relationship_type;
+	relationship->creation_info = strdup(creation_info_id);
+	relationship->spdx_id = strdup(spdx_id);
+	relationship->from = strdup(from);
+	relationship->to = strdup(to);
+	relationship->relationship_type = strdup(relationship_type);
+
+	if(!relationship->creation_info || !relationship->spdx_id || !relationship->from || !relationship->to || !relationship->relationship_type)
+	{
+		pkgconf_error(client, "Memory exhausted! Can't create relationship struct.");
+		spdxtool_core_relationship_free(relationship);
+		return NULL;
+	}
 
 	return relationship;
 }
@@ -578,35 +582,11 @@ spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship_struc
 		return;
 	}
 
-	if(relationship_struct->spdx_id)
-	{
-		free(relationship_struct->spdx_id);
-		relationship_struct->spdx_id = NULL;
-	}
-
-	if(relationship_struct->creation_info)
-	{
-		free(relationship_struct->creation_info);
-		relationship_struct->creation_info = NULL;
-	}
-
-	if(relationship_struct->from)
-	{
-		free(relationship_struct->from);
-		relationship_struct->from = NULL;
-	}
-
-	if(relationship_struct->to)
-	{
-		free(relationship_struct->to);
-		relationship_struct->to = NULL;
-	}
-
-	if(relationship_struct->relationship_type)
-	{
-		free(relationship_struct->relationship_type);
-		relationship_struct->relationship_type = NULL;
-	}
+	free(relationship_struct->spdx_id);
+	free(relationship_struct->creation_info);
+	free(relationship_struct->from);
+	free(relationship_struct->to);
+	free(relationship_struct->relationship_type);
 
 	free(relationship_struct);
 }

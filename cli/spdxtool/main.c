@@ -77,12 +77,10 @@ write_jsonld_header(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_buff
 static void
 generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 {
-	(void) client;
 	pkgconf_node_t *node = NULL;
 	spdxtool_core_spdx_document_t *document = (spdxtool_core_spdx_document_t *)ptr;
 	char *package_spdx = NULL;
 	char spdx_id_name[1024];
-
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
@@ -102,13 +100,15 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 
 	if (pkg->license != NULL)
 	{
-		snprintf(spdx_id_name, 1024, "%s/hasDeclaredLicense", pkg->id);
+		// TODO: replace with pkgconf_buffer_t
+		snprintf(spdx_id_name, sizeof(spdx_id_name), "%s/hasDeclaredLicense", pkg->id);
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
 		pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0);
 		free(package_spdx);
 		package_spdx = NULL;
 
-		snprintf(spdx_id_name, 1024, "%s/hasConcludedLicense", pkg->id);
+		// TODO: replace with pkgconf_buffer_t
+		snprintf(spdx_id_name, sizeof(spdx_id_name), "%s/hasConcludedLicense", pkg->id);
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
 		pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0);
 		free(package_spdx);
@@ -118,12 +118,12 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	}
 
 	node = calloc(1, sizeof(pkgconf_node_t));
-
 	if(!node)
 	{
-		pkgconf_error(NULL, "Memory exhausted!");
+		pkgconf_error(client, "Memory exhausted!");
 		return;
 	}
+
 	pkgconf_node_insert_tail(node, sbom, &document->rootElement);
 }
 
