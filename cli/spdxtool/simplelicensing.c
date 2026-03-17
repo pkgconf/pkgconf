@@ -49,6 +49,7 @@ spdxtool_simplelicensing_licenseExpression_new(pkgconf_client_t *client, const c
 	if(!nlicense)
 	{
 		pkgconf_error(client, "Memory exhausted! Can't create simplelicense_expression struct!");
+		free(expression);
 		return NULL;
 	}
 
