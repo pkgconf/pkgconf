@@ -134,7 +134,8 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 		char tmp_str[1024];
 
 		// New relation spdxId
-		snprintf(tmp_str, 1024, "%s/dependsOn/%s", sbom_struct->rootElement->id, match->id);
+		// TODO: replace with pkgconf_buffer_t
+		snprintf(tmp_str, sizeof(tmp_str), "%s/dependsOn/%s", sbom_struct->rootElement->id, match->id);
 
 		spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", tmp_str);
 
@@ -214,7 +215,8 @@ spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *
 	tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasDeclaredLicense");
 	if (tuple_license != NULL)
 	{
-		relationship_struct = spdxtool_core_relationship_new(client, strdup(creation_info), tuple_license, strdup(spdx_id), strdup(spdx_id_license), strdup("hasDeclaredLicense"));
+		relationship_struct = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, spdx_id_license, "hasDeclaredLicense");
+		free(tuple_license);
 		spdxtool_core_relationship_serialize(client, buffer, relationship_struct, true);
 		spdxtool_core_relationship_free(relationship_struct);
 	}
@@ -222,7 +224,8 @@ spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *
 	tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasConcludedLicense");
 	if (tuple_license != NULL)
 	{
-		relationship_struct = spdxtool_core_relationship_new(client, strdup(creation_info), tuple_license, strdup(spdx_id), spdx_id_license, strdup("hasConcludedLicense"));
+		relationship_struct = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, spdx_id_license, "hasConcludedLicense");
+		free(tuple_license);
 		spdxtool_core_relationship_serialize(client, buffer, relationship_struct, true);
 		spdxtool_core_relationship_free(relationship_struct);
 	}
@@ -236,15 +239,18 @@ spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *
 		char tmp_str[1024];
 
 		// New relation spdxId
-		snprintf(tmp_str, 1024, "%s/dependsOn/%s", pkg->id, match->id);
+		// TODO: convert to pkgconf_buffer_t
+		snprintf(tmp_str, sizeof(tmp_str), "%s/dependsOn/%s", pkg->id, match->id);
 		spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", tmp_str);
 
 		// new package spdxId which will be hopefully come later on
 		spdx_id_package = spdxtool_util_get_spdx_id_string(client, "Package", match->id);
 
-		relationship_struct = spdxtool_core_relationship_new(client, strdup(creation_info), spdx_id_relation, strdup(spdx_id), spdx_id_package, strdup("dependsOn"));
+		relationship_struct = spdxtool_core_relationship_new(client, creation_info, spdx_id_relation, spdx_id, spdx_id_package, "dependsOn");
 		spdxtool_core_relationship_serialize(client, buffer, relationship_struct, true);
 		spdxtool_core_relationship_free(relationship_struct);
+		free(spdx_id_relation);
+		free(spdx_id_package);
 	}
 
 	free(creation_info);
