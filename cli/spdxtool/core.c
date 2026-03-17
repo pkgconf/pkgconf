@@ -382,7 +382,6 @@ void
 spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *license)
 {
 	pkgconf_node_t *node = NULL;
-	char *nlicense = NULL;
 
 	if(!license || !spdx_struct)
 	{
@@ -401,15 +400,7 @@ spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_
 		return;
 	}
 
-	nlicense = strdup(license);
-	if(!nlicense)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't add license to spdx_document.");
-		free(node);
-		return;
-	}
-
-	spdxtool_simplelicensing_license_expression_t *expression = spdxtool_simplelicensing_licenseExpression_new(client, nlicense);
+	spdxtool_simplelicensing_license_expression_t *expression = spdxtool_simplelicensing_licenseExpression_new(client, license);
 	pkgconf_node_insert_tail(node, expression, &spdx_struct->licenses);
 }
 

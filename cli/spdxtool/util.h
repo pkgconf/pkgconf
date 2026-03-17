@@ -99,7 +99,7 @@ char *
 spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, const char *part);
 
 char *
-spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, char *string_id);
+spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, const char *string_id);
 
 char *
 spdxtool_util_get_iso8601_time(time_t *wanted_time);
