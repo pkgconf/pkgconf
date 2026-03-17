@@ -20,7 +20,6 @@ extern "C" {
 
 typedef struct spdxtool_core_agent_
 {
-	int refcount;
 	char *spdx_id;
 	const char *type;
 	char *creation_info;
@@ -29,7 +28,6 @@ typedef struct spdxtool_core_agent_
 
 typedef struct spdxtool_core_creation_info_
 {
-	int refcount;
 	char *id;
 	const char *type;
 	char *created;
@@ -40,7 +38,6 @@ typedef struct spdxtool_core_creation_info_
 
 typedef struct spdxtool_core_spdx_document
 {
-	int refcount;
 	const char *type;
 	char *spdx_id;
 	char *creation_info;
@@ -52,7 +49,6 @@ typedef struct spdxtool_core_spdx_document
 
 typedef struct spdxtool_software_sbom_
 {
-	int refcount;
 	char *spdx_id;
 	const char *type;
 	char *creation_info;
@@ -63,7 +59,6 @@ typedef struct spdxtool_software_sbom_
 
 typedef struct spdxtool_simplelicensing_license_expression_
 {
-	int refcount;
 	const char *type;
 	char *spdx_id;
 	char *license_expression;
@@ -71,7 +66,6 @@ typedef struct spdxtool_simplelicensing_license_expression_
 
 typedef struct spdxtool_core_relationship_
 {
-	int refcount;
 	const char *type;
 	char *spdx_id;
 	char *creation_info;
