@@ -98,6 +98,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/c-comments-should-warn.test \
 		t/parser/comments-in-fields.test \
 		t/parser/comments.test \
+		t/parser/dollar-sign-escape.test \
 		t/parser/dos-lineendings.test \
 		t/parser/escaped-backslashes-in-output.test \
 		t/parser/fragment-comment.test \
