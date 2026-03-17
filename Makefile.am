@@ -118,6 +118,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/msvc-fragment-render-cflags.test \
 		t/parser/multiline-bogus-header.test \
 		t/parser/multiline-field.test \
+		t/parser/multiline-folding-cflags.test \
+		t/parser/multiline-folding-libs.test \
 		t/parser/no-trailing-newline.test \
 		t/parser/paren-quoting.test \
 		t/parser/shell-quoted-output.test \
