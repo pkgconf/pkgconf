@@ -332,7 +332,7 @@ spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx_struct)
 /*
  * !doc
  *
- * .. c:function:: bool spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, char *license)
+ * .. c:function:: bool spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *license)
  *
  *    Find out if specific license is already there.
  *
@@ -342,7 +342,7 @@ spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx_struct)
  *    :return: true is license is there and false if not
  */
 bool
-spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, char *license)
+spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *license)
 {
 	pkgconf_node_t *iter = NULL;
 	spdxtool_simplelicensing_license_expression_t *expression = NULL;
