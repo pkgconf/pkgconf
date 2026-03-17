@@ -114,6 +114,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/fragment-quoting-7.test \
 		t/parser/fragment-quoting.test \
 		t/parser/fragment-tree.test \
+		t/parser/framework-with-libs.test \
 		t/parser/malformed-no-newlines.test \
 		t/parser/malformed-quoting.test \
 		t/parser/msvc-fragment-quoting.test \
@@ -239,6 +240,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/prefix-foo1.pc \
 		tests/lib1/argv-parse.pc \
 		tests/lib1/framework-1.pc \
+		tests/lib1/framework-with-libs.pc \
 		tests/lib1/prefix-foo2.pc \
 		tests/lib1/bar.pc \
 		tests/lib1/framework-2.pc \

@@ -116,10 +116,9 @@ pkgconf_fragment_is_unmergeable(const char *string)
 }
 
 static inline bool
-pkgconf_fragment_is_groupable(const char *string)
+pkgconf_fragment_only_group_one(const char *string)
 {
 	static const struct pkgconf_fragment_check check_fragments[] = {
-		{"-Wl,--start-group", 17},
 		{"-framework", 10},
 		{"-isystem", 8},
 		{"-idirafter", 10},
@@ -134,11 +133,31 @@ pkgconf_fragment_is_groupable(const char *string)
 }
 
 static inline bool
-pkgconf_fragment_is_terminus(const char *string)
+pkgconf_fragment_is_groupable(const char *string)
+{
+	static const struct pkgconf_fragment_check check_fragments[] = {
+		{"-Wl,--start-group", 17},
+	};
+
+	if (pkgconf_fragment_only_group_one(string))
+		return true;
+
+	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(check_fragments); i++)
+		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
+			return true;
+
+	return false;
+}
+
+static inline bool
+pkgconf_fragment_is_terminus(const char *parent, const char *string)
 {
 	static const struct pkgconf_fragment_check check_fragments[] = {
 		{"-Wl,--end-group", 15},
 	};
+
+	if (pkgconf_fragment_only_group_one(parent))
+		return true;
 
 	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(check_fragments); i++)
 		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
@@ -300,7 +319,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 			if (pkgconf_fragment_is_groupable(parent->data))
 				target = &parent->children;
 
-			if (pkgconf_fragment_is_terminus(string))
+			if (pkgconf_fragment_is_terminus(parent->data, string))
 				parent->flags |= PKGCONF_PKG_FRAGF_TERMINATED;
 
 			PKGCONF_TRACE(client, "adding fragment as child to list @%p", target);
