@@ -40,7 +40,7 @@ spdxtool_core_spdx_document_t *
 spdxtool_core_spdx_document_new(pkgconf_client_t *client, char *spdx_id, char *creation_id);
 
 bool
-spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, char *license);
+spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx_struct, const char *license);
 
 
 void
