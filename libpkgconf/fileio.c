@@ -49,13 +49,6 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 		{
 			if (quoted)
 			{
-				/* Trim spaces */
-				do {
-					c2 = getc(stream);
-				} while (c2 == '\t' || c2 == ' ');
-
-				ungetc(c2, stream);
-
 				quoted = false;
 				continue;
 			}
