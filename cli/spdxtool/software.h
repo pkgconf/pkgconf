@@ -19,13 +19,13 @@ extern "C" {
 #endif
 
 spdxtool_software_sbom_t *
-spdxtool_software_sbom_new(pkgconf_client_t *client, char *spdx_id, char *creation_id, char *sbom_type);
+spdxtool_software_sbom_new(pkgconf_client_t *client, const char *spdx_id, const char *creation_id, const char *sbom_type);
 
 void
-spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom_struct);
+spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom);
 
 void
-spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom_struct, bool last);
+spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom, bool last);
 
 void
 spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, pkgconf_pkg_t *pkg, bool last);

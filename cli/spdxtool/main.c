@@ -73,23 +73,43 @@ write_jsonld_header(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_buff
 	spdxtool_serialize_parm_and_char(buffer, "@graph", '[', 1, false);
 }
 
-
+// NOTE: this function is passed to pkgconf_pkg_traverse
 static void
 generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 {
-	pkgconf_node_t *node = NULL;
 	spdxtool_core_spdx_document_t *document = (spdxtool_core_spdx_document_t *)ptr;
-	char *package_spdx = NULL;
+	pkgconf_node_t *node = NULL;
+	char *package_spdx = NULL, *spdx_id_string = NULL;
 	char spdx_id_name[1024];
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
 
-	spdxtool_software_sbom_t *sbom = spdxtool_software_sbom_new(client, spdxtool_util_get_spdx_id_string(client, "software_Sbom", pkg->id), strdup(document->creation_info), strdup("build"));
+	spdx_id_string = spdxtool_util_get_spdx_id_string(client, "software_Sbom", pkg->id);
+	if(!spdx_id_string)
+	{
+		pkgconf_error(client, "generate_spdx_package: Couldn't create spdx_id_string");
+		return;
+	}
+
+	spdxtool_software_sbom_t *sbom = spdxtool_software_sbom_new(client, spdx_id_string, document->creation_info, "build");
+	if(!sbom)
+	{
+		pkgconf_error(client, "generate_spdx_package: Couldn't create sbom struct");
+		return;
+	}
 	sbom->spdx_document = document;
 	sbom->rootElement = pkg;
 
+	free(spdx_id_string);
+	spdx_id_string = NULL;
+
 	package_spdx = spdxtool_util_get_spdx_id_string(client, "Package", pkg->id);
+	if(!package_spdx)
+	{
+		pkgconf_error(client, "generate_spdx_package: Couldn't create spdx id string");
+		return;
+	}
 
 	pkgconf_tuple_add(client, &pkg->vars, "spdxId", package_spdx, false, 0);
 	free(package_spdx);
@@ -103,14 +123,28 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 		// TODO: replace with pkgconf_buffer_t
 		snprintf(spdx_id_name, sizeof(spdx_id_name), "%s/hasDeclaredLicense", pkg->id);
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
+		if(!package_spdx)
+		{
+			pkgconf_error(client, "generate_spdx_package: Couldn't create spdx id string");
+			return;
+		}
+
 		pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0);
+
 		free(package_spdx);
 		package_spdx = NULL;
 
 		// TODO: replace with pkgconf_buffer_t
 		snprintf(spdx_id_name, sizeof(spdx_id_name), "%s/hasConcludedLicense", pkg->id);
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
+		if(!package_spdx)
+		{
+			pkgconf_error(client, "generate_spdx_package: Couldn't create spdx id string");
+			return;
+		}
+
 		pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0);
+
 		free(package_spdx);
 		package_spdx = NULL;
 
@@ -128,40 +162,48 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 }
 
 static bool
-generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, char *creation_time, char *creation_id, char *agent_name)
+generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creation_time, const char *creation_id, const char *agent_name)
 {
 	int eflag;
 	pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
 
-	const char *agent_name_string = "Default";
-	const char *creation_id_string = "_:creationinfo_1";
-	char *creation_time_string = NULL;
+	const char *agent_name_string = agent_name ? agent_name : "Default";
+	const char *creation_id_string = creation_id ? creation_id : "_:creationinfo_1";
+	const char *creation_time_string = creation_time ? creation_time : NULL;
 
-
-	if(agent_name)
+	spdxtool_core_agent_t *agent = spdxtool_core_agent_new(client, creation_id_string, agent_name_string);
+	if(!agent)
 	{
-		agent_name_string = agent_name;
+		pkgconf_error(client, "Could not create agent struct");
+		return false;
 	}
 
-	if(creation_time)
+	spdxtool_core_creation_info_t *creation = spdxtool_core_creation_info_new(&pkg_client, agent->spdx_id, creation_id_string, creation_time_string);
+	if(!creation)
 	{
-		creation_time_string = strdup(creation_time);
+		pkgconf_error(client, "Could not create creation info struct");
+		spdxtool_core_agent_free(agent);
+		return false;
 	}
 
-	if(creation_id)
+	char *spdx_id_int = spdxtool_util_get_spdx_id_int(&pkg_client, "spdxDocument");
+	spdxtool_core_spdx_document_t *document = spdxtool_core_spdx_document_new(&pkg_client, spdx_id_int, creation_id_string, agent->spdx_id);
+	free(spdx_id_int);
+	if(!document)
 	{
-		creation_id_string = creation_id;
+		pkgconf_error(client, "Could not create document");
+		spdxtool_core_spdx_document_free(document);
+		spdxtool_core_agent_free(agent);
+		return false;
 	}
-
-	spdxtool_core_agent_t *agent = spdxtool_core_agent_new(client, strdup(creation_id_string), strdup(agent_name_string));
-	spdxtool_core_creation_info_t *creation = spdxtool_core_creation_info_new(&pkg_client, strdup(agent->spdx_id), strdup(creation_id_string), creation_time_string);
-	spdxtool_core_spdx_document_t *document = spdxtool_core_spdx_document_new(&pkg_client, spdxtool_util_get_spdx_id_int(&pkg_client, "spdxDocument"), strdup(creation_id_string));
-
-	document->agent = strdup(agent->spdx_id);
 
 	eflag = pkgconf_pkg_traverse(client, world, generate_spdx_package, document, maximum_traverse_depth, 0);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
+	{
+		spdxtool_core_spdx_document_free(document);
+		spdxtool_core_agent_free(agent);
 		return false;
+	}
 
 	write_jsonld_header(client, world, &buffer);
 
