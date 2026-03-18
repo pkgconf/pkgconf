@@ -178,7 +178,7 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 		return false;
 	}
 
-	spdxtool_core_creation_info_t *creation = spdxtool_core_creation_info_new(&pkg_client, agent->spdx_id, creation_id_string, creation_time_string);
+	spdxtool_core_creation_info_t *creation = spdxtool_core_creation_info_new(client, agent->spdx_id, creation_id_string, creation_time_string);
 	if(!creation)
 	{
 		pkgconf_error(client, "Could not create creation info struct");
@@ -186,8 +186,8 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 		return false;
 	}
 
-	char *spdx_id_int = spdxtool_util_get_spdx_id_int(&pkg_client, "spdxDocument");
-	spdxtool_core_spdx_document_t *document = spdxtool_core_spdx_document_new(&pkg_client, spdx_id_int, creation_id_string, agent->spdx_id);
+	char *spdx_id_int = spdxtool_util_get_spdx_id_int(client, "spdxDocument");
+	spdxtool_core_spdx_document_t *document = spdxtool_core_spdx_document_new(client, spdx_id_int, creation_id_string, agent->spdx_id);
 	free(spdx_id_int);
 	if(!document)
 	{
