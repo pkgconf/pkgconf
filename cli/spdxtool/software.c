@@ -18,115 +18,106 @@
 /*
  * !doc
  *
- * .. c:function:: spdxtool_software_sbom_t *spdxtool_software_sbom_new(pkgconf_client_t *client, char *spdx_id, char *creation_id, char *sbom_type)
+ * .. c:function:: spdxtool_software_sbom_t *spdxtool_software_sbom_new(pkgconf_client_t *client, const char *spdx_id, const char *creation_id, const char *sbom_type)
  *
  *    Create new /Software/Sbom struct
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
- *    :param char *spdx_id: spdxId for this SBOM element
- *    :param char *creation_id: id for CreationInfo
- *    :param char *sbom_type: Sbom types can be found SPDX documention
+ *    :param const char *spdx_id: spdxId for this SBOM element
+ *    :param const char *creation_id: id for CreationInfo
+ *    :param const char *sbom_type: Sbom types can be found SPDX documention
  *    :return: NULL if some problem occurs and Sbom struct if not
  */
 spdxtool_software_sbom_t *
-spdxtool_software_sbom_new(pkgconf_client_t *client, char *spdx_id, char *creation_id, char *sbom_type)
+spdxtool_software_sbom_new(pkgconf_client_t *client, const char *spdx_id, const char *creation_id, const char *sbom_type)
 {
-	spdxtool_software_sbom_t *sbom_struct = NULL;
+	spdxtool_software_sbom_t *sbom = NULL;
 
 	if(!client || !spdx_id || !creation_id || !sbom_type)
 	{
 		return NULL;
 	}
 
-	(void)client;
-
-	sbom_struct = calloc(1, sizeof(spdxtool_software_sbom_t));
-
-	if(!sbom_struct)
+	sbom = calloc(1, sizeof(spdxtool_software_sbom_t));
+	if(!sbom)
 	{
 		pkgconf_error(client, "Memory exhausted! Can't create sbom struct.");
 		return NULL;
 	}
 
-	sbom_struct->type="software_Sbom";
-	sbom_struct->spdx_id = spdx_id;
-	sbom_struct->creation_info = creation_id;
-	sbom_struct->sbom_type = sbom_type;
-	return sbom_struct;
+	sbom->type="software_Sbom";
+	sbom->spdx_id = strdup(spdx_id);
+	sbom->creation_info = strdup(creation_id);
+	sbom->sbom_type = strdup(sbom_type);
+
+	if(!sbom->spdx_id || !sbom->creation_info || !sbom->sbom_type)
+	{
+		pkgconf_error(client, "Memory exhausted! Can't create sbom struct.");
+		spdxtool_software_sbom_free(sbom);
+		return NULL;
+	}
+
+	return sbom;
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom_struct)
+ * .. c:function:: void spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom)
  *
  *    Free /Software/Sbom struct
  *
- *    :param spdxtool_software_sbom_t *sbom_struct: Sbom struct to be freed.
+ *    :param spdxtool_software_sbom_t *sbom: Sbom struct to be freed.
  *    :return: nothing
  */
 void
-spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom_struct)
+spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom)
 {
 
-	if(!sbom_struct)
+	if(!sbom)
 	{
 		return;
 	}
 
-	if(sbom_struct->spdx_id)
-	{
-		free(sbom_struct->spdx_id);
-		sbom_struct->spdx_id = NULL;
-	}
+	free(sbom->spdx_id);
+	free(sbom->creation_info);
+	free(sbom->sbom_type);
 
-	if(sbom_struct->creation_info)
-	{
-		free(sbom_struct->creation_info);
-		sbom_struct->creation_info = NULL;
-	}
-
-	if(sbom_struct->sbom_type)
-	{
-		free(sbom_struct->sbom_type);
-		sbom_struct->sbom_type = NULL;
-	}
-
-	free(sbom_struct);
+	free(sbom);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom_struct, bool last)
+ * .. c:function:: void spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom, bool last)
  *
  *    Serialize /Software/Sbom struct to JSON
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param pkgconf_buffer_t *buffer: Buffer where struct is serialized
- *    :param spdxtool_software_sbom_t *sbom_struct: SimpleLicensingText struct to be serialized
+ *    :param spdxtool_software_sbom_t *sbom: SimpleLicensingText struct to be serialized
  *    :param bool last: Is this last CreationInfo struct or does it need comma at the end. True comma False not
  *    :return: nothing
  */
 void
-spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom_struct, bool last)
+spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom, bool last)
 {
 	pkgconf_node_t *node = NULL;
 	char *value;
-	char *spdx_id = spdxtool_util_tuple_lookup(client, &sbom_struct->rootElement->vars, "spdxId");
+	char *spdx_id = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "spdxId");
 
 	spdxtool_serialize_obj_start(buffer, 2);
-	spdxtool_serialize_parm_and_string(buffer, "type", sbom_struct->type, 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "creationInfo", sbom_struct->creation_info, 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "spdxId", sbom_struct->spdx_id, 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "type", sbom->type, 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "creationInfo", sbom->creation_info, 3, true);
+	spdxtool_serialize_parm_and_string(buffer, "spdxId", sbom->spdx_id, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "software_sbomType", '[', 3, false);
-	spdxtool_serialize_string(buffer, sbom_struct->sbom_type, 4, false);
+	spdxtool_serialize_string(buffer, sbom->sbom_type, 4, false);
 	spdxtool_serialize_array_end(buffer, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "rootElement", '[', 3, false);
 	spdxtool_serialize_string(buffer, spdx_id, 4, false);
 	spdxtool_serialize_array_end(buffer, 3, true);
 	spdxtool_serialize_parm_and_char(buffer, "element", '[', 3, false);
-	PKGCONF_FOREACH_LIST_ENTRY(sbom_struct->rootElement->required.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(sbom->rootElement->required.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
@@ -135,37 +126,37 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 
 		// New relation spdxId
 		// TODO: replace with pkgconf_buffer_t
-		snprintf(tmp_str, sizeof(tmp_str), "%s/dependsOn/%s", sbom_struct->rootElement->id, match->id);
+		snprintf(tmp_str, sizeof(tmp_str), "%s/dependsOn/%s", sbom->rootElement->id, match->id);
 
 		spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", tmp_str);
 
 		spdxtool_serialize_string(buffer, spdx_id_relation, 4, true);
 
-		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, spdx_id_relation);
+		spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, spdx_id_relation);
 
 		free(spdx_id_relation);
 	}
 
-	value = spdxtool_util_tuple_lookup(client, &sbom_struct->rootElement->vars, "hasDeclaredLicense");
+	value = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "hasDeclaredLicense");
 	if (value != NULL)
 	{
 		spdxtool_serialize_string(buffer, value, 4, true);
-		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, value);
+		spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, value);
 		free(value);
 	}
 
-	value = spdxtool_util_tuple_lookup(client, &sbom_struct->rootElement->vars, "hasConcludedLicense");
+	value = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "hasConcludedLicense");
 	if (value != NULL)
 	{
 		spdxtool_serialize_string(buffer, value, 4, false);
-		spdxtool_core_spdx_document_add_element(client, sbom_struct->spdx_document, value);
+		spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, value);
 		free(value);
 	}
 
 	spdxtool_serialize_array_end(buffer, 3, false);
 	spdxtool_serialize_obj_end(buffer, 2, last);
 
-	spdxtool_software_package_serialize(client, buffer, sbom_struct->rootElement, false);
+	spdxtool_software_package_serialize(client, buffer, sbom->rootElement, false);
 
 	free(spdx_id);
 }
@@ -173,7 +164,7 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom_struct, bool last)
+ * .. c:function:: void spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom, bool last)
  *
  *    Serialize /Software/Package struct to JSON
  *    This is bit special case as it takes pkgconf pkg struct and serializes that one
