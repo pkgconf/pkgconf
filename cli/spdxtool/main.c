@@ -80,32 +80,31 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	spdxtool_core_spdx_document_t *document = (spdxtool_core_spdx_document_t *)ptr;
 	pkgconf_node_t *node = NULL;
 	char *package_spdx = NULL, *spdx_id_string = NULL;
-	char spdx_id_name[1024];
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
 
 	spdx_id_string = spdxtool_util_get_spdx_id_string(client, "software_Sbom", pkg->id);
-	if(!spdx_id_string)
+	if (!spdx_id_string)
 	{
 		pkgconf_error(client, "generate_spdx_package: Couldn't create spdx_id_string");
 		return;
 	}
 
 	spdxtool_software_sbom_t *sbom = spdxtool_software_sbom_new(client, spdx_id_string, document->creation_info, "build");
-	if(!sbom)
+	free(spdx_id_string);
+	spdx_id_string = NULL;
+	if (!sbom)
 	{
 		pkgconf_error(client, "generate_spdx_package: Couldn't create sbom struct");
 		return;
 	}
+
 	sbom->spdx_document = document;
 	sbom->rootElement = pkg;
 
-	free(spdx_id_string);
-	spdx_id_string = NULL;
-
 	package_spdx = spdxtool_util_get_spdx_id_string(client, "Package", pkg->id);
-	if(!package_spdx)
+	if (!package_spdx)
 	{
 		pkgconf_error(client, "generate_spdx_package: Couldn't create spdx id string");
 		return;
@@ -120,10 +119,18 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 
 	if (pkg->license != NULL)
 	{
-		// TODO: replace with pkgconf_buffer_t
-		snprintf(spdx_id_name, sizeof(spdx_id_name), "%s/hasDeclaredLicense", pkg->id);
+		pkgconf_buffer_t spdx_id_buf = PKGCONF_BUFFER_INITIALIZER;
+		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s/hasDeclaredLicense", pkg->id);
+		char *spdx_id_name = pkgconf_buffer_freeze(&spdx_id_buf);
+		if (!spdx_id_name)
+		{
+			pkgconf_error(client, "generate_spdx_package: out of memory");
+			return;
+		}
+
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
-		if(!package_spdx)
+		free(spdx_id_name);
+		if (!package_spdx)
 		{
 			pkgconf_error(client, "generate_spdx_package: Couldn't create spdx id string");
 			return;
@@ -134,10 +141,11 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 		free(package_spdx);
 		package_spdx = NULL;
 
-		// TODO: replace with pkgconf_buffer_t
-		snprintf(spdx_id_name, sizeof(spdx_id_name), "%s/hasConcludedLicense", pkg->id);
+		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s/hasConcludedLicense", pkg->id);
+		spdx_id_name = pkgconf_buffer_freeze(&spdx_id_buf);
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
-		if(!package_spdx)
+		free(spdx_id_name);
+		if (!package_spdx)
 		{
 			pkgconf_error(client, "generate_spdx_package: Couldn't create spdx id string");
 			return;
@@ -152,7 +160,7 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	}
 
 	node = calloc(1, sizeof(pkgconf_node_t));
-	if(!node)
+	if (!node)
 	{
 		pkgconf_error(client, "Memory exhausted!");
 		return;
@@ -172,14 +180,14 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 	const char *creation_time_string = creation_time ? creation_time : NULL;
 
 	spdxtool_core_agent_t *agent = spdxtool_core_agent_new(client, creation_id_string, agent_name_string);
-	if(!agent)
+	if (!agent)
 	{
 		pkgconf_error(client, "Could not create agent struct");
 		return false;
 	}
 
 	spdxtool_core_creation_info_t *creation = spdxtool_core_creation_info_new(client, agent->spdx_id, creation_id_string, creation_time_string);
-	if(!creation)
+	if (!creation)
 	{
 		pkgconf_error(client, "Could not create creation info struct");
 		spdxtool_core_agent_free(agent);
@@ -189,7 +197,7 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 	char *spdx_id_int = spdxtool_util_get_spdx_id_int(client, "spdxDocument");
 	spdxtool_core_spdx_document_t *document = spdxtool_core_spdx_document_new(client, spdx_id_int, creation_id_string, agent->spdx_id);
 	free(spdx_id_int);
-	if(!document)
+	if (!document)
 	{
 		pkgconf_error(client, "Could not create document");
 		spdxtool_core_spdx_document_free(document);

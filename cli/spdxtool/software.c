@@ -121,14 +121,20 @@ spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buf
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
+		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 		char *spdx_id_relation = NULL;
-		char tmp_str[1024];
 
 		// New relation spdxId
-		// TODO: replace with pkgconf_buffer_t
-		snprintf(tmp_str, sizeof(tmp_str), "%s/dependsOn/%s", sbom->rootElement->id, match->id);
+		pkgconf_buffer_append_fmt(&relationship_buf, "%s/dependsOn/%s", sbom->rootElement->id, match->id);
+		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
+		if(!relationship_str)
+		{
+			pkgconf_error(client, "spdxtool_software_sbom_serialize: out of memory");
+			return;
+		}
 
-		spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", tmp_str);
+		spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
+		free(relationship_str);
 
 		spdxtool_serialize_string(buffer, spdx_id_relation, 4, true);
 
@@ -225,14 +231,26 @@ spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
+		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 		char *spdx_id_relation = NULL;
 		char *spdx_id_package = NULL;
-		char tmp_str[1024];
 
 		// New relation spdxId
-		// TODO: convert to pkgconf_buffer_t
-		snprintf(tmp_str, sizeof(tmp_str), "%s/dependsOn/%s", pkg->id, match->id);
-		spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", tmp_str);
+		pkgconf_buffer_append_fmt(&relationship_buf, "%s/dependsOn/%s", pkg->id, match->id);
+		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
+		if (!relationship_str)
+		{
+			pkgconf_error(client, "spdxtool_software_package_serialize: out of memory");
+			return;
+		}
+
+		spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
+		free(relationship_str);
+		if (!spdx_id_relation)
+		{
+			pkgconf_error(client, "spdxtool_software_package_serialize: out of memory");
+			return;
+		}
 
 		// new package spdxId which will be hopefully come later on
 		spdx_id_package = spdxtool_util_get_spdx_id_string(client, "Package", match->id);

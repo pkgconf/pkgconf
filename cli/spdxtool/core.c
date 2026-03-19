@@ -31,7 +31,6 @@
 spdxtool_core_agent_t *
 spdxtool_core_agent_new(pkgconf_client_t *client, const char *creation_info_id, const char *name)
 {
-	char spdx_id_name[1024];
 	spdxtool_core_agent_t *agent = NULL;
 
 	if(!client || !creation_info_id || !name)
@@ -48,13 +47,23 @@ spdxtool_core_agent_new(pkgconf_client_t *client, const char *creation_info_id, 
 
 	agent->type = "Agent";
 
-	// TODO: convert to pkgconf_buffer_t
-	memset(spdx_id_name, 0x00, sizeof(spdx_id_name));
-	strncpy(spdx_id_name, name, sizeof(spdx_id_name) - 1);
+	// Copy for modification
+	char *spdx_id_name = strdup(name);
+	if(!spdx_id_name)
+	{
+		pkgconf_error(client, "spdxtool_core_agent_new: out of memory");
+		free(agent);
+		return NULL;
+	}
+
+	// NOTE: modifies string
 	spdxtool_util_string_correction(spdx_id_name);
+
 	agent->spdx_id = spdxtool_util_get_spdx_id_string(client, agent->type, spdx_id_name);
 	agent->creation_info = strdup(creation_info_id);
 	agent->name = strdup(name);
+
+	free(spdx_id_name);
 
 	if(!agent->spdx_id || !agent->creation_info || !agent->name)
 	{
