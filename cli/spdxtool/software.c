@@ -227,6 +227,8 @@ spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *
 		spdxtool_core_relationship_free(relationship_struct);
 	}
 
+	free(spdx_id_license);
+
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
