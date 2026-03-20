@@ -130,6 +130,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/tilde-quoting-2.test \
 		t/parser/truncated-files-should-fail-to-parse.test \
 		t/parser/tuple-dequote.test \
+		t/parser/variable-fragment-expansion.test \
 		t/parser/variable-whitespace.test \
 		t/parser/version-with-whitespace-2.test \
 		t/parser/version-with-whitespace-diagnostic.test \
