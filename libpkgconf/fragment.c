@@ -277,6 +277,25 @@ should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragme
 	return true;
 }
 
+static inline bool
+fragment_is_unquoted_var(const char *value)
+{
+	size_t len;
+
+	if (value == NULL)
+		return false;
+
+	len = strlen(value);
+
+	if (len < 4 || value[0] != '$')
+		return false;
+
+	if (value[1] == '{' && value[len - 1] == '}')
+		return true;
+
+	return false;
+}
+
 /*
  * !doc
  *
@@ -305,6 +324,13 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 	string = pkgconf_buffer_freeze(&evalbuf);
 	if (string == NULL)
 		return;
+
+	if (fragment_is_unquoted_var(value))
+	{
+		pkgconf_fragment_parse(client, list, vars, string, flags);
+		free(string);
+		return;
+	}
 
 	if (list->tail != NULL && list->tail->data != NULL &&
 	    !(client->flags & PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS))
