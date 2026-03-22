@@ -51,28 +51,6 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 	return true;
 }
 
-static void
-write_jsonld_end(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_buffer_t *buffer)
-{
-	(void) client;
-	(void) world;
-
-	spdxtool_serialize_array_end(buffer, 1, false);
-	spdxtool_serialize_obj_end(buffer, 0, false);
-}
-
-static void
-write_jsonld_header(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_buffer_t *buffer)
-{
-	(void) client;
-	(void) world;
-
-	spdxtool_serialize_obj_start(buffer, 0);
-	spdxtool_serialize_parm_and_string(buffer, "@context", "https://spdx.org/rdf/3.0.1/spdx-context.jsonld", 1, true);
-
-	spdxtool_serialize_parm_and_char(buffer, "@graph", '[', 1, false);
-}
-
 // NOTE: this function is passed to pkgconf_pkg_traverse
 static void
 generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
@@ -172,12 +150,8 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 static bool
 generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creation_time, const char *creation_id, const char *agent_name)
 {
-	int eflag;
-	pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
-
 	const char *agent_name_string = agent_name ? agent_name : "Default";
 	const char *creation_id_string = creation_id ? creation_id : "_:creationinfo_1";
-	const char *creation_time_string = creation_time ? creation_time : NULL;
 
 	spdxtool_core_agent_t *agent = spdxtool_core_agent_new(client, creation_id_string, agent_name_string);
 	if (!agent)
@@ -186,7 +160,7 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 		return false;
 	}
 
-	spdxtool_core_creation_info_t *creation = spdxtool_core_creation_info_new(client, agent->spdx_id, creation_id_string, creation_time_string);
+	spdxtool_core_creation_info_t *creation = spdxtool_core_creation_info_new(client, agent->spdx_id, creation_id_string, creation_time);
 	if (!creation)
 	{
 		pkgconf_error(client, "Could not create creation info struct");
@@ -200,37 +174,31 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 	if (!document)
 	{
 		pkgconf_error(client, "Could not create document");
-		spdxtool_core_spdx_document_free(document);
+		spdxtool_core_creation_info_free(creation);
 		spdxtool_core_agent_free(agent);
 		return false;
 	}
 
-	eflag = pkgconf_pkg_traverse(client, world, generate_spdx_package, document, maximum_traverse_depth, 0);
+	int eflag = pkgconf_pkg_traverse(client, world, generate_spdx_package, document, maximum_traverse_depth, 0);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 	{
 		spdxtool_core_spdx_document_free(document);
+		spdxtool_core_creation_info_free(creation);
 		spdxtool_core_agent_free(agent);
 		return false;
 	}
 
-	write_jsonld_header(client, world, &buffer);
-
-	spdxtool_core_agent_serialize(client, &buffer, agent, true);
-	spdxtool_core_creation_info_serialize(client, &buffer, creation, true);
-
-	spdxtool_simplelicensing_licenseExpression_serialize(client, &buffer, document, true);
-
-	spdxtool_core_spdx_document_serialize(client, &buffer, document, false);
-
-	write_jsonld_end(client, world, &buffer);
-
-	spdxtool_core_spdx_document_free(document);
-	spdxtool_core_agent_free(agent);
-	spdxtool_core_creation_info_free(creation);
+	spdxtool_serialize_value_t root = spdxtool_serialize_sbom(client, agent, creation, document);
+	pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
+	spdxtool_serialize_value_to_buf(&buffer, root, 0);
+	spdxtool_serialize_value_free(&root);
 
 	fprintf(sbom_out, "%s\n", pkgconf_buffer_str(&buffer));
-
 	pkgconf_buffer_finalize(&buffer);
+
+	spdxtool_core_spdx_document_free(document);
+	spdxtool_core_creation_info_free(creation);
+	spdxtool_core_agent_free(agent);
 	return true;
 }
 

@@ -89,182 +89,256 @@ spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom)
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom, bool last)
+ * .. c:function:: spdxtool_serialize_value_t spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbom_t *sbom)
  *
- *    Serialize /Software/Sbom struct to JSON
+ *    Serialize /Software/Sbom struct to a JSON value tree. As a side effect,
+ *    the package associated with the SBOM's rootElement is registered on the
+ *    document via spdxtool_core_spdx_document_add_package, and relationship
+ *    element IDs are registered via spdxtool_core_spdx_document_add_element.
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
- *    :param pkgconf_buffer_t *buffer: Buffer where struct is serialized
- *    :param spdxtool_software_sbom_t *sbom: SimpleLicensingText struct to be serialized
- *    :param bool last: Is this last CreationInfo struct or does it need comma at the end. True comma False not
- *    :return: nothing
+ *    :param spdxtool_software_sbom_t *sbom: Sbom struct to be serialized.
+ *    :return: spdxtool_serialize_value_t representing the Sbom object.
  */
-void
-spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom, bool last)
+spdxtool_serialize_value_t
+spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbom_t *sbom)
 {
-	pkgconf_node_t *node = NULL;
-	char *value;
 	char *spdx_id = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "spdxId");
+	if (!spdx_id)
+	{
+		pkgconf_error(client, "spdxtool_software_sbom_to_object: out of memory");
+		return spdxtool_serialize_null();
+	}
 
-	spdxtool_serialize_obj_start(buffer, 2);
-	spdxtool_serialize_parm_and_string(buffer, "type", sbom->type, 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "creationInfo", sbom->creation_info, 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "spdxId", sbom->spdx_id, 3, true);
-	spdxtool_serialize_parm_and_char(buffer, "software_sbomType", '[', 3, false);
-	spdxtool_serialize_string(buffer, sbom->sbom_type, 4, false);
-	spdxtool_serialize_array_end(buffer, 3, true);
-	spdxtool_serialize_parm_and_char(buffer, "rootElement", '[', 3, false);
-	spdxtool_serialize_string(buffer, spdx_id, 4, false);
-	spdxtool_serialize_array_end(buffer, 3, true);
-	spdxtool_serialize_parm_and_char(buffer, "element", '[', 3, false);
+	spdxtool_serialize_object_list_t *object = spdxtool_serialize_object_list_new();
+	if (!object)
+	{
+		pkgconf_error(client, "spdxtool_software_sbom_to_object: out of memory");
+		free(spdx_id);
+		return spdxtool_serialize_null();
+	}
+
+	// software_sbomType array
+	spdxtool_serialize_array_t *sbom_type_array = spdxtool_serialize_array_new();
+	if (!sbom_type_array)
+	{
+		pkgconf_error(client, "spdxtool_software_sbom_to_object: out of memory");
+		spdxtool_serialize_object_list_free(object);
+		free(spdx_id);
+		return spdxtool_serialize_null();
+	}
+	spdxtool_serialize_array_add_string(sbom_type_array, sbom->sbom_type);
+
+	// rootElement array
+	spdxtool_serialize_array_t *root_element_array = spdxtool_serialize_array_new();
+	if (!root_element_array)
+	{
+		pkgconf_error(client, "spdxtool_software_sbom_to_object: out of memory");
+		spdxtool_serialize_object_list_free(object);
+		free(spdx_id);
+		return spdxtool_serialize_null();
+	}
+	spdxtool_serialize_array_add_string(root_element_array, spdx_id);
+
+	// element array
+	spdxtool_serialize_array_t *element_array = spdxtool_serialize_array_new();
+	if (!element_array)
+	{
+		pkgconf_error(client, "spdxtool_software_sbom_to_object: out of memory");
+		spdxtool_serialize_object_list_free(object);
+		free(spdx_id);
+		return spdxtool_serialize_null();
+	}
+
+	pkgconf_node_t *node = NULL;
 	PKGCONF_FOREACH_LIST_ENTRY(sbom->rootElement->required.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
 		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
-		char *spdx_id_relation = NULL;
 
-		// New relation spdxId
 		pkgconf_buffer_append_fmt(&relationship_buf, "%s/dependsOn/%s", sbom->rootElement->id, match->id);
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
-		if(!relationship_str)
+		if (!relationship_str)
 		{
-			pkgconf_error(client, "spdxtool_software_sbom_serialize: out of memory");
-			return;
+			pkgconf_error(client, "spdxtool_software_sbom_to_object: out of memory");
+			spdxtool_serialize_object_list_free(object);
+			free(spdx_id);
+			return spdxtool_serialize_null();
 		}
 
-		spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
+		char *spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
 		free(relationship_str);
+		if (!spdx_id_relation)
+		{
+			pkgconf_error(client, "spdxtool_software_sbom_to_object: out of memory");
+			spdxtool_serialize_object_list_free(object);
+			free(spdx_id);
+			return spdxtool_serialize_null();
+		}
 
-		spdxtool_serialize_string(buffer, spdx_id_relation, 4, true);
-
+		spdxtool_serialize_array_add_string(element_array, spdx_id_relation);
 		spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, spdx_id_relation);
-
 		free(spdx_id_relation);
 	}
 
-	value = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "hasDeclaredLicense");
-	if (value != NULL)
+	char *value = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "hasDeclaredLicense");
+	if (value)
 	{
-		spdxtool_serialize_string(buffer, value, 4, true);
+		spdxtool_serialize_array_add_string(element_array, value);
 		spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, value);
 		free(value);
 	}
 
 	value = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "hasConcludedLicense");
-	if (value != NULL)
+	if (value)
 	{
-		spdxtool_serialize_string(buffer, value, 4, false);
+		spdxtool_serialize_array_add_string(element_array, value);
 		spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, value);
 		free(value);
 	}
 
-	spdxtool_serialize_array_end(buffer, 3, false);
-	spdxtool_serialize_obj_end(buffer, 2, last);
+	spdxtool_serialize_object_add_string(object, "type", sbom->type);
+	spdxtool_serialize_object_add_string(object, "creationInfo", sbom->creation_info);
+	spdxtool_serialize_object_add_string(object, "spdxId", sbom->spdx_id);
+	spdxtool_serialize_object_add_array(object, "software_sbomType", sbom_type_array);
+	spdxtool_serialize_object_add_array(object, "rootElement", root_element_array);
+	spdxtool_serialize_object_add_array(object, "element", element_array);
 
-	spdxtool_software_package_serialize(client, buffer, sbom->rootElement, false);
+	// register package for serialization as a sibling in the graph
+	spdxtool_core_spdx_document_add_package(client, sbom->spdx_document, sbom->rootElement);
 
 	free(spdx_id);
+	return spdxtool_serialize_object(object);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_software_sbom_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_software_sbom_t *sbom, bool last)
+ * .. c:function:: spdxtool_serialize_value_t spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg, spdxtool_core_spdx_document_t *spdx)
  *
- *    Serialize /Software/Package struct to JSON
- *    This is bit special case as it takes pkgconf pkg struct and serializes that one
- *    There is not new or free for this stype
+ *    Serialize /Software/Package struct to a JSON value tree. As a side effect,
+ *    any license and dependency relationships generated during serialization are
+ *    added to the document via spdxtool_core_spdx_document_add_relationship.
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
- *    :param pkgconf_buffer_t *buffer: Buffer where struct is serialized
- *    :param pkgconf_pkg_t *pkg: Pkgconf package
- *    :param bool last: Is this last CreationInfo struct or does it need comma at the end. True comma False not
- *    :return: nothing
+ *    :param pkgconf_pkg_t *pkg: Package struct to be serialized.
+ *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument to which generated relationships are added.
+ *    :return: spdxtool_serialize_value_t representing the Package object.
  */
-void
-spdxtool_software_package_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, pkgconf_pkg_t *pkg, bool last)
+spdxtool_serialize_value_t
+spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg, spdxtool_core_spdx_document_t *spdx)
 {
-	spdxtool_core_relationship_t *relationship_struct = NULL;
-	char *spdx_id_license = NULL, *tuple_license = NULL;
 	char *creation_info = spdxtool_util_tuple_lookup(client, &pkg->vars, "creationInfo");
 	char *spdx_id = spdxtool_util_tuple_lookup(client, &pkg->vars, "spdxId");
 	char *agent = spdxtool_util_tuple_lookup(client, &pkg->vars, "agent");
-	pkgconf_node_t *node = NULL;
 
-	(void) last;
-
-	spdxtool_serialize_obj_start(buffer, 2);
-	spdxtool_serialize_parm_and_string(buffer, "type", "software_Package", 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "creationInfo", creation_info, 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "spdxId", spdx_id, 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "name", pkg->realname, 3, true);
-	spdxtool_serialize_parm_and_char(buffer, "originatedBy", '[', 3, false);
-	spdxtool_serialize_string(buffer, agent, 4, false);
-	spdxtool_serialize_array_end(buffer, 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "software_copyrightText", "NOASSERTION", 3, true);
-	spdxtool_serialize_parm_and_string(buffer, "software_packageVersion", pkg->version, 3, false);
-	spdxtool_serialize_obj_end(buffer, 2, true);
-
-	/* These are must so add them right a way */
-	spdx_id_license = spdxtool_util_get_spdx_id_string(client, "simplelicensing_LicenseExpression", pkg->license);
-
-	tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasDeclaredLicense");
-	if (tuple_license != NULL)
+	if (!creation_info || !spdx_id || !agent)
 	{
-		relationship_struct = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, spdx_id_license, "hasDeclaredLicense");
+		pkgconf_error(client, "spdxtool_software_package_to_object: could not gather object info");
+		free(creation_info);
+		free(spdx_id);
+		free(agent);
+		return spdxtool_serialize_null();
+	}
+
+	spdxtool_serialize_object_list_t *object = spdxtool_serialize_object_list_new();
+	if (!object)
+	{
+		pkgconf_error(client, "spdxtool_software_package_to_object: out of memory");
+		free(creation_info);
+		free(spdx_id);
+		free(agent);
+		return spdxtool_serialize_null();
+	}
+
+	spdxtool_serialize_array_t *originated_by = spdxtool_serialize_array_new();
+	if (!originated_by)
+	{
+		pkgconf_error(client, "spdxtool_software_package_to_object: out of memory");
+		free(creation_info);
+		free(spdx_id);
+		free(agent);
+		return spdxtool_serialize_null();
+	}
+
+	spdxtool_serialize_array_add_string(originated_by, agent);
+	spdxtool_serialize_object_add_string(object, "type", "software_Package");
+	spdxtool_serialize_object_add_string(object, "creationInfo", creation_info);
+	spdxtool_serialize_object_add_string(object, "spdxId", spdx_id);
+	spdxtool_serialize_object_add_string(object, "name", pkg->realname);
+	spdxtool_serialize_object_add_array(object, "originatedBy", originated_by);
+	spdxtool_serialize_object_add_string(object, "software_copyrightText", "NOASSERTION");
+	spdxtool_serialize_object_add_string(object, "software_packageVersion", pkg->version);
+
+	char *spdx_id_license = spdxtool_util_get_spdx_id_string(client, "simplelicensing_LicenseExpression", pkg->license);
+	if (!spdx_id_license)
+	{
+		pkgconf_error(client, "spdxtool_software_package_to_object: could not get license");
+		free(creation_info);
+		free(spdx_id);
+		free(agent);
+		return spdxtool_serialize_null();
+	}
+
+	char *tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasDeclaredLicense");
+	if (tuple_license)
+	{
+		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, spdx_id_license, "hasDeclaredLicense");
 		free(tuple_license);
-		spdxtool_core_relationship_serialize(client, buffer, relationship_struct, true);
-		spdxtool_core_relationship_free(relationship_struct);
+		if (relationship)
+			spdxtool_core_spdx_document_add_relationship(client, spdx, relationship);
 	}
 
 	tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasConcludedLicense");
-	if (tuple_license != NULL)
+	if (tuple_license)
 	{
-		relationship_struct = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, spdx_id_license, "hasConcludedLicense");
+		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, spdx_id_license, "hasConcludedLicense");
 		free(tuple_license);
-		spdxtool_core_relationship_serialize(client, buffer, relationship_struct, true);
-		spdxtool_core_relationship_free(relationship_struct);
+		if (relationship)
+			spdxtool_core_spdx_document_add_relationship(client, spdx, relationship);
 	}
-
 	free(spdx_id_license);
 
+	pkgconf_node_t *node = NULL;
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
 		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
-		char *spdx_id_relation = NULL;
-		char *spdx_id_package = NULL;
 
-		// New relation spdxId
 		pkgconf_buffer_append_fmt(&relationship_buf, "%s/dependsOn/%s", pkg->id, match->id);
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
 		if (!relationship_str)
 		{
-			pkgconf_error(client, "spdxtool_software_package_serialize: out of memory");
-			return;
+			pkgconf_error(client, "spdxtool_software_package_to_object: out of memory");
+			free(creation_info);
+			free(spdx_id);
+			free(agent);
+			return spdxtool_serialize_null();
 		}
 
-		spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
+		char *spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
 		free(relationship_str);
 		if (!spdx_id_relation)
 		{
-			pkgconf_error(client, "spdxtool_software_package_serialize: out of memory");
-			return;
+			pkgconf_error(client, "spdxtool_software_package_to_object: out of memory");
+			free(creation_info);
+			free(spdx_id);
+			free(agent);
+			return spdxtool_serialize_null();
 		}
 
-		// new package spdxId which will be hopefully come later on
-		spdx_id_package = spdxtool_util_get_spdx_id_string(client, "Package", match->id);
-
-		relationship_struct = spdxtool_core_relationship_new(client, creation_info, spdx_id_relation, spdx_id, spdx_id_package, "dependsOn");
-		spdxtool_core_relationship_serialize(client, buffer, relationship_struct, true);
-		spdxtool_core_relationship_free(relationship_struct);
+		char *spdx_id_package = spdxtool_util_get_spdx_id_string(client, "Package", match->id);
+		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, spdx_id_relation, spdx_id, spdx_id_package, "dependsOn");
 		free(spdx_id_relation);
 		free(spdx_id_package);
+		if (relationship)
+			spdxtool_core_spdx_document_add_relationship(client, spdx, relationship);
 	}
 
 	free(creation_info);
 	free(spdx_id);
 	free(agent);
+	return spdxtool_serialize_object(object);
 }

@@ -45,6 +45,8 @@ typedef struct spdxtool_core_spdx_document
 	pkgconf_list_t licenses;
 	pkgconf_list_t element;
 	pkgconf_list_t rootElement;
+	pkgconf_list_t relationships;
+	pkgconf_list_t packages;
 } spdxtool_core_spdx_document_t;
 
 typedef struct spdxtool_software_sbom_

@@ -63,67 +63,50 @@ spdxtool_simplelicensing_licenseExpression_new(pkgconf_client_t *client, const c
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license_expression_t *expression_struct)
+ * .. c:function:: void spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license_expression_t *expression)
  *
  *    Free /SimpleLicensing/SimpleLicensingText struct
  *
- *    :param spdxtool_simplelicensing_license_expression_t *expression_struct: SimpleLicensingText struct to be freed.
+ *    :param spdxtool_simplelicensing_license_expression_t *expression: SimpleLicensingText struct to be freed.
  *    :return: nothing
  */
 void
-spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license_expression_t *expression_struct)
+spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license_expression_t *expression)
 {
-	if(!expression_struct)
+	if(!expression)
 	{
 		return;
 	}
 
-	if(expression_struct->spdx_id)
-	{
-		free(expression_struct->spdx_id);
-		expression_struct->spdx_id = NULL;
-	}
+	free(expression->spdx_id);
+	free(expression->license_expression);
 
-	if(expression_struct->license_expression)
-	{
-		free(expression_struct->license_expression);
-		expression_struct->license_expression = NULL;
-	}
-
-	free(expression_struct);
+	free(expression);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_simplelicensing_licenseExpression_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_core_spdx_document_t *spdx_struct, bool last)
+ * .. c:function:: spdxtool_serialize_value_t spdxtool_simplelicensing_licenseExpression_to_object(const char *creation_info, const spdxtool_simplelicensing_license_expression_t *expression)
  *
- *    Serialize /SimpleLicensing/SimpleLicensingText struct to JSON
+ *    Serialize /SimpleLicensing/LicenseExpression struct to a JSON value tree.
  *
- *    :param pkgconf_client_t *client: The pkgconf client being accessed.
- *    :param pkgconf_buffer_t *buffer: Buffer where struct is serialized
- *    :param spdxtool_core_spdx_document_t *spdx_struct: SimpleLicensingText struct to be serialized
- *    :param bool last: Is this last CreationInfo struct or does it need comma at the end. True comma False not
- *    :return: nothing
+ *    :param const char *creation_info: The creationInfo ID string to embed in the object.
+ *    :param const spdxtool_simplelicensing_license_expression_t *expression: LicenseExpression struct to be serialized.
+ *    :return: spdxtool_serialize_value_t representing the LicenseExpression object.
  */
-void
-spdxtool_simplelicensing_licenseExpression_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_core_spdx_document_t *spdx_struct, bool last)
+spdxtool_serialize_value_t
+spdxtool_simplelicensing_licenseExpression_to_object(const char *creation_info, const spdxtool_simplelicensing_license_expression_t *expression)
 {
-	pkgconf_node_t *iter = NULL;
-
-	(void) last;
-
-	PKGCONF_FOREACH_LIST_ENTRY(spdx_struct->licenses.head, iter)
+	spdxtool_serialize_object_list_t *object = spdxtool_serialize_object_list_new();
+	if (!object)
 	{
-		spdxtool_simplelicensing_license_expression_t *expression = iter->data;
-
-		spdxtool_serialize_obj_start(buffer, 2);
-		spdxtool_serialize_parm_and_string(buffer, "type", "simplelicensing_LicenseExpression", 3, true);
-		spdxtool_serialize_parm_and_string(buffer, "creationInfo", spdx_struct->creation_info, 3, true);
-		spdxtool_serialize_parm_and_string(buffer, "spdxId",expression->spdx_id, 3, true);
-		spdxtool_serialize_parm_and_string(buffer, "simplelicensing_licenseExpression",  expression->license_expression, 3, false);
-		spdxtool_serialize_obj_end(buffer, 2, true);
-
-		spdxtool_core_spdx_document_add_element(client, spdx_struct, expression->spdx_id);
+		return spdxtool_serialize_null();
 	}
+
+	spdxtool_serialize_object_add_string(object, "type", "simplelicensing_LicenseExpression");
+	spdxtool_serialize_object_add_string(object, "creationInfo", creation_info);
+	spdxtool_serialize_object_add_string(object, "spdxId", expression->spdx_id);
+	spdxtool_serialize_object_add_string(object, "simplelicensing_licenseExpression", expression->license_expression);
+	return spdxtool_serialize_object(object);
 }

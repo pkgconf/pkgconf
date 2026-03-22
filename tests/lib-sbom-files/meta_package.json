@@ -68,6 +68,99 @@
             ]
         },
         {
+            "type": "software_Sbom",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test1",
+            "software_sbomType": [
+                "build"
+            ],
+            "rootElement": [
+                "https://github.com/pkgconf/pkgconf/Package/test1"
+            ],
+            "element": [
+                "https://github.com/pkgconf/pkgconf/Relationship/test1/hasDeclaredLicense",
+                "https://github.com/pkgconf/pkgconf/Relationship/test1/hasConcludedLicense"
+            ]
+        },
+        {
+            "type": "software_Sbom",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test2",
+            "software_sbomType": [
+                "build"
+            ],
+            "rootElement": [
+                "https://github.com/pkgconf/pkgconf/Package/test2"
+            ],
+            "element": [
+                "https://github.com/pkgconf/pkgconf/Relationship/test2/dependsOn/test3",
+                "https://github.com/pkgconf/pkgconf/Relationship/test2/hasDeclaredLicense",
+                "https://github.com/pkgconf/pkgconf/Relationship/test2/hasConcludedLicense"
+            ]
+        },
+        {
+            "type": "software_Sbom",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test3",
+            "software_sbomType": [
+                "build"
+            ],
+            "rootElement": [
+                "https://github.com/pkgconf/pkgconf/Package/test3"
+            ],
+            "element": [
+                "https://github.com/pkgconf/pkgconf/Relationship/test3/hasDeclaredLicense",
+                "https://github.com/pkgconf/pkgconf/Relationship/test3/hasConcludedLicense"
+            ]
+        },
+        {
+            "type": "software_Sbom",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test4",
+            "software_sbomType": [
+                "build"
+            ],
+            "rootElement": [
+                "https://github.com/pkgconf/pkgconf/Package/test4"
+            ],
+            "element": [
+                "https://github.com/pkgconf/pkgconf/Relationship/test4/dependsOn/test5",
+                "https://github.com/pkgconf/pkgconf/Relationship/test4/dependsOn/test6",
+                "https://github.com/pkgconf/pkgconf/Relationship/test4/hasDeclaredLicense",
+                "https://github.com/pkgconf/pkgconf/Relationship/test4/hasConcludedLicense"
+            ]
+        },
+        {
+            "type": "software_Sbom",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test5",
+            "software_sbomType": [
+                "build"
+            ],
+            "rootElement": [
+                "https://github.com/pkgconf/pkgconf/Package/test5"
+            ],
+            "element": [
+                "https://github.com/pkgconf/pkgconf/Relationship/test5/hasDeclaredLicense",
+                "https://github.com/pkgconf/pkgconf/Relationship/test5/hasConcludedLicense"
+            ]
+        },
+        {
+            "type": "software_Sbom",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test6",
+            "software_sbomType": [
+                "build"
+            ],
+            "rootElement": [
+                "https://github.com/pkgconf/pkgconf/Package/test6"
+            ],
+            "element": [
+                "https://github.com/pkgconf/pkgconf/Relationship/test6/hasDeclaredLicense",
+                "https://github.com/pkgconf/pkgconf/Relationship/test6/hasConcludedLicense"
+            ]
+        },
+        {
             "type": "software_Package",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/Package/meta_package",
@@ -77,6 +170,72 @@
             ],
             "software_copyrightText": "NOASSERTION",
             "software_packageVersion": "1.0.0"
+        },
+        {
+            "type": "software_Package",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test1",
+            "name": "test1",
+            "originatedBy": [
+                "https://github.com/pkgconf/pkgconf/Agent/default"
+            ],
+            "software_copyrightText": "NOASSERTION",
+            "software_packageVersion": "1.0.0"
+        },
+        {
+            "type": "software_Package",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test2",
+            "name": "test2",
+            "originatedBy": [
+                "https://github.com/pkgconf/pkgconf/Agent/default"
+            ],
+            "software_copyrightText": "NOASSERTION",
+            "software_packageVersion": "2.0.0"
+        },
+        {
+            "type": "software_Package",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test3",
+            "name": "test3",
+            "originatedBy": [
+                "https://github.com/pkgconf/pkgconf/Agent/default"
+            ],
+            "software_copyrightText": "NOASSERTION",
+            "software_packageVersion": "3.0.0"
+        },
+        {
+            "type": "software_Package",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test4",
+            "name": "test4",
+            "originatedBy": [
+                "https://github.com/pkgconf/pkgconf/Agent/default"
+            ],
+            "software_copyrightText": "NOASSERTION",
+            "software_packageVersion": "4.0.0"
+        },
+        {
+            "type": "software_Package",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test5",
+            "name": "test5",
+            "originatedBy": [
+                "https://github.com/pkgconf/pkgconf/Agent/default"
+            ],
+            "software_copyrightText": "NOASSERTION",
+            "software_packageVersion": "5.0.0"
+        },
+        {
+            "type": "software_Package",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test6",
+            "name": "test6",
+            "originatedBy": [
+                "https://github.com/pkgconf/pkgconf/Agent/default"
+            ],
+            "software_copyrightText": "NOASSERTION",
+            "software_packageVersion": "6.0.0"
         },
         {
             "type": "Relationship",
@@ -159,32 +318,6 @@
             "relationshipType": "dependsOn"
         },
         {
-            "type": "software_Sbom",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test1",
-            "software_sbomType": [
-                "build"
-            ],
-            "rootElement": [
-                "https://github.com/pkgconf/pkgconf/Package/test1"
-            ],
-            "element": [
-                "https://github.com/pkgconf/pkgconf/Relationship/test1/hasDeclaredLicense",
-                "https://github.com/pkgconf/pkgconf/Relationship/test1/hasConcludedLicense"
-            ]
-        },
-        {
-            "type": "software_Package",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test1",
-            "name": "test1",
-            "originatedBy": [
-                "https://github.com/pkgconf/pkgconf/Agent/default"
-            ],
-            "software_copyrightText": "NOASSERTION",
-            "software_packageVersion": "1.0.0"
-        },
-        {
             "type": "Relationship",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/Relationship/test1/hasDeclaredLicense",
@@ -203,33 +336,6 @@
                 "https://github.com/pkgconf/pkgconf/simplelicensing_LicenseExpression/BSD-1-Clause"
             ],
             "relationshipType": "hasConcludedLicense"
-        },
-        {
-            "type": "software_Sbom",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test2",
-            "software_sbomType": [
-                "build"
-            ],
-            "rootElement": [
-                "https://github.com/pkgconf/pkgconf/Package/test2"
-            ],
-            "element": [
-                "https://github.com/pkgconf/pkgconf/Relationship/test2/dependsOn/test3",
-                "https://github.com/pkgconf/pkgconf/Relationship/test2/hasDeclaredLicense",
-                "https://github.com/pkgconf/pkgconf/Relationship/test2/hasConcludedLicense"
-            ]
-        },
-        {
-            "type": "software_Package",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test2",
-            "name": "test2",
-            "originatedBy": [
-                "https://github.com/pkgconf/pkgconf/Agent/default"
-            ],
-            "software_copyrightText": "NOASSERTION",
-            "software_packageVersion": "2.0.0"
         },
         {
             "type": "Relationship",
@@ -262,32 +368,6 @@
             "relationshipType": "dependsOn"
         },
         {
-            "type": "software_Sbom",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test3",
-            "software_sbomType": [
-                "build"
-            ],
-            "rootElement": [
-                "https://github.com/pkgconf/pkgconf/Package/test3"
-            ],
-            "element": [
-                "https://github.com/pkgconf/pkgconf/Relationship/test3/hasDeclaredLicense",
-                "https://github.com/pkgconf/pkgconf/Relationship/test3/hasConcludedLicense"
-            ]
-        },
-        {
-            "type": "software_Package",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test3",
-            "name": "test3",
-            "originatedBy": [
-                "https://github.com/pkgconf/pkgconf/Agent/default"
-            ],
-            "software_copyrightText": "NOASSERTION",
-            "software_packageVersion": "3.0.0"
-        },
-        {
             "type": "Relationship",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/Relationship/test3/hasDeclaredLicense",
@@ -306,34 +386,6 @@
                 "https://github.com/pkgconf/pkgconf/simplelicensing_LicenseExpression/BSD-4-Clause"
             ],
             "relationshipType": "hasConcludedLicense"
-        },
-        {
-            "type": "software_Sbom",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test4",
-            "software_sbomType": [
-                "build"
-            ],
-            "rootElement": [
-                "https://github.com/pkgconf/pkgconf/Package/test4"
-            ],
-            "element": [
-                "https://github.com/pkgconf/pkgconf/Relationship/test4/dependsOn/test5",
-                "https://github.com/pkgconf/pkgconf/Relationship/test4/dependsOn/test6",
-                "https://github.com/pkgconf/pkgconf/Relationship/test4/hasDeclaredLicense",
-                "https://github.com/pkgconf/pkgconf/Relationship/test4/hasConcludedLicense"
-            ]
-        },
-        {
-            "type": "software_Package",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test4",
-            "name": "test4",
-            "originatedBy": [
-                "https://github.com/pkgconf/pkgconf/Agent/default"
-            ],
-            "software_copyrightText": "NOASSERTION",
-            "software_packageVersion": "4.0.0"
         },
         {
             "type": "Relationship",
@@ -376,32 +428,6 @@
             "relationshipType": "dependsOn"
         },
         {
-            "type": "software_Sbom",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test5",
-            "software_sbomType": [
-                "build"
-            ],
-            "rootElement": [
-                "https://github.com/pkgconf/pkgconf/Package/test5"
-            ],
-            "element": [
-                "https://github.com/pkgconf/pkgconf/Relationship/test5/hasDeclaredLicense",
-                "https://github.com/pkgconf/pkgconf/Relationship/test5/hasConcludedLicense"
-            ]
-        },
-        {
-            "type": "software_Package",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test5",
-            "name": "test5",
-            "originatedBy": [
-                "https://github.com/pkgconf/pkgconf/Agent/default"
-            ],
-            "software_copyrightText": "NOASSERTION",
-            "software_packageVersion": "5.0.0"
-        },
-        {
             "type": "Relationship",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/Relationship/test5/hasDeclaredLicense",
@@ -420,32 +446,6 @@
                 "https://github.com/pkgconf/pkgconf/simplelicensing_LicenseExpression/MIT"
             ],
             "relationshipType": "hasConcludedLicense"
-        },
-        {
-            "type": "software_Sbom",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test6",
-            "software_sbomType": [
-                "build"
-            ],
-            "rootElement": [
-                "https://github.com/pkgconf/pkgconf/Package/test6"
-            ],
-            "element": [
-                "https://github.com/pkgconf/pkgconf/Relationship/test6/hasDeclaredLicense",
-                "https://github.com/pkgconf/pkgconf/Relationship/test6/hasConcludedLicense"
-            ]
-        },
-        {
-            "type": "software_Package",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test6",
-            "name": "test6",
-            "originatedBy": [
-                "https://github.com/pkgconf/pkgconf/Agent/default"
-            ],
-            "software_copyrightText": "NOASSERTION",
-            "software_packageVersion": "6.0.0"
         },
         {
             "type": "Relationship",
@@ -528,4 +528,3 @@
         }
     ]
 }
-
