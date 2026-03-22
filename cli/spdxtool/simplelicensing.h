@@ -25,11 +25,10 @@ spdxtool_simplelicensing_license_expression_t *
 spdxtool_simplelicensing_licenseExpression_new(pkgconf_client_t *client, const char *license);
 
 void
-spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license_expression_t *expression_struct);
+spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license_expression_t *expression);
 
-
-void
-spdxtool_simplelicensing_licenseExpression_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_core_spdx_document_t *spdx_struct, bool last);
+spdxtool_serialize_value_t
+spdxtool_simplelicensing_licenseExpression_to_object(const char *creation_info, const spdxtool_simplelicensing_license_expression_t *expression);
 
 #ifdef __cplusplus
 }

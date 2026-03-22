@@ -13,6 +13,7 @@
 
 #include <stdlib.h>
 #include "util.h"
+#include "serialize.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,8 +25,8 @@ spdxtool_core_agent_new(pkgconf_client_t *client, const char *creation_id, const
 void
 spdxtool_core_agent_free(spdxtool_core_agent_t *agent);
 
-void
-spdxtool_core_agent_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, const spdxtool_core_agent_t *agent, bool last);
+spdxtool_serialize_value_t
+spdxtool_core_agent_to_object(pkgconf_client_t *client, const spdxtool_core_agent_t *agent);
 
 spdxtool_core_creation_info_t *
 spdxtool_core_creation_info_new(pkgconf_client_t *client, const char *agent_id, const char *id, const char *time);
@@ -33,8 +34,8 @@ spdxtool_core_creation_info_new(pkgconf_client_t *client, const char *agent_id, 
 void
 spdxtool_core_creation_info_free(spdxtool_core_creation_info_t *creation);
 
-void
-spdxtool_core_creation_info_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, const spdxtool_core_creation_info_t *creation, bool last);
+spdxtool_serialize_value_t
+spdxtool_core_creation_info_to_object(pkgconf_client_t *client, const spdxtool_core_creation_info_t *creation);
 
 spdxtool_core_spdx_document_t *
 spdxtool_core_spdx_document_new(pkgconf_client_t *client, const char *spdx_id, const char *creation_id, const char *agent_id);
@@ -42,20 +43,23 @@ spdxtool_core_spdx_document_new(pkgconf_client_t *client, const char *spdx_id, c
 bool
 spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, const spdxtool_core_spdx_document_t *spdx, const char *license);
 
-
 void
 spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *license);
 
 void
-spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *element);
+spdxtool_core_spdx_document_add_relationship(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, spdxtool_core_relationship_t *relationship);
 
+void
+spdxtool_core_spdx_document_add_package(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, pkgconf_pkg_t *pkg);
+
+void
+spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *element);
 
 void
 spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx);
 
-void
-spdxtool_core_spdx_document_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, const spdxtool_core_spdx_document_t *spdx, bool last);
-
+spdxtool_serialize_value_t
+spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx);
 
 spdxtool_core_relationship_t *
 spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_info_id, const char *spdx_id, const char *from, const char *to, const char *relationship_type);
@@ -63,8 +67,8 @@ spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_in
 void
 spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship);
 
-void
-spdxtool_core_relationship_serialize(pkgconf_client_t *client, pkgconf_buffer_t *buffer, spdxtool_core_relationship_t *relationship, bool last);
+spdxtool_serialize_value_t
+spdxtool_core_relationship_to_object(pkgconf_client_t *client, const spdxtool_core_relationship_t *relationship);
 
 #ifdef __cplusplus
 }

@@ -45,6 +45,21 @@
             ]
         },
         {
+            "type": "software_Sbom",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test3",
+            "software_sbomType": [
+                "build"
+            ],
+            "rootElement": [
+                "https://github.com/pkgconf/pkgconf/Package/test3"
+            ],
+            "element": [
+                "https://github.com/pkgconf/pkgconf/Relationship/test3/hasDeclaredLicense",
+                "https://github.com/pkgconf/pkgconf/Relationship/test3/hasConcludedLicense"
+            ]
+        },
+        {
             "type": "software_Package",
             "creationInfo": "_:creationinfo_1",
             "spdxId": "https://github.com/pkgconf/pkgconf/Package/test2",
@@ -54,6 +69,17 @@
             ],
             "software_copyrightText": "NOASSERTION",
             "software_packageVersion": "2.0.0"
+        },
+        {
+            "type": "software_Package",
+            "creationInfo": "_:creationinfo_1",
+            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test3",
+            "name": "test3",
+            "originatedBy": [
+                "https://github.com/pkgconf/pkgconf/Agent/default"
+            ],
+            "software_copyrightText": "NOASSERTION",
+            "software_packageVersion": "3.0.0"
         },
         {
             "type": "Relationship",
@@ -84,32 +110,6 @@
                 "https://github.com/pkgconf/pkgconf/Package/test3"
             ],
             "relationshipType": "dependsOn"
-        },
-        {
-            "type": "software_Sbom",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/software_Sbom/test3",
-            "software_sbomType": [
-                "build"
-            ],
-            "rootElement": [
-                "https://github.com/pkgconf/pkgconf/Package/test3"
-            ],
-            "element": [
-                "https://github.com/pkgconf/pkgconf/Relationship/test3/hasDeclaredLicense",
-                "https://github.com/pkgconf/pkgconf/Relationship/test3/hasConcludedLicense"
-            ]
-        },
-        {
-            "type": "software_Package",
-            "creationInfo": "_:creationinfo_1",
-            "spdxId": "https://github.com/pkgconf/pkgconf/Package/test3",
-            "name": "test3",
-            "originatedBy": [
-                "https://github.com/pkgconf/pkgconf/Agent/default"
-            ],
-            "software_copyrightText": "NOASSERTION",
-            "software_packageVersion": "3.0.0"
         },
         {
             "type": "Relationship",
@@ -156,4 +156,3 @@
         }
     ]
 }
-
