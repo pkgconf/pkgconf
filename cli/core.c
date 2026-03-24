@@ -772,14 +772,25 @@ apply_fragment_tree(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, 
 static void
 print_license(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
+	pkgconf_buffer_t render_buf = PKGCONF_BUFFER_INITIALIZER;
 	(void) data;
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
 
-	/* NOASSERTION is the default when the license is unknown, per SPDX spec § 3.15 */
-	pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s: %s\n",
-		pkg->id, pkg->license != NULL ? pkg->license : "NOASSERTION");
+	if (pkg->license.head == NULL)
+	{
+		pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT,
+				"%s: NOASSERTION\n", pkg->id);
+	}
+	else
+	{
+		/* NOASSERTION is the default when the license is unknown, per SPDX spec § 3.15 */
+		pkgconf_license_render(client, &pkg->license, &render_buf);
+		pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s: ", pkg->id);
+		pkgconf_output_putbuf(client->output, PKGCONF_OUTPUT_STDOUT, &render_buf, true);
+		pkgconf_buffer_finalize(&render_buf);
+	}
 }
 
 static bool
