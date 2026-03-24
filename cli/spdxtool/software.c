@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <libpkgconf/libpkgconf.h>
 #include "util.h"
 #include "serialize.h"
 #include "software.h"
@@ -232,6 +233,10 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	char *creation_info = spdxtool_util_tuple_lookup(client, &pkg->vars, "creationInfo");
 	char *spdx_id = spdxtool_util_tuple_lookup(client, &pkg->vars, "spdxId");
 	char *agent = spdxtool_util_tuple_lookup(client, &pkg->vars, "agent");
+	char *spdx_id_license = NULL;
+	pkgconf_list_t relations = PKGCONF_LIST_INITIALIZER;
+	pkgconf_list_t *cpy_relations = NULL;
+	pkgconf_node_t *node = NULL;
 
 	if (!creation_info || !spdx_id || !agent)
 	{
@@ -275,36 +280,50 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		spdxtool_serialize_object_add_string(object, "software_downloadLocation", "");
 	spdxtool_serialize_object_add_string(object, "software_packageVersion", pkg->version);
 
-	char *spdx_id_license = spdxtool_util_get_spdx_id_string(client, "simplelicensing_LicenseExpression", pkg->license);
-	if (!spdx_id_license)
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->license.head, node)
 	{
-		pkgconf_error(client, "spdxtool_software_package_to_object: could not get license");
-		free(creation_info);
-		free(spdx_id);
-		free(agent);
-		return spdxtool_serialize_null();
+		const pkgconf_license_t *license = node->data;
+		if (license->type == PKGCONF_LICENSE_EXPRESSION)
+		{
+			spdx_id_license = spdxtool_util_get_spdx_id_string(client, "simplelicensing_LicenseExpression", license->data);
+			if (!spdx_id_license)
+			{
+				pkgconf_error(client, "spdxtool_software_package_to_object: could not get license");
+				free(creation_info);
+				free(spdx_id);
+				free(agent);
+				return spdxtool_serialize_null();
+			}
+			pkgconf_license_insert(client, &relations, PKGCONF_LICENSE_UNKNOWN, spdx_id_license);
+			free(spdx_id_license);
+		}
 	}
 
 	char *tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasDeclaredLicense");
 	if (tuple_license)
 	{
-		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, spdx_id_license, "hasDeclaredLicense");
+		cpy_relations = calloc(1, sizeof(pkgconf_list_t));
+		pkgconf_license_copy_list(client, cpy_relations, &relations);
+		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, cpy_relations, "hasDeclaredLicense");
 		free(tuple_license);
 		if (relationship)
 			spdxtool_core_spdx_document_add_relationship(client, spdx, relationship);
+		cpy_relations = NULL;
 	}
 
 	tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasConcludedLicense");
 	if (tuple_license)
 	{
-		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, spdx_id_license, "hasConcludedLicense");
+		cpy_relations = calloc(1, sizeof(pkgconf_list_t));
+		pkgconf_license_copy_list(client, cpy_relations, &relations);
+		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, cpy_relations, "hasConcludedLicense");
 		free(tuple_license);
 		if (relationship)
 			spdxtool_core_spdx_document_add_relationship(client, spdx, relationship);
+		cpy_relations = NULL;
 	}
-	free(spdx_id_license);
+	pkgconf_license_free(&relations);
 
-	pkgconf_node_t *node = NULL;
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
@@ -334,7 +353,9 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		}
 
 		char *spdx_id_package = spdxtool_util_get_spdx_id_string(client, "Package", match->id);
-		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, spdx_id_relation, spdx_id, spdx_id_package, "dependsOn");
+		cpy_relations = calloc(1, sizeof(pkgconf_list_t));
+		pkgconf_license_insert(client, cpy_relations, PKGCONF_LICENSE_UNKNOWN, spdx_id_package);
+		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, spdx_id_relation, spdx_id, cpy_relations, "dependsOn");
 		free(spdx_id_relation);
 		free(spdx_id_package);
 		if (relationship)
