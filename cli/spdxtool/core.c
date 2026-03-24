@@ -623,7 +623,7 @@ spdxtool_core_spdx_document_add_package(pkgconf_client_t *client, spdxtool_core_
  *    :return: NULL if some problem occurs and SpdxDocument struct if not
  */
 spdxtool_core_relationship_t *
-spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_info_id, const char *spdx_id, const char *from, const char *to, const char *relationship_type)
+spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_info_id, const char *spdx_id, const char *from, pkgconf_list_t *to, const char *relationship_type)
 {
 	if(!client || !creation_info_id || !spdx_id || !from || !to || !relationship_type)
 	{
@@ -641,7 +641,7 @@ spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_in
 	relationship->creation_info = strdup(creation_info_id);
 	relationship->spdx_id = strdup(spdx_id);
 	relationship->from = strdup(from);
-	relationship->to = strdup(to);
+	relationship->to = to;
 	relationship->relationship_type = strdup(relationship_type);
 
 	if(!relationship->creation_info || !relationship->spdx_id || !relationship->from || !relationship->to || !relationship->relationship_type)
@@ -675,6 +675,7 @@ spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship)
 	free(relationship->spdx_id);
 	free(relationship->creation_info);
 	free(relationship->from);
+	pkgconf_license_free(relationship->to);
 	free(relationship->to);
 	free(relationship->relationship_type);
 
@@ -696,6 +697,8 @@ spdxtool_serialize_value_t
 spdxtool_core_relationship_to_object(pkgconf_client_t *client, const spdxtool_core_relationship_t *relationship)
 {
 	spdxtool_serialize_object_list_t *object = spdxtool_serialize_object_list_new();
+	pkgconf_node_t *node = NULL;
+
 	if (!object)
 	{
 		pkgconf_error(client, "spdxtool_core_spdx_relationship_to_object: out of memory");
@@ -710,7 +713,11 @@ spdxtool_core_relationship_to_object(pkgconf_client_t *client, const spdxtool_co
 		return spdxtool_serialize_null();
 	}
 
-	spdxtool_serialize_array_add_string(to, relationship->to);
+	PKGCONF_FOREACH_LIST_ENTRY(relationship->to->head, node)
+	{
+		const pkgconf_license_t *license = node->data;
+		spdxtool_serialize_array_add_string(to, license->data);
+	}
 
 	spdxtool_serialize_object_add_string(object, "type", relationship->type);
 	spdxtool_serialize_object_add_string(object, "creationInfo", relationship->creation_info);
