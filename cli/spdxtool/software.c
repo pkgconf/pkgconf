@@ -269,6 +269,10 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	spdxtool_serialize_object_add_string(object, "name", pkg->realname);
 	spdxtool_serialize_object_add_array(object, "originatedBy", originated_by);
 	spdxtool_serialize_object_add_string(object, "software_copyrightText", "NOASSERTION");
+	if (pkg->url != NULL)
+		spdxtool_serialize_object_add_string(object, "software_homePage", pkg->url);
+	else
+		spdxtool_serialize_object_add_string(object, "software_homePage", "");
 	spdxtool_serialize_object_add_string(object, "software_packageVersion", pkg->version);
 
 	char *spdx_id_license = spdxtool_util_get_spdx_id_string(client, "simplelicensing_LicenseExpression", pkg->license);
