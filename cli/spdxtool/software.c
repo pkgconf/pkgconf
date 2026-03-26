@@ -279,6 +279,11 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	else
 		spdxtool_serialize_object_add_string(object, "software_copyrightText", "NOASSERTION");
 
+	if (pkg->url != NULL)
+		spdxtool_serialize_object_add_string(object, "software_homePage", pkg->url);
+	else
+		spdxtool_serialize_object_add_string(object, "software_homePage", "");
+
 	if (pkg->source)
 		spdxtool_serialize_object_add_string(object, "software_downloadLocation", pkg->source);
 	else
