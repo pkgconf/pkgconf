@@ -273,11 +273,17 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	spdxtool_serialize_object_add_string(object, "spdxId", spdx_id);
 	spdxtool_serialize_object_add_string(object, "name", pkg->realname);
 	spdxtool_serialize_object_add_array(object, "originatedBy", originated_by);
-	spdxtool_serialize_object_add_string(object, "software_copyrightText", "NOASSERTION");
+
+	if (pkg->copyright != NULL)
+		spdxtool_serialize_object_add_string(object, "software_copyrightText", pkg->copyright);
+	else
+		spdxtool_serialize_object_add_string(object, "software_copyrightText", "NOASSERTION");
+
 	if (pkg->source)
 		spdxtool_serialize_object_add_string(object, "software_downloadLocation", pkg->source);
 	else
 		spdxtool_serialize_object_add_string(object, "software_downloadLocation", "");
+
 	spdxtool_serialize_object_add_string(object, "software_packageVersion", pkg->version);
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->license.head, node)
