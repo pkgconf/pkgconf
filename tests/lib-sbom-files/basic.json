@@ -46,6 +46,7 @@
                 "https://github.com/pkgconf/pkgconf/Agent/default"
             ],
             "software_copyrightText": "Test3 copyright text",
+            "software_homePage": "https://github.com/pkgconf/pkgconf/",
             "software_downloadLocation": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz",
             "software_packageVersion": "3.0.0"
         },
