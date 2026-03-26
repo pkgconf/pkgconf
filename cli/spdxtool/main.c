@@ -95,7 +95,7 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	pkgconf_tuple_add(client, &pkg->vars, "creationInfo", document->creation_info, false, 0);
 	pkgconf_tuple_add(client, &pkg->vars, "agent", document->agent, false, 0);
 
-	if (pkg->license != NULL)
+	if (pkg->license.head != NULL)
 	{
 		pkgconf_buffer_t spdx_id_buf = PKGCONF_BUFFER_INITIALIZER;
 		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s/hasDeclaredLicense", pkg->id);
@@ -134,7 +134,14 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 		free(package_spdx);
 		package_spdx = NULL;
 
-		spdxtool_core_spdx_document_add_license(client, document, pkg->license);
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->license.head, node)
+		{
+			const pkgconf_license_t *license = node->data;
+			if (license->type == PKGCONF_LICENSE_EXPRESSION)
+			{
+				spdxtool_core_spdx_document_add_license(client, document, license->data);
+			}
+		}
 	}
 
 	node = calloc(1, sizeof(pkgconf_node_t));

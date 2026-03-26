@@ -72,7 +72,7 @@ typedef struct spdxtool_core_relationship_
 	char *spdx_id;
 	char *creation_info;
 	char *from;
-	char *to;
+	pkgconf_list_t *to;
 	char *relationship_type;
 } spdxtool_core_relationship_t;
 

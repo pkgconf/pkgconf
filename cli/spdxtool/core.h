@@ -62,7 +62,7 @@ spdxtool_serialize_value_t
 spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx);
 
 spdxtool_core_relationship_t *
-spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_info_id, const char *spdx_id, const char *from, const char *to, const char *relationship_type);
+spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_info_id, const char *spdx_id, const char *from, pkgconf_list_t *to, const char *relationship_type);
 
 void
 spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship);

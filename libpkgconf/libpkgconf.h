@@ -55,6 +55,7 @@ typedef struct pkgconf_client_ pkgconf_client_t;
 typedef struct pkgconf_cross_personality_ pkgconf_cross_personality_t;
 typedef struct pkgconf_queue_ pkgconf_queue_t;
 typedef struct pkgconf_output_ pkgconf_output_t;
+typedef struct pkgconf_license_ pkgconf_license_t;
 
 #define PKGCONF_ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
 
@@ -172,6 +173,23 @@ struct pkgconf_path_ {
 	unsigned int flags;
 };
 
+typedef enum {
+	PKGCONF_LICENSE_UNKNOWN = 0,
+	PKGCONF_LICENSE_EXPRESSION = 1,
+	PKGCONF_LICENSE_AND = 10,
+	PKGCONF_LICENSE_OR = 11,
+	PKGCONF_LICENSE_WITH = 12,
+	PKGCONF_LICENSE_BRACKET_OPEN = 20,
+	PKGCONF_LICENSE_BRACKET_CLOSE = 21,
+} pkgconf_license_types_t;
+
+struct pkgconf_license_ {
+	pkgconf_node_t iter;
+
+	unsigned char type;
+	char *data;
+};
+
 #define PKGCONF_PKG_PROPF_NONE			0x00
 #define PKGCONF_PKG_PROPF_STATIC		0x01
 #define PKGCONF_PKG_PROPF_CACHED		0x02
@@ -190,12 +208,13 @@ struct pkgconf_pkg_ {
 	char *description;
 	char *url;
 	char *pc_filedir;
-	char *license;
 	char *maintainer;
 	char *copyright;
 	char *source;
 	char *license_file;
 	char *why;
+
+	pkgconf_list_t license;
 
 	pkgconf_list_t libs;
 	pkgconf_list_t libs_private;
@@ -487,6 +506,14 @@ PKGCONF_API void pkgconf_fragment_free(pkgconf_list_t *list);
 PKGCONF_API void pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, void *data);
 PKGCONF_API void pkgconf_fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim);
 PKGCONF_API bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fragment_t *frag);
+
+/* license.c */
+PKGCONF_API void pkgconf_license_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base);
+PKGCONF_API void pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *expression, unsigned int flags);
+PKGCONF_API void pkgconf_license_evaluate(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist, const char *depends, unsigned int flags);
+PKGCONF_API void pkgconf_license_free(pkgconf_list_t *list);
+PKGCONF_API void pkgconf_license_insert(pkgconf_client_t *client, pkgconf_list_t *list, unsigned char type, const char *data);
+PKGCONF_API void pkgconf_license_render(pkgconf_client_t *client, const pkgconf_list_t *list, pkgconf_buffer_t *buf);
 
 /* tuple.c */
 PKGCONF_API pkgconf_tuple_t *pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *parent, const char *key, const char *value, bool parse, unsigned int flags);

@@ -118,6 +118,7 @@ sbom_identity(pkgconf_pkg_t *pkg)
 static void
 write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 {
+	pkgconf_buffer_t license_buf = PKGCONF_BUFFER_INITIALIZER;
 	(void) client;
 	(void) unused;
 
@@ -129,7 +130,6 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	fprintf(sbom_out, "PackageName: %s\n", pkg->id);
 	fprintf(sbom_out, "SPDXID: SPDXRef-Package-%s\n", sbom_spdx_identity(pkg));
 	fprintf(sbom_out, "PackageVersion: %s\n", pkg->version);
-	fprintf(sbom_out, "PackageDownloadLocation: NOASSERTION\n");
 	fprintf(sbom_out, "PackageVerificationCode: NOASSERTION\n");
 
 	/* XXX: What about projects? */
@@ -139,7 +139,17 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	if (pkg->url != NULL)
 		fprintf(sbom_out, "PackageHomePage: %s\n", pkg->url);
 
-	fprintf(sbom_out, "PackageLicenseDeclared: %s\n", pkg->license != NULL ? pkg->license : "NOASSERTION");
+	if (pkg->license.head != NULL)
+	{
+		pkgconf_license_render(client, &pkg->license, &license_buf);
+		fprintf(sbom_out, "PackageLicenseDeclared: %s\n", pkgconf_buffer_str_or_empty(&license_buf));
+		pkgconf_buffer_finalize(&license_buf);
+	}
+	else
+	{
+		fprintf(sbom_out, "PackageLicenseDeclared: NOASSERTION\n");
+	}
+
 
 	if (pkg->copyright != NULL)
 		fprintf(sbom_out, "PackageCopyrightText: <text>%s</text>\n", pkg->copyright);
@@ -149,6 +159,9 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 
 	if (pkg->source != NULL)
 		fprintf(sbom_out, "PackageDownloadLocation: %s\n", pkg->source);
+	else
+		fprintf(sbom_out, "PackageDownloadLocation: NOASSERTION\n");
+
 
 	fprintf(sbom_out, "\n\n");
 }

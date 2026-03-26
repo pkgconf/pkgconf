@@ -246,6 +246,16 @@ pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_PRIVATE);
 }
 
+/* Evaluates SPDX expression or parses comma separated list of licenses */
+static void
+pkgconf_pkg_evaluate_license_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+{
+    pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+	(void)keyword;
+	(void)warnprefix;
+	pkgconf_license_evaluate(client, pkg, dest, value, 0);
+}
+
 /* keep this in alphabetical order */
 static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[] = {
 	{"CFLAGS", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, cflags)},
@@ -255,7 +265,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"Description", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, description)},
 	{"LIBS", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs)},
 	{"LIBS.private", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs_private)},
-	{"License", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, license)},
+	{"License", pkgconf_pkg_evaluate_license_func, offsetof(pkgconf_pkg_t, license)},
 	{"License.file", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, license_file)},
 	{"Maintainer", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, maintainer)},
 	{"Name", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, realname)},
@@ -567,9 +577,6 @@ pkg_free_object(pkgconf_pkg_t *pkg)
 	if (pkg->pc_filedir != NULL)
 		free(pkg->pc_filedir);
 
-	if (pkg->license != NULL)
-		free(pkg->license);
-
 	if (pkg->license_file != NULL)
 		free(pkg->license_file);
 
@@ -601,6 +608,7 @@ pkg_free_lists(pkgconf_pkg_t *pkg)
 
 	pkgconf_fragment_free(&pkg->cflags);
 	pkgconf_fragment_free(&pkg->cflags_private);
+	pkgconf_license_free(&pkg->license);
 	pkgconf_fragment_free(&pkg->libs);
 	pkgconf_fragment_free(&pkg->libs_private);
 
