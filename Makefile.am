@@ -197,12 +197,39 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/requires-private-debounce.test \
 		t/solver/requires-private-missing.test \
 		t/solver/requires-static-cflags.test \
+		t/spdxtool/basic.test \
+		t/spdxtool/meta-package.test \
+		t/spdxtool/with-dependency.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
 		t/sbom/license-isc.test \
 		t/sbom/license-noassertion.test \
 		t/sbom/source-tag-bar.test \
 		t/sbom/source-tag-foo.test \
+		t/symlink/pcfiledir_symlink_absolute_env1.test \
+		t/symlink/pcfiledir_symlink_absolute_env2.test \
+		t/symlink/pcfiledir_symlink_absolute_env3.test \
+		t/symlink/pcfiledir_symlink_absolute_env4.test \
+		t/symlink/pcfiledir_symlink_absolute_env5.test \
+		t/symlink/pcfiledir_symlink_absolute_env6.test \
+		t/symlink/pcfiledir_symlink_absolute_env7.test \
+		t/symlink/pcfiledir_symlink_absolute_env8.test \
+		t/symlink/pcfiledir_symlink_absolute_env9.test \
+		t/symlink/pcfiledir_symlink_absolute_env10.test \
+		t/symlink/pcfiledir_symlink_absolute_env11.test \
+		t/symlink/pcfiledir_symlink_absolute_env12.test \
+		t/symlink/pcfiledir_symlink_relative_env1.test \
+		t/symlink/pcfiledir_symlink_relative_env2.test \
+		t/symlink/pcfiledir_symlink_relative_env3.test \
+		t/symlink/pcfiledir_symlink_relative_env4.test \
+		t/symlink/pcfiledir_symlink_relative_env5.test \
+		t/symlink/pcfiledir_symlink_relative_env6.test \
+		t/symlink/pcfiledir_symlink_relative_env7.test \
+		t/symlink/pcfiledir_symlink_relative_env8.test \
+		t/symlink/pcfiledir_symlink_relative_env9.test \
+		t/symlink/pcfiledir_symlink_relative_env10.test \
+		t/symlink/pcfiledir_symlink_relative_env11.test \
+		t/symlink/pcfiledir_symlink_relative_env12.test \
 		t/sysroot/cflags-rewriting.test \
 		t/sysroot/explicit-sysroot.test \
 		t/sysroot/idirafter-munge-sysroot.test \
@@ -349,8 +376,6 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom-files/meta_package.json \
 		tests/lib-sbom-files/with_dependency.json \
 		tests/personality-data/i386-linux-gnu.personality \
-		tests/meson.build \
-		$(test_scripts) \
 		doc/conf.py \
 		doc/extract.py \
 		doc/index.rst \
@@ -365,15 +390,6 @@ EXTRA_DIST =	pkg.m4 \
 		doc/libpkgconf-pkg.rst \
 		doc/libpkgconf-queue.rst \
 		doc/libpkgconf-tuple.rst
-
-test_scripts=	\
-		tests/spdxtool.sh \
-		tests/symlink.sh
-
-test_sh = $(test_scripts)
-check_SCRIPTS = ${test_sh:.sh=}
-
-SUFFIXES=	.sh
 
 nobase_pkginclude_HEADERS = libpkgconf/bsdstubs.h libpkgconf/iter.h libpkgconf/libpkgconf.h libpkgconf/stdinc.h libpkgconf/libpkgconf-api.h
 libpkgconf_la_SOURCES  =	\
@@ -454,20 +470,16 @@ dist_doc_DATA = CONTRIBUTING.md DCO README.md AUTHORS
 m4datadir              = $(datadir)/aclocal
 m4data_DATA            = pkg.m4
 
-CLEANFILES =	$(EXTRA_PROGRAMS) \
-		$(check_SCRIPTS)
+CLEANFILES =	$(EXTRA_PROGRAMS)
 
-check: pkgconf test-runner $(check_SCRIPTS)
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/basic
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/ordering
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/parser
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/personality
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/solver
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sbom
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/sysroot
-	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests $(top_srcdir)/t/tuple
-	kyua --config=none test --kyuafile='$(top_builddir)/Kyuafile' \
-		--build-root='$(top_builddir)'
-
-.sh:
-	install -m 755 $< $@
+check: pkgconf test-runner
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/ordering
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/parser
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/personality
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/solver
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/sbom
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/spdxtool
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/symlink
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/sysroot
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/tuple

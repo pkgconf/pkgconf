@@ -214,6 +214,8 @@ test_runner_exe = executable('test-runner',
   install : false)
 
 fixtures_dir = join_paths(meson.current_source_dir(), 'tests')
+tool_dir = meson.current_build_dir()
+
 test_suites = [
   'basic',
   'ordering',
@@ -223,18 +225,15 @@ test_suites = [
   'sbom',
   'sysroot',
   'tuple',
+  'spdxtool',
+  'symlink'
 ]
 
 foreach t : test_suites
-  test(t, test_runner_exe, args : ['--test-fixtures', fixtures_dir, join_paths(meson.current_source_dir(), 't', t)])
+  test(t, test_runner_exe,
+    args : ['--test-fixtures', fixtures_dir, '--tool-dir', tool_dir, join_paths(meson.current_source_dir(), 't', t)],
+    depends : [spdxtool_exe])
 endforeach
-
-with_tests = get_option('tests')
-kyua_exe = find_program('kyua', required : with_tests, disabler : true, native : true)
-atf_sh_exe = find_program('atf-sh', required : with_tests, disabler : true, native : true)
-kyuafile = configure_file(input : 'Kyuafile.in', output : 'Kyuafile', configuration : cdata)
-test('kyua', kyua_exe, args : ['--config=none', 'test', '--kyuafile', kyuafile, '--build-root', meson.current_build_dir()])
-subdir('tests')
 
 install_man('man/bomtool.1')
 install_man('man/pkgconf.1')
