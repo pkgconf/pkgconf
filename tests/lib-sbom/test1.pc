@@ -3,4 +3,5 @@ Description: Test package 1
 URL: https://github.com/pkgconf/pkgconf/
 Version: 1.0.0
 License: BSD-1-Clause
+Copyright: Test1 copyright text
 Requires: test1
