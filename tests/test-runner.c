@@ -19,6 +19,10 @@
 #include <cli/core.h>
 #include <cli/getopt_long.h>
 #include <limits.h>
+#ifdef _WIN32
+#	include <direct.h>
+#	include <io.h>
+#endif // _WIN32_
 
 #ifndef PKGCONF_LITE
 #	if !defined(_WIN32) && !defined(__HAIKU__)
@@ -32,12 +36,14 @@
 #	define PKGCONF_TEST_PLATFORM "lite"
 #endif // PKGCONF_LITE
 
+// Shims shared by both MSVC and MSYS2
 #ifdef _WIN32
-#	include <direct.h>
-#	include <io.h>
-
 #	define mkdir(p, m) _mkdir(p)
 #	define setenv(n, v, o) _putenv_s(n, v)
+#endif // _WIN32
+
+// MSVC-specific shims
+#ifdef _MSC_VER
 #	define getcwd _getcwd
 #	define chdir _chdir
 #	define rmdir _rmdir
@@ -50,7 +56,6 @@
 #		define PATH_MAX 32767  // Windows max path for long-path support
 #	endif
 
-#	if !HAVE_DECL_MKDTEMP
 static char *
 mkdtemp(char *tmpl)
 {
@@ -60,8 +65,7 @@ mkdtemp(char *tmpl)
         return NULL;
     return tmpl;
 }
-#	endif // !HAVE_DECL_MKDTEMP
-#endif // _WIN32
+#endif // _MSC_VER
 
 static void test_parser_warn(void *p, const char *fmt, ...) PRINTFLIKE(2, 3);
 static void handle_substs(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pwd);
