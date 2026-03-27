@@ -59,11 +59,11 @@
 static char *
 mkdtemp(char *tmpl)
 {
-    if (_mktemp_s(tmpl, strlen(tmpl) + 1) != 0)
-        return NULL;
-    if (_mkdir(tmpl) != 0)
-        return NULL;
-    return tmpl;
+	if (_mktemp_s(tmpl, strlen(tmpl) + 1) != 0)
+		return NULL;
+	if (_mkdir(tmpl) != 0)
+		return NULL;
+	return tmpl;
 }
 #endif // _MSC_VER
 
@@ -601,8 +601,8 @@ test_keyword_set(void *data, const char *warnprefix, const char *keyword, const 
 {
 	pkgconf_test_case_t *testcase = data;
 	const pkgconf_test_keyword_pair_t *pair = bsearch(keyword,
-	    test_keyword_pairs, PKGCONF_ARRAY_SIZE(test_keyword_pairs),
-	    sizeof(*pair), test_keyword_pair_cmp);
+		test_keyword_pairs, PKGCONF_ARRAY_SIZE(test_keyword_pairs),
+		sizeof(*pair), test_keyword_pair_cmp);
 
 	if (pair == NULL || pair->func == NULL)
 		return;
@@ -727,7 +727,7 @@ test_match_buffer(pkgconf_test_match_strategy_t match, const pkgconf_buffer_t *e
 static bool
 read_file_into_buffer(FILE *f, pkgconf_buffer_t *buf)
 {
-	char tmp[4096];
+	char tmp[4096] = {0};
 	size_t n;
 	while ((n = fread(tmp, 1, sizeof(tmp), f)) > 0)
 		pkgconf_buffer_append_slice(buf, tmp, n);
@@ -767,7 +767,7 @@ copy_file(const char *dst, const char *src)
 	}
 
 	bool ok = true;
-	char buf[4096];
+	char buf[4096] = {0};
 	size_t nr;
 	while ((nr = fread(buf, 1, sizeof(buf), fsrc)) > 0)
 	{
