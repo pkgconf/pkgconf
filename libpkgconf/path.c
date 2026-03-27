@@ -73,21 +73,34 @@ prepare_path_node(const char *text, pkgconf_list_t *dirlist, bool filter)
 	if (filter)
 	{
 		if (lstat(pkgconf_buffer_str(&pathbuf), &st) == -1)
+		{
+			pkgconf_buffer_finalize(&pathbuf);
 			return NULL;
+		}
+
 		if (S_ISLNK(st.st_mode))
 		{
 			char realpathbuf[PKGCONF_ITEM_SIZE * 4];
 			char *linkdest = realpath(pkgconf_buffer_str(&pathbuf), realpathbuf);
 
 			if (linkdest != NULL && stat(linkdest, &st) == -1)
+			{
+				pkgconf_buffer_finalize(&pathbuf);
 				return NULL;
+			}
 		}
 		if (path_list_contains_entry(&pathbuf, dirlist, &st))
+		{
+			pkgconf_buffer_finalize(&pathbuf);
 			return NULL;
+		}
 	}
 #else
 	if (filter && path_list_contains_entry(&pathbuf, dirlist))
+	{
+		pkgconf_buffer_finalize(&pathbuf);
 		return NULL;
+	}
 #endif
 
 	node = calloc(1, sizeof(pkgconf_path_t));
@@ -100,7 +113,8 @@ prepare_path_node(const char *text, pkgconf_list_t *dirlist, bool filter)
 	node->path = pkgconf_buffer_freeze(&pathbuf);
 
 #ifdef PKGCONF_CACHE_INODES
-	if (filter) {
+	if (filter)
+	{
 		node->handle_path = (void *)(intptr_t) st.st_ino;
 		node->handle_device = (void *)(intptr_t) st.st_dev;
 	}
