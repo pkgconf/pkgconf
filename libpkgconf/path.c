@@ -114,7 +114,8 @@ prepare_path_node(const char *text, pkgconf_list_t *dirlist, bool filter)
 	node->path = pkgconf_buffer_freeze(&pathbuf);
 
 #ifdef PKGCONF_CACHE_INODES
-	if (filter) {
+	if (filter)
+	{
 		node->handle_path = (void *)(intptr_t) st.st_ino;
 		node->handle_device = (void *)(intptr_t) st.st_dev;
 	}

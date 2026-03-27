@@ -938,7 +938,7 @@ split_pair(const char *entry, char **left_out, char **right_out)
 	if (sp == NULL)
 		return false;
 
-	*left_out  = strndup(entry, (size_t)(sp - entry));
+	*left_out = strndup(entry, (size_t)(sp - entry));
 	*right_out = strdup(sp + 1);
 	return true;
 }
