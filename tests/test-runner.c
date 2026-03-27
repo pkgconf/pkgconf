@@ -36,7 +36,8 @@
 #  include <direct.h>
 #  include <io.h>
 
-#  define mkdir(path, mode) _mkdir(path)
+#  define mkdir(p, m) _mkdir(p)
+#  define setenv(n, v, o) _putenv_s(n, v)
 #  define getcwd _getcwd
 #  define chdir _chdir
 #  define rmdir _rmdir
@@ -48,13 +49,6 @@
 #  ifndef PATH_MAX
 #    define PATH_MAX 32767  // Windows max path for long-path support
 #  endif
-
-static int
-setenv(const char *name, const char *value, int overwrite)
-{
-    (void) overwrite;
-    return _putenv_s(name, value);
-}
 
 #if !HAVE_DECL_MKDTEMP
 static char *
@@ -169,11 +163,11 @@ test_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer)
 static void
 test_bufferset_free(pkgconf_list_t *list)
 {
-	pkgconf_node_t *n, *tn;
+	pkgconf_node_t *iter, *iter_next;
 
-	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, tn, n)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, iter_next, iter)
 	{
-		pkgconf_test_bufferset_t *set = n->data;
+		pkgconf_test_bufferset_t *set = iter->data;
 
 		pkgconf_buffer_finalize(&set->buffer);
 		pkgconf_node_delete(&set->node, list);
@@ -197,11 +191,11 @@ test_environment_push(pkgconf_test_case_t *testcase, const char *key, const char
 static void
 test_environment_free(pkgconf_list_t *env_list)
 {
-	pkgconf_node_t *n, *tn;
+	pkgconf_node_t *iter, *iter_next;
 
-	PKGCONF_FOREACH_LIST_ENTRY_SAFE(env_list->head, tn, n)
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(env_list->head, iter_next, iter)
 	{
-		pkgconf_test_environ_t *env = n->data;
+		pkgconf_test_environ_t *env = iter->data;
 
 		pkgconf_node_delete(&env->node, env_list);
 
@@ -215,11 +209,11 @@ static const char *
 environ_lookup_handler(const pkgconf_client_t *client, const char *key)
 {
 	pkgconf_test_state_t *state = client->client_data;
-	pkgconf_node_t *node;
+	pkgconf_node_t *iter;
 
-	PKGCONF_FOREACH_LIST_ENTRY(state->testcase->env_vars.head, node)
+	PKGCONF_FOREACH_LIST_ENTRY(state->testcase->env_vars.head, iter)
 	{
-		pkgconf_test_environ_t *env = node->data;
+		pkgconf_test_environ_t *env = iter->data;
 
 		if (!strcmp(key, env->key))
 		{
@@ -914,10 +908,10 @@ run_tool(const pkgconf_test_case_t *testcase, pkgconf_buffer_t *o_stdout, pkgcon
 	char tool_cwd[PATH_MAX];
 	const char *pwd = getcwd(tool_cwd, sizeof(tool_cwd));
 
-	pkgconf_node_t *n;
-	PKGCONF_FOREACH_LIST_ENTRY(testcase->env_vars.head, n)
+	pkgconf_node_t *iter;
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->env_vars.head, iter)
 	{
-		pkgconf_test_environ_t *env = n->data;
+		pkgconf_test_environ_t *env = iter->data;
 		pkgconf_buffer_t expanded = PKGCONF_BUFFER_INITIALIZER;
 		handle_substs(&expanded, PKGCONF_BUFFER_FROM_STR(env->value), pwd);
 		setenv(env->key, pkgconf_buffer_str_or_empty(&expanded), 1);
@@ -989,12 +983,12 @@ split_pair(const char *entry, char **left_out, char **right_out)
 static bool
 run_setup(const pkgconf_test_case_t *testcase, const char *pwd)
 {
-	pkgconf_node_t *n;
+	pkgconf_node_t *iter;
 
 	// mkdirs: each entry is a single path, relative to tmp_dir
-	PKGCONF_FOREACH_LIST_ENTRY(testcase->mkdirs.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->mkdirs.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = n->data;
+		pkgconf_test_bufferset_t *set = iter->data;
 
 		pkgconf_buffer_t path = PKGCONF_BUFFER_INITIALIZER;
 		handle_substs(&path, &set->buffer, pwd);
@@ -1011,9 +1005,9 @@ run_setup(const pkgconf_test_case_t *testcase, const char *pwd)
 	}
 
 	// copies: "src dst", src relative to TEST_FIXTURES_DIR, dst relative to tmp_dir
-	PKGCONF_FOREACH_LIST_ENTRY(testcase->copies.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->copies.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = n->data;
+		pkgconf_test_bufferset_t *set = iter->data;
 
 		pkgconf_buffer_t expanded = PKGCONF_BUFFER_INITIALIZER;
 		handle_substs(&expanded, &set->buffer, pwd);
@@ -1049,9 +1043,9 @@ run_setup(const pkgconf_test_case_t *testcase, const char *pwd)
 
 #ifndef _WIN32
 	// symlinks: "target linkpath" — both may be relative to tmp_dir or absolute after %PWD% expansion
-	PKGCONF_FOREACH_LIST_ENTRY(testcase->symlinks.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->symlinks.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = n->data;
+		pkgconf_test_bufferset_t *set = iter->data;
 
 		pkgconf_buffer_t expanded = PKGCONF_BUFFER_INITIALIZER;
 		handle_substs(&expanded, &set->buffer, pwd);
@@ -1089,11 +1083,11 @@ static void
 annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test_output_t *out)
 {
 	pkgconf_buffer_t search_path_buf = PKGCONF_BUFFER_INITIALIZER;
-	const pkgconf_node_t *n;
+	const pkgconf_node_t *iter;
 
-	PKGCONF_FOREACH_LIST_ENTRY(testcase->search_path.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->search_path.head, iter)
 	{
-		const pkgconf_path_t *path = n->data;
+		const pkgconf_path_t *path = iter->data;
 
 		if (pkgconf_buffer_len(&search_path_buf))
 			pkgconf_buffer_push_byte(&search_path_buf, ' ');
@@ -1118,9 +1112,9 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 
 	pkgconf_buffer_t env_buf = PKGCONF_BUFFER_INITIALIZER;
 
-	PKGCONF_FOREACH_LIST_ENTRY(testcase->env_vars.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->env_vars.head, iter)
 	{
-		const pkgconf_test_environ_t *env = n->data;
+		const pkgconf_test_environ_t *env = iter->data;
 
 		if (pkgconf_buffer_len(&env_buf))
 			pkgconf_buffer_append(&env_buf, "\n  ");
@@ -1152,9 +1146,9 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 	fprintf(stderr, "stdout: [%s]\n",
 		pkgconf_buffer_str_or_empty(&out->o_stdout));
 
-	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stdout.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stdout.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = n->data;
+		pkgconf_test_bufferset_t *set = iter->data;
 
 		fprintf(stderr,
 			"expected-stdout: [%s] (%s)\n",
@@ -1169,9 +1163,9 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 	fprintf(stderr, "stderr: [%s]\n",
 		pkgconf_buffer_str_or_empty(&out->o_stderr));
 
-	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stderr.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stderr.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = n->data;
+		pkgconf_test_bufferset_t *set = iter->data;
 
 		fprintf(stderr,
 			"expected-stderr: [%s] (%s)\n",
@@ -1179,9 +1173,9 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 			testcase->match_stderr == MATCH_PARTIAL ? "partial" : "exact");
 	}
 
-	PKGCONF_FOREACH_LIST_ENTRY(testcase->define_variables.head, n)
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->define_variables.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = n->data;
+		pkgconf_test_bufferset_t *set = iter->data;
 		fprintf(stderr, "define-variable: [%s]\n", pkgconf_buffer_str_or_empty(&set->buffer));
 	}
 
@@ -1276,10 +1270,10 @@ run_test_case(const pkgconf_test_case_t *testcase)
 		pkgconf_client_init(&state.cli_state.pkg_client, error_handler, NULL, personality, &state, environ_lookup_handler);
 		pkgconf_client_set_output(&state.cli_state.pkg_client, &out->output);
 
-		pkgconf_node_t *n;
-		PKGCONF_FOREACH_LIST_ENTRY(testcase->define_variables.head, n)
+		pkgconf_node_t *iter;
+		PKGCONF_FOREACH_LIST_ENTRY(testcase->define_variables.head, iter)
 		{
-			pkgconf_test_bufferset_t *set = n->data;
+			pkgconf_test_bufferset_t *set = iter->data;
 			pkgconf_tuple_define_global(&state.cli_state.pkg_client, pkgconf_buffer_str_or_empty(&set->buffer));
 		}
 
