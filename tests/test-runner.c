@@ -21,36 +21,36 @@
 #include <limits.h>
 
 #ifndef PKGCONF_LITE
-# if !defined(_WIN32) && !defined(__HAIKU__)
-#  define PKGCONF_TEST_PLATFORM "unix"
-# elif !defined(_WIN32)
-#  define PKGCONF_TEST_PLATFORM "haiku"
-# else
-#  define PKGCONF_TEST_PLATFORM "windows"
-# endif
-#else
-# define PKGCONF_TEST_PLATFORM "lite"
-#endif
+#	if !defined(_WIN32) && !defined(__HAIKU__)
+#		define PKGCONF_TEST_PLATFORM "unix"
+#	elif !defined(_WIN32)
+#		define PKGCONF_TEST_PLATFORM "haiku"
+#	else
+#		define PKGCONF_TEST_PLATFORM "windows"
+#	endif
+#else // PKGCONF_LITE
+#	define PKGCONF_TEST_PLATFORM "lite"
+#endif // PKGCONF_LITE
 
 #ifdef _WIN32
-#  include <direct.h>
-#  include <io.h>
+#	include <direct.h>
+#	include <io.h>
 
-#  define mkdir(p, m) _mkdir(p)
-#  define setenv(n, v, o) _putenv_s(n, v)
-#  define getcwd _getcwd
-#  define chdir _chdir
-#  define rmdir _rmdir
-#  define lstat _lstat
-#  define unlink _unlink
-#  define popen _popen
-#  define pclose _pclose
+#	define mkdir(p, m) _mkdir(p)
+#	define setenv(n, v, o) _putenv_s(n, v)
+#	define getcwd _getcwd
+#	define chdir _chdir
+#	define rmdir _rmdir
+#	define lstat _lstat
+#	define unlink _unlink
+#	define popen _popen
+#	define pclose _pclose
 
-#  ifndef PATH_MAX
-#    define PATH_MAX 32767  // Windows max path for long-path support
-#  endif
+#	ifndef PATH_MAX
+#		define PATH_MAX 32767  // Windows max path for long-path support
+#	endif
 
-#if !HAVE_DECL_MKDTEMP
+#	if !HAVE_DECL_MKDTEMP
 static char *
 mkdtemp(char *tmpl)
 {
@@ -60,7 +60,7 @@ mkdtemp(char *tmpl)
         return NULL;
     return tmpl;
 }
-#endif // !HAVE_DECL_MKDTEMP
+#	endif // !HAVE_DECL_MKDTEMP
 #endif // _WIN32
 
 static void test_parser_warn(void *p, const char *fmt, ...) PRINTFLIKE(2, 3);
@@ -70,18 +70,21 @@ static pkgconf_buffer_t test_fixtures_dir = PKGCONF_BUFFER_INITIALIZER;
 static pkgconf_buffer_t test_tool_dir = PKGCONF_BUFFER_INITIALIZER;
 static bool debug = false;
 
-typedef enum test_match_strategy_ {
+typedef enum test_match_strategy_
+{
 	MATCH_EXACT = 0,
 	MATCH_PARTIAL,
 	MATCH_EMPTY,
 } pkgconf_test_match_strategy_t;
 
-typedef struct test_bufferset_ {
+typedef struct test_bufferset_
+{
 	pkgconf_node_t node;
 	pkgconf_buffer_t buffer;
 } pkgconf_test_bufferset_t;
 
-typedef struct test_case_ {
+typedef struct test_case_
+{
 	char *name;
 	char *testfile_dir;
 
@@ -129,23 +132,41 @@ typedef struct test_case_ {
 #endif
 } pkgconf_test_case_t;
 
-typedef struct test_state_ {
+typedef struct test_state_
+{
 	pkgconf_cli_state_t cli_state;
 	const pkgconf_test_case_t *testcase;
 } pkgconf_test_state_t;
 
-typedef struct test_environ_ {
+typedef struct test_environ_
+{
 	pkgconf_node_t node;
 	char *key;
 	char *value;
 } pkgconf_test_environ_t;
 
-typedef struct test_output_ {
+typedef struct test_output_
+{
 	pkgconf_output_t output;
 
 	pkgconf_buffer_t o_stdout;
 	pkgconf_buffer_t o_stderr;
 } pkgconf_test_output_t;
+
+typedef struct test_flag_pair_
+{
+	const char *name;
+	uint64_t flag;
+} pkgconf_test_flag_pair_t;
+
+typedef void (*test_keyword_func_t)(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value);
+
+typedef struct test_keyword_pair_
+{
+	const char *keyword;
+	const test_keyword_func_t func;
+	const ptrdiff_t offset;
+} pkgconf_test_keyword_pair_t;
 
 static pkgconf_test_bufferset_t *
 test_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer)
@@ -217,7 +238,7 @@ environ_lookup_handler(const pkgconf_client_t *client, const char *key)
 
 		if (!strcmp(key, env->key))
 		{
-			char cwd[PATH_MAX];
+			char cwd[PATH_MAX] = {0};
 			const char *pwd = getcwd(cwd, sizeof(cwd));
 
 			pkgconf_buffer_t expanded = PKGCONF_BUFFER_INITIALIZER;
@@ -243,7 +264,7 @@ debug_handler(const char *msg, const pkgconf_client_t *client, void *data)
 	fprintf(stderr, "%s", msg);
 	return true;
 }
-#endif
+#endif // PKGCONF_LITE
 
 static bool
 error_handler(const char *msg, const pkgconf_client_t *client, void *data)
@@ -267,7 +288,8 @@ write_handler(pkgconf_output_t *output, pkgconf_output_stream_t stream, const pk
 static pkgconf_output_t *
 test_output(void)
 {
-	static pkgconf_test_output_t output = {
+	static pkgconf_test_output_t output =
+	{
 		.output.write = write_handler,
 	};
 
@@ -323,14 +345,6 @@ handle_substs(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *p
 	pkgconf_buffer_finalize(&workbuf_dest);
 }
 
-typedef void (*test_keyword_func_t)(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value);
-
-typedef struct test_keyword_pair_ {
-	const char *keyword;
-	const test_keyword_func_t func;
-	const ptrdiff_t offset;
-} pkgconf_test_keyword_pair_t;
-
 static int
 test_keyword_pair_cmp(const void *key, const void *ptr)
 {
@@ -372,11 +386,6 @@ test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword
 	pkgconf_buffer_finalize(&buf);
 }
 
-typedef struct test_flag_pair_ {
-	const char *name;
-	uint64_t flag;
-} pkgconf_test_flag_pair_t;
-
 static int
 test_flag_pair_cmp(const void *key, const void *ptr)
 {
@@ -384,7 +393,8 @@ test_flag_pair_cmp(const void *key, const void *ptr)
 	return strcasecmp(key, pair->name);
 }
 
-static const pkgconf_test_flag_pair_t test_flag_pairs[] = {
+static const pkgconf_test_flag_pair_t test_flag_pairs[] =
+{
 	{"cflags",			PKG_CFLAGS},
 	{"cflags-only-i",		PKG_CFLAGS_ONLY_I},
 	{"cflags-only-other",		PKG_CFLAGS_ONLY_OTHER},
@@ -480,7 +490,7 @@ prefixed_path_split(const char *text, pkgconf_list_t *dirlist, const char *prefi
 		pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 
 		pkgconf_buffer_append(&pathbuf, prefix);
-		pkgconf_buffer_append(&pathbuf, "/");
+		pkgconf_buffer_push_byte(&pathbuf, '/');
 		pkgconf_buffer_append(&pathbuf, p);
 		pkgconf_path_add(pkgconf_buffer_str(&pathbuf), dirlist, false);
 		pkgconf_buffer_finalize(&pathbuf);
@@ -547,7 +557,8 @@ test_keyword_disabled(pkgconf_test_case_t *testcase, const char *keyword, const 
 }
 #endif
 
-static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
+static const pkgconf_test_keyword_pair_t test_keyword_pairs[] =
+{
 	{"AtLeastVersion",	test_keyword_set_buffer,		offsetof(pkgconf_test_case_t, atleast_version)},
 	{"DefineVariable",	test_keyword_extend_bufferset,		offsetof(pkgconf_test_case_t, define_variables)},
 	{"Environment",		test_keyword_set_environment,		offsetof(pkgconf_test_case_t, env_vars)},
@@ -565,7 +576,7 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] = {
 	{"SetupCopy",		test_keyword_extend_bufferset,		offsetof(pkgconf_test_case_t, copies)},
 	{"SetupMkdir",		test_keyword_extend_bufferset,		offsetof(pkgconf_test_case_t, mkdirs)},
 #ifdef _WIN32
-	{"SetupSymlink",	test_keyword_disabled,		0},
+	{"SetupSymlink",	test_keyword_disabled,			0},
 #else
 	{"SetupSymlink",	test_keyword_extend_bufferset,		offsetof(pkgconf_test_case_t, symlinks)},
 #endif
@@ -586,8 +597,8 @@ test_keyword_set(void *data, const char *warnprefix, const char *keyword, const 
 {
 	pkgconf_test_case_t *testcase = data;
 	const pkgconf_test_keyword_pair_t *pair = bsearch(keyword,
-		test_keyword_pairs, PKGCONF_ARRAY_SIZE(test_keyword_pairs),
-		sizeof(*pair), test_keyword_pair_cmp);
+	    test_keyword_pairs, PKGCONF_ARRAY_SIZE(test_keyword_pairs),
+	    sizeof(*pair), test_keyword_pair_cmp);
 
 	if (pair == NULL || pair->func == NULL)
 		return;
@@ -595,7 +606,8 @@ test_keyword_set(void *data, const char *warnprefix, const char *keyword, const 
 	pair->func(testcase, warnprefix, keyword, pair->offset, value);
 }
 
-static const pkgconf_parser_operand_func_t test_parser_ops[256] = {
+static const pkgconf_parser_operand_func_t test_parser_ops[256] =
+{
 	[':'] = (pkgconf_parser_operand_func_t) test_keyword_set,
 };
 
@@ -651,7 +663,7 @@ cleanup:
 	return out;
 }
 
-/* we use a custom personality to ensure the tests are fully hermetic */
+// we use a custom personality to ensure the tests are fully hermetic
 static pkgconf_cross_personality_t *
 personality_for_test(const pkgconf_test_case_t *testcase)
 {
@@ -791,7 +803,7 @@ rmdir_recursive(const char *path)
 
 		pkgconf_buffer_t child = PKGCONF_BUFFER_INITIALIZER;
 		pkgconf_buffer_append(&child, path);
-		pkgconf_buffer_append(&child, "/");
+		pkgconf_buffer_push_byte(&child, '/');
 		pkgconf_buffer_append(&child, ent->d_name);
 
 #ifdef _WIN32
@@ -850,8 +862,7 @@ mkdir_recursive(const char *path)
 			tmpstr = pkgconf_buffer_str(&buf);
 			if (tmpstr && mkdir(tmpstr, 0755) != 0 && errno != EEXIST)
 			{
-				// Flush buffer
-				pkgconf_buffer_reset(&buf);
+				pkgconf_buffer_finalize(&buf);
 				return false;
 			}
 			i++; // skip the separator
@@ -877,9 +888,9 @@ needs_tmp_dir(const pkgconf_test_case_t *testcase)
 {
 #ifdef _WIN32
 	return testcase->mkdirs.head != NULL || testcase->copies.head != NULL;
-#else
+#else // _WIN32
 	return testcase->mkdirs.head != NULL || testcase->copies.head != NULL || testcase->symlinks.head != NULL;
-#endif
+#endif // _WIN32
 }
 
 static int
@@ -893,7 +904,7 @@ run_tool(const pkgconf_test_case_t *testcase, pkgconf_buffer_t *o_stdout, pkgcon
 	if (pkgconf_buffer_len(&test_tool_dir))
 	{
 		pkgconf_buffer_append(&cmdbuf, pkgconf_buffer_str(&test_tool_dir));
-		pkgconf_buffer_append(&cmdbuf, "/");
+		pkgconf_buffer_push_byte(&cmdbuf, '/');
 	}
 
 	pkgconf_buffer_append(&cmdbuf, pkgconf_buffer_str(&testcase->tool));
@@ -905,7 +916,7 @@ run_tool(const pkgconf_test_case_t *testcase, pkgconf_buffer_t *o_stdout, pkgcon
 	}
 
 	// Inject Environment vars for the child process
-	char tool_cwd[PATH_MAX];
+	char tool_cwd[PATH_MAX] = {0};
 	const char *pwd = getcwd(tool_cwd, sizeof(tool_cwd));
 
 	pkgconf_node_t *iter;
@@ -1024,7 +1035,7 @@ run_setup(const pkgconf_test_case_t *testcase, const char *pwd)
 
 		pkgconf_buffer_t srcpath = PKGCONF_BUFFER_INITIALIZER;
 		pkgconf_buffer_append(&srcpath, pkgconf_buffer_str(&test_fixtures_dir));
-		pkgconf_buffer_append(&srcpath, "/");
+		pkgconf_buffer_push_byte(&srcpath, '/');
 		pkgconf_buffer_append(&srcpath, left);
 
 		bool ok = copy_file(right, pkgconf_buffer_str(&srcpath));
@@ -1074,7 +1085,7 @@ run_setup(const pkgconf_test_case_t *testcase, const char *pwd)
 		free(target);
 		free(linkpath);
 	}
-#endif
+#endif // _WIN32
 
 	return true;
 }
@@ -1255,7 +1266,8 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	else
 	{
 		pkgconf_cross_personality_t *personality = personality_for_test(testcase);
-		pkgconf_test_state_t state = {
+		pkgconf_test_state_t state =
+		{
 			.cli_state.want_flags = testcase->wanted_flags,
 			.cli_state.want_env_prefix = pkgconf_buffer_str(&testcase->want_env_prefix),
 			.cli_state.want_variable = pkgconf_buffer_str(&testcase->want_variable),
@@ -1281,7 +1293,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 		 * Re-expand Query now that %PWD% is known (if we have a tmp_dir).
 		 * For tests without a tmp_dir this is a no-op since %PWD% won't appear.
 		 */
-		char query_cwd[PATH_MAX];
+		char query_cwd[PATH_MAX] = {0};
 		const char *query_pwd = getcwd(query_cwd, sizeof(query_cwd));
 
 		pkgconf_buffer_t query_expanded = PKGCONF_BUFFER_INITIALIZER;
@@ -1305,7 +1317,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 #ifndef PKGCONF_LITE
 		if (debug)
 			pkgconf_client_set_trace_handler(&state.cli_state.pkg_client, debug_handler, NULL);
-#endif
+#endif // PKGCONF_LITE
 
 		ret = pkgconf_cli_run(&state.cli_state, test_argc, test_argv, 1);
 		pkgconf_argv_free(test_argv);
@@ -1323,7 +1335,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	{
 		pkgconf_test_bufferset_t *set = iter->data;
 
-		char expected_cwd[PATH_MAX];
+		char expected_cwd[PATH_MAX] = {0};
 		const char *expected_pwd = getcwd(expected_cwd, sizeof(expected_cwd));
 
 		pkgconf_buffer_t expected_expanded = PKGCONF_BUFFER_INITIALIZER;
@@ -1340,7 +1352,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	{
 		pkgconf_buffer_t filepath = PKGCONF_BUFFER_INITIALIZER;
 		pkgconf_buffer_append(&filepath, testcase->testfile_dir);
-		pkgconf_buffer_append(&filepath, "/");
+		pkgconf_buffer_push_byte(&filepath, '/');
 		pkgconf_buffer_append(&filepath, pkgconf_buffer_str(&testcase->expected_stdout_file));
 
 		pkgconf_buffer_t file_contents = PKGCONF_BUFFER_INITIALIZER;
@@ -1403,7 +1415,7 @@ free_test_case(pkgconf_test_case_t *testcase)
 	test_bufferset_free(&testcase->mkdirs);
 #ifndef _WIN32
 	test_bufferset_free(&testcase->symlinks);
-#endif
+#endif // _WIN32
 	test_bufferset_free(&testcase->copies);
 
 	test_environment_free(&testcase->env_vars);
@@ -1485,7 +1497,7 @@ process_test_directory(char *dirpath)
 		pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 
 		pkgconf_buffer_append(&pathbuf, dirpath);
-		pkgconf_buffer_append(&pathbuf, "/");
+		pkgconf_buffer_push_byte(&pathbuf, '/');
 		pkgconf_buffer_append(&pathbuf, dirent->d_name);
 
 		char *pathstr = pkgconf_buffer_freeze(&pathbuf);
@@ -1535,12 +1547,13 @@ main(int argc, char *argv[])
 	char *test_fixtures_dir_arg = NULL;
 	char *test_tool_dir_arg = NULL;
 
-	struct pkg_option options[] = {
+	struct pkg_option options[] =
+	{
 		{"test-fixtures",	required_argument,	NULL,	1},
-		{"debug",			no_argument,		NULL,	2},
+		{"debug",		no_argument,		NULL,	2},
 		{"test-case",		required_argument,	NULL,	3},
 		{"tool-dir",		required_argument,	NULL,	4},
-		{NULL, 0, NULL, 0},
+		{NULL,			0,			NULL,	0},
 	};
 	char *testcase = NULL;
 
@@ -1567,8 +1580,9 @@ main(int argc, char *argv[])
 		usage();
 
 	{
-		char test_fixtures_dir_abs[PATH_MAX];
-		if (!realpath(test_fixtures_dir_arg, test_fixtures_dir_abs)) {
+		char test_fixtures_dir_abs[PATH_MAX] = {0};
+		if (!realpath(test_fixtures_dir_arg, test_fixtures_dir_abs))
+		{
 			fprintf(stderr, "realpath failed: %s\n", strerror(errno));
 			return EXIT_FAILURE;
 		}
