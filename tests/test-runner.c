@@ -13,10 +13,12 @@
  * from the use of this software.
  */
 
+#include <libpkgconf/config.h>
 #include <libpkgconf/libpkgconf.h>
 #include <libpkgconf/stdinc.h>
 #include <cli/core.h>
 #include <cli/getopt_long.h>
+#include <limits.h>
 
 #ifndef PKGCONF_LITE
 # if !defined(_WIN32) && !defined(__HAIKU__)
@@ -32,14 +34,40 @@
 
 #ifdef _WIN32
 #  include <direct.h>
-#  include <stdlib.h>
+#  include <io.h>
 
-#  define mkdir(x, m) _mkdir(x)
+#  define mkdir(path, mode) _mkdir(path)
 #  define getcwd _getcwd
 #  define chdir _chdir
 #  define rmdir _rmdir
-#  define PATH_MAX 32767  // Windows max path for long-path support
-#endif
+#  define lstat _lstat
+#  define unlink _unlink
+#  define popen _popen
+#  define pclose _pclose
+
+#  ifndef PATH_MAX
+#    define PATH_MAX 32767  // Windows max path for long-path support
+#  endif
+
+static int
+setenv(const char *name, const char *value, int overwrite)
+{
+    (void) overwrite;
+    return _putenv_s(name, value);
+}
+
+#if !HAVE_DECL_MKDTEMP
+static char *
+mkdtemp(char *tmpl)
+{
+    if (_mktemp_s(tmpl, strlen(tmpl) + 1) != 0)
+        return NULL;
+    if (_mkdir(tmpl) != 0)
+        return NULL;
+    return tmpl;
+}
+#endif // !HAVE_DECL_MKDTEMP
+#endif // _WIN32
 
 static void test_parser_warn(void *p, const char *fmt, ...) PRINTFLIKE(2, 3);
 static void handle_substs(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pwd);
@@ -772,6 +800,16 @@ rmdir_recursive(const char *path)
 		pkgconf_buffer_append(&child, "/");
 		pkgconf_buffer_append(&child, ent->d_name);
 
+#ifdef _WIN32
+		if (_access(pkgconf_buffer_str(&child), 0) == 0)
+		{
+			DWORD attrs = GetFileAttributesA(pkgconf_buffer_str(&child));
+			if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY))
+				rmdir_recursive(pkgconf_buffer_str(&child));
+			else
+				unlink(pkgconf_buffer_str(&child));
+		}
+#else
 		struct stat st;
 		if (lstat(pkgconf_buffer_str(&child), &st) == 0)
 		{
@@ -780,6 +818,7 @@ rmdir_recursive(const char *path)
 			else
 				unlink(pkgconf_buffer_str(&child));
 		}
+#endif
 
 		pkgconf_buffer_finalize(&child);
 	}
@@ -792,7 +831,7 @@ rmdir_recursive(const char *path)
  * Recursively make a directory tree.
  */
 static bool
-mkdir_recursive(const char *path, mode_t mode)
+mkdir_recursive(const char *path)
 {
 	if (!path)
 		return false;
@@ -815,7 +854,7 @@ mkdir_recursive(const char *path, mode_t mode)
 		{
 			pkgconf_buffer_push_byte(&buf, '/');
 			tmpstr = pkgconf_buffer_str(&buf);
-			if (tmpstr && mkdir(tmpstr, mode) != 0 && errno != EEXIST)
+			if (tmpstr && mkdir(tmpstr, 0755) != 0 && errno != EEXIST)
 			{
 				// Flush buffer
 				pkgconf_buffer_reset(&buf);
@@ -830,7 +869,7 @@ mkdir_recursive(const char *path, mode_t mode)
 	bool ok = true;
 	if (tmpstr && strlen(tmpstr) > 0)
 	{
-		if (mkdir(tmpstr, mode) != 0 && errno != EEXIST)
+		if (mkdir(tmpstr, 0755) != 0 && errno != EEXIST)
 			ok = false;
 	}
 
@@ -938,7 +977,7 @@ split_pair(const char *entry, char **left_out, char **right_out)
 	if (sp == NULL)
 		return false;
 
-	*left_out = strndup(entry, (size_t)(sp - entry));
+	*left_out = pkgconf_strndup(entry, (size_t)(sp - entry));
 	*right_out = strdup(sp + 1);
 	return true;
 }
@@ -960,7 +999,7 @@ run_setup(const pkgconf_test_case_t *testcase, const char *pwd)
 		pkgconf_buffer_t path = PKGCONF_BUFFER_INITIALIZER;
 		handle_substs(&path, &set->buffer, pwd);
 
-		bool ok = mkdir_recursive(pkgconf_buffer_str(&path), 0755);
+		bool ok = mkdir_recursive(pkgconf_buffer_str(&path));
 		pkgconf_buffer_finalize(&path);
 
 		if (!ok && errno != EEXIST)
