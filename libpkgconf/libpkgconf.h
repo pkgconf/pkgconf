@@ -220,6 +220,7 @@ struct pkgconf_pkg_ {
 	pkgconf_list_t libs_private;
 	pkgconf_list_t cflags;
 	pkgconf_list_t cflags_private;
+	pkgconf_list_t cflags_shared;
 
 	pkgconf_list_t required;		/* this used to be requires but that is now a reserved keyword */
 	pkgconf_list_t requires_private;
