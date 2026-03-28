@@ -215,6 +215,15 @@ pkgconf_queue_collect_dependencies_main(pkgconf_client_t *client,
 
 	root->serial = client->serial;
 
+	if (!(client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS))
+	{
+		PKGCONF_TRACE(client, "%s: collecting shared dependencies, level %d", root->id, maxdepth);
+
+		eflags = pkgconf_queue_collect_dependencies_walk(client, &root->requires_shared, data, maxdepth);
+		if (eflags != PKGCONF_PKG_ERRF_OK)
+			return eflags;
+	}
+
 	PKGCONF_TRACE(client, "%s: collecting private dependencies, level %d", root->id, maxdepth);
 
 	/* XXX: ugly */
