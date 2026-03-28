@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-2025-vs2026
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Install Meson
         run: pip install meson
@@ -33,7 +33,7 @@ jobs:
         ]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: setup-msys2
         uses: msys2/setup-msys2@v2
@@ -75,7 +75,7 @@ jobs:
       image: debian:testing
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
@@ -97,7 +97,7 @@ jobs:
       image: debian:testing
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
@@ -121,7 +121,7 @@ jobs:
       image: debian:testing
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
@@ -144,7 +144,7 @@ jobs:
       image: alpine
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
@@ -166,7 +166,7 @@ jobs:
       image: alpine
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
@@ -189,7 +189,7 @@ jobs:
       image: alpine
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
@@ -212,7 +212,7 @@ jobs:
       image: alpine
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
@@ -232,7 +232,7 @@ jobs:
       image: alpine
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
@@ -254,7 +254,7 @@ jobs:
       image: alpine
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
