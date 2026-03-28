@@ -67,6 +67,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/nolibs.test \
 		t/basic/pkg-config-path.test \
 		t/basic/print-variables-env.test \
+		t/basic/requires-shared.test \
+		t/basic/requires-shared-static.test \
 		t/basic/single-depth-selectors.test \
 		t/basic/static-archive-libs.test \
 		t/basic/uninstalled-not.test \
@@ -351,6 +353,8 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/requires-internal-2.pc \
 		tests/lib1/requires-internal-missing.pc \
 		tests/lib1/requires-internal-collision.pc \
+		tests/lib1/requires-shared.pc \
+		tests/lib1/requires-shared-dep.pc \
 		tests/lib1/tuple-quoting.pc \
 		tests/lib1/empty-tuple.pc \
 		tests/lib1/orphaned-requires-private.pc \
