@@ -214,6 +214,17 @@ print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 		pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT,
 			"\"%s\" -> \"%s\" [fontname=Sans fontsize=8 color=gray]\n", pkg->id, dep_id);
 	}
+
+	if (!(client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS))
+	{
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_shared.head, node)
+		{
+			pkgconf_dependency_t *dep = node->data;
+			const char *dep_id = (dep->match != NULL) ? dep->match->id : dep->package;
+			pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT,
+				"\"%s\" -> \"%s\" [fontname=Sans fontsize=8 color=orange]\n", pkg->id, dep_id);
+		}
+	}
 }
 
 static bool
@@ -264,7 +275,8 @@ print_solution_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	(void) unused;
 
 	pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s (%"PRIu64")%s\n",
-		pkg->id, pkg->identifier, (pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE) == PKGCONF_PKG_PROPF_VISITED_PRIVATE ? " [private]" : "");
+		pkg->id, pkg->identifier,
+		(pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE) == PKGCONF_PKG_PROPF_VISITED_PRIVATE ? " [private]" : "");
 }
 
 static bool
@@ -298,11 +310,13 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int
 
 			const size_t name_len = strlen(pkg->why);
 			if (name_len > strlen(queue_node->package) ||
-			    strncmp(pkg->why, queue_node->package, name_len) ||
-			    (queue_node->package[name_len] != 0 &&
-			     !isspace((unsigned char)queue_node->package[name_len]) &&
-			     !PKGCONF_IS_OPERATOR_CHAR(queue_node->package[name_len])))
+				strncmp(pkg->why, queue_node->package, name_len) ||
+				(queue_node->package[name_len] != 0 &&
+					!isspace((unsigned char)queue_node->package[name_len]) &&
+					!PKGCONF_IS_OPERATOR_CHAR(queue_node->package[name_len])))
+			{
 				continue;
+			}
 
 			if (pkg->version != NULL) {
 				if (state->verbosity)
@@ -377,9 +391,9 @@ variable_eval(pkgconf_client_t *client, const pkgconf_list_t *vars, const char *
 		/* if sysroot is set, and value does not already begin with sysroot */
 		if (!pkgconf_buffer_has_prefix(&varbuf, sysroot_dir))
 			pkgconf_buffer_prepend(&varbuf, pkgconf_buffer_str_or_empty(sysroot_dir));
-        }
+	}
 
-        return pkgconf_buffer_freeze(&varbuf);
+	return pkgconf_buffer_freeze(&varbuf);
 }
 
 static bool
@@ -549,8 +563,10 @@ apply_env(pkgconf_client_t *client, pkgconf_pkg_t *world, const void *env_prefix
 
 	for (it = want_env_prefix; *it != '\0'; it++)
 		if (!isalpha((unsigned char)*it) &&
-		    !isdigit((unsigned char)*it))
+			!isdigit((unsigned char)*it))
+		{
 			return false;
+		}
 
 	snprintf(workbuf, sizeof workbuf, "%s_CFLAGS", want_env_prefix);
 	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_cflags, filter_cflags, maybe_add_module_definitions))
@@ -1109,21 +1125,23 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	 * so signal to libpkgconf that we only want to walk the flattened dependency set.
 	 */
 	if ((state->want_flags & PKG_MODVERSION) == PKG_MODVERSION ||
-	    (state->want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
-	    (state->want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
-	    (state->want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
-	    (state->want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
-	    (state->want_flags & PKG_PATH) == PKG_PATH ||
-	    state->want_variable != NULL)
+		(state->want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
+		(state->want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
+		(state->want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
+		(state->want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
+		(state->want_flags & PKG_PATH) == PKG_PATH ||
+		state->want_variable != NULL)
 		state->maximum_traverse_depth = 1;
 
 	/* if we are asking for a variable, path or list of variables, this only makes sense
 	 * for a single package.
 	 */
 	if ((state->want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
-	    (state->want_flags & PKG_PATH) == PKG_PATH ||
-	    state->want_variable != NULL)
+		(state->want_flags & PKG_PATH) == PKG_PATH ||
+		state->want_variable != NULL)
+	{
 		state->maximum_package_count = 1;
+	}
 
 	if ((state->want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
 		(state->want_flags & PKG_CFLAGS))

@@ -246,6 +246,21 @@ pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_PRIVATE);
 }
 
+/* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as a "shared" dependency. */
+static void
+pkgconf_pkg_parser_shared_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+{
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+
+	if (dest->tail != NULL)
+	{
+		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
+			warnprefix, keyword);
+	}
+
+	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_SHARED);
+}
+
 /* Evaluates SPDX expression or parses comma separated list of licenses */
 static void
 pkgconf_pkg_evaluate_license_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
@@ -274,6 +289,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"Requires", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, required)},
 	{"Requires.internal", pkgconf_pkg_parser_internal_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
 	{"Requires.private", pkgconf_pkg_parser_private_dependency_func, offsetof(pkgconf_pkg_t, requires_private)},
+	{"Requires.shared", pkgconf_pkg_parser_shared_dependency_func, offsetof(pkgconf_pkg_t, requires_shared)},
 	{"Source", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, source)},
 	{"URL", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, url)},
 	{"Version", pkgconf_pkg_parser_version_func, offsetof(pkgconf_pkg_t, version)},
@@ -1510,6 +1526,7 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 			 * lists causes problems.  Find a way to refactor the Requires.private list out.
 			 */
 			if (!(depnode->flags & PKGCONF_PKG_DEPF_PRIVATE) &&
+				!(depnode->flags & PKGCONF_PKG_DEPF_SHARED) &&
 				!(parent->flags & PKGCONF_PKG_PROPF_VIRTUAL))
 			{
 				pkgconf_warn(client, "%s: breaking circular reference (%s -> %s -> %s)\n",
@@ -1587,7 +1604,7 @@ pkgconf_pkg_walk_conflicts_list(pkgconf_client_t *client,
 /*
  * !doc
  *
- * .. c:function:: unsigned int pkgconf_pkg_traverse(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int skip_flags)
+ * .. c:function:: unsigned int pkgconf_pkg_traverse_main(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_pkg_traverse_func_t func, void *data, int maxdepth, unsigned int skip_flags)
  *
  *    Walk and resolve the dependency graph up to `maxdepth` levels.
  *
@@ -1645,6 +1662,15 @@ pkgconf_pkg_traverse_main(pkgconf_client_t *client,
 	if (eflags != PKGCONF_PKG_ERRF_OK)
 		return eflags;
 
+	if (!(client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS))
+	{
+		PKGCONF_TRACE(client, "%s: walking 'Requires.shared' list", root->id);
+
+		eflags = pkgconf_pkg_walk_list(client, root, &root->requires_shared, func, data, maxdepth, skip_flags);
+		if (eflags != PKGCONF_PKG_ERRF_OK)
+			return eflags;
+	}
+
 	PKGCONF_TRACE(client, "%s: walking 'Requires.private' list", root->id);
 
 	/* XXX: ugly */
@@ -1670,7 +1696,13 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 		client->serial++;
 
 	if ((client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE) == 0)
+	{
 		skip_flags |= PKGCONF_PKG_DEPF_PRIVATE;
+	}
+
+	if (client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
+		// Skip shared deps in static mode
+		skip_flags |= PKGCONF_PKG_DEPF_SHARED;
 
 	return pkgconf_pkg_traverse_main(client, root, func, data, maxdepth, skip_flags);
 }
