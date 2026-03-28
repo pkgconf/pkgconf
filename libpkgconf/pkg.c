@@ -620,6 +620,7 @@ pkg_free_lists(pkgconf_pkg_t *pkg)
 {
 	pkgconf_dependency_free(&pkg->required);
 	pkgconf_dependency_free(&pkg->requires_private);
+	pkgconf_dependency_free(&pkg->requires_shared);
 	pkgconf_dependency_free(&pkg->conflicts);
 	pkgconf_dependency_free(&pkg->provides);
 
