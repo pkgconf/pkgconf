@@ -61,8 +61,8 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	struct stat path_stat;
 
 	while (buf.base != NULL &&
-	       !lstat(buf.base, &path_stat) &&
-	       S_ISLNK(path_stat.st_mode))
+		!lstat(buf.base, &path_stat) &&
+		S_ISLNK(path_stat.st_mode))
 	{
 		char sourcebuf[PKGCONF_ITEM_SIZE];
 		char *targetfilename, *targetdir;
@@ -180,7 +180,7 @@ pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, co
 		*i = '\0';
 
 		pkgconf_warn(client, "%s: warning: malformed version field with whitespace, trimming to [%s]\n",
-			     warnprefix, p);
+			warnprefix, p);
 	}
 
 	if (*dest != NULL)
@@ -198,7 +198,7 @@ pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, c
 	if (!ret)
 	{
 		pkgconf_warn(client, "%s: warning: unable to parse field '%s' into an argument vector, value [%s]\n",
-			     warnprefix, keyword, value);
+			warnprefix, keyword, value);
 	}
 }
 
@@ -210,7 +210,7 @@ pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg,
 	if (dest->tail != NULL)
 	{
 		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
-			     warnprefix, keyword);
+			warnprefix, keyword);
 	}
 
 	pkgconf_dependency_parse(client, pkg, dest, value, 0);
@@ -225,7 +225,7 @@ pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pk
 	if (dest->tail != NULL)
 	{
 		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
-			     warnprefix, keyword);
+			warnprefix, keyword);
 	}
 
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_INTERNAL);
@@ -240,7 +240,7 @@ pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg
 	if (dest->tail != NULL)
 	{
 		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
-			     warnprefix, keyword);
+			warnprefix, keyword);
 	}
 
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_PRIVATE);
@@ -250,7 +250,7 @@ pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg
 static void
 pkgconf_pkg_evaluate_license_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
-    pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	(void)keyword;
 	(void)warnprefix;
 	pkgconf_license_evaluate(client, pkg, dest, value, 0);
@@ -260,6 +260,7 @@ pkgconf_pkg_evaluate_license_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, 
 static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[] = {
 	{"CFLAGS", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, cflags)},
 	{"CFLAGS.private", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, cflags_private)},
+	{"CFLAGS.shared", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, cflags_shared)},
 	{"Conflicts", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, conflicts)},
 	{"Copyright", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, copyright)},
 	{"Description", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, description)},
@@ -608,6 +609,7 @@ pkg_free_lists(pkgconf_pkg_t *pkg)
 
 	pkgconf_fragment_free(&pkg->cflags);
 	pkgconf_fragment_free(&pkg->cflags_private);
+	pkgconf_fragment_free(&pkg->cflags_shared);
 	pkgconf_license_free(&pkg->license);
 	pkgconf_fragment_free(&pkg->libs);
 	pkgconf_fragment_free(&pkg->libs_private);
@@ -679,7 +681,7 @@ pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsign
 	 * See https://github.com/pkgconf/pkgconf/issues/213
 	 */
 	if (client->sysroot_dir != NULL && strncmp(pkg->pc_filedir, client->sysroot_dir, strlen(client->sysroot_dir)) &&
-	    !(client->flags & PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES))
+		!(client->flags & PKGCONF_PKG_PKGF_PKGCONF1_SYSROOT_RULES))
 		pkgconf_tuple_add(client, &pkg->vars, "pc_sysrootdir", "", false, pkg->flags);
 
 	/* make module id */
@@ -1163,7 +1165,7 @@ static const pkgconf_pkg_provides_vermatch_rule_t pkgconf_pkg_provides_vermatch_
 	[PKGCONF_CMP_ANY] = {
 		.rulecmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
-                },
+		},
 		.depcmp = {
 			[PKGCONF_CMP_ANY]			= pkgconf_pkg_comparator_none,
 		},
@@ -1271,11 +1273,11 @@ pkgconf_pkg_scan_provides_vercmp(const pkgconf_dependency_t *pkgdep, const pkgco
 	const pkgconf_pkg_provides_vermatch_rule_t *rule = &pkgconf_pkg_provides_vermatch_rules[pkgdep->compare];
 
 	if (rule->depcmp[provider->compare] != NULL &&
-	    !rule->depcmp[provider->compare](provider->version, pkgdep->version))
+		!rule->depcmp[provider->compare](provider->version, pkgdep->version))
 		return false;
 
 	if (rule->rulecmp[provider->compare] != NULL &&
-	    !rule->rulecmp[provider->compare](pkgdep->version, provider->version))
+		!rule->rulecmp[provider->compare](pkgdep->version, provider->version))
 		return false;
 
 	return true;
@@ -1508,10 +1510,10 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 			 * lists causes problems.  Find a way to refactor the Requires.private list out.
 			 */
 			if (!(depnode->flags & PKGCONF_PKG_DEPF_PRIVATE) &&
-			    !(parent->flags & PKGCONF_PKG_PROPF_VIRTUAL))
+				!(parent->flags & PKGCONF_PKG_PROPF_VIRTUAL))
 			{
 				pkgconf_warn(client, "%s: breaking circular reference (%s -> %s -> %s)\n",
-					     parent->id, parent->id, pkgdep->id, parent->id);
+					parent->id, parent->id, pkgdep->id, parent->id);
 
 				pkgconf_node_delete(node, deplist);
 				pkgconf_dependency_unref(client, depnode);
@@ -1699,6 +1701,19 @@ pkgconf_pkg_cflags_private_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg,
 	}
 }
 
+static void
+pkgconf_pkg_cflags_shared_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+{
+	pkgconf_list_t *list = data;
+	pkgconf_node_t *node;
+
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags_shared.head, node)
+	{
+		pkgconf_fragment_t *frag = node->data;
+		pkgconf_fragment_copy(client, list, frag, true);
+	}
+}
+
 /*
  * !doc
  *
@@ -1722,8 +1737,17 @@ pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t
 
 	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_collect, &frags, maxdepth, skip_flags);
 
-	if (eflag == PKGCONF_PKG_ERRF_OK && client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
-		eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_private_collect, &frags, maxdepth, skip_flags);
+	if (eflag == PKGCONF_PKG_ERRF_OK)
+	{
+		if (client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
+		{
+			eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_private_collect, &frags, maxdepth, skip_flags);
+		}
+		else
+		{
+			eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_shared_collect, &frags, maxdepth, skip_flags);
+		}
+	}
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 	{

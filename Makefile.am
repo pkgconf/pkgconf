@@ -28,6 +28,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/builtin-pkg-config-pc_path-variable.test \
 		t/basic/builtin-pkgconf-exists.test \
 		t/basic/builtin-pkgconf-pc_path-variable.test \
+		t/basic/cflags-shared.test \
+		t/basic/cflags-shared-static.test \
 		t/basic/define-prefix.test \
 		t/basic/define-prefix-child-prefix-env.test \
 		t/basic/define-prefix-child-prefix.test \
@@ -281,6 +283,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/intermediary-1.pc \
 		tests/lib1/static-archive-libs.pc \
 		tests/lib1/cflags-libs-only.pc \
+		tests/lib1/cflags-shared-test.pc \
 		tests/lib1/intermediary-2.pc \
 		tests/lib1/static-libs.pc \
 		tests/lib1/circular-1.pc \
