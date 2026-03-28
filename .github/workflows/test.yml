@@ -175,7 +175,7 @@ jobs:
 
       - name: Build
         run: |
-          muon setup -Dwerror=true _build
+          muon setup -Ddefault_library=both -Dwerror=true _build
           samu -C _build
 
       - name: Run tests
