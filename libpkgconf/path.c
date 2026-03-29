@@ -16,6 +16,7 @@
 #include <libpkgconf/config.h>
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
+#include <libpkgconf/path.h>
 
 #if defined(HAVE_SYS_STAT_H) && ! defined(_WIN32)
 # include <sys/stat.h>
@@ -422,6 +423,71 @@ pkgconf_path_relocate(pkgconf_buffer_t *buf)
 	}
 
 	return true;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_path_trim_basename(pkgconf_buffer_t *buf)
+ *
+ *    Trims the basename from a path.
+ *
+ *    :param pkgconf_buffer_t* buf: The path to trim.
+ *    :return: true if a separator was found and the path was trimmed, false otherwise
+ *    :rtype: bool
+ */
+bool
+pkgconf_path_trim_basename(pkgconf_buffer_t *buf)
+{
+	char *sep;
+
+	if (!pkgconf_buffer_len(buf))
+		return false;
+
+	sep = strrchr(buf->base, PKG_DIR_SEP_S);
+#ifdef _WIN32
+	char *sep2 = strrchr(buf->base, '/');
+	if (sep2 != NULL && (sep == NULL || sep2 > sep))
+		sep = sep2;
+#endif
+
+	if (sep != NULL)
+	{
+		*sep = '\0';
+		buf->end = sep;
+		return true;
+	}
+
+	return false;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: const char *pkgconf_path_find_basename(const char *path)
+ *
+ *    Finds the basename from a path.
+ *
+ *    :param char* path: The path to find the basename from.
+ *    :return: a pointer to the basename
+ *    :rtype: const char *
+ */
+const char *
+pkgconf_path_find_basename(const char *path)
+{
+	const char *sep;
+
+	sep = strrchr(path, PKG_DIR_SEP_S);
+#ifdef _WIN32
+	const char *sep2 = strrchr(path, '/');
+	if (sep2 != NULL && (sep == NULL || sep2 > sep))
+		sep = sep2;
+#endif
+
+	if (sep != NULL)
+		return sep + 1;
+
+	return path;
 }
 
 #ifdef _WIN32

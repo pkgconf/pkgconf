@@ -16,6 +16,7 @@
 #include <libpkgconf/config.h>
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
+#include <libpkgconf/path.h>
 
 /*
  * !doc
@@ -122,13 +123,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	pkgconf_buffer_finalize(&pathbuf);
 
 	if (pkgconf_buffer_len(&buf) > 0)
-	{
-		char *pathbufp = strrchr(buf.base, PKG_DIR_SEP_S);
-		if (pathbufp == NULL)
-			pathbufp = strrchr(buf.base, '/');
-		if (pathbufp != NULL)
-			pathbufp[0] = '\0';
-	}
+		pkgconf_path_trim_basename(&buf);
 
 	return pkgconf_buffer_freeze(&buf);
 }
@@ -310,44 +305,24 @@ pkgconf_pkg_parser_keyword_set(void *opaque, const char *warnprefix, const char 
 	pair->func(pkg->owner, pkg, keyword, warnprefix, pair->offset, value);
 }
 
-static const char *
+static bool
 determine_prefix(const pkgconf_pkg_t *pkg, pkgconf_buffer_t *pathbuf)
 {
-	char *pathiter;
-
 	pkgconf_buffer_append(pathbuf, pkg->filename);
 	pkgconf_path_relocate(pathbuf);
 
-	/* XXX: ugly */
-	char *buf = pathbuf->base;
+	pkgconf_path_trim_basename(pathbuf);
 
-	pathiter = strrchr(buf, PKG_DIR_SEP_S);
-	if (pathiter == NULL)
-		pathiter = strrchr(buf, '/');
-	if (pathiter != NULL)
-		pathiter[0] = '\0';
+	if (strcmp(pkgconf_path_find_basename(pkgconf_buffer_str(pathbuf)), "pkgconfig"))
+		return false;
 
-	pathiter = strrchr(buf, PKG_DIR_SEP_S);
-	if (pathiter == NULL)
-		pathiter = strrchr(buf, '/');
-	if (pathiter == NULL)
-		return NULL;
+	if (!pkgconf_path_trim_basename(pathbuf))
+		return false;
 
-	/* parent dir is not pkgconfig, can't relocate then */
-	if (strcmp(pathiter + 1, "pkgconfig"))
-		return NULL;
+	if (!pkgconf_path_trim_basename(pathbuf))
+		return false;
 
-	/* okay, work backwards and do it again. */
-	pathiter[0] = '\0';
-	pathiter = strrchr(buf, PKG_DIR_SEP_S);
-	if (pathiter == NULL)
-		pathiter = strrchr(buf, '/');
-	if (pathiter == NULL)
-		return NULL;
-
-	pathiter[0] = '\0';
-
-	return buf;
+	return true;
 }
 
 /*
@@ -493,10 +468,10 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 	else
 	{
 		pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
-		const char *relvalue = determine_prefix(pkg, &pathbuf);
 
-		if (relvalue != NULL)
+		if (determine_prefix(pkg, &pathbuf))
 		{
+			const char *relvalue = pkgconf_buffer_str(&pathbuf);
 			char *prefix_value = convert_path_to_value(relvalue);
 
 			pkgconf_buffer_append(&pkg->orig_prefix, pkgconf_buffer_str(&canonicalized_value));
@@ -702,22 +677,7 @@ pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsign
 		pkgconf_tuple_add(client, &pkg->vars, "pc_sysrootdir", "", false, pkg->flags);
 
 	/* make module id */
-	if ((idptr = strrchr(pkg->filename, PKG_DIR_SEP_S)) != NULL)
-		idptr++;
-	else
-		idptr = pkg->filename;
-
-#ifdef _WIN32
-	/* On Windows, both \ and / are allowed in paths, so we have to chop both.
-	 * strrchr() took us to the last \ in that case, so we just have to see if
-	 * it is followed by a /.  If so, lop it off.
-	 */
-	char *mungeptr;
-	if ((mungeptr = strrchr(idptr, '/')) != NULL)
-		idptr = ++mungeptr;
-#endif
-
-	pkg->id = strdup(idptr);
+	pkg->id = strdup(pkgconf_path_find_basename(pkg->filename));
 	if (pkg->id == NULL)
 	{
 		fclose(f);
