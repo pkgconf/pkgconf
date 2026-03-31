@@ -555,9 +555,10 @@ static void
 test_keyword_disabled(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) testcase;
+	(void) keyword;
+	(void) warnprefix;
 	(void) offset;
 	(void) value;
-	fprintf(stderr, "%s: keyword %s found but was disabled\n", warnprefix, keyword);
 }
 #endif
 
