@@ -4,6 +4,12 @@ Changes from previous version of pkgconf
 Changes from 2.5.0 to 3.0.0:
 ----------------------------
 
+* DEPRECATION: The autotools build system will be dropped after the 3.0 release.
+  Building pkgconf with muon is recommended for early bootstrap and meson in later
+  stages of bootstrap.
+  Alternatively users can use pkgconf-lite for early bootstrap.
+  See https://github.com/pkgconf/pkgconf/issues/481 for rationale and discussion.
+
 * New spdxtool(1) utility which generates SPDX Lite 3.0.1 Software Bills of
   Material (SBOM) files.
   Initial implementation by Tuukka Pasanen and sponsored by The FreeBSD
