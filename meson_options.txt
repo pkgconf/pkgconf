@@ -1,10 +1,4 @@
 option(
-  'tests',
-  type: 'feature',
-  description: 'Build tests which depends upon the kyua framework',
-)
-
-option(
   'with-system-libdir',
   type: 'string',
   value: '',
