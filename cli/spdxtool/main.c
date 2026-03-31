@@ -243,6 +243,7 @@ usage(void)
 	printf("  --about                           print bomtool version and license to stdout\n");
 	printf("  --version                         print bomtool version to stdout\n");
 	printf("  --output FILE                     output SBOM data to file\n");
+	printf("  --spdx-base-id URL                Uset string as base of SPDX ids [default: %s]\n", xsd_any_uri_default_base);
 
 	return EXIT_SUCCESS;
 }
@@ -259,6 +260,7 @@ main(int argc, char *argv[])
 	char *agent_name = NULL;
 	char world_id[] = "virtual:world";
 	char world_realname[] = "virtual world package";
+	const char *spdx_id_base = xsd_any_uri_default_base;
 	pkgconf_pkg_t world =
 	{
 		.id = world_id,
@@ -278,6 +280,7 @@ main(int argc, char *argv[])
 		{ "about", no_argument, &want_flags, PKG_ABOUT, },
 		{ "help", no_argument, &want_flags, PKG_HELP, },
 		{ "output", required_argument, NULL, 103, },
+		{ "spdx-base-id", required_argument, NULL, 104, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -301,6 +304,9 @@ main(int argc, char *argv[])
 				fprintf(stderr, "unable to open %s: %s\n", pkg_optarg, strerror(errno));
 				return EXIT_FAILURE;
 			}
+			break;
+		case 104:
+			spdx_id_base = pkg_optarg;
 			break;
 		case '?':
 		case ':':
@@ -373,7 +379,7 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	spdxtool_util_set_uri_root(&pkg_client, xsd_any_uri_default_base);
+	spdxtool_util_set_uri_root(&pkg_client, spdx_id_base);
 	spdxtool_util_set_spdx_license(&pkg_client, bom_license);
 	spdxtool_util_set_spdx_version(&pkg_client, spdx_version);
 
