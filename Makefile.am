@@ -405,6 +405,7 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/audit.c		\
 		libpkgconf/bsdstubs.c		\
 		libpkgconf/buffer.c		\
+		libpkgconf/bufferset.c		\
 		libpkgconf/bytecode.c		\
 		libpkgconf/cache.c		\
 		libpkgconf/client.c		\

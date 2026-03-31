@@ -48,6 +48,7 @@ typedef enum {
 typedef struct pkgconf_pkg_ pkgconf_pkg_t;
 typedef struct pkgconf_dependency_ pkgconf_dependency_t;
 typedef struct pkgconf_buffer_ pkgconf_buffer_t;
+typedef struct pkgconf_bufferset_ pkgconf_bufferset_t;
 typedef struct pkgconf_span_ pkgconf_span_t;
 typedef struct pkgconf_fragment_ pkgconf_fragment_t;
 typedef struct pkgconf_path_ pkgconf_path_t;
@@ -110,6 +111,11 @@ struct pkgconf_dependency_ {
 struct pkgconf_buffer_ {
 	char *base;
 	char *end;
+};
+
+struct pkgconf_bufferset_ {
+	pkgconf_node_t node;
+	pkgconf_buffer_t buffer;
 };
 
 #if defined(_MSC_VER)
@@ -644,6 +650,10 @@ static inline bool pkgconf_str_eq_slice(const char *s, const char *p, size_t n)
 		strncmp(s, p, n) == 0 &&
 		s[n] == '\0';
 }
+
+/* bufferset.c */
+PKGCONF_API pkgconf_bufferset_t *pkgconf_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer);
+PKGCONF_API void pkgconf_bufferset_free(pkgconf_list_t *list);
 
 /* fileio.c */
 PKGCONF_API bool pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream);

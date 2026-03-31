@@ -81,12 +81,6 @@ typedef enum test_match_strategy_
 	MATCH_EMPTY,
 } pkgconf_test_match_strategy_t;
 
-typedef struct test_bufferset_
-{
-	pkgconf_node_t node;
-	pkgconf_buffer_t buffer;
-} pkgconf_test_bufferset_t;
-
 typedef struct test_case_
 {
 	char *name;
@@ -171,35 +165,6 @@ typedef struct test_keyword_pair_
 	const test_keyword_func_t func;
 	const ptrdiff_t offset;
 } pkgconf_test_keyword_pair_t;
-
-static pkgconf_test_bufferset_t *
-test_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer)
-{
-	pkgconf_test_bufferset_t *set = calloc(1, sizeof(*set));
-
-	if (pkgconf_buffer_len(buffer))
-		pkgconf_buffer_append(&set->buffer, pkgconf_buffer_str(buffer));
-
-	pkgconf_node_insert_tail(&set->node, set, list);
-
-	return set;
-}
-
-static void
-test_bufferset_free(pkgconf_list_t *list)
-{
-	pkgconf_node_t *iter, *iter_next;
-
-	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, iter_next, iter)
-	{
-		pkgconf_test_bufferset_t *set = iter->data;
-
-		pkgconf_buffer_finalize(&set->buffer);
-		pkgconf_node_delete(&set->node, list);
-
-		free(set);
-	}
-}
 
 static void
 test_environment_push(pkgconf_test_case_t *testcase, const char *key, const char *value)
@@ -386,7 +351,7 @@ test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
 	handle_substs(&buf, PKGCONF_BUFFER_FROM_STR((char *) value), NULL);
-	test_bufferset_extend(dest, &buf);
+	pkgconf_bufferset_extend(dest, &buf);
 	pkgconf_buffer_finalize(&buf);
 }
 
@@ -1004,7 +969,7 @@ run_setup(const pkgconf_test_case_t *testcase, const char *pwd)
 	// mkdirs: each entry is a single path, relative to tmp_dir
 	PKGCONF_FOREACH_LIST_ENTRY(testcase->mkdirs.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = iter->data;
+		pkgconf_bufferset_t *set = iter->data;
 
 		pkgconf_buffer_t path = PKGCONF_BUFFER_INITIALIZER;
 		handle_substs(&path, &set->buffer, pwd);
@@ -1023,7 +988,7 @@ run_setup(const pkgconf_test_case_t *testcase, const char *pwd)
 	// copies: "src dst", src relative to TEST_FIXTURES_DIR, dst relative to tmp_dir
 	PKGCONF_FOREACH_LIST_ENTRY(testcase->copies.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = iter->data;
+		pkgconf_bufferset_t *set = iter->data;
 
 		pkgconf_buffer_t expanded = PKGCONF_BUFFER_INITIALIZER;
 		handle_substs(&expanded, &set->buffer, pwd);
@@ -1061,7 +1026,7 @@ run_setup(const pkgconf_test_case_t *testcase, const char *pwd)
 	// symlinks: "target linkpath" — both may be relative to tmp_dir or absolute after %PWD% expansion
 	PKGCONF_FOREACH_LIST_ENTRY(testcase->symlinks.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = iter->data;
+		pkgconf_bufferset_t *set = iter->data;
 
 		pkgconf_buffer_t expanded = PKGCONF_BUFFER_INITIALIZER;
 		handle_substs(&expanded, &set->buffer, pwd);
@@ -1164,7 +1129,7 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 
 	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stdout.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = iter->data;
+		pkgconf_bufferset_t *set = iter->data;
 
 		fprintf(stderr,
 			"expected-stdout: [%s] (%s)\n",
@@ -1181,7 +1146,7 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 
 	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stderr.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = iter->data;
+		pkgconf_bufferset_t *set = iter->data;
 
 		fprintf(stderr,
 			"expected-stderr: [%s] (%s)\n",
@@ -1191,7 +1156,7 @@ annotate_result(const pkgconf_test_case_t *testcase, int ret, const pkgconf_test
 
 	PKGCONF_FOREACH_LIST_ENTRY(testcase->define_variables.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = iter->data;
+		pkgconf_bufferset_t *set = iter->data;
 		fprintf(stderr, "define-variable: [%s]\n", pkgconf_buffer_str_or_empty(&set->buffer));
 	}
 
@@ -1290,7 +1255,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 		pkgconf_node_t *iter;
 		PKGCONF_FOREACH_LIST_ENTRY(testcase->define_variables.head, iter)
 		{
-			pkgconf_test_bufferset_t *set = iter->data;
+			pkgconf_bufferset_t *set = iter->data;
 			pkgconf_tuple_define_global(&state.cli_state.pkg_client, pkgconf_buffer_str_or_empty(&set->buffer));
 		}
 
@@ -1338,7 +1303,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 
 	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stdout.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = iter->data;
+		pkgconf_bufferset_t *set = iter->data;
 
 		char expected_cwd[PATH_MAX] = {0};
 		const char *expected_pwd = getcwd(expected_cwd, sizeof(expected_cwd));
@@ -1381,7 +1346,7 @@ run_test_case(const pkgconf_test_case_t *testcase)
 
 	PKGCONF_FOREACH_LIST_ENTRY(testcase->expected_stderr.head, iter)
 	{
-		pkgconf_test_bufferset_t *set = iter->data;
+		pkgconf_bufferset_t *set = iter->data;
 
 		if (!test_match_buffer(testcase->match_stderr, &set->buffer, &out->o_stderr, "stderr"))
 			passed = false;
@@ -1414,14 +1379,14 @@ run_test_case(const pkgconf_test_case_t *testcase)
 static void
 free_test_case(pkgconf_test_case_t *testcase)
 {
-	test_bufferset_free(&testcase->define_variables);
-	test_bufferset_free(&testcase->expected_stderr);
-	test_bufferset_free(&testcase->expected_stdout);
-	test_bufferset_free(&testcase->mkdirs);
+	pkgconf_bufferset_free(&testcase->define_variables);
+	pkgconf_bufferset_free(&testcase->expected_stderr);
+	pkgconf_bufferset_free(&testcase->expected_stdout);
+	pkgconf_bufferset_free(&testcase->mkdirs);
 #ifndef _WIN32
-	test_bufferset_free(&testcase->symlinks);
+	pkgconf_bufferset_free(&testcase->symlinks);
 #endif // _WIN32
-	test_bufferset_free(&testcase->copies);
+	pkgconf_bufferset_free(&testcase->copies);
 
 	test_environment_free(&testcase->env_vars);
 	pkgconf_path_free(&testcase->search_path);
