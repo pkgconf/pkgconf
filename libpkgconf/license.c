@@ -151,11 +151,11 @@ void
 pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *license_list, const char *expression, unsigned int flags)
 {
 	pkgconf_buffer_t out_buffer = PKGCONF_BUFFER_INITIALIZER;
-	unsigned int buf_size = 0;
+	size_t buf_size = 0;
 	char *cur_word = NULL;
 	int i, ret, argc;
 	char **argv;
-	int string_len = 0;
+	size_t string_len = 0;
 
 	(void)flags;
 
