@@ -24,7 +24,8 @@
 
 static const char *spdx_version = "3.0.1";
 static const char *bom_license = "CC0-1.0";
-static const char *xsd_any_uri_default_base = "https://github.com/pkgconf/pkgconf";
+static const char *xsd_any_url_default_base = "https://github.com/pkgconf/pkgconf";
+static const char *xsd_any_uri_default_base = "github.com:pkgconf:pkgconf";
 static int maximum_traverse_depth = 2000;
 
 static pkgconf_client_t pkg_client;
@@ -58,6 +59,7 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	spdxtool_core_spdx_document_t *document = (spdxtool_core_spdx_document_t *)ptr;
 	pkgconf_node_t *node = NULL;
 	char *package_spdx = NULL, *spdx_id_string = NULL;
+	char sep = spdxtool_util_get_uri_separator(client);
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
@@ -98,7 +100,7 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	if (pkg->license.head != NULL)
 	{
 		pkgconf_buffer_t spdx_id_buf = PKGCONF_BUFFER_INITIALIZER;
-		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s/hasDeclaredLicense", pkg->id);
+		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s%chasDeclaredLicense", pkg->id, sep);
 		char *spdx_id_name = pkgconf_buffer_freeze(&spdx_id_buf);
 		if (!spdx_id_name)
 		{
@@ -119,7 +121,7 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 		free(package_spdx);
 		package_spdx = NULL;
 
-		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s/hasConcludedLicense", pkg->id);
+		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s%chasConcludedLicense", pkg->id, sep);
 		spdx_id_name = pkgconf_buffer_freeze(&spdx_id_buf);
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
 		free(spdx_id_name);
@@ -244,6 +246,7 @@ usage(void)
 	printf("  --version                         print bomtool version to stdout\n");
 	printf("  --output FILE                     output SBOM data to file\n");
 	printf("  --spdx-base-id URL                Uset string as base of SPDX ids [default: %s]\n", xsd_any_uri_default_base);
+	printf("  --use-uri                         Use URIs not URLs as SPDX id");
 
 	return EXIT_SUCCESS;
 }
@@ -260,7 +263,8 @@ main(int argc, char *argv[])
 	char *agent_name = NULL;
 	char world_id[] = "virtual:world";
 	char world_realname[] = "virtual world package";
-	const char *spdx_id_base = xsd_any_uri_default_base;
+	const char *spdx_id_base = xsd_any_url_default_base;
+	bool colon_sep = false;
 	pkgconf_pkg_t world =
 	{
 		.id = world_id,
@@ -281,6 +285,7 @@ main(int argc, char *argv[])
 		{ "help", no_argument, &want_flags, PKG_HELP, },
 		{ "output", required_argument, NULL, 103, },
 		{ "spdx-base-id", required_argument, NULL, 104, },
+		{ "use-uri", no_argument, NULL, 105, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -307,6 +312,12 @@ main(int argc, char *argv[])
 			break;
 		case 104:
 			spdx_id_base = pkg_optarg;
+			break;
+		case 105:
+			// If SPDX id base have not been altered use default
+			if (!strcmp(spdx_id_base, xsd_any_url_default_base))
+				spdx_id_base = xsd_any_uri_default_base;
+			colon_sep = true;
 			break;
 		case '?':
 		case ':':
@@ -380,6 +391,7 @@ main(int argc, char *argv[])
 	}
 
 	spdxtool_util_set_uri_root(&pkg_client, spdx_id_base);
+	spdxtool_util_set_uri_separator_colon(&pkg_client, colon_sep);
 	spdxtool_util_set_spdx_license(&pkg_client, bom_license);
 	spdxtool_util_set_spdx_version(&pkg_client, spdx_version);
 

@@ -18,6 +18,8 @@
 extern "C" {
 #endif
 
+#define SPDXTOOL_SEPARATOR_COLON	0x80
+
 typedef struct spdxtool_core_agent_
 {
 	char *spdx_id;
@@ -81,6 +83,12 @@ spdxtool_util_set_key(pkgconf_client_t *client, const char *key, const char *key
 
 void
 spdxtool_util_set_uri_root(pkgconf_client_t *client, const char *uri_root);
+
+void
+spdxtool_util_set_uri_separator_colon(pkgconf_client_t *client, bool sep);
+
+char
+spdxtool_util_get_uri_separator(pkgconf_client_t *client);
 
 const char *
 spdxtool_util_get_uri_root(pkgconf_client_t *client);

@@ -105,6 +105,7 @@ spdxtool_serialize_value_t
 spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbom_t *sbom)
 {
 	char *spdx_id = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "spdxId");
+	char sep = spdxtool_util_get_uri_separator(client);
 	if (!spdx_id)
 	{
 		pkgconf_error(client, "spdxtool_software_sbom_to_object: out of memory");
@@ -158,7 +159,7 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		pkgconf_pkg_t *match = dep->match;
 		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 
-		pkgconf_buffer_append_fmt(&relationship_buf, "%s/dependsOn/%s", sbom->rootElement->id, match->id);
+		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", sbom->rootElement->id, sep, sep, match->id);
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
 		if (!relationship_str)
 		{
@@ -237,6 +238,7 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	pkgconf_list_t relations = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t *cpy_relations = NULL;
 	pkgconf_node_t *node = NULL;
+	char sep = spdxtool_util_get_uri_separator(client);
 
 	if (!creation_info || !spdx_id || !agent)
 	{
@@ -341,7 +343,7 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		pkgconf_pkg_t *match = dep->match;
 		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 
-		pkgconf_buffer_append_fmt(&relationship_buf, "%s/dependsOn/%s", pkg->id, match->id);
+		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", pkg->id, sep, sep, match->id);
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
 		if (!relationship_str)
 		{

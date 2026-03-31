@@ -73,6 +73,45 @@ spdxtool_util_get_uri_root(pkgconf_client_t *client)
 /*
  * !doc
  *
+ * .. c:function:: void spdxtool_util_set_uri_separator_colon(pkgconf_client_t *client, bool is_colon)
+ *
+ *    when using URI rather than URL change separator from slash '/' to colon ':'.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
+ *    :param bool is_colon If true use colon ':' is separator and otherwise slash '/'
+ *    :return: nothing
+ */
+void
+spdxtool_util_set_uri_separator_colon(pkgconf_client_t *client, bool is_colon)
+{
+	if (is_colon == true)
+		client->flags |= SPDXTOOL_SEPARATOR_COLON;
+	else
+		client->flags = client->flags & ~SPDXTOOL_SEPARATOR_COLON;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: char spdxtool_util_get_uri_separator(pkgconf_client_t *client)
+ *
+ *    Get separator char
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
+ *    :return: Colon ':' or slash '/'
+ */
+char
+spdxtool_util_get_uri_separator(pkgconf_client_t *client)
+{
+	if (client->flags & SPDXTOOL_SEPARATOR_COLON)
+		return ':';
+
+	return '/';
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void spdxtool_util_set_spdx_version(pkgconf_client_t *client, const char *spdx_version)
  *
  *    Set current SPDX SBOM Spec version. If not set it's 3.0.1
@@ -154,11 +193,12 @@ static size_t last_id = 0;
 char *
 spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, const char *part)
 {
-	const 	char *global_xsd_any_uri = spdxtool_util_get_uri_root(client);
+	const char *global_xsd_any_uri = spdxtool_util_get_uri_root(client);
+	char sep = spdxtool_util_get_uri_separator(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_join(&current_uri, '/', global_xsd_any_uri, part, NULL);
-	pkgconf_buffer_append_fmt(&current_uri, "/" SIZE_FMT_SPECIFIER, ++last_id);
+	pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, NULL);
+	pkgconf_buffer_append_fmt(&current_uri, "%c" SIZE_FMT_SPECIFIER, sep, ++last_id);
 
 	return pkgconf_buffer_freeze(&current_uri);
 }
@@ -180,9 +220,10 @@ char *
 spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, const char *string_id)
 {
 	const char *global_xsd_any_uri = spdxtool_util_get_uri_root(client);
+	char sep = spdxtool_util_get_uri_separator(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_join(&current_uri, '/', global_xsd_any_uri, part, string_id, NULL);
+	pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, string_id, NULL);
 
 	return pkgconf_buffer_freeze(&current_uri);
 }
