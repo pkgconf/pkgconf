@@ -260,32 +260,37 @@ if host_machine.system() == 'windows'
   conf_data.set('VERSION', meson.project_version())
   conf_data.set('EXE', pkgconf_exe.full_path())
   conf_data.set('DLL', libpkgconf.full_path())
-  if host_machine.cpu() != 'x86_64'
-    wixl_arch = 'x86'
+
+  if host_machine.cpu_family() == 'x86'
+    wix_arch = 'x86'
+  elif host_machine.cpu_family() == 'x86_64'
+    wix_arch = 'x64'
+  elif host_machine.cpu_family() == 'aarch64'
+    wix_arch = 'arm64'
   else
-    wixl_arch = 'x64'
+    error('WIX does not support CPU family ' + host_machine.cpu_family())
   endif
-  conf_data.set('WIXL_ARCH', wixl_arch)
 
   python = find_program('python3')
-  wixl = find_program('wixl', required: false, version: '>= 0.105')
-  msi_filename = 'pkgconf-@0@-@1@.msi'.format(wixl_arch, meson.project_version())
+  licensefile = custom_target(
+    'License.rtf',
+    input: 'COPYING',
+    output: 'License.rtf',
+    command: [python, files('txt2rtf.py'), '@INPUT@', '@OUTPUT@'],
+  )
+  conf_data.set('LICENSE_RTF', licensefile.full_path())
+
+  wix = find_program('wix', required: false, version: '>= 5.0.0')
+  msi_filename = 'pkgconf-@0@-@1@.msi'.format(wix_arch, meson.project_version())
 
   wxsfile = configure_file(input: 'pkgconf.wxs.in', output: 'pkgconf.wxs', configuration: conf_data)
 
-  if wixl.found()
-    licensefile = custom_target(
-      'License.rtf',
-      input: 'COPYING',
-      output: 'License.rtf',
-      command: [python, files('txt2rtf.py'), '@INPUT@', '@OUTPUT@'],
-    )
-
+  if wix.found()
     msi = custom_target(
       msi_filename,
       input: [wxsfile, licensefile, pkgconf_exe],
       output: msi_filename,
-      command: [wixl, '--arch', wixl_arch, '--ext', 'ui', '-o', msi_filename, wxsfile],
+      command: [wix, 'build', wxsfile, '-arch', wix_arch, '-ext', 'WixToolset.UI.wixext', '-o', msi_filename],
     )
 
     alias_target('msi', msi)
