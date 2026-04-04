@@ -43,14 +43,29 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install meson ninja
 
+      - name: Install WiX
+        run: |
+          dotnet tool install --global wix
+          $wixVersion = (wix --version).Trim()
+          wix extension add -g "WixToolset.UI.wixext/$wixVersion"
+
       - name: Build
         run: |
           meson _build --vsenv
-          meson compile -C _build
+          meson compile -C _build msi
 
       - name: Run tests
         run: |
           meson test -v -C _build
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output-${{ matrix.msbuild_arch }}
+          path: |
+            _build/*.exe
+            _build/*.dll
+            _build/*.msi
 
   msys2:
     runs-on: windows-latest
@@ -73,7 +88,6 @@ jobs:
             mingw-w64-${{ matrix.arch }}-meson
             mingw-w64-${{ matrix.arch }}-ninja
             mingw-w64-${{ matrix.arch }}-gcc
-            mingw-w64-${{ matrix.arch }}-msitools
 
       - name: Build
         shell: msys2 {0}
@@ -82,21 +96,12 @@ jobs:
           export CFLAGS=-D__USE_MINGW_ANSI_STDIO=0
 
           meson _build
-          meson compile -C _build msi
+          meson compile -C _build
 
       - name: Run tests
         shell: msys2 {0}
         run: |
           meson test -v -C _build
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: |
-            _build/*.exe
-            _build/*.dll
-            _build/*.msi
 
   debian-meson:
     runs-on: ubuntu-latest
