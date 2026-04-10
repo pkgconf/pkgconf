@@ -215,10 +215,11 @@ struct pkgconf_pkg_ {
 	char *url;
 	char *pc_filedir;
 	char *maintainer;
-	char *copyright;
 	char *source;
 	char *license_file;
 	char *why;
+
+	pkgconf_list_t copyright;
 
 	pkgconf_list_t license;
 

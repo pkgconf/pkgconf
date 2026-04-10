@@ -214,6 +214,28 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 	return spdxtool_serialize_object(object);
 }
 
+static void
+serialize_copyright_lines_to_object(spdxtool_serialize_object_list_t *object, const pkgconf_list_t *copyright_lines)
+{
+	pkgconf_buffer_t copyright_buf = PKGCONF_BUFFER_INITIALIZER;
+	const pkgconf_node_t *node;
+
+	if (copyright_lines->head == NULL)
+	{
+		spdxtool_serialize_object_add_string(object, "software_copyrightText", "NOASSERTION");
+		return;
+	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(copyright_lines->head, node)
+	{
+		const pkgconf_bufferset_t *set = node->data;
+		pkgconf_buffer_join(&copyright_buf, '\n', pkgconf_buffer_str_or_empty(&set->buffer), NULL);
+	}
+
+	spdxtool_serialize_object_add_string(object, "software_copyrightText", pkgconf_buffer_str_or_empty(&copyright_buf));
+	pkgconf_buffer_finalize(&copyright_buf);
+}
+
 /*
  * !doc
  *
@@ -276,10 +298,7 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	spdxtool_serialize_object_add_string(object, "name", pkg->realname);
 	spdxtool_serialize_object_add_array(object, "originatedBy", originated_by);
 
-	if (pkg->copyright != NULL)
-		spdxtool_serialize_object_add_string(object, "software_copyrightText", pkg->copyright);
-	else
-		spdxtool_serialize_object_add_string(object, "software_copyrightText", "NOASSERTION");
+	serialize_copyright_lines_to_object(object, &pkg->copyright);
 
 	if (pkg->url != NULL)
 		spdxtool_serialize_object_add_string(object, "software_homePage", pkg->url);

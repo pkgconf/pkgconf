@@ -116,6 +116,25 @@ sbom_identity(pkgconf_pkg_t *pkg)
 }
 
 static void
+write_copyright_lines(const pkgconf_list_t *copyright_lines)
+{
+	const pkgconf_node_t *node;
+
+	if (copyright_lines->head == NULL)
+		return;
+
+	fprintf(sbom_out, "PackageCopyrightText: <text>");
+
+	PKGCONF_FOREACH_LIST_ENTRY(copyright_lines->head, node)
+	{
+		const pkgconf_bufferset_t *set = node->data;
+		fprintf(sbom_out, "%s%s", pkgconf_buffer_str_or_empty(&set->buffer), node->prev != NULL ? "\n" : "");
+	}
+
+	fprintf(sbom_out, "</text>\n");
+}
+
+static void
 write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 {
 	pkgconf_buffer_t license_buf = PKGCONF_BUFFER_INITIALIZER;
@@ -151,8 +170,7 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	}
 
 
-	if (pkg->copyright != NULL)
-		fprintf(sbom_out, "PackageCopyrightText: <text>%s</text>\n", pkg->copyright);
+	write_copyright_lines(&pkg->copyright);
 
 	if (pkg->description != NULL)
 		fprintf(sbom_out, "PackageSummary: <text>%s</text>\n", pkg->description);

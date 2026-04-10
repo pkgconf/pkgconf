@@ -156,6 +156,20 @@ pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, cons
 }
 
 static void
+pkgconf_pkg_parser_bufferset_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+{
+	(void) keyword;
+	(void) warnprefix;
+
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+
+	pkgconf_bytecode_eval_str_to_buf(client, &pkg->vars, value, NULL, &buf);
+	pkgconf_bufferset_extend(dest, &buf);
+	pkgconf_buffer_finalize(&buf);
+}
+
+static void
 pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
@@ -272,7 +286,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"CFLAGS.private", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, cflags_private)},
 	{"CFLAGS.shared", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, cflags_shared)},
 	{"Conflicts", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, conflicts)},
-	{"Copyright", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, copyright)},
+	{"Copyright", pkgconf_pkg_parser_bufferset_func, offsetof(pkgconf_pkg_t, copyright)},
 	{"Description", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, description)},
 	{"LIBS", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs)},
 	{"LIBS.private", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs_private)},
@@ -575,9 +589,6 @@ pkg_free_object(pkgconf_pkg_t *pkg)
 	if (pkg->maintainer != NULL)
 		free(pkg->maintainer);
 
-	if (pkg->copyright != NULL)
-		free(pkg->copyright);
-
 	if (pkg->why != NULL)
 		free(pkg->why);
 
@@ -593,6 +604,8 @@ pkg_free_object(pkgconf_pkg_t *pkg)
 static void
 pkg_free_lists(pkgconf_pkg_t *pkg)
 {
+	pkgconf_bufferset_free(&pkg->copyright);
+
 	pkgconf_dependency_free(&pkg->required);
 	pkgconf_dependency_free(&pkg->requires_private);
 	pkgconf_dependency_free(&pkg->requires_shared);
