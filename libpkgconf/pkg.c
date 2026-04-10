@@ -156,6 +156,20 @@ pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, cons
 }
 
 static void
+pkgconf_pkg_parser_bufferset_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+{
+	(void) keyword;
+	(void) warnprefix;
+
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+
+	pkgconf_bytecode_eval_str_to_buf(client, &pkg->vars, value, NULL, &buf);
+	pkgconf_bufferset_extend(dest, &buf);
+	pkgconf_buffer_finalize(&buf);
+}
+
+static void
 pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
