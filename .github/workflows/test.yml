@@ -47,7 +47,7 @@ jobs:
         run: |
           dotnet tool install --global wix
           $wixVersion = (wix --version).Trim()
-          wix extension add -g "WixToolset.UI.wixext/$wixVersion"
+          wix extension add -g "WixToolset.UI.wixext/$wixVersion" -acceptEula wix7
 
       - name: Build
         run: |

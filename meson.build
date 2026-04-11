@@ -280,7 +280,7 @@ if host_machine.system() == 'windows'
   )
   conf_data.set('LICENSE_RTF', licensefile.full_path())
 
-  wix = find_program('wix', required: false, version: '>= 5.0.0')
+  wix = find_program('wix', required: false, version: '>= 7.0.0')
   msi_filename = 'pkgconf-@0@-@1@.msi'.format(wix_arch, meson.project_version())
 
   wxsfile = configure_file(input: 'pkgconf.wxs.in', output: 'pkgconf.wxs', configuration: conf_data)
@@ -290,7 +290,7 @@ if host_machine.system() == 'windows'
       msi_filename,
       input: [wxsfile, licensefile, pkgconf_exe],
       output: msi_filename,
-      command: [wix, 'build', wxsfile, '-arch', wix_arch, '-ext', 'WixToolset.UI.wixext', '-o', msi_filename],
+      command: [wix, 'build', wxsfile, '-arch', wix_arch, '-ext', 'WixToolset.UI.wixext', '-o', msi_filename, '-acceptEula', 'wix7'],
     )
 
     alias_target('msi', msi)
