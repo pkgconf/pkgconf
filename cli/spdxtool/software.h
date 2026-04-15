@@ -24,10 +24,10 @@ spdxtool_software_sbom_new(pkgconf_client_t *client, const char *spdx_id, const 
 void
 spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom);
 
-spdxtool_serialize_value_t
+spdxtool_serialize_value_t *
 spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg, spdxtool_core_spdx_document_t *doc);
 
-spdxtool_serialize_value_t
+spdxtool_serialize_value_t *
 spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbom_t *sbom);
 
 #ifdef __cplusplus
