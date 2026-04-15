@@ -44,6 +44,17 @@ buffer_debug(pkgconf_buffer_t *buffer)
 }
 #endif
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
+ *
+ *    Append a null-terminated string to the buffer, reallocating as necessary.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to append to.
+ *    :param char *text: The null-terminated string to append.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 {
@@ -65,6 +76,18 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 	*buffer->end = '\0';
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
+ *
+ *    Append a slice of *n* bytes to the buffer. Does nothing if *n* is zero.
+ *
+ *    :param pkgconf_buffer_t *buf: The buffer to append to.
+ *    :param char *p: Pointer to the byte sequence to append.
+ *    :param size_t n: Number of bytes to append.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
 {
@@ -75,6 +98,18 @@ pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
 		pkgconf_buffer_push_byte(buf, p[i]);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list src_va)
+ *
+ *    Append a formatted string to the buffer using a :code:`va_list`.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to append to.
+ *    :param char *fmt: A printf-style format string.
+ *    :param va_list src_va: The variadic argument list for the format string.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list src_va)
 {
@@ -97,6 +132,17 @@ pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list sr
 	free(buf);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...)
+ *
+ *    Append a formatted string to the buffer using variadic arguments.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to append to.
+ *    :param char *fmt: A printf-style format string.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...)
 {
@@ -107,6 +153,18 @@ pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...)
 	va_end(va);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text)
+ *
+ *    Prepend a null-terminated string to the beginning of the buffer.
+ *    If *text* is NULL, the buffer contents are unchanged.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to prepend to.
+ *    :param char *text: The null-terminated string to prepend, or NULL.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text)
 {
@@ -122,6 +180,17 @@ pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text)
 	pkgconf_buffer_finalize(&tmpbuf);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
+ *
+ *    Append a single byte to the buffer, reallocating as necessary.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to append to.
+ *    :param char byte: The byte to append.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 {
@@ -140,6 +209,16 @@ pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 	buffer->end = newend;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer)
+ *
+ *    Remove the last byte from the buffer. The buffer must be non-empty.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to trim.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer)
 {
@@ -151,6 +230,16 @@ pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer)
 	*(buffer->end) = '\0';
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_finalize(pkgconf_buffer_t *buffer)
+ *
+ *    Free all memory owned by the buffer and reset it to an empty state.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to finalize.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_finalize(pkgconf_buffer_t *buffer)
 {
@@ -158,6 +247,18 @@ pkgconf_buffer_finalize(pkgconf_buffer_t *buffer)
 	buffer->base = buffer->end = NULL;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out)
+ *
+ *    Write the buffer contents followed by a newline to a file stream.
+ *    If the buffer is empty, only a newline is written.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to write.
+ *    :param FILE *out: The output file stream.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out)
 {
@@ -167,6 +268,19 @@ pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out)
 	fputc('\n', out);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list src_va)
+ *
+ *    Join a NULL-terminated list of strings into the buffer, separated by *delim*.
+ *    Uses a :code:`va_list` for the string arguments.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to join into.
+ *    :param char delim: The delimiter byte inserted between each argument.
+ *    :param va_list src_va: The variadic argument list of :code:`const char *` strings, terminated by NULL.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list src_va)
 {
@@ -186,8 +300,18 @@ pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list src_va)
 	va_end(va);
 }
 
-// NOTE: due to C's rules regarding promotion in variable args and permissible variables, delim must
-// be an int here.
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...)
+ *
+ *    Join a NULL-terminated list of strings into the buffer, separated by *delim*.
+ *    The *delim* parameter is typed as :code:`int` due to C variadic promotion rules.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to join into.
+ *    :param int delim: The delimiter byte inserted between each argument (cast to :code:`char` internally).
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...)
 {
@@ -198,6 +322,17 @@ pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...)
 	va_end(va);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_buffer_has_prefix(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *prefix)
+ *
+ *    Test whether the buffer begins with the contents of *prefix*.
+ *
+ *    :param pkgconf_buffer_t *haystack: The buffer to search in.
+ *    :param pkgconf_buffer_t *prefix: The prefix to test for.
+ *    :return: :code:`true` if *haystack* starts with *prefix*, :code:`false` otherwise.
+ */
 bool
 pkgconf_buffer_has_prefix(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *prefix)
 {
@@ -207,6 +342,17 @@ pkgconf_buffer_has_prefix(const pkgconf_buffer_t *haystack, const pkgconf_buffer
 	return strncmp(haystack_str, prefix_str, strlen(prefix_str)) == 0;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle)
+ *
+ *    Test whether the buffer contains the contents of *needle* as a substring.
+ *
+ *    :param pkgconf_buffer_t *haystack: The buffer to search in.
+ *    :param pkgconf_buffer_t *needle: The substring to search for.
+ *    :return: :code:`true` if *needle* is found, :code:`false` otherwise.
+ */
 bool
 pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle)
 {
@@ -216,6 +362,18 @@ pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t
 	return strstr(haystack_str, needle_str) != NULL;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, char needle)
+ *
+ *    Test whether the buffer contains a given byte.
+ *
+ *    :param pkgconf_buffer_t *haystack: The buffer to search in.
+ *    :param char needle: The byte to search for.
+ *    :return: :code:`true` if *needle* is found, :code:`false` otherwise.
+ */
+
 bool
 pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, char needle)
 {
@@ -223,6 +381,17 @@ pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, char needle)
 	return strchr(haystack_str, needle) != NULL;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle)
+ *
+ *    Test whether two buffers have identical contents.
+ *
+ *    :param pkgconf_buffer_t *haystack: The first buffer.
+ *    :param pkgconf_buffer_t *needle: The second buffer.
+ *    :return: :code:`true` if the buffers have the same length and contents, :code:`false` otherwise.
+ */
 bool
 pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle)
 {
@@ -235,6 +404,20 @@ pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *n
 	return memcmp(haystack_str, needle_str, pkgconf_buffer_len(haystack)) == 0;
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value)
+ *
+ *    Copy *src* into *dest*, replacing all occurrences of *pattern* with *value*.
+ *    If *pattern* is empty, *src* is appended to *dest* unmodified.
+ *
+ *    :param pkgconf_buffer_t *dest: The destination buffer.
+ *    :param pkgconf_buffer_t *src: The source buffer.
+ *    :param char *pattern: The pattern string to search for.
+ *    :param char *value: The replacement string.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value)
 {
@@ -262,6 +445,20 @@ pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const 
 	}
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans)
+ *
+ *    Copy *src* into *dest*, inserting a backslash before any byte that falls
+ *    within the provided character spans.
+ *
+ *    :param pkgconf_buffer_t *dest: The destination buffer.
+ *    :param pkgconf_buffer_t *src: The source buffer.
+ *    :param pkgconf_span_t *spans: Array of character spans to escape.
+ *    :param size_t nspans: Number of entries in the *spans* array.
+ *    :return: nothing
+ */
 void
 pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans)
 {
