@@ -32,31 +32,27 @@
 spdxtool_software_sbom_t *
 spdxtool_software_sbom_new(pkgconf_client_t *client, const char *spdx_id, const char *creation_id, const char *sbom_type)
 {
-	spdxtool_software_sbom_t *sbom = NULL;
-
-	if(!client || !spdx_id || !creation_id || !sbom_type)
+	if (!client || !spdx_id || !creation_id || !sbom_type)
 		return NULL;
 
-	sbom = calloc(1, sizeof(spdxtool_software_sbom_t));
-	if(!sbom)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create sbom struct.");
-		return NULL;
-	}
+	spdxtool_software_sbom_t *sbom = calloc(1, sizeof(spdxtool_software_sbom_t));
+	if (!sbom)
+		goto err;
 
-	sbom->type="software_Sbom";
+	sbom->type = "software_Sbom";
 	sbom->spdx_id = strdup(spdx_id);
 	sbom->creation_info = strdup(creation_id);
 	sbom->sbom_type = strdup(sbom_type);
 
-	if(!sbom->spdx_id || !sbom->creation_info || !sbom->sbom_type)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create sbom struct.");
-		spdxtool_software_sbom_free(sbom);
-		return NULL;
-	}
+	if (!sbom->spdx_id || !sbom->creation_info || !sbom->sbom_type)
+		goto err;
 
 	return sbom;
+
+err:
+	pkgconf_error(client, "spdxtool_software_sbom_new: out of memory");
+	spdxtool_software_sbom_free(sbom);
+	return NULL;
 }
 
 /*
@@ -72,7 +68,6 @@ spdxtool_software_sbom_new(pkgconf_client_t *client, const char *spdx_id, const 
 void
 spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom)
 {
-
 	if(!sbom)
 		return;
 
@@ -152,12 +147,19 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		if (!spdx_id_relation)
 			goto err;
 
-		bool ok = spdxtool_serialize_array_add_string(element_array, spdx_id_relation) != NULL;
-		spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, spdx_id_relation);
-		free(spdx_id_relation);
-
-		if (!ok)
+		if (!spdxtool_serialize_array_add_string(element_array, spdx_id_relation))
+		{
+			free(spdx_id_relation);
 			goto err;
+		}
+
+		if (!spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, spdx_id_relation))
+		{
+			free(spdx_id_relation);
+			goto err;
+		}
+
+		free(spdx_id_relation);
 	}
 
 	char *value = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "hasDeclaredLicense");
@@ -168,7 +170,13 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 			free(value);
 			goto err;
 		}
-		spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, value);
+
+		if (!spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, value))
+		{
+			free(value);
+			goto err;
+		}
+
 		free(value);
 	}
 
@@ -180,7 +188,13 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 			free(value);
 			goto err;
 		}
-		spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, value);
+
+		if (!spdxtool_core_spdx_document_add_element(client, sbom->spdx_document, value))
+		{
+			free(value);
+			goto err;
+		}
+
 		free(value);
 	}
 
@@ -203,7 +217,8 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		goto err;
 	element_array = NULL;
 
-	spdxtool_core_spdx_document_add_package(client, sbom->spdx_document, sbom->rootElement);
+	if (!spdxtool_core_spdx_document_add_package(client, sbom->spdx_document, sbom->rootElement))
+		goto err;
 
 	ret = spdxtool_serialize_value_object(object_list);
 	object_list = NULL;
@@ -288,7 +303,7 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		goto err;
 
 	if (!(spdxtool_serialize_object_add_string(object_list, "type", "software_Package") &&
-	    spdxtool_serialize_object_add_string(object_list, "creationInfo", creation_info) &&
+		spdxtool_serialize_object_add_string(object_list, "creationInfo", creation_info) &&
 		spdxtool_serialize_object_add_string(object_list, "spdxId", spdx_id) &&
 		spdxtool_serialize_object_add_string(object_list, "name", pkg->realname)))
 	{
@@ -345,8 +360,10 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		pkgconf_license_copy_list(client, cpy_relations, &relations);
 		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, cpy_relations, "hasDeclaredLicense");
 		free(tuple_license);
-		if (relationship)
-			spdxtool_core_spdx_document_add_relationship(client, spdx, relationship);
+		if (!relationship)
+			goto err;
+		if (!spdxtool_core_spdx_document_add_relationship(client, spdx, relationship))
+			goto err;
 		cpy_relations = NULL;
 	}
 
@@ -363,8 +380,10 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		pkgconf_license_copy_list(client, cpy_relations, &relations);
 		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, cpy_relations, "hasConcludedLicense");
 		free(tuple_license);
-		if (relationship)
-			spdxtool_core_spdx_document_add_relationship(client, spdx, relationship);
+		if (!relationship)
+			goto err;
+		if (!spdxtool_core_spdx_document_add_relationship(client, spdx, relationship))
+			goto err;
 		cpy_relations = NULL;
 	}
 	pkgconf_license_free(&relations);
@@ -404,8 +423,10 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, spdx_id_relation, spdx_id, cpy_relations, "dependsOn");
 		free(spdx_id_relation);
 		free(spdx_id_package);
-		if (relationship)
-			spdxtool_core_spdx_document_add_relationship(client, spdx, relationship);
+		if (!relationship)
+			goto err;
+		if (!spdxtool_core_spdx_document_add_relationship(client, spdx, relationship))
+			goto err;
 		cpy_relations = NULL;
 	}
 

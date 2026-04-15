@@ -31,46 +31,36 @@
 spdxtool_core_agent_t *
 spdxtool_core_agent_new(pkgconf_client_t *client, const char *creation_info_id, const char *name)
 {
-	spdxtool_core_agent_t *agent = NULL;
-
 	if (!client || !creation_info_id || !name)
 		return NULL;
 
-	agent = calloc(1, sizeof(spdxtool_core_agent_t));
+	spdxtool_core_agent_t *agent = calloc(1, sizeof(spdxtool_core_agent_t));
 	if (!agent)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create agent struct.");
-		return NULL;
-	}
+		goto err;
 
 	agent->type = "Agent";
 
-	// Copy for modification
 	char *spdx_id_name = strdup(name);
 	if (!spdx_id_name)
-	{
-		pkgconf_error(client, "spdxtool_core_agent_new: out of memory");
-		free(agent);
-		return NULL;
-	}
+		goto err;
 
-	// NOTE: modifies string
 	spdxtool_util_string_correction(spdx_id_name);
 
 	agent->spdx_id = spdxtool_util_get_spdx_id_string(client, agent->type, spdx_id_name);
+	free(spdx_id_name);
+
 	agent->creation_info = strdup(creation_info_id);
 	agent->name = strdup(name);
 
-	free(spdx_id_name);
-
 	if (!agent->spdx_id || !agent->creation_info || !agent->name)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create agent struct.");
-		spdxtool_core_agent_free(agent);
-		return NULL;
-	}
+		goto err;
 
 	return agent;
+
+err:
+	pkgconf_error(client, "spdxtool_core_agent_new: out of memory");
+	spdxtool_core_agent_free(agent);
+	return NULL;
 }
 
 /*
@@ -152,33 +142,29 @@ err:
 spdxtool_core_creation_info_t *
 spdxtool_core_creation_info_new(pkgconf_client_t *client, const char *agent_id, const char *id, const char *time)
 {
-	spdxtool_core_creation_info_t *creation = NULL;
-
 	if (!client || !agent_id || !id)
 		return NULL;
 
-	creation = calloc(1, sizeof(spdxtool_core_creation_info_t));
+	spdxtool_core_creation_info_t *creation = calloc(1, sizeof(spdxtool_core_creation_info_t));
 	if (!creation)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create creation struct.");
-		return NULL;
-	}
+		goto err;
 
 	creation->type = "CreationInfo";
+	creation->created_using = "pkgconf spdxtool";
 	creation->id = strdup(id);
 	creation->created = time ? strdup(time) : spdxtool_util_get_current_iso8601_time();
 	creation->created_by = strdup(agent_id);
-	creation->created_using = "pkgconf spdxtool";
 	creation->spec_version = strdup(spdxtool_util_get_spdx_version(client));
 
 	if (!creation->id || !creation->created || !creation->created_by || !creation->spec_version)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create creation struct.");
-		spdxtool_core_creation_info_free(creation);
-		return NULL;
-	}
+		goto err;
 
 	return creation;
+
+err:
+	pkgconf_error(client, "spdxtool_core_creation_info_new: out of memory");
+	spdxtool_core_creation_info_free(creation);
+	return NULL;
 }
 
 /*
@@ -271,17 +257,12 @@ err:
 spdxtool_core_spdx_document_t *
 spdxtool_core_spdx_document_new(pkgconf_client_t *client, const char *spdx_id, const char *creation_id, const char *agent_id)
 {
-	spdxtool_core_spdx_document_t *spdx = NULL;
-
 	if (!client || !spdx_id || !creation_id || !agent_id)
 		return NULL;
 
-	spdx = calloc(1, sizeof(spdxtool_core_spdx_document_t));
+	spdxtool_core_spdx_document_t *spdx = calloc(1, sizeof(spdxtool_core_spdx_document_t));
 	if (!spdx)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create spdx_document struct.");
-		return NULL;
-	}
+		goto err;
 
 	spdx->type = "SpdxDocument";
 	spdx->spdx_id = strdup(spdx_id);
@@ -289,13 +270,14 @@ spdxtool_core_spdx_document_new(pkgconf_client_t *client, const char *spdx_id, c
 	spdx->creation_info = strdup(creation_id);
 
 	if (!spdx->spdx_id || !spdx->agent || !spdx->creation_info)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create spdx_document struct.");
-		spdxtool_core_spdx_document_free(spdx);
-		return NULL;
-	}
+		goto err;
 
 	return spdx;
+
+err:
+	pkgconf_error(client, "spdxtool_core_spdx_document_new: out of memory");
+	spdxtool_core_spdx_document_free(spdx);
+	return NULL;
 }
 
 /*
@@ -486,109 +468,115 @@ spdxtool_core_spdx_document_is_license(pkgconf_client_t *client, const spdxtool_
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *license)
+ * .. c:function:: bool spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *license)
  *
  *    Add license to SpdxDocument and make sure that specific license is not already there.
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument struct being used.
  *    :param const char *license: SPDX name of license
- *    :return: nothing
+ *    :return: true on success, false on failure
  */
-void
+bool
 spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *license)
 {
-	pkgconf_node_t *node = NULL;
-
 	if (!license || !spdx)
-		return;
+		return false;
 
 	if (spdxtool_core_spdx_document_is_license(client, spdx, license))
-		return;
+		return true;
 
-	node = calloc(1, sizeof(pkgconf_node_t));
+	pkgconf_node_t *node = calloc(1, sizeof(pkgconf_node_t));
 	if (!node)
 	{
-		pkgconf_error(client, "Memory exhausted! Cant't add license to spdx_document.");
-		return;
+		pkgconf_error(client, "spdxtool_core_spdx_document_add_license: out of memory");
+		return false;
 	}
 
 	spdxtool_simplelicensing_license_expression_t *expression = spdxtool_simplelicensing_licenseExpression_new(client, license);
+	if (!expression)
+	{
+		free(node);
+		return false;
+	}
+
 	pkgconf_node_insert_tail(node, expression, &spdx->licenses);
-	spdxtool_core_spdx_document_add_element(client, spdx, expression->spdx_id);
+	if (!spdxtool_core_spdx_document_add_element(client, spdx, expression->spdx_id))
+		return false;
+
+	return true;
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *element)
+ * .. c:function:: bool spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *element)
  *
  *    Add element spdxId to SpdxDocument
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument struct being used.
  *    :param char *element: spdxId of element
- *    :return: nothing
+ *    :return: true on success, false on failure
  */
-void
+bool
 spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *element)
 {
-	pkgconf_node_t *node = NULL;
-	char *nelement = NULL;
-
 	if (!element || !spdx)
-		return;
+		return false;
 
-	node = calloc(1, sizeof(pkgconf_node_t));
+	pkgconf_node_t *node = calloc(1, sizeof(pkgconf_node_t));
 	if (!node)
 	{
-		pkgconf_error(client, "Memory exhausted! Can't add spdx_id's to spdx_document.");
-		return;
+		pkgconf_error(client, "spdxtool_core_spdx_document_add_element: out of memory");
+		return false;
 	}
 
-	nelement = strdup(element);
+	char *nelement = strdup(element);
 	if (!nelement)
 	{
-		pkgconf_error(client, "Memory exhausted! Can't add spdx_id's to spdx_document.");
+		pkgconf_error(client, "spdxtool_core_spdx_document_add_element: out of memory");
 		free(node);
-		return;
+		return false;
 	}
 
 	pkgconf_node_insert_tail(node, nelement, &spdx->element);
+	return true;
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_core_spdx_document_add_relationship(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, spdxtool_core_relationship_t *relationship)
+ * .. c:function:: bool spdxtool_core_spdx_document_add_relationship(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, spdxtool_core_relationship_t *relationship)
  *
  *    Add relationship rel to SpdxDocument
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument struct being used.
  *    :param spdxtool_core_relationship_t *relationship: relationship to add.
- *    :return: nothing
+ *    :return: true on success, false on failure
  */
-void
+bool
 spdxtool_core_spdx_document_add_relationship(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, spdxtool_core_relationship_t *relationship)
 {
 	if (!client || !spdx || !relationship)
-		return;
+		return false;
 
 	pkgconf_node_t *node = calloc(1, sizeof(pkgconf_node_t));
 	if (!node)
 	{
-		pkgconf_error(client, "Memory exhausted! Can't add relationship to spdx_document.");
-		return;
+		pkgconf_error(client, "spdxtool_core_spdx_document_add_relationship: out of memory");
+		return false;
 	}
 
 	pkgconf_node_insert_tail(node, relationship, &spdx->relationships);
+	return true;
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_core_spdx_document_add_package(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, pkgconf_pkg_t *pkg)
+ * .. c:function:: bool spdxtool_core_spdx_document_add_package(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, pkgconf_pkg_t *pkg)
  *
  *    Register a package with the SpdxDocument for later serialization. The document
  *    does not take ownership of the package pointer; the package must outlive the
@@ -597,22 +585,23 @@ spdxtool_core_spdx_document_add_relationship(pkgconf_client_t *client, spdxtool_
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument struct to register the package with.
  *    :param pkgconf_pkg_t *pkg: Package to register. Ownership is NOT transferred.
- *    :return: nothing
+ *    :return: true on success, false on failure
  */
-void
+bool
 spdxtool_core_spdx_document_add_package(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, pkgconf_pkg_t *pkg)
 {
 	if (!client || !spdx || !pkg)
-		return;
+		return false;
 
 	pkgconf_node_t *node = calloc(1, sizeof(pkgconf_node_t));
 	if (!node)
 	{
-		pkgconf_error(client, "Memory exhausted! Can't add package to spdx_document.");
-		return;
+		pkgconf_error(client, "spdxtool_core_spdx_document_add_package: out of memory");
+		return false;
 	}
 
 	pkgconf_node_insert_tail(node, pkg, &spdx->packages);
+	return true;
 }
 
 /*
@@ -634,16 +623,11 @@ spdxtool_core_relationship_t *
 spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_info_id, const char *spdx_id, const char *from, pkgconf_list_t *to, const char *relationship_type)
 {
 	if (!client || !creation_info_id || !spdx_id || !from || !to || !relationship_type)
-	{
 		return NULL;
-	}
 
 	spdxtool_core_relationship_t *relationship = calloc(1, sizeof(spdxtool_core_relationship_t));
 	if (!relationship)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create relationship struct.");
-		return NULL;
-	}
+		goto err;
 
 	relationship->type = "Relationship";
 	relationship->creation_info = strdup(creation_info_id);
@@ -652,14 +636,15 @@ spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_in
 	relationship->to = to;
 	relationship->relationship_type = strdup(relationship_type);
 
-	if (!relationship->creation_info || !relationship->spdx_id || !relationship->from || !relationship->to || !relationship->relationship_type)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create relationship struct.");
-		spdxtool_core_relationship_free(relationship);
-		return NULL;
-	}
+	if (!relationship->creation_info || !relationship->spdx_id || !relationship->from || !relationship->relationship_type)
+		goto err;
 
 	return relationship;
+
+err:
+	pkgconf_error(client, "spdxtool_core_relationship_new: out of memory");
+	spdxtool_core_relationship_free(relationship);
+	return NULL;
 }
 
 /*
