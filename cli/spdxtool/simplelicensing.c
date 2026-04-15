@@ -74,9 +74,7 @@ void
 spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license_expression_t *expression)
 {
 	if(!expression)
-	{
 		return;
-	}
 
 	free(expression->spdx_id);
 	free(expression->license_expression);
@@ -87,26 +85,37 @@ spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t spdxtool_simplelicensing_licenseExpression_to_object(const char *creation_info, const spdxtool_simplelicensing_license_expression_t *expression)
+ * .. c:function:: spdxtool_serialize_value_t *spdxtool_simplelicensing_licenseExpression_to_object(const char *creation_info, const spdxtool_simplelicensing_license_expression_t *expression)
  *
  *    Serialize /SimpleLicensing/LicenseExpression struct to a JSON value tree.
  *
  *    :param const char *creation_info: The creationInfo ID string to embed in the object.
  *    :param const spdxtool_simplelicensing_license_expression_t *expression: LicenseExpression struct to be serialized.
- *    :return: spdxtool_serialize_value_t representing the LicenseExpression object.
+ *    :return: spdxtool_serialize_value_t * representing the LicenseExpression object.
  */
-spdxtool_serialize_value_t
-spdxtool_simplelicensing_licenseExpression_to_object(const char *creation_info, const spdxtool_simplelicensing_license_expression_t *expression)
+spdxtool_serialize_value_t *
+spdxtool_simplelicensing_licenseExpression_to_object(pkgconf_client_t *client, const char *creation_info, const spdxtool_simplelicensing_license_expression_t *expression)
 {
-	spdxtool_serialize_object_list_t *object = spdxtool_serialize_object_list_new();
-	if (!object)
+	spdxtool_serialize_value_t *ret = NULL;
+	spdxtool_serialize_object_list_t *object_list = spdxtool_serialize_object_list_new();
+	if (!object_list)
+		goto err;
+
+	if (!(spdxtool_serialize_object_add_string(object_list, "type", "simplelicensing_LicenseExpression") &&
+		spdxtool_serialize_object_add_string(object_list, "creationInfo", creation_info) &&
+		spdxtool_serialize_object_add_string(object_list, "spdxId", expression->spdx_id) &&
+		spdxtool_serialize_object_add_string(object_list, "simplelicensing_licenseExpression", expression->license_expression)))
 	{
-		return spdxtool_serialize_null();
+		goto err;
 	}
 
-	spdxtool_serialize_object_add_string(object, "type", "simplelicensing_LicenseExpression");
-	spdxtool_serialize_object_add_string(object, "creationInfo", creation_info);
-	spdxtool_serialize_object_add_string(object, "spdxId", expression->spdx_id);
-	spdxtool_serialize_object_add_string(object, "simplelicensing_licenseExpression", expression->license_expression);
-	return spdxtool_serialize_object(object);
+	ret = spdxtool_serialize_value_object(object_list);
+	object_list = NULL;
+
+err:
+	if (!ret)
+		pkgconf_error(client, "spdxtool_simplelicensing_licenseExpression_to_object: out of memory");
+
+	spdxtool_serialize_object_list_free(object_list);
+	return ret;
 }
