@@ -30,34 +30,26 @@
 spdxtool_simplelicensing_license_expression_t *
 spdxtool_simplelicensing_licenseExpression_new(pkgconf_client_t *client, const char *license)
 {
-	spdxtool_simplelicensing_license_expression_t *expression = NULL;
-	char *nlicense = NULL;
-
-	if(!client || !license)
-	{
+	if (!client || !license)
 		return NULL;
-	}
 
-	expression = calloc(1, sizeof(spdxtool_simplelicensing_license_expression_t));
-	if(!expression)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create simplelicense_expression struct!");
-		return NULL;
-	}
-
-	nlicense = strdup(license);
-	if(!nlicense)
-	{
-		pkgconf_error(client, "Memory exhausted! Can't create simplelicense_expression struct!");
-		free(expression);
-		return NULL;
-	}
+	spdxtool_simplelicensing_license_expression_t *expression = calloc(1, sizeof(spdxtool_simplelicensing_license_expression_t));
+	if (!expression)
+		goto err;
 
 	expression->type = "simplelicensing_LicenseExpression";
-	expression->license_expression = nlicense;
+	expression->license_expression = strdup(license);
 	expression->spdx_id = spdxtool_util_get_spdx_id_string(client, expression->type, license);
 
+	if (!expression->license_expression || !expression->spdx_id)
+		goto err;
+
 	return expression;
+
+err:
+	pkgconf_error(client, "spdxtool_simplelicensing_licenseExpression_new: out of memory");
+	spdxtool_simplelicensing_licenseExpression_free(expression);
+	return NULL;
 }
 
 /*

@@ -58,7 +58,9 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 {
 	spdxtool_core_spdx_document_t *document = (spdxtool_core_spdx_document_t *)ptr;
 	pkgconf_node_t *node = NULL;
-	char *package_spdx = NULL, *spdx_id_string = NULL;
+	spdxtool_software_sbom_t *sbom = NULL;
+	char *package_spdx = NULL;
+	char *spdx_id_string = NULL;
 	char sep = spdxtool_util_get_uri_separator(client);
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
@@ -66,29 +68,20 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 
 	spdx_id_string = spdxtool_util_get_spdx_id_string(client, "software_Sbom", pkg->id);
 	if (!spdx_id_string)
-	{
-		pkgconf_error(client, "generate_spdx_package: Couldn't create spdx_id_string");
-		return;
-	}
+		goto err;
 
-	spdxtool_software_sbom_t *sbom = spdxtool_software_sbom_new(client, spdx_id_string, document->creation_info, "build");
+	sbom = spdxtool_software_sbom_new(client, spdx_id_string, document->creation_info, "build");
 	free(spdx_id_string);
 	spdx_id_string = NULL;
 	if (!sbom)
-	{
-		pkgconf_error(client, "generate_spdx_package: Couldn't create sbom struct");
-		return;
-	}
+		goto err;
 
 	sbom->spdx_document = document;
 	sbom->rootElement = pkg;
 
 	package_spdx = spdxtool_util_get_spdx_id_string(client, "Package", pkg->id);
 	if (!package_spdx)
-	{
-		pkgconf_error(client, "generate_spdx_package: Couldn't create spdx id string");
-		return;
-	}
+		goto err;
 
 	pkgconf_tuple_add(client, &pkg->vars, "spdxId", package_spdx, false, 0);
 	free(package_spdx);
@@ -100,39 +93,33 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	if (pkg->license.head != NULL)
 	{
 		pkgconf_buffer_t spdx_id_buf = PKGCONF_BUFFER_INITIALIZER;
+
 		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s%chasDeclaredLicense", pkg->id, sep);
 		char *spdx_id_name = pkgconf_buffer_freeze(&spdx_id_buf);
 		if (!spdx_id_name)
-		{
-			pkgconf_error(client, "generate_spdx_package: out of memory");
-			return;
-		}
+			goto err;
 
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
 		free(spdx_id_name);
 		if (!package_spdx)
-		{
-			pkgconf_error(client, "generate_spdx_package: Couldn't create spdx id string");
-			return;
-		}
+			goto err;
 
 		pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0);
-
 		free(package_spdx);
 		package_spdx = NULL;
 
-		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s%chasConcludedLicense", pkg->id, sep);
-		spdx_id_name = pkgconf_buffer_freeze(&spdx_id_buf);
+		pkgconf_buffer_t concluded_buf = PKGCONF_BUFFER_INITIALIZER;
+		pkgconf_buffer_append_fmt(&concluded_buf, "%s%chasConcludedLicense", pkg->id, sep);
+		spdx_id_name = pkgconf_buffer_freeze(&concluded_buf);
+		if (!spdx_id_name)
+			goto err;
+
 		package_spdx = spdxtool_util_get_spdx_id_string(client, "Relationship", spdx_id_name);
 		free(spdx_id_name);
 		if (!package_spdx)
-		{
-			pkgconf_error(client, "generate_spdx_package: Couldn't create spdx id string");
-			return;
-		}
+			goto err;
 
 		pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0);
-
 		free(package_spdx);
 		package_spdx = NULL;
 
@@ -141,19 +128,24 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 			const pkgconf_license_t *license = node->data;
 			if (license->type == PKGCONF_LICENSE_EXPRESSION)
 			{
-				spdxtool_core_spdx_document_add_license(client, document, license->data);
+				if (!spdxtool_core_spdx_document_add_license(client, document, license->data))
+					goto err;
 			}
 		}
 	}
 
 	node = calloc(1, sizeof(pkgconf_node_t));
 	if (!node)
-	{
-		pkgconf_error(client, "Memory exhausted!");
-		return;
-	}
+		goto err;
 
 	pkgconf_node_insert_tail(node, sbom, &document->rootElement);
+	return;
+
+err:
+	pkgconf_error(client, "generate_spdx_package: failed for %s", pkg->id);
+	free(package_spdx);
+	free(spdx_id_string);
+	spdxtool_software_sbom_free(sbom);
 }
 
 static bool

@@ -81,6 +81,9 @@ pkgconf_license_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, 
 void
 pkgconf_license_free(pkgconf_list_t *list)
 {
+	if (!list)
+		return;
+
 	pkgconf_node_t *node, *next;
 
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(list->head, next, node)
