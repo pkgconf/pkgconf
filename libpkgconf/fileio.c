@@ -38,45 +38,6 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 				quoted = true;
 				continue;
 			}
-			else if (c == '#')
-			{
-				if (!quoted)
-				{
-					while (*p != '\0' && *p != '\n' && *p != '\r')
-						p++;
-
-					if (*p == '\r')
-					{
-						if (p[1] == '\n')
-							p++;
-
-						if (quoted)
-						{
-							quoted = false;
-							break;
-						}
-
-						goto done;
-					}
-					else if (*p == '\n')
-					{
-						if (quoted)
-						{
-							quoted = false;
-							break;
-						}
-
-						goto done;
-					}
-
-					break;
-				}
-				else
-					pkgconf_buffer_push_byte(buffer, (char) c);
-
-				quoted = false;
-				continue;
-			}
 			else if (c == '\n')
 			{
 				if (quoted)
