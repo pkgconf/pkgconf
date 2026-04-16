@@ -17,11 +17,57 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+static void
+pkgconf_parser_canonicalize_line(pkgconf_buffer_t *buffer)
+{
+	bool escaped = false;
+	char *buf = buffer->base;
+	char *src = buf, *dst = buf;
+
+	if (buf == NULL)
+		return;
+
+	for (; *src != '\0'; src++)
+	{
+		if (*src == '\\' && !escaped)
+		{
+			escaped = true;
+			continue;
+		}
+
+		if (*src == '#' && !escaped)
+			break;
+
+		if (escaped)
+		{
+			if (*src == '#')
+			{
+				*dst++ = '#';
+				escaped = false;
+				continue;
+			}
+
+			*dst++ = '\\';
+			escaped = false;
+		}
+
+		*dst++ = *src;
+	}
+
+	if (escaped)
+		*dst++ = '\\';
+
+	*dst = '\0';
+	buffer->end = dst;
+}
+
 void
 pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, pkgconf_buffer_t *buffer, const char *warnprefix)
 {
 	char op, *p, *key, *value;
 	size_t vallen;
+
+	pkgconf_parser_canonicalize_line(buffer);
 
 	p = buffer->base;
 	if (p == NULL)
