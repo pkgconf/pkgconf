@@ -28,7 +28,11 @@ Changes from 2.5.0 to 3.0.0:
 * New pc(5) features:
   - Source tag: a URI which describes where a given package may be downloaded.
   - License.file tag: a path to a license file that is on disk.
-  Patches by Tuukka Pasanen.
+  - Requires.shared tag: like Requires.private, except a list of dependencies only used
+    when building in shared mode.
+  - Cflags.shared tag: like Cflags.private, except a list of CFLAGS only used when Building
+    in shared mode.
+  Patches by Tuukka Pasanen and Elizabeth Ashford.
 
 * Allow variables to be overridden using `PKG_CONFIG_MODULENAME_VARIABLENAME`
   environmental variables.  This was formally specified but never implemented
