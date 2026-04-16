@@ -585,23 +585,23 @@ static inline bool pkgconf_span_contains(unsigned char c, const pkgconf_span_t *
 	return false;
 }
 
-PKGCONF_API void pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text);
-PKGCONF_API void pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n);
-PKGCONF_API void pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...) PRINTFLIKE(2, 3);
-PKGCONF_API void pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list va) PRINTFLIKE(2, 0);
-PKGCONF_API void pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text);
-PKGCONF_API void pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte);
-PKGCONF_API void pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer);
+PKGCONF_API bool pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text);
+PKGCONF_API bool pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n);
+PKGCONF_API bool pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...) PRINTFLIKE(2, 3);
+PKGCONF_API bool pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list va) PRINTFLIKE(2, 0);
+PKGCONF_API bool pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text);
+PKGCONF_API bool pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte);
+PKGCONF_API bool pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer);
 PKGCONF_API void pkgconf_buffer_finalize(pkgconf_buffer_t *buffer);
-PKGCONF_API void pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out);
-PKGCONF_API void pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list va);
-PKGCONF_API void pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...);
+PKGCONF_API bool pkgconf_buffer_fputs(pkgconf_buffer_t *buffer, FILE *out);
+PKGCONF_API bool pkgconf_buffer_vjoin(pkgconf_buffer_t *buffer, char delim, va_list va);
+PKGCONF_API bool pkgconf_buffer_join(pkgconf_buffer_t *buffer, int delim, ...);
 PKGCONF_API bool pkgconf_buffer_has_prefix(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *prefix);
 PKGCONF_API bool pkgconf_buffer_contains(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
 PKGCONF_API bool pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, char needle);
 PKGCONF_API bool pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
-PKGCONF_API void pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value);
-PKGCONF_API void pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans);
+PKGCONF_API bool pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value);
+PKGCONF_API bool pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans);
 static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer) {
 	return buffer->base;
 }
