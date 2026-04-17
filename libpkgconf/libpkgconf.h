@@ -602,19 +602,64 @@ PKGCONF_API bool pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, 
 PKGCONF_API bool pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
 PKGCONF_API bool pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value);
 PKGCONF_API bool pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans);
-static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer) {
+
+/*
+ * !doc
+ *
+ * .. c:function:: static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer)
+ *
+ *    Get the underlying string from the buffer. This may return :code:`NULL`.
+ *
+ *    :param const pkgconf_buffer_t *buffer: The buffer to get the string from.
+ *    :return: The underlying string.
+ */
+static inline const char *pkgconf_buffer_str(const pkgconf_buffer_t *buffer)
+{
 	return buffer->base;
 }
 
-static inline const char *pkgconf_buffer_str_or_empty(const pkgconf_buffer_t *buffer) {
+/*
+ * !doc
+ *
+ * .. c:function:: static inline const char *pkgconf_buffer_str_or_empty(const pkgconf_buffer_t *buffer)
+ *
+ *    Get the underlying string from the buffer, or the empty string if :code:`NULL`.
+ *
+ *    :param const pkgconf_buffer_t *buffer: The buffer to get the string from.
+ *    :return: The underlying string, or the empty string.
+ */
+static inline const char *pkgconf_buffer_str_or_empty(const pkgconf_buffer_t *buffer)
+{
 	return buffer->base != NULL ? buffer->base : "";
 }
 
-static inline size_t pkgconf_buffer_len(const pkgconf_buffer_t *buffer) {
+/*
+ * !doc
+ *
+ * .. c:function:: static inline size_t *pkgconf_buffer_len(const pkgconf_buffer_t *buffer)
+ *
+ *    Get the underlying raw buffer length.
+ *
+ *    :param const pkgconf_buffer_t *buffer: The buffer to check the length of.
+ *    :return: The size of the underlying buffer.
+ */
+static inline size_t pkgconf_buffer_len(const pkgconf_buffer_t *buffer)
+{
 	return (size_t)(ptrdiff_t)(buffer->end - buffer->base);
 }
 
-static inline char pkgconf_buffer_lastc(const pkgconf_buffer_t *buffer) {
+/*
+ * !doc
+ *
+ * .. c:function:: static inline const char *pkgconf_buffer_lastc(const pkgconf_buffer_t *buffer)
+ *
+ *    Get the last character from the buffer. If the buffer is empty, return :code:`'\0'`.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to get the last character from.
+ *    :return: The last character, or '\0' if the string is empty.
+ */
+static inline char pkgconf_buffer_lastc(const pkgconf_buffer_t *buffer)
+{
 	if (buffer->base == buffer->end)
 		return '\0';
 
@@ -625,12 +670,35 @@ static inline char pkgconf_buffer_lastc(const pkgconf_buffer_t *buffer) {
 #define PKGCONF_BUFFER_FROM_STR(str) &(const pkgconf_buffer_t){ .base = str, .end = ((str) ? &(str)[strlen(str)] : (str)) }
 #define PKGCONF_BUFFER_FROM_STR_NONNULL(str) &(const pkgconf_buffer_t){ .base = str, .end = &(str)[strlen(str)] }
 
-static inline void pkgconf_buffer_reset(pkgconf_buffer_t *buffer) {
+/*
+ * !doc
+ *
+ * .. c:function:: static inline void pkgconf_buffer_reset(const pkgconf_buffer_t *buffer)
+ *
+ *    Reset the underlying buffer, freeing any existing string.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to reset.
+ *    :return: nothing
+ */
+static inline void pkgconf_buffer_reset(pkgconf_buffer_t *buffer)
+{
 	pkgconf_buffer_finalize(buffer);
 	buffer->base = buffer->end = NULL;
 }
 
-static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer) {
+/*
+ * !doc
+ *
+ * .. c:function:: static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer)
+ *
+ *    Free the underlying buffer, copying the underlying string.
+ *    The string must be freed by the caller.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to freeze.
+ *    :return: The underlying string, copied.
+ */
+static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer)
+{
 	if (buffer->base == NULL)
 		return NULL;
 
@@ -639,12 +707,35 @@ static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer) {
 	return out;
 }
 
-static inline void pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_t *newptr)
+/*
+ * !doc
+ *
+ * .. c:function:: static inline bool pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_t *newptr)
+ *
+ *    Copy the contents of one buffer to another, erasing the contents of the buffer in :code:`newptr`.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to copy from.
+ *    :param pkgconf_buffer_t *buffer: The buffer to copy to.
+ *    :return: :code:`true` on success, :code:`false` on failure.
+ */
+static inline bool pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_t *newptr)
 {
 	pkgconf_buffer_reset(newptr);
-	pkgconf_buffer_append_slice(newptr, pkgconf_buffer_str(buffer), pkgconf_buffer_len(buffer));
+	return pkgconf_buffer_append_slice(newptr, pkgconf_buffer_str(buffer), pkgconf_buffer_len(buffer));
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: static inline bool pkgconf_str_eq_slice(const char *s, const char *p, size_t n)
+ *
+ *    Compare :code:`s` to :code:`p`, which must be :code:`n` size long.
+ *
+ *    :param const char *s: string to search
+ *    :param const char *p: string to search for
+ *    :param size_t n: length of :code:`s`
+ *    :return: :code:`true` if equal, :code:`false` if not.
+ */
 static inline bool pkgconf_str_eq_slice(const char *s, const char *p, size_t n)
 {
 	return s != NULL &&
