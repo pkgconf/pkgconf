@@ -32,34 +32,28 @@
 #define PKGCONF_EVAL_MAX_ITERATIONS (512)
 
 static bool
-pkgconf_bytecode_eval_append_slice(pkgconf_bytecode_eval_ctx_t *ctx,
-	pkgconf_buffer_t *out,
-	const char *p,
-	size_t n)
+pkgconf_bytecode_eval_append_slice(pkgconf_bytecode_eval_ctx_t *ctx, pkgconf_buffer_t *out, const char *p, size_t n)
 {
 	size_t cur = pkgconf_buffer_len(out);
-
 	if (cur >= PKGCONF_EVAL_MAX_OUTPUT)
 		return false;
 
 	if (n > PKGCONF_EVAL_MAX_OUTPUT - cur)
 	{
-		pkgconf_warn(ctx->client,
-			"warning: truncating very long variable to 64KB\n");
+		pkgconf_warn(ctx->client, "warning: truncating very long variable to 64KB\n");
 
 		n = PKGCONF_EVAL_MAX_OUTPUT - cur;
-		pkgconf_buffer_append_slice(out, p, n);
+		if (!pkgconf_buffer_append_slice(out, p, n))
+			pkgconf_error(ctx->client, "pkgconf_bytecode_eval_append_slice: failed to append to slice");
+
 		return false;
 	}
 
-	pkgconf_buffer_append_slice(out, p, n);
-	return true;
+	return pkgconf_buffer_append_slice(out, p, n);
 }
 
 static bool
-pkgconf_bytecode_eval_append(pkgconf_bytecode_eval_ctx_t *ctx,
-	pkgconf_buffer_t *out,
-	const char *s)
+pkgconf_bytecode_eval_append(pkgconf_bytecode_eval_ctx_t *ctx, pkgconf_buffer_t *out, const char *s)
 {
 	if (s == NULL || *s == '\0')
 		return true;
@@ -68,16 +62,10 @@ pkgconf_bytecode_eval_append(pkgconf_bytecode_eval_ctx_t *ctx,
 }
 
 static bool
-pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
-	const pkgconf_bytecode_t *bc,
-	pkgconf_buffer_t *out,
-	bool *saw_sysroot);
+pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot);
 
 static pkgconf_variable_t *
-pkgconf_bytecode_eval_scan(const pkgconf_list_t *vars,
-	const char *name, size_t nlen,
-	unsigned int require_flags,
-	unsigned int forbid_flags)
+pkgconf_bytecode_eval_scan(const pkgconf_list_t *vars, const char *name, size_t nlen, unsigned int require_flags, unsigned int forbid_flags)
 {
 	const pkgconf_node_t *node;
 
@@ -99,8 +87,7 @@ pkgconf_bytecode_eval_scan(const pkgconf_list_t *vars,
 }
 
 pkgconf_variable_t *
-pkgconf_bytecode_eval_lookup_var(pkgconf_bytecode_eval_ctx_t *ctx,
-	const char *name, size_t nlen)
+pkgconf_bytecode_eval_lookup_var(pkgconf_bytecode_eval_ctx_t *ctx, const char *name, size_t nlen)
 {
 	pkgconf_variable_t *v;
 
@@ -117,10 +104,7 @@ pkgconf_bytecode_eval_lookup_var(pkgconf_bytecode_eval_ctx_t *ctx,
 }
 
 static bool
-pkgconf_bytecode_eval_var(pkgconf_bytecode_eval_ctx_t *ctx,
-	const char *name, size_t nlen,
-	pkgconf_buffer_t *out,
-	bool *saw_sysroot)
+pkgconf_bytecode_eval_var(pkgconf_bytecode_eval_ctx_t *ctx, const char *name, size_t nlen, pkgconf_buffer_t *out, bool *saw_sysroot)
 {
 	pkgconf_variable_t *v;
 
@@ -148,10 +132,7 @@ pkgconf_bytecode_eval_var(pkgconf_bytecode_eval_ctx_t *ctx,
 }
 
 static bool
-pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
-	const pkgconf_bytecode_t *bc,
-	pkgconf_buffer_t *out,
-	bool *saw_sysroot)
+pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot)
 {
 	(void) ctx;
 
@@ -211,10 +192,8 @@ pkgconf_bytecode_eval_internal(pkgconf_bytecode_eval_ctx_t *ctx,
 	return true;
 }
 
-static void
-pkgconf_bytecode_eval_ctx_init(pkgconf_bytecode_eval_ctx_t *ctx,
-	const pkgconf_client_t *client,
-	const pkgconf_list_t *vars)
+static bool
+pkgconf_bytecode_eval_ctx_init(pkgconf_bytecode_eval_ctx_t *ctx, const pkgconf_client_t *client, const pkgconf_list_t *vars)
 {
 	memset(ctx, 0, sizeof(*ctx));
 
@@ -225,30 +204,35 @@ pkgconf_bytecode_eval_ctx_init(pkgconf_bytecode_eval_ctx_t *ctx,
 
 	/* disabled sysroot cases */
 	if (raw == NULL || *raw == '\0')
-		return;
+		return true;
 
 	if (raw[0] == '.' && raw[1] == '\0')
-		return;
+		return true;
 
 	if (raw[0] == '/' && raw[1] == '\0')
-		return;
+		return true;
 
-	pkgconf_buffer_append(&ctx->sysroot, raw);
+	if (!pkgconf_buffer_append(&ctx->sysroot, raw))
+		return false;
 
 	while (pkgconf_buffer_len(&ctx->sysroot) > 1 && ctx->sysroot.end[-1] == '/')
-		pkgconf_buffer_trim_byte(&ctx->sysroot);
+	{
+		if (!pkgconf_buffer_trim_byte(&ctx->sysroot))
+			return false;
+	}
 
 	/* if normalization yields "/", disable by making buffer empty */
 	if (pkgconf_buffer_len(&ctx->sysroot) == 1 && ctx->sysroot.base[0] == '/')
-		pkgconf_buffer_trim_byte(&ctx->sysroot);
+	{
+		if (!pkgconf_buffer_trim_byte(&ctx->sysroot))
+			return false;
+	}
+
+	return true;
 }
 
 bool
-pkgconf_bytecode_eval(const pkgconf_client_t *client,
-	const pkgconf_list_t *vars,
-	const pkgconf_bytecode_t *bc,
-	pkgconf_buffer_t *out,
-	bool *saw_sysroot)
+pkgconf_bytecode_eval(const pkgconf_client_t *client, const pkgconf_list_t *vars, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot)
 {
 	bool ret;
 
@@ -256,7 +240,8 @@ pkgconf_bytecode_eval(const pkgconf_client_t *client,
 		return false;
 
 	pkgconf_bytecode_eval_ctx_t ctx;
-	pkgconf_bytecode_eval_ctx_init(&ctx, client, vars);
+	if (!pkgconf_bytecode_eval_ctx_init(&ctx, client, vars))
+		return false;
 
 	if (saw_sysroot != NULL)
 		*saw_sysroot = false;
@@ -268,45 +253,48 @@ pkgconf_bytecode_eval(const pkgconf_client_t *client,
 	return ret;
 }
 
-void
-pkgconf_bytecode_emit(pkgconf_buffer_t *buf,
-	enum pkgconf_bytecode_op tag,
-	const void *data,
-	uint32_t size)
+bool
+pkgconf_bytecode_emit(pkgconf_buffer_t *buf, enum pkgconf_bytecode_op tag, const void *data, uint32_t size)
 {
 	pkgconf_bytecode_op_t op = {
 		.tag = tag,
 		.size = size,
 	};
 
-	pkgconf_buffer_append_slice(buf, (const char *) &op, sizeof(op));
+	if (!pkgconf_buffer_append_slice(buf, (const char *) &op, sizeof(op)))
+		return false;
 
 	if (size != 0)
-		pkgconf_buffer_append_slice(buf, (const char *) data, (size_t) size);
+	{
+		if (!pkgconf_buffer_append_slice(buf, (const char *) data, (size_t) size))
+			return false;
+	}
+
+	return true;
 }
 
-void
+bool
 pkgconf_bytecode_emit_text(pkgconf_buffer_t *buf, const char *p, size_t n)
 {
 	if (p == NULL || n == 0)
-		return;
+		return true;
 
-	pkgconf_bytecode_emit(buf, PKGCONF_BYTECODE_OP_TEXT, p, (uint32_t) n);
+	return pkgconf_bytecode_emit(buf, PKGCONF_BYTECODE_OP_TEXT, p, (uint32_t) n);
 }
 
-void
+bool
 pkgconf_bytecode_emit_var(pkgconf_buffer_t *buf, const char *name, size_t nlen)
 {
 	if (name == NULL || nlen == 0)
-		return;
+		return true;
 
-	pkgconf_bytecode_emit(buf, PKGCONF_BYTECODE_OP_VAR, name, (uint32_t) nlen);
+	return pkgconf_bytecode_emit(buf, PKGCONF_BYTECODE_OP_VAR, name, (uint32_t) nlen);
 }
 
-void
+bool
 pkgconf_bytecode_emit_sysroot(pkgconf_buffer_t *buf)
 {
-	pkgconf_bytecode_emit(buf, PKGCONF_BYTECODE_OP_SYSROOT, NULL, 0);
+	return pkgconf_bytecode_emit(buf, PKGCONF_BYTECODE_OP_SYSROOT, NULL, 0);
 }
 
 void
@@ -316,13 +304,13 @@ pkgconf_bytecode_from_buffer(pkgconf_bytecode_t *bc, const pkgconf_buffer_t *buf
 	bc->len = (size_t)(buf->end - buf->base);
 }
 
-void
+bool
 pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value)
 {
 	const char *p, *text_start;
 
 	if (out == NULL || value == NULL)
-		return;
+		return false;
 
 	p = value;
 	text_start = value;
@@ -338,9 +326,13 @@ pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value)
 		if (p[1] == '$')
 		{
 			if (p > text_start)
-				pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start));
+			{
+				if (!pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start)))
+					return false;
+			}
 
-			pkgconf_bytecode_emit_text(out, "$", 1);
+			if (!pkgconf_bytecode_emit_text(out, "$", 1))
+				return false;
 
 			p++;
 			text_start = p + 1;
@@ -351,7 +343,10 @@ pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value)
 			continue;
 
 		if (p > text_start)
-			pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start));
+		{
+			if (!pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start)))
+				return false;
+		}
 
 		name = p + 2;
 		q = name;
@@ -370,7 +365,9 @@ pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value)
 		size_t nlen = (size_t)(q - name);
 		if (nlen == 0 || nlen >= PKGCONF_ITEM_SIZE)
 		{
-			pkgconf_bytecode_emit_text(out, p, (size_t)((q + 1) - p));
+			if (!pkgconf_bytecode_emit_text(out, p, (size_t)((q + 1) - p)))
+				return false;
+
 			p = q;
 			text_start = p + 1;
 			continue;
@@ -378,16 +375,27 @@ pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value)
 
 		/* we need to special-case ${pc_sysrootdir} and emit OP_SYSROOT instead... */
 		if (nlen == strlen("pc_sysrootdir") && !memcmp(name, "pc_sysrootdir", nlen))
-			pkgconf_bytecode_emit_sysroot(out);
+		{
+			if (!pkgconf_bytecode_emit_sysroot(out))
+				return false;
+		}
 		else
-			pkgconf_bytecode_emit_var(out, name, nlen);
+		{
+			if (!pkgconf_bytecode_emit_var(out, name, nlen))
+				return false;
+		}
 
 		p = q;
 		text_start = p + 1;
 	}
 
 	if (p > text_start)
-		pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start));
+	{
+		if (!pkgconf_bytecode_emit_text(out, text_start, (size_t)(p - text_start)))
+			return false;
+	}
+
+	return true;
 }
 
 bool
@@ -397,7 +405,12 @@ pkgconf_bytecode_eval_str_to_buf(const pkgconf_client_t *client, const pkgconf_l
 	pkgconf_bytecode_t bc;
 	bool ret = false;
 
-	pkgconf_bytecode_compile(&bcbuf, input);
+	if (!pkgconf_bytecode_compile(&bcbuf, input))
+	{
+		pkgconf_buffer_finalize(&bcbuf);
+		return false;
+	}
+
 	pkgconf_bytecode_from_buffer(&bc, &bcbuf);
 
 	ret = pkgconf_bytecode_eval(client, vars, &bc, out, saw_sysroot);
@@ -479,13 +492,13 @@ pkgconf_bytecode_op_is_selfref(const pkgconf_bytecode_op_t *op, const char *key)
 	return pkgconf_str_eq_slice(op->data, key, klen);
 }
 
-static void
+static bool
 pkgconf_bytecode_append_stream(pkgconf_buffer_t *dst, const pkgconf_buffer_t *bcbuf)
 {
 	if (dst == NULL || bcbuf == NULL || pkgconf_buffer_str(bcbuf) == NULL)
-		return;
+		return true;
 
-	pkgconf_buffer_append_slice(dst, pkgconf_buffer_str(bcbuf), pkgconf_buffer_len(bcbuf));
+	return pkgconf_buffer_append_slice(dst, pkgconf_buffer_str(bcbuf), pkgconf_buffer_len(bcbuf));
 }
 
 bool
@@ -505,9 +518,15 @@ pkgconf_bytecode_rewrite_selfrefs(pkgconf_buffer_t *out, const pkgconf_buffer_t 
 			return false;
 
 		if (pkgconf_bytecode_op_is_selfref(op, key))
-			pkgconf_bytecode_append_stream(out, prev);
+		{
+			if (!pkgconf_bytecode_append_stream(out, prev))
+				return false;
+		}
 		else
-			pkgconf_buffer_append_slice(out, (const char *) op, sizeof(*op) + op->size);
+		{
+			if (!pkgconf_buffer_append_slice(out, (const char *) op, sizeof(*op) + op->size))
+				return false;
+		}
 
 		p += sizeof(*op) + op->size;
 	}

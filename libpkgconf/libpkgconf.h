@@ -346,12 +346,12 @@ typedef struct pkgconf_bytecode_eval_ctx_ {
 } pkgconf_bytecode_eval_ctx_t;
 
 PKGCONF_API bool pkgconf_bytecode_eval(const pkgconf_client_t *client, const pkgconf_list_t *tuples, const pkgconf_bytecode_t *bc, pkgconf_buffer_t *out, bool *saw_sysroot);
-PKGCONF_API void pkgconf_bytecode_emit(pkgconf_buffer_t *buf, enum pkgconf_bytecode_op tag, const void *data, uint32_t size);
-PKGCONF_API void pkgconf_bytecode_emit_text(pkgconf_buffer_t *buf, const char *p, size_t n);
-PKGCONF_API void pkgconf_bytecode_emit_var(pkgconf_buffer_t *buf, const char *name, size_t nlen);
-PKGCONF_API void pkgconf_bytecode_emit_sysroot(pkgconf_buffer_t *buf);
+PKGCONF_API bool pkgconf_bytecode_emit(pkgconf_buffer_t *buf, enum pkgconf_bytecode_op tag, const void *data, uint32_t size);
+PKGCONF_API bool pkgconf_bytecode_emit_text(pkgconf_buffer_t *buf, const char *p, size_t n);
+PKGCONF_API bool pkgconf_bytecode_emit_var(pkgconf_buffer_t *buf, const char *name, size_t nlen);
+PKGCONF_API bool pkgconf_bytecode_emit_sysroot(pkgconf_buffer_t *buf);
 PKGCONF_API void pkgconf_bytecode_from_buffer(pkgconf_bytecode_t *bc, const pkgconf_buffer_t *buf);
-PKGCONF_API void pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value);
+PKGCONF_API bool pkgconf_bytecode_compile(pkgconf_buffer_t *out, const char *value);
 PKGCONF_API bool pkgconf_bytecode_eval_str_to_buf(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot, pkgconf_buffer_t *out);
 PKGCONF_API char *pkgconf_bytecode_eval_str(const pkgconf_client_t *client, const pkgconf_list_t *vars, const char *input, bool *saw_sysroot);
 PKGCONF_API pkgconf_variable_t *pkgconf_bytecode_eval_lookup_var(pkgconf_bytecode_eval_ctx_t *ctx, const char *name, size_t nlen);
