@@ -30,15 +30,19 @@ pkgconf_bufferset_t *
 pkgconf_bufferset_extend(pkgconf_list_t *list, pkgconf_buffer_t *buffer)
 {
 	pkgconf_bufferset_t *set = calloc(1, sizeof(*set));
-
 	if (set == NULL)
 		return NULL;
 
 	if (pkgconf_buffer_len(buffer))
-		pkgconf_buffer_append(&set->buffer, pkgconf_buffer_str(buffer));
+	{
+		if (!pkgconf_buffer_append(&set->buffer, pkgconf_buffer_str(buffer)))
+		{
+			free(set);
+			return NULL;
+		}
+	}
 
 	pkgconf_node_insert_tail(&set->node, set, list);
-
 	return set;
 }
 
