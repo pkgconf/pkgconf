@@ -41,10 +41,15 @@ static inline const char *
 dependency_to_buf(const pkgconf_dependency_t *dep, pkgconf_buffer_t *buf)
 {
 	pkgconf_buffer_reset(buf);
-	pkgconf_buffer_append(buf, dep->package);
+
+	if (!pkgconf_buffer_append(buf, dep->package))
+		return "";
 
 	if (dep->version != NULL)
-		pkgconf_buffer_append_fmt(buf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
+	{
+		if (!pkgconf_buffer_append_fmt(buf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version))
+			return "";
+	}
 
 	return pkgconf_buffer_str(buf);
 }
@@ -83,7 +88,7 @@ add_or_replace_dependency_node(pkgconf_client_t *client, pkgconf_dependency_t *d
 		const char *depstr2 = dependency_to_buf(dep2, &depbuf2);
 
 		PKGCONF_TRACE(client, "dependency collision: [%s/%x] -- [%s/%x]",
-			      depstr, dep->flags, depstr2, dep2->flags);
+			depstr, dep->flags, depstr2, dep2->flags);
 
 		/* prefer the uncoloured node, either dep or dep2 */
 		if (dep->flags && dep2->flags == 0)
@@ -326,8 +331,11 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 	if (depends == NULL || *depends == '\0')
 		return;
 
-	pkgconf_buffer_append(&buf, depends);
-	pkgconf_buffer_append(&buf, " ");
+	if (!pkgconf_buffer_append(&buf, depends))
+		goto out;
+
+	if (!pkgconf_buffer_append(&buf, " "))
+		goto out;
 
 	if (buf.base == NULL)
 		goto out;
@@ -405,7 +413,8 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 				break;
 
 			pkgconf_buffer_reset(&cmpname);
-			pkgconf_buffer_append_slice(&cmpname, opstart, ptr - opstart);
+			if (!pkgconf_buffer_append_slice(&cmpname, opstart, ptr - opstart))
+				goto out;
 			compare = pkgconf_pkg_comparator_lookup_by_name(pkgconf_buffer_str(&cmpname));
 			state = AFTER_OPERATOR;
 			// fallthrough

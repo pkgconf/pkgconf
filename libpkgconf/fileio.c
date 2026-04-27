@@ -22,17 +22,13 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 	bool quoted = false;
 	bool got_data = false;
 	char in[PKGCONF_ITEM_SIZE];
-
 	while (fgets(in, sizeof in, stream) != NULL)
 	{
 		char *p = in;
-
 		got_data = true;
-
 		while (*p != '\0')
 		{
 			unsigned char c = (unsigned char) *p++;
-
 			if (c == '\\' && !quoted)
 			{
 				quoted = true;
@@ -46,34 +42,35 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 					continue;
 				}
 				else
-					pkgconf_buffer_push_byte(buffer, (char) c);
-
+				{
+					if (!pkgconf_buffer_push_byte(buffer, (char) c))
+						return false;
+				}
 				goto done;
 			}
 			else if (c == '\r')
 			{
-				pkgconf_buffer_push_byte(buffer, '\n');
-
+				if (!pkgconf_buffer_push_byte(buffer, '\n'))
+					return false;
 				if (*p == '\n')
 					p++;
-
 				if (quoted)
 				{
 					quoted = false;
 					continue;
 				}
-
 				goto done;
 			}
 			else
 			{
 				if (quoted)
 				{
-					pkgconf_buffer_push_byte(buffer, '\\');
+					if (!pkgconf_buffer_push_byte(buffer, '\\'))
+						return false;
 					quoted = false;
 				}
-
-				pkgconf_buffer_push_byte(buffer, (char) c);
+				if (!pkgconf_buffer_push_byte(buffer, (char) c))
+					return false;
 			}
 		}
 	}
@@ -81,10 +78,16 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 done:
 	/* Remove newline character. */
 	if (pkgconf_buffer_lastc(buffer) == '\n')
-		pkgconf_buffer_trim_byte(buffer);
+	{
+		if (!pkgconf_buffer_trim_byte(buffer))
+			return false;
+	}
 
 	if (pkgconf_buffer_lastc(buffer) == '\r')
-		pkgconf_buffer_trim_byte(buffer);
+	{
+		if (!pkgconf_buffer_trim_byte(buffer))
+			return false;
+	}
 
 	if (!got_data)
 		return false;

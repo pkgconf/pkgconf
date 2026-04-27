@@ -48,41 +48,59 @@ allowed_fragment(const pkgconf_fragment_t *frag)
 	return !(!frag->type || frag->data == NULL || strchr("DILl", frag->type) == NULL);
 }
 
-static void
+static bool
 msvc_renderer_render(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf)
 {
 	pkgconf_buffer_t tmpbuf = PKGCONF_BUFFER_INITIALIZER;
 	bool escape = ctx->escape;
+	bool success = false;
 
 	if (!allowed_fragment(frag))
-		return;
+		return true;
 
 	switch(frag->type) {
 	case 'D':
 	case 'I':
-		pkgconf_buffer_append_fmt(buf, "/%c", frag->type);
+		if (!pkgconf_buffer_append_fmt(buf, "/%c", frag->type))
+			goto out;
 		break;
 	case 'L':
-		pkgconf_buffer_append(buf, "/libpath:");
+		if (!pkgconf_buffer_append(buf, "/libpath:"))
+			goto out;
 		break;
 	}
 
-	pkgconf_buffer_append(&tmpbuf, frag->data);
+	if (!pkgconf_buffer_append(&tmpbuf, frag->data))
+		goto out;
 
 	if (frag->type == 'l')
-		pkgconf_buffer_append(&tmpbuf, ".lib");
+	{
+		if (!pkgconf_buffer_append(&tmpbuf, ".lib"))
+			goto out;
+	}
 
 	escape = should_quote(&tmpbuf);
 
 	if (escape)
-		pkgconf_buffer_push_byte(buf, '"');
+	{
+		if (!pkgconf_buffer_push_byte(buf, '"'))
+			goto out;
+	}
 
-	pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(&tmpbuf));
+	if (!pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(&tmpbuf)))
+		goto out;
 
 	if (escape)
-		pkgconf_buffer_push_byte(buf, '"');
+	{
+		if (!pkgconf_buffer_push_byte(buf, '"'))
+			goto out;
+	}
 
+	success = true;
+
+out:
 	pkgconf_buffer_finalize(&tmpbuf);
+	return success;
 }
 
 static pkgconf_fragment_render_ops_t msvc_renderer_ops = {
