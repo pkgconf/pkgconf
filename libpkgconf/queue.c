@@ -32,47 +32,74 @@
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *dep)
+ * .. c:function:: bool pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *dep)
  *
  *    Pushes a requested dependency onto the dependency resolver's queue which is described by
  *    a pkgconf_dependency_t node.
  *
  *    :param pkgconf_list_t* list: the dependency resolution queue to add the package request to.
  *    :param pkgconf_dependency_t* dep: the dependency requested
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on failure.
  */
-void
+bool
 pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *dep)
 {
 	pkgconf_buffer_t depbuf = PKGCONF_BUFFER_INITIALIZER;
-	pkgconf_queue_t *pkgq = calloc(1, sizeof(pkgconf_queue_t));
+	pkgconf_queue_t *pkgq;
 
-	pkgconf_buffer_append(&depbuf, dep->package);
-	if (dep->version != NULL)
-		pkgconf_buffer_append_fmt(&depbuf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
+	if (!pkgconf_buffer_append(&depbuf, dep->package))
+		goto oom;
+
+	if (dep->version != NULL &&
+		!pkgconf_buffer_append_fmt(&depbuf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version))
+		goto oom;
+
+	pkgq = calloc(1, sizeof(pkgconf_queue_t));
+	if (pkgq == NULL)
+		goto oom;
 
 	pkgq->package = pkgconf_buffer_freeze(&depbuf);
+	if (pkgq->package == NULL)
+	{
+		free(pkgq);
+		return false;
+	}
+
 	pkgconf_node_insert_tail(&pkgq->iter, pkgq, list);
+	return true;
+
+oom:
+	pkgconf_buffer_finalize(&depbuf);
+	return false;
 }
 
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_queue_push(pkgconf_list_t *list, const char *package)
+ * .. c:function:: bool pkgconf_queue_push(pkgconf_list_t *list, const char *package)
  *
  *    Pushes a requested dependency onto the dependency resolver's queue.
  *
  *    :param pkgconf_list_t* list: the dependency resolution queue to add the package request to.
  *    :param char* package: the dependency atom requested
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on failure.
  */
-void
+bool
 pkgconf_queue_push(pkgconf_list_t *list, const char *package)
 {
 	pkgconf_queue_t *pkgq = calloc(1, sizeof(pkgconf_queue_t));
+	if (pkgq == NULL)
+		return false;
 
 	pkgq->package = strdup(package);
+	if (pkgq->package == NULL)
+	{
+		free(pkgq);
+		return false;
+	}
+
 	pkgconf_node_insert_tail(&pkgq->iter, pkgq, list);
+	return true;
 }
 
 /*
@@ -95,9 +122,12 @@ pkgconf_queue_compile(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_li
 
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
 	{
-		pkgconf_queue_t *pkgq;
-
-		pkgq = iter->data;
+		pkgconf_queue_t *pkgq = iter->data;
+		if (!pkgq)
+		{
+			pkgconf_error(client, "dependency list corrupt");
+			return false;
+		}
 		pkgconf_dependency_parse(client, world, &world->required, pkgq->package, PKGCONF_PKG_DEPF_QUERY);
 	}
 
@@ -212,8 +242,7 @@ pkgconf_queue_collect_dependencies_main(pkgconf_client_t *client,
 	if (maxdepth == 0)
 		return eflags;
 
-	/* Short-circuit if we have already visited this node.
-	 */
+	// Short-circuit if we have already visited this node.
 	if (root->serial == client->serial)
 		return eflags;
 
@@ -290,6 +319,7 @@ pkgconf_queue_collect_conflicts(pkgconf_client_t *client,
 			pkgconf_dependency_t *conflict = cnode->data;
 			pkgconf_dependency_t *flattened_conflict = pkgconf_dependency_copy(client, conflict);
 
+			// NOTE: conflict_why being NULL is handled by callers
 			flattened_conflict->why = strdup(pkg->id);
 			pkgconf_node_insert(&flattened_conflict->iter, flattened_conflict, &world->conflicts);
 		}

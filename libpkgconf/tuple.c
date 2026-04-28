@@ -33,19 +33,19 @@
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *value)
+ * .. c:function:: bool pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *value)
  *
  *    Defines a global variable, replacing the previous declaration if one was set.
  *
  *    :param pkgconf_client_t* client: The pkgconf client object to modify.
  *    :param char* key: The key for the mapping (variable name).
  *    :param char* value: The value for the mapped entry.
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on failure.
  */
-void
+bool
 pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *value)
 {
-	pkgconf_tuple_add(client, &client->global_vars, key, value, false, 0);
+	return pkgconf_tuple_add(client, &client->global_vars, key, value, false, 0) != NULL;
 }
 
 /*
@@ -96,23 +96,24 @@ pkgconf_tuple_free_global(pkgconf_client_t *client)
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv)
+ * .. c:function:: bool pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv)
  *
  *    Parse and define a global variable.
  *
  *    :param pkgconf_client_t* client: The pkgconf client object to modify.
  *    :param char* kv: The variable in the form of ``key=value``.
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on failure.
  */
-void
+bool
 pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv)
 {
+	bool ret = false;
 	char *workbuf = strdup(kv);
 	char *value;
 	pkgconf_tuple_t *tuple;
 
 	if (workbuf == NULL)
-		goto out;
+		return false;
 
 	value = strchr(workbuf, '=');
 	if (value == NULL)
@@ -121,11 +122,15 @@ pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv)
 	*value++ = '\0';
 
 	tuple = pkgconf_tuple_add(client, &client->global_vars, workbuf, value, false, 0);
-	if (tuple != NULL)
-		tuple->flags = PKGCONF_PKG_TUPLEF_OVERRIDE;
+	if (tuple == NULL)
+		goto out;
+
+	tuple->flags = PKGCONF_PKG_TUPLEF_OVERRIDE;
+	ret = true;
 
 out:
 	free(workbuf);
+	return ret;
 }
 
 static char *
@@ -176,6 +181,7 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 {
 	char *dequote_value;
 	pkgconf_buffer_t rhs_bcbuf = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_variable_t *v;
 
 	(void) client;
 
@@ -186,7 +192,11 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 	if (dequote_value == NULL)
 		return NULL;
 
-	pkgconf_variable_t *v = pkgconf_variable_get_or_create(list, key);
+    /* TODO: if v was newly created here, a subsequent failure leaves it
+	 * in the list with stale or empty bytecode. Caller sees NULL but the
+	 * variable persists. Fixing this requires distinguishing get-vs-create
+	 * so we can roll back creation on failure. */
+	v = pkgconf_variable_get_or_create(list, key);
 	if (v == NULL)
 	{
 		free(dequote_value);
@@ -198,13 +208,22 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 	if (!parse)
 	{
 		pkgconf_buffer_reset(&v->bcbuf);
-		pkgconf_bytecode_emit_text(&v->bcbuf, dequote_value, strlen(dequote_value));
+		if (!pkgconf_bytecode_emit_text(&v->bcbuf, dequote_value, strlen(dequote_value)))
+		{
+			free(dequote_value);
+			return NULL;
+		}
 		pkgconf_bytecode_from_buffer(&v->bc, &v->bcbuf);
 		free(dequote_value);
 		return (pkgconf_tuple_t *) v;
 	}
 
-	pkgconf_bytecode_compile(&rhs_bcbuf, dequote_value);
+	if (!pkgconf_bytecode_compile(&rhs_bcbuf, dequote_value))
+	{
+		pkgconf_buffer_finalize(&rhs_bcbuf);
+		free(dequote_value);
+		return NULL;
+	}
 	free(dequote_value);
 
 	/* ugh, we are doing var=${var}/foo stuff */
@@ -214,7 +233,12 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 		pkgconf_buffer_t new_bcbuf = PKGCONF_BUFFER_INITIALIZER;
 
 		/* preserve the old bytecode */
-		pkgconf_buffer_copy(&v->bcbuf, &old_bcbuf);
+		if (!pkgconf_buffer_copy(&v->bcbuf, &old_bcbuf))
+		{
+			pkgconf_buffer_finalize(&old_bcbuf);
+			pkgconf_buffer_finalize(&rhs_bcbuf);
+			return NULL;
+		}
 
 		/* splice the selfrefs, using the old bytecode instead of ${var} */
 		if (!pkgconf_bytecode_rewrite_selfrefs(&new_bcbuf, &rhs_bcbuf, key, &old_bcbuf))
@@ -222,18 +246,27 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 			pkgconf_buffer_finalize(&old_bcbuf);
 			pkgconf_buffer_finalize(&new_bcbuf);
 			pkgconf_buffer_finalize(&rhs_bcbuf);
-
 			return NULL;
 		}
 
 		/* copy the spliced bytecode back to &rhs_bcbuf, replacing its contents */
-		pkgconf_buffer_copy(&new_bcbuf, &rhs_bcbuf);
+		if (!pkgconf_buffer_copy(&new_bcbuf, &rhs_bcbuf))
+		{
+			pkgconf_buffer_finalize(&old_bcbuf);
+			pkgconf_buffer_finalize(&new_bcbuf);
+			pkgconf_buffer_finalize(&rhs_bcbuf);
+			return NULL;
+		}
 
 		pkgconf_buffer_finalize(&old_bcbuf);
 		pkgconf_buffer_finalize(&new_bcbuf);
 	}
 
-	pkgconf_buffer_copy(&rhs_bcbuf, &v->bcbuf);
+	if (!pkgconf_buffer_copy(&rhs_bcbuf, &v->bcbuf))
+	{
+		pkgconf_buffer_finalize(&rhs_bcbuf);
+		return NULL;
+	}
 	pkgconf_bytecode_from_buffer(&v->bc, &v->bcbuf);
 	pkgconf_buffer_finalize(&rhs_bcbuf);
 

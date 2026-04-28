@@ -331,7 +331,8 @@ pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir
 
 	PKGCONF_TRACE(client, "set sysroot_dir to: %s", client->sysroot_dir != NULL ? client->sysroot_dir : "<default>");
 
-	pkgconf_tuple_add_global(client, "pc_sysrootdir", client->sysroot_dir != NULL ? client->sysroot_dir : "");
+	if (!pkgconf_tuple_add_global(client, "pc_sysrootdir", client->sysroot_dir != NULL ? client->sysroot_dir : ""))
+		return false;
 
 	return true;
 }
@@ -386,7 +387,8 @@ pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot
 
 	PKGCONF_TRACE(client, "set buildroot_dir to: %s", client->buildroot_dir != NULL ? client->buildroot_dir : "<default>");
 
-	pkgconf_tuple_add_global(client, "pc_top_builddir", client->buildroot_dir != NULL ? client->buildroot_dir : "$(top_builddir)");
+	if (!pkgconf_tuple_add_global(client, "pc_top_builddir", client->buildroot_dir != NULL ? client->buildroot_dir : "$(top_builddir)"))
+		return false;
 
 	return true;
 }

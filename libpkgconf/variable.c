@@ -70,6 +70,8 @@ pkgconf_variable_find(const pkgconf_list_t *vars, const char *key)
 	PKGCONF_FOREACH_LIST_ENTRY(vars->head, n)
 	{
 		pkgconf_variable_t *v = n->data;
+		if (!v)
+			return NULL;
 
 		if (!strcmp(v->key, key))
 			return v;

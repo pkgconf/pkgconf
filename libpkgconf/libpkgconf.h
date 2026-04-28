@@ -531,14 +531,14 @@ PKGCONF_API pkgconf_tuple_t *pkgconf_tuple_add(const pkgconf_client_t *client, p
 PKGCONF_API const char *pkgconf_tuple_find(pkgconf_client_t *client, pkgconf_list_t *list, const char *key);
 PKGCONF_API void pkgconf_tuple_free(pkgconf_list_t *list);
 PKGCONF_API void pkgconf_tuple_free_entry(pkgconf_tuple_t *tuple, pkgconf_list_t *list);
-PKGCONF_API void pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *value);
+PKGCONF_API bool pkgconf_tuple_add_global(pkgconf_client_t *client, const char *key, const char *value);
 PKGCONF_API const char *pkgconf_tuple_find_global(pkgconf_client_t *client, const char *key);
 PKGCONF_API void pkgconf_tuple_free_global(pkgconf_client_t *client);
-PKGCONF_API void pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv);
+PKGCONF_API bool pkgconf_tuple_define_global(pkgconf_client_t *client, const char *kv);
 
 /* queue.c */
-PKGCONF_API void pkgconf_queue_push(pkgconf_list_t *list, const char *package);
-PKGCONF_API void pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *dep);
+PKGCONF_API bool pkgconf_queue_push(pkgconf_list_t *list, const char *package);
+PKGCONF_API bool pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *dep);
 PKGCONF_API bool pkgconf_queue_compile(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list);
 PKGCONF_API bool pkgconf_queue_solve(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_pkg_t *world, int maxdepth);
 PKGCONF_API void pkgconf_queue_free(pkgconf_list_t *list);
