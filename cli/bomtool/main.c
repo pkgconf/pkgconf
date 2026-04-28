@@ -67,7 +67,8 @@ sbom_name(pkgconf_pkg_t *world)
 	pkgconf_buffer_t name = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_node_t *node;
 
-	pkgconf_buffer_append(&name, "SBOM-SPDX");
+	if (!pkgconf_buffer_append(&name, "SBOM-SPDX"))
+		return NULL;
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, node)
 	{
@@ -83,7 +84,8 @@ sbom_name(pkgconf_pkg_t *world)
 		if (!dep->match)
 			continue;
 
-		pkgconf_buffer_append_fmt(&name, "-%s", sbom_spdx_identity(match));
+		if (!pkgconf_buffer_append_fmt(&name, "-%s", sbom_spdx_identity(match)))
+			return NULL;
 	}
 
 	return pkgconf_buffer_freeze(&name);
@@ -440,7 +442,11 @@ main(int argc, char *argv[])
 
 		if (argv[pkg_optind + 1] == NULL || !PKGCONF_IS_OPERATOR_CHAR(*(argv[pkg_optind + 1])))
 		{
-			pkgconf_queue_push(&pkgq, package);
+			if (!pkgconf_queue_push(&pkgq, package))
+			{
+				ret = EXIT_FAILURE;
+				goto out;
+			}
 			pkg_optind++;
 		}
 		else
@@ -450,7 +456,11 @@ main(int argc, char *argv[])
 			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[pkg_optind + 1], argv[pkg_optind + 2]);
 			pkg_optind += 3;
 
-			pkgconf_queue_push(&pkgq, packagebuf);
+			if (!pkgconf_queue_push(&pkgq, packagebuf))
+			{
+				ret = EXIT_FAILURE;
+				goto out;
+			}
 		}
 	}
 
