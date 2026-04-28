@@ -384,11 +384,16 @@ apply_modversion(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int
 				continue;
 			}
 
-			if (pkg->version != NULL) {
+			if (pkg->version != NULL)
+			{
 				if (state->verbosity)
-					pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s: ", pkg->id);
+                {
+                    if (!pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s: ", pkg->id))
+					    return false;
+                }
 
-				pkgconf_output_puts(client->output, PKGCONF_OUTPUT_STDOUT, pkg->version);
+				if (!pkgconf_output_puts(client->output, PKGCONF_OUTPUT_STDOUT, pkg->version))
+					return false;
 			}
 
 			break;
@@ -408,9 +413,15 @@ apply_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, in
 	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
+		if (!dep)
+		{
+			pkgconf_error(client, "requires list corrupt");
+			return false;
+		}
 		pkgconf_pkg_t *pkg = dep->match;
 
-		print_variables(client->output, pkg);
+		if (!print_variables(client->output, pkg))
+			return false;
 	}
 
 	return true;
@@ -430,7 +441,10 @@ apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 
 		/* a module entry with no filename is either virtual, static (builtin) or synthesized. */
 		if (pkg->filename != NULL)
-			pkgconf_output_puts(client->output, PKGCONF_OUTPUT_STDOUT, pkg->filename);
+		{
+			if (!pkgconf_output_puts(client->output, PKGCONF_OUTPUT_STDOUT, pkg->filename))
+				return false;
+		}
 	}
 
 	return true;
@@ -456,7 +470,10 @@ variable_eval(pkgconf_client_t *client, const pkgconf_list_t *vars, const char *
 	{
 		/* if sysroot is set, and value does not already begin with sysroot */
 		if (!pkgconf_buffer_has_prefix(&varbuf, sysroot_dir))
-			pkgconf_buffer_prepend(&varbuf, pkgconf_buffer_str_or_empty(sysroot_dir));
+		{
+			if (!pkgconf_buffer_prepend(&varbuf, pkgconf_buffer_str_or_empty(sysroot_dir)))
+				return NULL;
+		}
 	}
 
 	return pkgconf_buffer_freeze(&varbuf);
@@ -471,6 +488,11 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, const void *varia
 	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
+		if (!dep)
+		{
+			pkgconf_error(client, "requires list corrupt");
+			return false;
+		}
 		pkgconf_pkg_t *pkg = dep->match;
 		char *result;
 
@@ -478,16 +500,18 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, const void *varia
 			continue;
 
 		result = variable_eval(client, &pkg->vars, variable);
-
 		if (result != NULL)
 		{
-			pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT,
+			bool ok = pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT,
 				"%s%s", iter->prev != NULL ? " " : "", result);
 			free(result);
+			if (!ok)
+				return false;
 		}
 	}
 
-	pkgconf_output_puts(client->output, PKGCONF_OUTPUT_STDOUT, "");
+	if (!pkgconf_output_puts(client->output, PKGCONF_OUTPUT_STDOUT, ""))
+		return false;
 
 	return true;
 }
@@ -496,46 +520,58 @@ static bool
 apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world, int maxdepth,
 	unsigned int (*collect_fn)(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *list, int maxdepth),
 	bool (*filter_fn)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data),
-	void (*postprocess_fn)(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *fragment_list))
+	bool (*postprocess_fn)(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *fragment_list))
 {
 	pkgconf_cli_state_t *state = client->client_data;
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_buffer_t render_buf = PKGCONF_BUFFER_INITIALIZER;
 	unsigned int eflag;
+	bool ret = false;
 
 	eflag = collect_fn(client, world, &unfiltered_list, maxdepth);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
-		return false;
-
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_fn, NULL);
-
-	if (postprocess_fn != NULL)
-		postprocess_fn(client, world, &filtered_list);
-
-	if (filtered_list.head == NULL)
 		goto out;
 
-	pkgconf_fragment_render_buf(&filtered_list, &render_buf, true, state->want_render_ops, (state->want_flags & PKG_NEWLINES) ? '\n' : ' ');
-	pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s='%s'\n",
-		prefix, pkgconf_buffer_str_or_empty(&render_buf));
+	if (!pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_fn, NULL))
+		goto out;
+
+	if (postprocess_fn != NULL)
+	{
+		if (!postprocess_fn(client, world, &filtered_list))
+			goto out;
+	}
+
+	if (filtered_list.head == NULL)
+	{
+		ret = true;
+		goto out;
+	}
+
+	if (!(pkgconf_fragment_render_buf(&filtered_list, &render_buf, true, state->want_render_ops, (state->want_flags & PKG_NEWLINES) ? '\n' : ' ')
+		&& pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s='%s'\n", prefix, pkgconf_buffer_str_or_empty(&render_buf))))
+	{
+		goto out;
+	}
 	pkgconf_buffer_finalize(&render_buf);
+
+	ret = true;
 
 out:
 	pkgconf_fragment_free(&unfiltered_list);
 	pkgconf_fragment_free(&filtered_list);
 
-	return true;
+	return ret;
 }
 
-static void
+static bool
 maybe_add_module_definitions(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *fragment_list)
 {
 	pkgconf_node_t *world_iter;
 	pkgconf_cli_state_t *state = client->client_data;
 
 	if ((state->want_flags & PKG_EXISTS_CFLAGS) != PKG_EXISTS_CFLAGS)
-		return;
+		return true;
 
 	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, world_iter)
 	{
@@ -565,11 +601,14 @@ maybe_add_module_definitions(pkgconf_client_t *client, pkgconf_pkg_t *world, pkg
 			}
 		}
 
-		pkgconf_fragment_insert(client, fragment_list, 'D', havebuf, false);
+		if (!pkgconf_fragment_insert(client, fragment_list, 'D', havebuf, false))
+			return false;
 	}
+
+	return true;
 }
 
-static void
+static bool
 apply_env_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *env_prefix)
 {
 	pkgconf_node_t *world_iter;
@@ -578,6 +617,12 @@ apply_env_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *
 	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, world_iter)
 	{
 		pkgconf_dependency_t *dep = world_iter->data;
+		if (!dep)
+		{
+			pkgconf_error(client, "requires list corrupted");
+			return false;
+		}
+
 		pkgconf_pkg_t *pkg = dep->match;
 		pkgconf_node_t *tuple_iter;
 
@@ -590,6 +635,12 @@ apply_env_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *
 		PKGCONF_FOREACH_LIST_ENTRY(pkg->vars.head, tuple_iter)
 		{
 			pkgconf_tuple_t *tuple = tuple_iter->data;
+			if (!tuple)
+			{
+				pkgconf_error(client, "package vars corrupted");
+				return false;
+			}
+
 			char havebuf[PKGCONF_ITEM_SIZE];
 			char *p;
 
@@ -613,11 +664,23 @@ apply_env_variables(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *
 			}
 
 			char *val = pkgconf_variable_eval_str(client, &pkg->vars, tuple, NULL);
-			pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT,
-				"%s='%s'\n", havebuf, val);
+			if (!val)
+			{
+				pkgconf_error(client, "pkgconf_variable_eval_str failed");
+				return false;
+			}
+
+			bool ok = pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s='%s'\n", havebuf, val);
 			free(val);
+			if (!ok)
+			{
+				pkgconf_error(client, "pkgconf_output_fmt failed");
+				return false;
+			}
 		}
 	}
+
+	return true;
 }
 
 static bool
@@ -636,14 +699,26 @@ apply_env(pkgconf_client_t *client, pkgconf_pkg_t *world, const void *env_prefix
 
 	snprintf(workbuf, sizeof workbuf, "%s_CFLAGS", want_env_prefix);
 	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_cflags, filter_cflags, maybe_add_module_definitions))
+	{
+		pkgconf_error(client, "apply_env_var failed");
 		return false;
+	}
 
 	snprintf(workbuf, sizeof workbuf, "%s_LIBS", want_env_prefix);
 	if (!apply_env_var(workbuf, client, world, maxdepth, pkgconf_pkg_libs, filter_libs, NULL))
+	{
+		pkgconf_error(client, "apply_env_var failed");
 		return false;
+	}
 
 	if ((state->want_flags & PKG_VARIABLES) == PKG_VARIABLES || state->want_variable != NULL)
-		apply_env_variables(client, world, want_env_prefix);
+	{
+		if (!apply_env_variables(client, world, want_env_prefix))
+		{
+			pkgconf_error(client, "apply_env_var failed");
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -654,24 +729,34 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *tar
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	int eflag;
+	bool ret = false;
 
 	eflag = pkgconf_pkg_cflags(client, world, &unfiltered_list, maxdepth);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
-		return false;
-
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, NULL);
-	maybe_add_module_definitions(client, world, &filtered_list);
-
-	if (filtered_list.head == NULL)
 		goto out;
 
-	pkgconf_fragment_copy_list(client, target_list, &filtered_list);
+	if (!(pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, NULL)
+		&& maybe_add_module_definitions(client, world, &filtered_list)))
+	{
+		goto out;
+	}
+
+	if (filtered_list.head == NULL)
+	{
+		ret = true;
+		goto out;
+	}
+
+	if (!pkgconf_fragment_copy_list(client, target_list, &filtered_list))
+		goto out;
+
+	ret = true;
 
 out:
 	pkgconf_fragment_free(&unfiltered_list);
 	pkgconf_fragment_free(&filtered_list);
 
-	return true;
+	return ret;
 }
 
 static bool
@@ -680,23 +765,31 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *targe
 	pkgconf_list_t unfiltered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	int eflag;
+	bool ret = false;
 
 	eflag = pkgconf_pkg_libs(client, world, &unfiltered_list, maxdepth);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
-		return false;
-
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_libs, NULL);
-
-	if (filtered_list.head == NULL)
 		goto out;
 
-	pkgconf_fragment_copy_list(client, target_list, &filtered_list);
+	if (!pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_libs, NULL))
+		goto out;
+
+	if (filtered_list.head == NULL)
+	{
+		ret = true;
+		goto out;
+	}
+
+	if (!pkgconf_fragment_copy_list(client, target_list, &filtered_list))
+		goto out;
+
+	ret = true;
 
 out:
 	pkgconf_fragment_free(&unfiltered_list);
 	pkgconf_fragment_free(&filtered_list);
 
-	return true;
+	return ret;
 }
 
 static bool
@@ -709,9 +802,13 @@ apply_requires(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int
 	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
+		if (!dep)
+			return false;
+
 		pkgconf_pkg_t *pkg = dep->match;
 
-		print_dependency_list(client->output, &pkg->required);
+		if (!print_dependency_list(client->output, &pkg->required))
+			return false;
 	}
 
 	return true;
@@ -727,9 +824,15 @@ apply_requires_private(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unu
 	PKGCONF_FOREACH_LIST_ENTRY(world->required.head, iter)
 	{
 		pkgconf_dependency_t *dep = iter->data;
+		if (!dep)
+		{
+			pkgconf_error(client, "requires list corrupted");
+			return false;
+		}
 		pkgconf_pkg_t *pkg = dep->match;
 
-		print_dependency_list(client->output, &pkg->requires_private);
+		if (!print_dependency_list(client->output, &pkg->requires_private))
+			return false;
 	}
 	return true;
 }
@@ -821,7 +924,7 @@ apply_simulate(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int m
 }
 #endif
 
-static void
+static bool
 print_fragment_tree_branch(pkgconf_output_t *output, pkgconf_list_t *fragment_list, int indent)
 {
 	pkgconf_node_t *iter;
@@ -829,19 +932,37 @@ print_fragment_tree_branch(pkgconf_output_t *output, pkgconf_list_t *fragment_li
 	PKGCONF_FOREACH_LIST_ENTRY(fragment_list->head, iter)
 	{
 		pkgconf_fragment_t *frag = iter->data;
+		if (!frag)
+			return false;
 
 		if (frag->type)
-			pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT,
-				"%*s'-%c%s' [type %c, %zu children]\n", indent, "", frag->type, frag->data, frag->type, frag->children.length);
+		{
+			if (!pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT,
+				"%*s'-%c%s' [type %c, %zu children]\n", indent, "", frag->type, frag->data, frag->type, frag->children.length))
+			{
+				return false;
+			}
+		}
 		else
-			pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT,
-				"%*s'%s' [untyped, %zu children]\n", indent, "", frag->data, frag->children.length);
+		{
+			if (!pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT,
+				"%*s'%s' [untyped, %zu children]\n", indent, "", frag->data, frag->children.length))
+			{
+				return false;
+			}
+		}
 
-		print_fragment_tree_branch(output, &frag->children, indent + 2);
+		if (!print_fragment_tree_branch(output, &frag->children, indent + 2))
+			return false;
 	}
 
 	if (fragment_list->head != NULL)
-		pkgconf_output_puts(output, PKGCONF_OUTPUT_STDOUT, "");
+	{
+		if (!pkgconf_output_puts(output, PKGCONF_OUTPUT_STDOUT, ""))
+			return false;
+	}
+
+	return true;
 }
 
 static bool
@@ -860,7 +981,9 @@ apply_fragment_tree(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	print_fragment_tree_branch(client->output, &unfiltered_list, 0);
+	if (!print_fragment_tree_branch(client->output, &unfiltered_list, 0))
+		return false;
+
 	pkgconf_fragment_free(&unfiltered_list);
 
 	return true;
@@ -963,7 +1086,7 @@ apply_source(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int max
 	return true;
 }
 
-void
+bool
 path_list_to_buffer(const pkgconf_list_t *list, pkgconf_buffer_t *buffer, char delim)
 {
 	pkgconf_node_t *n;
@@ -971,12 +1094,17 @@ path_list_to_buffer(const pkgconf_list_t *list, pkgconf_buffer_t *buffer, char d
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, n)
 	{
 		pkgconf_path_t *pn = n->data;
+		if (!pn)
+			return false;
 
-		if (n != list->head)
-			pkgconf_buffer_push_byte(buffer, delim);
+		if (n != list->head && !pkgconf_buffer_push_byte(buffer, delim))
+			return false;
 
-		pkgconf_buffer_append(buffer, pn->path);
+		if (!pkgconf_buffer_append(buffer, pn->path))
+			return false;
 	}
+
+	return true;
 }
 
 static void
@@ -1021,23 +1149,24 @@ unveil_search_paths(pkgconf_client_t *client, const pkgconf_cross_personality_t 
 }
 
 /* SAFETY: pkgconf_client_t takes ownership of these package objects */
-static void
+static bool
 register_builtins(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
 {
+	bool ret = false;
+	pkgconf_pkg_t *pkg_config_virtual = NULL;
+	pkgconf_pkg_t *pkgconf_virtual = NULL;
 	pkgconf_buffer_t pc_path_buf = PKGCONF_BUFFER_INITIALIZER;
-	path_list_to_buffer(&personality->dir_list, &pc_path_buf, ':');
-
 	pkgconf_buffer_t pc_system_libdirs_buf = PKGCONF_BUFFER_INITIALIZER;
-	path_list_to_buffer(&personality->filter_libdirs, &pc_system_libdirs_buf, ':');
-
 	pkgconf_buffer_t pc_system_includedirs_buf = PKGCONF_BUFFER_INITIALIZER;
-	path_list_to_buffer(&personality->filter_includedirs, &pc_system_includedirs_buf, ':');
 
-	pkgconf_pkg_t *pkg_config_virtual = calloc(1, sizeof(pkgconf_pkg_t));
+	if (!path_list_to_buffer(&personality->dir_list, &pc_path_buf, ':') ||
+		!path_list_to_buffer(&personality->filter_libdirs, &pc_system_libdirs_buf, ':') ||
+		!path_list_to_buffer(&personality->filter_includedirs, &pc_system_includedirs_buf, ':'))
+		goto out;
+
+	pkg_config_virtual = calloc(1, sizeof(pkgconf_pkg_t));
 	if (pkg_config_virtual == NULL)
-	{
-		goto error;
-	}
+		goto out;
 
 	pkg_config_virtual->owner = client;
 	pkg_config_virtual->id = strdup("pkg-config");
@@ -1046,20 +1175,25 @@ register_builtins(pkgconf_client_t *client, const pkgconf_cross_personality_t *p
 	pkg_config_virtual->url = strdup(PACKAGE_BUGREPORT);
 	pkg_config_virtual->version = strdup(PACKAGE_VERSION);
 
-	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_libdirs", pkgconf_buffer_str_or_empty(&pc_system_libdirs_buf), false, 0);
-	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_includedirs", pkgconf_buffer_str_or_empty(&pc_system_includedirs_buf), false, 0);
-	pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_path", pkgconf_buffer_str_or_empty(&pc_path_buf), false, 0);
+	if (pkg_config_virtual->id == NULL ||
+		pkg_config_virtual->realname == NULL ||
+		pkg_config_virtual->description == NULL ||
+		pkg_config_virtual->url == NULL ||
+		pkg_config_virtual->version == NULL)
+		goto out;
+
+	if (pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_libdirs", pkgconf_buffer_str_or_empty(&pc_system_libdirs_buf), false, 0) == NULL ||
+		pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_system_includedirs", pkgconf_buffer_str_or_empty(&pc_system_includedirs_buf), false, 0) == NULL ||
+		pkgconf_tuple_add(client, &pkg_config_virtual->vars, "pc_path", pkgconf_buffer_str_or_empty(&pc_path_buf), false, 0) == NULL)
+		goto out;
 
 	if (!pkgconf_client_preload_one(client, pkg_config_virtual))
-	{
-		goto error;
-	}
+		goto out;
+	pkg_config_virtual = NULL;  /* preload_one took ownership */
 
-	pkgconf_pkg_t *pkgconf_virtual = calloc(1, sizeof(pkgconf_pkg_t));
+	pkgconf_virtual = calloc(1, sizeof(pkgconf_pkg_t));
 	if (pkgconf_virtual == NULL)
-	{
-		goto error;
-	}
+		goto out;
 
 	pkgconf_virtual->owner = client;
 	pkgconf_virtual->id = strdup("pkgconf");
@@ -1068,46 +1202,70 @@ register_builtins(pkgconf_client_t *client, const pkgconf_cross_personality_t *p
 	pkgconf_virtual->url = strdup(PACKAGE_BUGREPORT);
 	pkgconf_virtual->version = strdup(PACKAGE_VERSION);
 
-	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_libdirs", pkgconf_buffer_str_or_empty(&pc_system_libdirs_buf), false, 0);
-	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_includedirs", pkgconf_buffer_str_or_empty(&pc_system_includedirs_buf), false, 0);
-	pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_path", pkgconf_buffer_str_or_empty(&pc_path_buf), false, 0);
+	if (pkgconf_virtual->id == NULL ||
+		pkgconf_virtual->realname == NULL ||
+		pkgconf_virtual->description == NULL ||
+		pkgconf_virtual->url == NULL ||
+		pkgconf_virtual->version == NULL)
+		goto out;
 
-	if (!pkgconf_client_preload_one(client, pkgconf_virtual))
+	if (pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_libdirs", pkgconf_buffer_str_or_empty(&pc_system_libdirs_buf), false, 0) == NULL ||
+		pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_system_includedirs", pkgconf_buffer_str_or_empty(&pc_system_includedirs_buf), false, 0) == NULL ||
+		pkgconf_tuple_add(client, &pkgconf_virtual->vars, "pc_path", pkgconf_buffer_str_or_empty(&pc_path_buf), false, 0) == NULL)
 	{
-		goto error;
+		goto out;
 	}
 
-error:
+	if (!pkgconf_client_preload_one(client, pkgconf_virtual))
+		goto out;
+	pkgconf_virtual = NULL;  /* preload_one took ownership */
+
+	ret = true;
+
+out:
+	if (pkg_config_virtual != NULL)
+		pkgconf_pkg_free(client, pkg_config_virtual);
+	if (pkgconf_virtual != NULL)
+		pkgconf_pkg_free(client, pkgconf_virtual);
 	pkgconf_buffer_finalize(&pc_path_buf);
 	pkgconf_buffer_finalize(&pc_system_libdirs_buf);
 	pkgconf_buffer_finalize(&pc_system_includedirs_buf);
+	return ret;
 }
 
 #ifndef PKGCONF_LITE
-static void
+static bool
 dump_personality(pkgconf_output_t *output, const pkgconf_cross_personality_t *p)
 {
+	bool ret = false;
 	pkgconf_buffer_t pc_path_buf = PKGCONF_BUFFER_INITIALIZER;
-	path_list_to_buffer(&p->dir_list, &pc_path_buf, ':');
-
 	pkgconf_buffer_t pc_system_libdirs_buf = PKGCONF_BUFFER_INITIALIZER;
-	path_list_to_buffer(&p->filter_libdirs, &pc_system_libdirs_buf, ':');
-
 	pkgconf_buffer_t pc_system_includedirs_buf = PKGCONF_BUFFER_INITIALIZER;
-	path_list_to_buffer(&p->filter_includedirs, &pc_system_includedirs_buf, ':');
 
-	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "Triplet: %s\n", p->name);
+	if (!path_list_to_buffer(&p->dir_list, &pc_path_buf, ':') ||
+		!path_list_to_buffer(&p->filter_libdirs, &pc_system_libdirs_buf, ':') ||
+		!path_list_to_buffer(&p->filter_includedirs, &pc_system_includedirs_buf, ':'))
+		goto out;
 
-	if (p->sysroot_dir)
-		pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SysrootDir: %s\n", p->sysroot_dir);
+	if (!pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "Triplet: %s\n", p->name))
+		goto out;
 
-	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "DefaultSearchPaths: %s\n", pc_path_buf.base);
-	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SystemIncludePaths: %s\n", pc_system_includedirs_buf.base);
-	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SystemLibraryPaths: %s\n", pc_system_libdirs_buf.base);
+	if (p->sysroot_dir &&
+		!pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SysrootDir: %s\n", p->sysroot_dir))
+		goto out;
 
+	if (!pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "DefaultSearchPaths: %s\n", pkgconf_buffer_str_or_empty(&pc_path_buf)) ||
+		!pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SystemIncludePaths: %s\n", pkgconf_buffer_str_or_empty(&pc_system_includedirs_buf)) ||
+		!pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SystemLibraryPaths: %s\n", pkgconf_buffer_str_or_empty(&pc_system_libdirs_buf)))
+		goto out;
+
+	ret = true;
+
+out:
 	pkgconf_buffer_finalize(&pc_path_buf);
 	pkgconf_buffer_finalize(&pc_system_libdirs_buf);
 	pkgconf_buffer_finalize(&pc_system_includedirs_buf);
+	return ret;
 }
 #endif
 
@@ -1133,9 +1291,15 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 #ifndef PKGCONF_LITE
 	if ((state->want_flags & PKG_DUMP_PERSONALITY) == PKG_DUMP_PERSONALITY)
 	{
-		dump_personality(state->pkg_client.output, state->pkg_client.personality);
+		if (!dump_personality(state->pkg_client.output, state->pkg_client.personality))
+		{
+			fprintf(stderr, "failed to dump personality\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+		else
+			ret = EXIT_SUCCESS;
 
-		ret = EXIT_SUCCESS;
 		goto out;
 	}
 #endif
@@ -1239,13 +1403,25 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	}
 
 	if ((builddir = pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_TOP_BUILD_DIR")) != NULL)
-		pkgconf_client_set_buildroot_dir(&state->pkg_client, builddir);
+	{
+		if (!pkgconf_client_set_buildroot_dir(&state->pkg_client, builddir))
+		{
+			fprintf(stderr, "failed to set buildroot dir\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
 
 	if ((sysroot_dir = pkgconf_client_getenv(&state->pkg_client, "PKG_CONFIG_SYSROOT_DIR")) != NULL)
 	{
 		const char *destdir;
 
-		pkgconf_client_set_sysroot_dir(&state->pkg_client, sysroot_dir);
+		if (!pkgconf_client_set_sysroot_dir(&state->pkg_client, sysroot_dir))
+		{
+			fprintf(stderr, "failed to set sysroot dir\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 
 		if ((destdir = pkgconf_client_getenv(&state->pkg_client, "DESTDIR")) != NULL)
 		{
@@ -1258,17 +1434,28 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	pkgconf_client_set_flags(&state->pkg_client, want_client_flags);
 
 	/* at this point, want_client_flags should be set, so build the dir list */
-	pkgconf_client_dir_list_build(&state->pkg_client, state->pkg_client.personality);
+	if (!pkgconf_client_dir_list_build(&state->pkg_client, state->pkg_client.personality))
+	{
+		fprintf(stderr, "failed to set client dir list\n");
+		ret = EXIT_FAILURE;
+		goto out;
+	}
 
 	/* unveil the entire search path now that we have loaded the personality data and built the dir list. */
 	if (!unveil_search_paths(&state->pkg_client, state->pkg_client.personality))
 	{
 		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
-		return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
+		goto out;
 	}
 
 	/* register built-in packages */
-	register_builtins(&state->pkg_client, state->pkg_client.personality);
+	if (!register_builtins(&state->pkg_client, state->pkg_client.personality))
+	{
+		fprintf(stderr, "failed to register builtin packages\n");
+		ret = EXIT_FAILURE;
+		goto out;
+	}
 
 	/* preload any files in PKG_CONFIG_PRELOADED_FILES */
 	pkgconf_client_preload_from_environ(&state->pkg_client, "PKG_CONFIG_PRELOADED_FILES");
@@ -1299,10 +1486,19 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 
 	while (last_argc < argc && argv[last_argc])
 	{
+		bool ok = true;
 		if (pkgconf_buffer_len(&queryparams) > 0)
-			pkgconf_buffer_push_byte(&queryparams, ' ');
+			ok = pkgconf_buffer_push_byte(&queryparams, ' ');
 
-		pkgconf_buffer_append(&queryparams, argv[last_argc]);
+		if (ok)
+			ok = pkgconf_buffer_append(&queryparams, argv[last_argc]);
+
+		if (!ok)
+		{
+			pkgconf_buffer_finalize(&queryparams);
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 		last_argc++;
 	}
 
@@ -1333,6 +1529,13 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 		{
 			pkgconf_dependency_t *dep = node->data;
+			if (!dep)
+			{
+				pkgconf_output_puts(state->pkg_client.output, PKGCONF_OUTPUT_STDERR,
+					"dependency list corrupted");
+				ret = EXIT_FAILURE;
+				goto out;
+			}
 
 			/* already constrained at query level */
 			if (dep->compare != PKGCONF_CMP_ANY)
@@ -1340,13 +1543,26 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 
 			dep->compare = compare;
 			dep->version = strdup(target_version);
+			if (dep->version == NULL)
+			{
+				pkgconf_output_puts(state->pkg_client.output, PKGCONF_OUTPUT_STDERR,
+					"out of memory");
+				ret = EXIT_FAILURE;
+				goto out;
+			}
 		}
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
-		pkgconf_queue_push_dependency(&pkgq, dep);
+		if (!pkgconf_queue_push_dependency(&pkgq, dep))
+		{
+			pkgconf_output_puts(state->pkg_client.output, PKGCONF_OUTPUT_STDERR,
+				"Unable to push dependency");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	pkgconf_dependency_free(&deplist);
@@ -1371,7 +1587,8 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	if (pkgconf_unveil(NULL, NULL) == -1)
 	{
 		fprintf(stderr, "pkgconf: unveil lockdown failed: %s\n", strerror(errno));
-		return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
+		goto out;
 	}
 
 #ifndef PKGCONF_LITE
@@ -1380,7 +1597,12 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&state->pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ERRORS);
-		apply_simulate(&state->pkg_client, &world, NULL, -1);
+		if (!apply_simulate(&state->pkg_client, &world, NULL, -1))
+		{
+			fprintf(stderr, "pkgconf: failed to simulate apply\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 #endif
 
@@ -1389,19 +1611,31 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 
 	if ((state->want_flags & PKG_DUMP_LICENSE) == PKG_DUMP_LICENSE)
 	{
-		apply_license(&state->pkg_client, &world, &ret, 2);
+		if (!apply_license(&state->pkg_client, &world, &ret, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply license\n");
+			ret = EXIT_FAILURE;
+		}
 		goto out;
 	}
 
 	if ((state->want_flags & PKG_DUMP_LICENSE_FILE) == PKG_DUMP_LICENSE_FILE)
 	{
-		apply_license_file(&state->pkg_client, &world, &ret, 2);
+		if (!apply_license_file(&state->pkg_client, &world, &ret, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply license file\n");
+			ret = EXIT_FAILURE;
+		}
 		goto out;
 	}
 
 	if ((state->want_flags & PKG_DUMP_SOURCE) == PKG_DUMP_SOURCE)
 	{
-		apply_source(&state->pkg_client, &world, &ret, 2);
+		if (!apply_source(&state->pkg_client, &world, &ret, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply source\n");
+			ret = EXIT_FAILURE;
+		}
 		goto out;
 	}
 
@@ -1409,40 +1643,67 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	if ((state->want_flags & PKG_UNINSTALLED) == PKG_UNINSTALLED)
 	{
 		ret = EXIT_FAILURE;
-		apply_uninstalled(&state->pkg_client, &world, &ret, 2);
+		if (!apply_uninstalled(&state->pkg_client, &world, &ret, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply uninstalled\n");
+		}
 		goto out;
 	}
 
 	if (state->want_env_prefix != NULL)
 	{
-		apply_env(&state->pkg_client, &world, state->want_env_prefix, 2);
+		if (!apply_env(&state->pkg_client, &world, state->want_env_prefix, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply environment\n");
+			ret = EXIT_FAILURE;
+		}
 		goto out;
 	}
 
 	if ((state->want_flags & PKG_PROVIDES) == PKG_PROVIDES)
 	{
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_provides(&state->pkg_client, &world, NULL, 2);
+		if (!apply_provides(&state->pkg_client, &world, NULL, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply provides\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 #ifndef PKGCONF_LITE
 	if ((state->want_flags & PKG_DIGRAPH) == PKG_DIGRAPH)
 	{
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_digraph(&state->pkg_client, &world, &pkgq, 2);
+		if (!apply_digraph(&state->pkg_client, &world, &pkgq, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply digraph\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	if ((state->want_flags & PKG_SOLUTION) == PKG_SOLUTION)
 	{
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_print_solution(&state->pkg_client, &world, NULL, 2);
+		if (!apply_print_solution(&state->pkg_client, &world, NULL, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to print solution\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 #endif
 
 	if ((state->want_flags & PKG_MODVERSION) == PKG_MODVERSION)
 	{
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_modversion(&state->pkg_client, &world, &pkgq, 2);
+		if (!apply_modversion(&state->pkg_client, &world, &pkgq, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply modversion\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	if ((state->want_flags & PKG_PATH) == PKG_PATH)
@@ -1450,13 +1711,23 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&state->pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
-		apply_path(&state->pkg_client, &world, NULL, 2);
+		if (!apply_path(&state->pkg_client, &world, NULL, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply path\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	if ((state->want_flags & PKG_VARIABLES) == PKG_VARIABLES)
 	{
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_variables(&state->pkg_client, &world, NULL, 2);
+		if (!apply_variables(&state->pkg_client, &world, NULL, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply variables\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	if (state->want_variable != NULL)
@@ -1464,27 +1735,47 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
 		pkgconf_client_set_flags(&state->pkg_client, want_client_flags | PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL);
-		apply_variable(&state->pkg_client, &world, state->want_variable, 2);
+		if (!apply_variable(&state->pkg_client, &world, state->want_variable, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply variable\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	if ((state->want_flags & PKG_REQUIRES) == PKG_REQUIRES)
 	{
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
-		apply_requires(&state->pkg_client, &world, NULL, 2);
+		if (!apply_requires(&state->pkg_client, &world, NULL, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply requires\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	if ((state->want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE)
 	{
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		apply_requires_private(&state->pkg_client, &world, NULL, 2);
+		if (!apply_requires_private(&state->pkg_client, &world, NULL, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply requires_private\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	if ((state->want_flags & PKG_FRAGMENT_TREE))
 	{
 		state->want_flags &= ~(PKG_CFLAGS|PKG_LIBS);
 
-		apply_fragment_tree(&state->pkg_client, &world, NULL, 2);
+		if (!apply_fragment_tree(&state->pkg_client, &world, NULL, 2))
+		{
+			fprintf(stderr, "pkgconf: failed to apply fragment tree\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
 	if ((state->want_flags & (PKG_CFLAGS|PKG_LIBS)))
@@ -1493,16 +1784,42 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		pkgconf_buffer_t render_buf = PKGCONF_BUFFER_INITIALIZER;
 
 		if ((state->want_flags & PKG_CFLAGS))
-			apply_cflags(&state->pkg_client, &world, &target_list, 2);
+		{
+			if (!apply_cflags(&state->pkg_client, &world, &target_list, 2))
+			{
+				fprintf(stderr, "pkgconf: failed to apply cflags\n");
+				ret = EXIT_FAILURE;
+				goto out;
+			}
+		}
 
 		if ((state->want_flags & PKG_LIBS) && !(state->want_flags & PKG_STATIC))
 			pkgconf_client_set_flags(&state->pkg_client, state->pkg_client.flags & ~PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
 
 		if ((state->want_flags & PKG_LIBS))
-			apply_libs(&state->pkg_client, &world, &target_list, 2);
+		{
+			if (!apply_libs(&state->pkg_client, &world, &target_list, 2))
+			{
+				fprintf(stderr, "pkgconf: failed to apply libs\n");
+				ret = EXIT_FAILURE;
+				goto out;
+			}
+		}
 
-		pkgconf_fragment_render_buf(&target_list, &render_buf, true, state->want_render_ops, (state->want_flags & PKG_NEWLINES) ? '\n' : ' ');
-		pkgconf_output_putbuf(state->pkg_client.output, PKGCONF_OUTPUT_STDOUT, &render_buf, true);
+		if (!pkgconf_fragment_render_buf(&target_list, &render_buf, true, state->want_render_ops, (state->want_flags & PKG_NEWLINES) ? '\n' : ' '))
+		{
+			fprintf(stderr, "pkgconf: failed to render fragment buffer\n");
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		if (!pkgconf_output_putbuf(state->pkg_client.output, PKGCONF_OUTPUT_STDOUT, &render_buf, true))
+		{
+			fprintf(stderr, "pkgconf: failed to output to stdout: %s\n", strerror(errno));
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
 		pkgconf_buffer_finalize(&render_buf);
 
 		pkgconf_fragment_free(&target_list);
