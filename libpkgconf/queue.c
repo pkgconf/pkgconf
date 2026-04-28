@@ -128,7 +128,7 @@ pkgconf_queue_free(pkgconf_list_t *list)
 	}
 }
 
-static void
+static bool
 pkgconf_queue_mark_public(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
 	if (pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE)
@@ -139,6 +139,8 @@ pkgconf_queue_mark_public(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *da
 		PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 		{
 			pkgconf_dependency_t *dep = node->data;
+			if (!dep)
+				return false;
 			if (dep->match == pkg)
 				dep->flags &= ~PKGCONF_PKG_DEPF_PRIVATE;
 		}
@@ -147,6 +149,8 @@ pkgconf_queue_mark_public(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *da
 
 		PKGCONF_TRACE(client, "%s: updated, public", pkg->id);
 	}
+
+	return true;
 }
 
 static unsigned int

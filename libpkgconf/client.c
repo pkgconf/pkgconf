@@ -48,16 +48,17 @@ trace_path_list(const pkgconf_client_t *client, const char *desc, pkgconf_list_t
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_client_dir_list_build(pkgconf_client_t *client)
+ * .. c:function:: bool pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
  *
  *    Bootstraps the package search paths.  If the ``PKGCONF_PKG_PKGF_ENV_ONLY`` `flag` is set on the client,
  *    then only the ``PKG_CONFIG_PATH`` environment variable will be used, otherwise both the
  *    ``PKG_CONFIG_PATH`` and ``PKG_CONFIG_LIBDIR`` environment variables will be used.
  *
  *    :param pkgconf_client_t* client: The pkgconf client object to bootstrap.
- *    :return: nothing
+ *    :param pkgconf_cross_personality_t* personality: the cross-compile personality to use for defaults.
+ *    :return: :code:`true` on success, :code:`false` on allocation failure.
  */
-void
+bool
 pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
 {
 	pkgconf_path_build_from_environ(client, "PKG_CONFIG_PATH", NULL, &client->dir_list, true);
@@ -79,15 +80,20 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
 			prepend_list = &dir_list;
 		}
 
-		pkgconf_path_copy_list(&client->dir_list, prepend_list);
+		bool ok = pkgconf_path_copy_list(&client->dir_list, prepend_list);
 		pkgconf_path_free(&dir_list);
+
+		if (!ok)
+			return false;
 	}
+
+	return true;
 }
 
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler)
+ * .. c:function:: bool pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler)
  *
  *    Initialise a pkgconf client object.
  *
@@ -97,9 +103,9 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
  *    :param pkgconf_cross_personality_t* personality: the cross-compile personality to use for defaults
  *    :param void* client_data: user data associated with the client
  *    :param pkgconf_environ_lookup_handler_func_t environ_lookup_handler: the lookup handler to use for environment variables
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on allocation failure.
  */
-void
+bool
 pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler)
 {
 	client->personality = personality;
@@ -122,17 +128,26 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	pkgconf_client_set_error_handler(client, error_handler, error_handler_data);
 	pkgconf_client_set_warn_handler(client, NULL, NULL);
 
-	pkgconf_client_set_sysroot_dir(client, personality->sysroot_dir);
-	pkgconf_client_set_buildroot_dir(client, NULL);
-	pkgconf_client_set_prefix_varname(client, NULL);
+	if (!pkgconf_client_set_sysroot_dir(client, personality->sysroot_dir))
+		return false;
+	if (!pkgconf_client_set_buildroot_dir(client, NULL))
+		return false;
+	if (!pkgconf_client_set_prefix_varname(client, NULL))
+		return false;
 
-	if(pkgconf_client_getenv(client, "PKG_CONFIG_SYSTEM_LIBRARY_PATH") == NULL)
-		pkgconf_path_copy_list(&client->filter_libdirs, &personality->filter_libdirs);
+	if (pkgconf_client_getenv(client, "PKG_CONFIG_SYSTEM_LIBRARY_PATH") == NULL)
+	{
+		if (!pkgconf_path_copy_list(&client->filter_libdirs, &personality->filter_libdirs))
+			return false;
+	}
 	else
 		pkgconf_path_build_from_environ(client, "PKG_CONFIG_SYSTEM_LIBRARY_PATH", NULL, &client->filter_libdirs, false);
 
-	if(pkgconf_client_getenv(client, "PKG_CONFIG_SYSTEM_INCLUDE_PATH") == NULL)
-		pkgconf_path_copy_list(&client->filter_includedirs, &personality->filter_includedirs);
+	if (pkgconf_client_getenv(client, "PKG_CONFIG_SYSTEM_INCLUDE_PATH") == NULL)
+	{
+		if (!pkgconf_path_copy_list(&client->filter_includedirs, &personality->filter_includedirs))
+			return false;
+	}
 	else
 		pkgconf_path_build_from_environ(client, "PKG_CONFIG_SYSTEM_INCLUDE_PATH", NULL, &client->filter_includedirs, false);
 
@@ -158,6 +173,8 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	trace_path_list(client, "filtered include paths", &client->filter_includedirs);
 
 	client->output = pkgconf_output_default();
+
+	return true;
 }
 
 /*
@@ -182,7 +199,13 @@ pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handl
 	if (out == NULL)
 		return NULL;
 
-	pkgconf_client_init(out, error_handler, error_handler_data, personality, client_data, environ_lookup_handler);
+	if (!pkgconf_client_init(out, error_handler, error_handler_data, personality, client_data, environ_lookup_handler))
+	{
+		pkgconf_client_deinit(out);
+		free(out);
+		return NULL;
+	}
+
 	return out;
 }
 
@@ -273,7 +296,7 @@ pkgconf_client_get_sysroot_dir(const pkgconf_client_t *client)
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir)
+ * .. c:function:: bool pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir)
  *
  *    Sets or clears the sysroot directory on a client object.  Any previous sysroot directory setting is
  *    automatically released if one was previously set.
@@ -282,9 +305,9 @@ pkgconf_client_get_sysroot_dir(const pkgconf_client_t *client)
  *
  *    :param pkgconf_client_t* client: The client object being modified.
  *    :param char* sysroot_dir: The sysroot directory to set or NULL to unset.
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on allocation failure.
  */
-void
+bool
 pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir)
 {
 	if (sysroot_dir != NULL && (!strcmp(sysroot_dir, "/") || !strcmp(sysroot_dir, ".")))
@@ -293,14 +316,24 @@ pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir
 		sysroot_dir = NULL;
 	}
 
+	char *new_dir = NULL;
+	if (sysroot_dir != NULL)
+	{
+		new_dir = strdup(sysroot_dir);
+		if (new_dir == NULL)
+			return false;
+	}
+
 	if (client->sysroot_dir != NULL)
 		free(client->sysroot_dir);
 
-	client->sysroot_dir = sysroot_dir != NULL ? strdup(sysroot_dir) : NULL;
+	client->sysroot_dir = new_dir;
 
 	PKGCONF_TRACE(client, "set sysroot_dir to: %s", client->sysroot_dir != NULL ? client->sysroot_dir : "<default>");
 
 	pkgconf_tuple_add_global(client, "pc_sysrootdir", client->sysroot_dir != NULL ? client->sysroot_dir : "");
+
+	return true;
 }
 
 /*
@@ -323,7 +356,7 @@ pkgconf_client_get_buildroot_dir(const pkgconf_client_t *client)
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot_dir)
+ * .. c:function:: bool pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot_dir)
  *
  *    Sets or clears the buildroot directory on a client object.  Any previous buildroot directory setting is
  *    automatically released if one was previously set.
@@ -332,19 +365,30 @@ pkgconf_client_get_buildroot_dir(const pkgconf_client_t *client)
  *
  *    :param pkgconf_client_t* client: The client object being modified.
  *    :param char* buildroot_dir: The buildroot directory to set or NULL to unset.
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on allocation failure.
+ *    :rtype: bool
  */
-void
+bool
 pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot_dir)
 {
+	char *new_dir = NULL;
+	if (buildroot_dir != NULL)
+	{
+		new_dir = strdup(buildroot_dir);
+		if (new_dir == NULL)
+			return false;
+	}
+
 	if (client->buildroot_dir != NULL)
 		free(client->buildroot_dir);
 
-	client->buildroot_dir = buildroot_dir != NULL ? strdup(buildroot_dir) : NULL;
+	client->buildroot_dir = new_dir;
 
 	PKGCONF_TRACE(client, "set buildroot_dir to: %s", client->buildroot_dir != NULL ? client->buildroot_dir : "<default>");
 
 	pkgconf_tuple_add_global(client, "pc_top_builddir", client->buildroot_dir != NULL ? client->buildroot_dir : "$(top_builddir)");
+
+	return true;
 }
 
 /*
@@ -588,27 +632,34 @@ pkgconf_client_get_prefix_varname(const pkgconf_client_t *client)
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_varname)
+ * .. c:function:: bool pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_varname)
  *
  *    Sets the name of the variable that should contain a module's prefix.
  *    If the variable name is ``NULL``, then the default variable name (``prefix``) is used.
  *
  *    :param pkgconf_client_t* client: The client object to set the prefix variable name on.
  *    :param char* prefix_varname: The prefix variable name to set.
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on allocation failure.
+ *    :rtype: bool
  */
-void
+bool
 pkgconf_client_set_prefix_varname(pkgconf_client_t *client, const char *prefix_varname)
 {
 	if (prefix_varname == NULL)
 		prefix_varname = "prefix";
 
+	char *new_name = strdup(prefix_varname);
+	if (new_name == NULL)
+		return false;
+
 	if (client->prefix_varname != NULL)
 		free(client->prefix_varname);
 
-	client->prefix_varname = strdup(prefix_varname);
+	client->prefix_varname = new_name;
 
 	PKGCONF_TRACE(client, "set prefix_varname to: %s", client->prefix_varname);
+
+	return true;
 }
 
 /*

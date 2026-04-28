@@ -23,14 +23,25 @@ pkgconf_output_putbuf(pkgconf_output_t *output, pkgconf_output_stream_t stream, 
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
 	if (pkgconf_buffer_len(buffer) != 0)
-		pkgconf_buffer_append(&buf, pkgconf_buffer_str(buffer));
+	{
+		if (!pkgconf_buffer_append(&buf, pkgconf_buffer_str(buffer)))
+		{
+			pkgconf_buffer_finalize(&buf);
+			return false;
+		}
+	}
 
 	if (newline)
-		pkgconf_buffer_push_byte(&buf, '\n');
+	{
+		if (!pkgconf_buffer_push_byte(&buf, '\n'))
+		{
+			pkgconf_buffer_finalize(&buf);
+			return false;
+		}
+	}
 
 	ret = output->write(output, stream, &buf);
 	pkgconf_buffer_finalize(&buf);
-
 	return ret;
 }
 
@@ -40,11 +51,15 @@ pkgconf_output_puts(pkgconf_output_t *output, pkgconf_output_stream_t stream, co
 	bool ret;
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_append(&buf, str);
-	pkgconf_buffer_push_byte(&buf, '\n');
+	if (!pkgconf_buffer_append(&buf, str) ||
+	    !pkgconf_buffer_push_byte(&buf, '\n'))
+	{
+		pkgconf_buffer_finalize(&buf);
+		return false;
+	}
+
 	ret = output->write(output, stream, &buf);
 	pkgconf_buffer_finalize(&buf);
-
 	return ret;
 }
 
@@ -69,12 +84,16 @@ pkgconf_output_vfmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, co
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
 	va_copy(va, src_va);
-	pkgconf_buffer_append_vfmt(&buf, fmt, va);
+	if (!pkgconf_buffer_append_vfmt(&buf, fmt, va))
+	{
+		va_end(va);
+		pkgconf_buffer_finalize(&buf);
+		return false;
+	}
 	va_end(va);
 
 	ret = output->write(output, stream, &buf);
 	pkgconf_buffer_finalize(&buf);
-
 	return ret;
 }
 
@@ -82,19 +101,16 @@ static bool
 pkgconf_output_stdio_write(pkgconf_output_t *output, pkgconf_output_stream_t stream, const pkgconf_buffer_t *buffer)
 {
 	(void) output;
-
 	FILE *target = stream == PKGCONF_OUTPUT_STDERR ? stderr : stdout;
-
 	if (buffer != NULL)
 	{
 		const char *str = pkgconf_buffer_str(buffer);
 		size_t size = pkgconf_buffer_len(buffer);
-
 		if (size > 0 && !fwrite(str, size, 1, target))
 			return false;
 	}
-
-	fflush(target);
+	if (fflush(target) != 0)
+		return false;
 	return true;
 }
 

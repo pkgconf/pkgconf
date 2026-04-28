@@ -53,7 +53,7 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 }
 
 // NOTE: this function is passed to pkgconf_pkg_traverse
-static void
+static bool
 generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 {
 	spdxtool_core_spdx_document_t *document = (spdxtool_core_spdx_document_t *)ptr;
@@ -64,7 +64,7 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	char sep = spdxtool_util_get_uri_separator(client);
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
-		return;
+		return true;
 
 	spdx_id_string = spdxtool_util_get_spdx_id_string(client, "software_Sbom", pkg->id);
 	if (!spdx_id_string)
@@ -139,13 +139,14 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 		goto err;
 
 	pkgconf_node_insert_tail(node, sbom, &document->rootElement);
-	return;
+	return true;
 
 err:
 	pkgconf_error(client, "generate_spdx_package: failed for %s", pkg->id);
 	free(package_spdx);
 	free(spdx_id_string);
 	spdxtool_software_sbom_free(sbom);
+	return false;
 }
 
 static bool
