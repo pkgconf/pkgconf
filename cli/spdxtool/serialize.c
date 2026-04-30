@@ -18,7 +18,7 @@
 #include "simplelicensing.h"
 #include "serialize.h"
 
-static void
+static bool
 serialize_escape_string(pkgconf_buffer_t *buffer, const char *s)
 {
 	for (const char *p = s; *p; p++)
@@ -26,46 +26,66 @@ serialize_escape_string(pkgconf_buffer_t *buffer, const char *s)
 		switch (*p)
 		{
 		case '\"':
-			pkgconf_buffer_append(buffer, "\\\"");
+			if (!pkgconf_buffer_append(buffer, "\\\""))
+				return false;
 			break;
 		case '\\':
-			pkgconf_buffer_append(buffer, "\\\\");
+			if (!pkgconf_buffer_append(buffer, "\\\\"))
+				return false;
 			break;
 		case '\b':
-			pkgconf_buffer_append(buffer, "\\b");
+			if (!pkgconf_buffer_append(buffer, "\\b"))
+				return false;
 			break;
 		case '\f':
-			pkgconf_buffer_append(buffer, "\\f");
+			if (!pkgconf_buffer_append(buffer, "\\f"))
+				return false;
 			break;
 		case '\n':
-			pkgconf_buffer_append(buffer, "\\n");
+			if (!pkgconf_buffer_append(buffer, "\\n"))
+				return false;
 			break;
 		case '\r':
-			pkgconf_buffer_append(buffer, "\\r");
+			if (!pkgconf_buffer_append(buffer, "\\r"))
+				return false;
 			break;
 		case '\t':
-			pkgconf_buffer_append(buffer, "\\t");
+			if (!pkgconf_buffer_append(buffer, "\\t"))
+				return false;
 			break;
 		default:
 			if (*p < 0x20)
-				pkgconf_buffer_append_fmt(buffer, "\\u%04x", (unsigned int)*p);
+			{
+				if (!pkgconf_buffer_append_fmt(buffer, "\\u%04x", (unsigned int)*p))
+					return false;
+			}
 			else
-				pkgconf_buffer_push_byte(buffer, *p);
+			{
+				if (!pkgconf_buffer_push_byte(buffer, *p))
+					return false;
+			}
 		}
 	}
+
+	return true;
 }
 
-static inline void
+static inline bool
 serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level)
 {
 	for (; level; level--)
-		pkgconf_buffer_append(buffer, "    ");
+	{
+		if (!pkgconf_buffer_append(buffer, "    "))
+			return false;
+	}
+
+	return true;
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_value_t *value, unsigned int indent)
+ * .. c:function:: bool spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_value_t *value, unsigned int indent)
  *
  *    Serialize the given JSON to the buffer
  *
@@ -82,57 +102,96 @@ spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_val
 
 	switch(value->type) {
 		case SPDXTOOL_SERIALIZE_TYPE_STRING:
-			pkgconf_buffer_push_byte(buffer, '"');
-			serialize_escape_string(buffer, value->value.s ? value->value.s : "");
-			pkgconf_buffer_push_byte(buffer, '"');
+			if (!(pkgconf_buffer_push_byte(buffer, '"')
+				&& serialize_escape_string(buffer, value->value.s ? value->value.s : "")
+				&& pkgconf_buffer_push_byte(buffer, '"')))
+			{
+				return false;
+			}
 			break;
 		case SPDXTOOL_SERIALIZE_TYPE_INT:
-			pkgconf_buffer_append_fmt(buffer, "%d", value->value.i);
+			if (!pkgconf_buffer_append_fmt(buffer, "%d", value->value.i))
+				return false;
 			break;
 		case SPDXTOOL_SERIALIZE_TYPE_BOOL:
-			pkgconf_buffer_append(buffer, value->value.b ? "true" : "false");
+			if (!pkgconf_buffer_append(buffer, value->value.b ? "true" : "false"))
+				return false;
 			break;
 		case SPDXTOOL_SERIALIZE_TYPE_NULL:
-			pkgconf_buffer_append(buffer, "null");
+			if (!pkgconf_buffer_append(buffer, "null"))
+				return false;
 			break;
 		case SPDXTOOL_SERIALIZE_TYPE_OBJECT:
 		{
 			pkgconf_node_t *iter;
-			pkgconf_buffer_push_byte(buffer, '{');
-			pkgconf_buffer_push_byte(buffer, '\n');
+			if (!(pkgconf_buffer_push_byte(buffer, '{')
+				&& pkgconf_buffer_push_byte(buffer, '\n')))
+			{
+				return false;
+			}
 
 			PKGCONF_FOREACH_LIST_ENTRY(value->value.o->entries.head, iter)
 			{
 				spdxtool_serialize_object_t *entry = iter->data;
-				serialize_add_indent(buffer, indent + 1);
-				pkgconf_buffer_append_fmt(buffer, "\"%s\": ", entry->key);
-				spdxtool_serialize_value_to_buf(buffer, entry->value, indent + 1);
+				if (!entry)
+					return false;
+
+				if (!(serialize_add_indent(buffer, indent + 1)
+					&& pkgconf_buffer_append_fmt(buffer, "\"%s\": ", entry->key)
+					&& spdxtool_serialize_value_to_buf(buffer, entry->value, indent + 1)))
+				{
+					return false;
+				}
+
 				if (iter->next)
-					pkgconf_buffer_push_byte(buffer, ',');
-				pkgconf_buffer_push_byte(buffer, '\n');
+				{
+					if (!pkgconf_buffer_push_byte(buffer, ','))
+						return false;
+				}
+
+				if (!pkgconf_buffer_push_byte(buffer, '\n'))
+					return false;
 			}
 
-			serialize_add_indent(buffer, indent);
-			pkgconf_buffer_push_byte(buffer, '}');
+			if (!(serialize_add_indent(buffer, indent) && pkgconf_buffer_push_byte(buffer, '}')))
+				return false;
+
 			break;
 		}
 		case SPDXTOOL_SERIALIZE_TYPE_ARRAY:
 		{
 			pkgconf_node_t *iter;
-			pkgconf_buffer_push_byte(buffer, '[');
-			pkgconf_buffer_push_byte(buffer, '\n');
+			if (!(pkgconf_buffer_push_byte(buffer, '[')
+				&& pkgconf_buffer_push_byte(buffer, '\n')))
+			{
+				return false;
+			}
 
 			PKGCONF_FOREACH_LIST_ENTRY(value->value.a->items.head, iter)
 			{
 				spdxtool_serialize_value_t *entry = iter->data;
-				serialize_add_indent(buffer, indent + 1);
-				spdxtool_serialize_value_to_buf(buffer, entry, indent + 1);
-				if (iter->next)
-					pkgconf_buffer_push_byte(buffer, ',');
-				pkgconf_buffer_push_byte(buffer, '\n');
+				if (!entry)
+					return false;
+
+				if (!(serialize_add_indent(buffer, indent + 1)
+					&& spdxtool_serialize_value_to_buf(buffer, entry, indent + 1)))
+				{
+					return false;
+				}
+
+				if (iter->next && !pkgconf_buffer_push_byte(buffer, ','))
+					return false;
+
+				if (!pkgconf_buffer_push_byte(buffer, '\n'))
+					return false;
 			}
-			serialize_add_indent(buffer, indent);
-			pkgconf_buffer_push_byte(buffer, ']');
+
+			if (!(serialize_add_indent(buffer, indent)
+				&& pkgconf_buffer_push_byte(buffer, ']')))
+			{
+				return false;
+			}
+
 			break;
 		}
 	}

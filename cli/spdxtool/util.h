@@ -78,10 +78,10 @@ typedef struct spdxtool_core_relationship_
 	char *relationship_type;
 } spdxtool_core_relationship_t;
 
-void
+bool
 spdxtool_util_set_key(pkgconf_client_t *client, const char *key, const char *key_value, const char *key_default);
 
-void
+bool
 spdxtool_util_set_uri_root(pkgconf_client_t *client, const char *uri_root);
 
 void
@@ -93,13 +93,13 @@ spdxtool_util_get_uri_separator(pkgconf_client_t *client);
 const char *
 spdxtool_util_get_uri_root(pkgconf_client_t *client);
 
-void
+bool
 spdxtool_util_set_spdx_version(pkgconf_client_t *client, const char *spdx_version);
 
 const char *
 spdxtool_util_get_spdx_version(pkgconf_client_t *client);
 
-void
+bool
 spdxtool_util_set_spdx_license(pkgconf_client_t *client, const char *spdx_license);
 
 const char *

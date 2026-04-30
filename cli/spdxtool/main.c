@@ -94,7 +94,8 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	{
 		pkgconf_buffer_t spdx_id_buf = PKGCONF_BUFFER_INITIALIZER;
 
-		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s%chasDeclaredLicense", pkg->id, sep);
+		if (!pkgconf_buffer_append_fmt(&spdx_id_buf, "%s%chasDeclaredLicense", pkg->id, sep))
+			goto err;
 		char *spdx_id_name = pkgconf_buffer_freeze(&spdx_id_buf);
 		if (!spdx_id_name)
 			goto err;
@@ -104,12 +105,14 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 		if (!package_spdx)
 			goto err;
 
-		pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0);
+		if (!pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0))
+			goto err;
 		free(package_spdx);
 		package_spdx = NULL;
 
 		pkgconf_buffer_t concluded_buf = PKGCONF_BUFFER_INITIALIZER;
-		pkgconf_buffer_append_fmt(&concluded_buf, "%s%chasConcludedLicense", pkg->id, sep);
+		if (!pkgconf_buffer_append_fmt(&concluded_buf, "%s%chasConcludedLicense", pkg->id, sep))
+			goto err;
 		spdx_id_name = pkgconf_buffer_freeze(&concluded_buf);
 		if (!spdx_id_name)
 			goto err;
@@ -119,7 +122,8 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 		if (!package_spdx)
 			goto err;
 
-		pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0);
+		if (!pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0))
+			goto err;
 		free(package_spdx);
 		package_spdx = NULL;
 
@@ -190,7 +194,7 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 		return false;
 	}
 
-    spdxtool_serialize_value_t *root = spdxtool_serialize_sbom(client, agent, creation, document);
+	spdxtool_serialize_value_t *root = spdxtool_serialize_sbom(client, agent, creation, document);
 	if (!root)
 	{
 		spdxtool_core_spdx_document_free(document);
@@ -199,11 +203,15 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 		return false;
 	}
 
-    pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
-	spdxtool_serialize_value_to_buf(&buffer, root, 0);
+	pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
+	if (!spdxtool_serialize_value_to_buf(&buffer, root, 0))
+		return false;
+
 	spdxtool_serialize_value_free(root);
 
-	fprintf(sbom_out, "%s\n", pkgconf_buffer_str(&buffer));
+	if (fprintf(sbom_out, "%s\n", pkgconf_buffer_str(&buffer)) <= 0)
+		return false;
+
 	pkgconf_buffer_finalize(&buffer);
 
 	spdxtool_core_spdx_document_free(document);
@@ -328,14 +336,23 @@ main(int argc, char *argv[])
 		}
 	}
 
-	pkgconf_client_init(&pkg_client, error_handler, NULL, personality, NULL, environ_lookup_handler);
+	if (!pkgconf_client_init(&pkg_client, error_handler, NULL, personality, NULL, environ_lookup_handler))
+	{
+		fprintf(stderr, "spdxtool: failed to initialize pkgconf client\n");
+		ret = EXIT_FAILURE;
+		goto out;
+	}
 
 	/* we have determined what features we want most likely.  in some cases, we override later. */
 	pkgconf_client_set_flags(&pkg_client, want_client_flags);
 
 	/* at this point, want_client_flags should be set, so build the dir list */
-	pkgconf_client_dir_list_build(&pkg_client, personality);
-
+	if (!pkgconf_client_dir_list_build(&pkg_client, personality))
+	{
+		fprintf(stderr, "spdxtool: failed to build client dir list\n");
+		ret = EXIT_FAILURE;
+		goto out;
+	}
 
 	if ((want_flags & PKG_ABOUT) == PKG_ABOUT)
 		return about();
@@ -371,7 +388,12 @@ main(int argc, char *argv[])
 
 		if (argv[pkg_optind + 1] == NULL || !PKGCONF_IS_OPERATOR_CHAR(*(argv[pkg_optind + 1])))
 		{
-			pkgconf_queue_push(&pkgq, package);
+			if (!pkgconf_queue_push(&pkgq, package))
+			{
+				fprintf(stderr, "spdxtool: failed to push package to queue\n");
+				ret = EXIT_FAILURE;
+				goto out;
+			}
 			pkg_optind++;
 		}
 		else
@@ -381,20 +403,32 @@ main(int argc, char *argv[])
 			snprintf(packagebuf, sizeof packagebuf, "%s %s %s", package, argv[pkg_optind + 1], argv[pkg_optind + 2]);
 			pkg_optind += 3;
 
-			pkgconf_queue_push(&pkgq, packagebuf);
+			if (!pkgconf_queue_push(&pkgq, packagebuf))
+			{
+				fprintf(stderr, "spdxtool: failed to push package to queue\n");
+				ret = EXIT_FAILURE;
+				goto out;
+			}
 		}
 	}
 
 	if (!pkgconf_queue_solve(&pkg_client, &pkgq, &world, maximum_traverse_depth))
 	{
+		fprintf(stderr, "spdxtool: failed to solve packages in queue\n");
 		ret = EXIT_FAILURE;
 		goto out;
 	}
 
-	spdxtool_util_set_uri_root(&pkg_client, spdx_id_base);
 	spdxtool_util_set_uri_separator_colon(&pkg_client, colon_sep);
-	spdxtool_util_set_spdx_license(&pkg_client, bom_license);
-	spdxtool_util_set_spdx_version(&pkg_client, spdx_version);
+
+	if (!(spdxtool_util_set_uri_root(&pkg_client, spdx_id_base)
+		&& spdxtool_util_set_spdx_license(&pkg_client, bom_license)
+		&& spdxtool_util_set_spdx_version(&pkg_client, spdx_version)))
+	{
+		fprintf(stderr, "spdxtool: failed to set client info\n");
+		ret = EXIT_FAILURE;
+		goto out;
+	}
 
 	if (!generate_spdx(&pkg_client, &world, creation_time, creation_id, agent_name))
 	{

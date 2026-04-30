@@ -19,7 +19,7 @@
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_util_set_key(pkgconf_client_t *client, const char *key, const char *key_value, const char *key_default)
+ * .. c:function:: bool spdxtool_util_set_key(pkgconf_client_t *client, const char *key, const char *key_value, const char *key_default)
  *
  *    Set key wit default value. Default value is used if key is NULL
  *
@@ -27,31 +27,31 @@
  *    :param const char *key: Key to be preserved
  *    :param const char *key_value: Value for key
  *    :param const char *key_default: Default value if key_value is NULL
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on failure.
  */
-void
+bool
 spdxtool_util_set_key(pkgconf_client_t *client, const char *key, const char *key_value, const char *key_default)
 {
 	PKGCONF_TRACE(client, "set uri_root to: %s", key_value != NULL ? key_value : key_default);
-	pkgconf_tuple_add_global(client, key, key_value != NULL ? key_value : key_default);
+	return pkgconf_tuple_add_global(client, key, key_value != NULL ? key_value : key_default);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_util_set_uri_root(pkgconf_client_t *client, const char *uri_root)
+ * .. c:function:: bool spdxtool_util_set_uri_root(pkgconf_client_t *client, const char *uri_root)
  *
  *    Set URI/URL root for spdxId. Type for this is 'xsd:anyURI' which means
  *    it can they may be absolute or relative.
  *
  *    :param pkgconf_client_t* client: The pkgconf client being accessed.
  *    :param const char *uri_root: URI root.
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on failure.
  */
-void
+bool
 spdxtool_util_set_uri_root(pkgconf_client_t *client, const char *uri_root)
 {
-	spdxtool_util_set_key(client, "spdx_uri_root", uri_root, "https://github.com/pkgconf/pkgconf");
+	return spdxtool_util_set_key(client, "spdx_uri_root", uri_root, "https://github.com/pkgconf/pkgconf");
 }
 
 /*
@@ -112,18 +112,18 @@ spdxtool_util_get_uri_separator(pkgconf_client_t *client)
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_util_set_spdx_version(pkgconf_client_t *client, const char *spdx_version)
+ * .. c:function:: bool spdxtool_util_set_spdx_version(pkgconf_client_t *client, const char *spdx_version)
  *
  *    Set current SPDX SBOM Spec version. If not set it's 3.0.1
  *
  *    :param pkgconf_client_t* client: The pkgconf client being accessed.
  *    :param char* spdx_version: SPDX specification version.
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on failure.
  */
-void
+bool
 spdxtool_util_set_spdx_version(pkgconf_client_t *client, const char *spdx_version)
 {
-	spdxtool_util_set_key(client, "spdx_version", spdx_version, "3.0.1");
+	return spdxtool_util_set_key(client, "spdx_version", spdx_version, "3.0.1");
 }
 
 /*
@@ -145,19 +145,19 @@ spdxtool_util_get_spdx_version(pkgconf_client_t *client)
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_util_set_spdx_license(pkgconf_client_t *client, const char *spdx_license)
+ * .. c:function:: bool spdxtool_util_set_spdx_license(pkgconf_client_t *client, const char *spdx_license)
  *
  *    Under which license SBOM is released. License string should be in
  *    SPDX style. Something like: FreeBSD-DOC, CC0-1.0 or MIT
  *
  *    :param pkgconf_client_t* client: The pkgconf client being accessed.
  *    :param const char *spdx_license: SPDX compatible license
- *    :return: nothing
+ *    :return: :code:`true` on success, :code:`false` on failure.
  */
-void
+bool
 spdxtool_util_set_spdx_license(pkgconf_client_t *client, const char *spdx_license)
 {
-	spdxtool_util_set_key(client, "spdx_license", spdx_license, "CC0-1.0");
+	return spdxtool_util_set_key(client, "spdx_license", spdx_license, "CC0-1.0");
 }
 
 /*
@@ -197,8 +197,11 @@ spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, const char *part)
 	char sep = spdxtool_util_get_uri_separator(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, NULL);
-	pkgconf_buffer_append_fmt(&current_uri, "%c" SIZE_FMT_SPECIFIER, sep, ++last_id);
+	if (!(pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, NULL)
+		&& pkgconf_buffer_append_fmt(&current_uri, "%c" SIZE_FMT_SPECIFIER, sep, ++last_id)))
+	{
+		return NULL;
+	}
 
 	return pkgconf_buffer_freeze(&current_uri);
 }
@@ -223,7 +226,8 @@ spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, con
 	char sep = spdxtool_util_get_uri_separator(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, string_id, NULL);
+	if (!pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, string_id, NULL))
+		return NULL;
 
 	return pkgconf_buffer_freeze(&current_uri);
 }
