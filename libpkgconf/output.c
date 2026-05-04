@@ -110,3 +110,44 @@ pkgconf_output_default(void)
 {
 	return &pkgconf_default_output;
 }
+
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_output_file_vfmt(FILE *f, const char *fmt, va_list va)
+ *
+ *    Wrapper around :code:`vfprintf` that returns a boolean.
+ *
+ *    :param FILE *f: Pointer to an open `FILE` pointer.
+ *    :param: const char *fmt: Format string.
+ *    :param va_list va: Variable list.
+ *    :return: :code:`true` on success, :code:`false` on failure.
+ */
+bool
+pkgconf_output_file_vfmt(FILE *f, const char *fmt, va_list va)
+{
+	int ret = vfprintf(f, fmt, va);
+	return ret > 0;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_output_file_fmt(FILE *f, const char *fmt, va_list va)
+ *
+ *    Wrapper around :code:`fprintf` that returns a boolean.
+ *
+ *    :param FILE *f: Pointer to an open `FILE` pointer.
+ *    :param: const char *fmt: Format string.
+ *    :return: :code:`true` on success, :code:`false` on failure.
+ */
+bool
+pkgconf_output_file_fmt(FILE *f, const char *fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	bool ret = pkgconf_output_file_vfmt(f, fmt, va);
+	va_end(va);
+
+	return ret;
+}
