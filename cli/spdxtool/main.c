@@ -48,7 +48,11 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 {
 	(void) client;
 	(void) data;
-	fprintf(error_msgout, "%s", msg);
+	if (!pkgconf_output_file_fmt(error_msgout, "%s", msg))
+	{
+		pkgconf_error(client, "spdxtool: Could not output error message: %s", strerror(errno));
+		return false;
+	}
 	return true;
 }
 
@@ -202,13 +206,16 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 	spdxtool_serialize_value_to_buf(&buffer, root, 0);
 	spdxtool_serialize_value_free(root);
 
-	fprintf(sbom_out, "%s\n", pkgconf_buffer_str(&buffer));
+	bool ret = pkgconf_output_file_fmt(sbom_out, "%s\n", pkgconf_buffer_str(&buffer));
 	pkgconf_buffer_finalize(&buffer);
 
 	spdxtool_core_spdx_document_free(document);
 	spdxtool_core_creation_info_free(creation);
 	spdxtool_core_agent_free(agent);
-	return true;
+
+	if (!ret)
+		pkgconf_error(client, "spdxtool: Could not output to file: %s", strerror(errno));
+	return ret;
 }
 
 static int
@@ -306,7 +313,7 @@ main(int argc, char *argv[])
 			sbom_out = fopen(pkg_optarg, "w");
 			if (sbom_out == NULL)
 			{
-				fprintf(stderr, "unable to open %s: %s\n", pkg_optarg, strerror(errno));
+				pkgconf_output_file_fmt(stderr, "unable to open %s: %s\n", pkg_optarg, strerror(errno));
 				return EXIT_FAILURE;
 			}
 			break;
