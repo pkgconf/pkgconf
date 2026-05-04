@@ -246,7 +246,7 @@ personality_warn_func(void *p, const char *fmt, ...)
 	(void) p;
 
 	va_start(va, fmt);
-	vfprintf(stderr, fmt, va);
+	pkgconf_output_file_vfmt(stderr, fmt, va);
 	va_end(va);
 }
 
