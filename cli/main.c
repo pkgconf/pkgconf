@@ -38,7 +38,7 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 	if (state->error_msgout == NULL)
 		return true;
 
-	fprintf(state->error_msgout, "%s", msg);
+	pkgconf_output_file_fmt(state->error_msgout, "%s", msg);
 	return true;
 }
 
@@ -223,7 +223,7 @@ main(int argc, char *argv[])
 
 	if (pkgconf_pledge("stdio rpath wpath cpath unveil", NULL) == -1)
 	{
-		fprintf(stderr, "pkgconf: pledge failed: %s\n", strerror(errno));
+		pkgconf_output_file_fmt(stderr, "pkgconf: pledge failed: %s\n", strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -458,7 +458,7 @@ main(int argc, char *argv[])
 	{
 		if (pkgconf_unveil(logfile_arg, "rwc") == -1)
 		{
-			fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
+			pkgconf_output_file_fmt(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
 			return EXIT_FAILURE;
 		}
 
