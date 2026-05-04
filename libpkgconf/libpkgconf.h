@@ -684,6 +684,9 @@ PKGCONF_API bool pkgconf_output_fmt(pkgconf_output_t *output, pkgconf_output_str
 PKGCONF_API bool pkgconf_output_vfmt(pkgconf_output_t *output, pkgconf_output_stream_t stream, const char *fmt, va_list va_src) PRINTFLIKE(3,0);
 PKGCONF_API pkgconf_output_t *pkgconf_output_default(void);
 
+PKGCONF_API bool pkgconf_output_file_vfmt(FILE *f, const char *fmt, va_list va) PRINTFLIKE(2,0);
+PKGCONF_API bool pkgconf_output_file_fmt(FILE *f, const char *fmt, ...) PRINTFLIKE(2,3);
+
 #ifdef __cplusplus
 }
 #endif
