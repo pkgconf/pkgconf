@@ -38,6 +38,22 @@ static int maximum_traverse_depth = 2000;
 static FILE *error_msgout = NULL;
 static FILE *sbom_out = NULL;
 
+#define OUTPUT_OR_RET(client, f, fmt, ...) \
+    do { \
+        if (!pkgconf_output_file_fmt((f), (fmt), ##__VA_ARGS__)) { \
+            pkgconf_error((client), "bomtool: Could not output to file: %s", strerror(errno)); \
+            return; \
+        } \
+    } while (0)
+
+#define OUTPUT_OR_RET_FALSE(client, f, fmt, ...) \
+    do { \
+        if (!pkgconf_output_file_fmt((f), (fmt), ##__VA_ARGS__)) { \
+            pkgconf_error((client), "bomtool: Could not output to file: %s", strerror(errno)); \
+            return false; \
+        } \
+    } while (0)
+
 static const char *
 environ_lookup_handler(const pkgconf_client_t *client, const char *key)
 {
@@ -51,7 +67,7 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 {
 	(void) client;
 	(void) data;
-	fprintf(error_msgout, "%s", msg);
+	OUTPUT_OR_RET_FALSE(client, error_msgout, "%s", msg);
 	return true;
 }
 
@@ -90,22 +106,22 @@ sbom_name(pkgconf_pkg_t *world)
 	return pkgconf_buffer_freeze(&name);
 }
 
-static void
+static bool
 write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
 {
 	(void) client;
 	char *docname = sbom_name(world);
 
-	fprintf(sbom_out, "SPDXVersion: %s\n", spdx_version);
-	fprintf(sbom_out, "DataLicense: %s\n", bom_license);
-	fprintf(sbom_out, "SPDXID: %s\n", document_ref);
-	fprintf(sbom_out, "DocumentName: %s\n", docname);
-	fprintf(sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION);
-	fprintf(sbom_out, "Creator: Tool: bomtool %s\n", PACKAGE_VERSION);
-
-	fprintf(sbom_out, "\n\n");
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "SPDXVersion: %s\n", spdx_version);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "DataLicense: %s\n", bom_license);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "SPDXID: %s\n", document_ref);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "DocumentName: %s\n", docname);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "Creator: Tool: bomtool %s\n", PACKAGE_VERSION);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "\n\n");
 
 	free(docname);
+	return true;
 }
 
 static const char *
@@ -118,23 +134,25 @@ sbom_identity(pkgconf_pkg_t *pkg)
 	return buf;
 }
 
-static void
-write_copyright_lines(const pkgconf_list_t *copyright_lines)
+static bool
+write_copyright_lines(pkgconf_client_t *client, const pkgconf_list_t *copyright_lines)
 {
 	const pkgconf_node_t *node;
 
 	if (copyright_lines->head == NULL)
-		return;
+		return true;
 
-	fprintf(sbom_out, "PackageCopyrightText: <text>");
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "PackageCopyrightText: <text>");
 
 	PKGCONF_FOREACH_LIST_ENTRY(copyright_lines->head, node)
 	{
 		const pkgconf_bufferset_t *set = node->data;
-		fprintf(sbom_out, "%s%s", pkgconf_buffer_str_or_empty(&set->buffer), node->prev != NULL ? "\n" : "");
+		OUTPUT_OR_RET_FALSE(client, sbom_out, "%s%s", pkgconf_buffer_str_or_empty(&set->buffer), node->prev != NULL ? "\n" : "");
 	}
 
-	fprintf(sbom_out, "</text>\n");
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "</text>\n");
+
+	return true;
 }
 
 static void
@@ -147,44 +165,45 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
 
-	fprintf(sbom_out, "##### Package: %s\n\n", sbom_identity(pkg));
-
-	fprintf(sbom_out, "PackageName: %s\n", pkg->id);
-	fprintf(sbom_out, "SPDXID: SPDXRef-Package-%s\n", sbom_spdx_identity(pkg));
-	fprintf(sbom_out, "PackageVersion: %s\n", pkg->version);
-	fprintf(sbom_out, "PackageVerificationCode: NOASSERTION\n");
+	OUTPUT_OR_RET(client, sbom_out, "##### Package: %s\n\n", sbom_identity(pkg));
+	OUTPUT_OR_RET(client, sbom_out, "PackageName: %s\n", pkg->id);
+	OUTPUT_OR_RET(client, sbom_out, "SPDXID: SPDXRef-Package-%s\n", sbom_spdx_identity(pkg));
+	OUTPUT_OR_RET(client, sbom_out, "PackageVersion: %s\n", pkg->version);
+	OUTPUT_OR_RET(client, sbom_out, "PackageVerificationCode: NOASSERTION\n");
 
 	/* XXX: What about projects? */
 	if (pkg->maintainer != NULL)
-		fprintf(sbom_out, "PackageSupplier: Person: %s\n", pkg->maintainer);
+		OUTPUT_OR_RET(client, sbom_out, "PackageSupplier: Person: %s\n", pkg->maintainer);
 
 	if (pkg->url != NULL)
-		fprintf(sbom_out, "PackageHomePage: %s\n", pkg->url);
+		OUTPUT_OR_RET(client, sbom_out, "PackageHomePage: %s\n", pkg->url);
 
 	if (pkg->license.head != NULL)
 	{
 		pkgconf_license_render(client, &pkg->license, &license_buf);
-		fprintf(sbom_out, "PackageLicenseDeclared: %s\n", pkgconf_buffer_str_or_empty(&license_buf));
+		bool ret = pkgconf_output_file_fmt(sbom_out, "PackageLicenseDeclared: %s\n", pkgconf_buffer_str_or_empty(&license_buf));
 		pkgconf_buffer_finalize(&license_buf);
+		if (!ret)
+		{
+			pkgconf_error(client, "bomtool: could not output to file: %s", strerror(errno));
+			return;
+		}
 	}
 	else
-	{
-		fprintf(sbom_out, "PackageLicenseDeclared: NOASSERTION\n");
-	}
+		OUTPUT_OR_RET(client, sbom_out, "PackageLicenseDeclared: NOASSERTION\n");
 
-
-	write_copyright_lines(&pkg->copyright);
+	if (!write_copyright_lines(client, &pkg->copyright))
+		return;
 
 	if (pkg->description != NULL)
-		fprintf(sbom_out, "PackageSummary: <text>%s</text>\n", pkg->description);
+		OUTPUT_OR_RET(client, sbom_out, "PackageSummary: <text>%s</text>\n", pkg->description);
 
 	if (pkg->source != NULL)
-		fprintf(sbom_out, "PackageDownloadLocation: %s\n", pkg->source);
+		OUTPUT_OR_RET(client, sbom_out, "PackageDownloadLocation: %s\n", pkg->source);
 	else
-		fprintf(sbom_out, "PackageDownloadLocation: NOASSERTION\n");
+		OUTPUT_OR_RET(client, sbom_out, "PackageDownloadLocation: NOASSERTION\n");
 
-
-	fprintf(sbom_out, "\n\n");
+	OUTPUT_OR_RET(client, sbom_out, "\n\n");
 }
 
 static void
@@ -209,8 +228,8 @@ write_sbom_relationships(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unu
 		if (!dep->match)
 			continue;
 
-		fprintf(sbom_out, "Relationship: %s DEPENDS_ON SPDXRef-Package-%s\n", baseref, sbom_spdx_identity(match));
-		fprintf(sbom_out, "Relationship: SPDXRef-Package-%s DEPENDENCY_OF %s\n", sbom_spdx_identity(match), baseref);
+		OUTPUT_OR_RET(client, sbom_out, "Relationship: %s DEPENDS_ON SPDXRef-Package-%s\n", baseref, sbom_spdx_identity(match));
+		OUTPUT_OR_RET(client, sbom_out, "Relationship: SPDXRef-Package-%s DEPENDENCY_OF %s\n", sbom_spdx_identity(match), baseref);
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
@@ -221,12 +240,12 @@ write_sbom_relationships(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unu
 		if (!dep->match)
 			continue;
 
-		fprintf(sbom_out, "Relationship: %s DEPENDS_ON SPDXRef-Package-%s\n", baseref, sbom_spdx_identity(match));
-		fprintf(sbom_out, "Relationship: SPDXRef-Package-%s DEV_DEPENDENCY_OF %s\n", sbom_spdx_identity(match), baseref);
+		OUTPUT_OR_RET(client, sbom_out, "Relationship: %s DEPENDS_ON SPDXRef-Package-%s\n", baseref, sbom_spdx_identity(match));
+		OUTPUT_OR_RET(client, sbom_out, "Relationship: SPDXRef-Package-%s DEV_DEPENDENCY_OF %s\n", sbom_spdx_identity(match), baseref);
 	}
 
 	if (pkg->required.head != NULL || pkg->requires_private.head != NULL)
-		fprintf(sbom_out, "\n\n");
+		OUTPUT_OR_RET(client, sbom_out, "\n\n");
 }
 
 static bool
@@ -235,7 +254,8 @@ generate_sbom_from_world(pkgconf_client_t *client, pkgconf_pkg_t *world)
 	int eflag;
 	pkgconf_node_t *node;
 
-	write_sbom_header(client, world);
+	if (!write_sbom_header(client, world))
+		return false;
 
 	eflag = pkgconf_pkg_traverse(client, world, write_sbom_package, NULL, maximum_traverse_depth, 0);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
@@ -253,7 +273,7 @@ generate_sbom_from_world(pkgconf_client_t *client, pkgconf_pkg_t *world)
 		if (!dep->match)
 			continue;
 
-		fprintf(sbom_out, "Relationship: %s DESCRIBES SPDXRef-Package-%s\n", document_ref, sbom_spdx_identity(match));
+		OUTPUT_OR_RET_FALSE(client, sbom_out, "Relationship: %s DESCRIBES SPDXRef-Package-%s\n", document_ref, sbom_spdx_identity(match));
 	}
 
 	return true;
@@ -331,7 +351,7 @@ main(int argc, char *argv[])
 			sbom_out = fopen(pkg_optarg, "w");
 			if (sbom_out == NULL)
 			{
-				fprintf(stderr, "unable to open %s: %s\n", pkg_optarg, strerror(errno));
+				pkgconf_output_file_fmt(stderr, "unable to open %s: %s\n", pkg_optarg, strerror(errno));
 				return EXIT_FAILURE;
 			}
 
@@ -404,7 +424,7 @@ main(int argc, char *argv[])
 
 	if (pkgq.head == NULL)
 	{
-		fprintf(stderr, "Please specify at least one package name on the command line.\n");
+		pkgconf_output_file_fmt(stderr, "Please specify at least one package name on the command line.\n");
 		ret = EXIT_FAILURE;
 		goto out;
 	}
