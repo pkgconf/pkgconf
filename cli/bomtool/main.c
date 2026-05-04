@@ -109,16 +109,20 @@ write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
 	(void) client;
 	char *docname = sbom_name(world);
 
-	OUTPUT_OR_RET_FALSE(client, sbom_out, "SPDXVersion: %s\n", spdx_version);
-	OUTPUT_OR_RET_FALSE(client, sbom_out, "DataLicense: %s\n", bom_license);
-	OUTPUT_OR_RET_FALSE(client, sbom_out, "SPDXID: %s\n", document_ref);
-	OUTPUT_OR_RET_FALSE(client, sbom_out, "DocumentName: %s\n", docname);
-	OUTPUT_OR_RET_FALSE(client, sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION);
-	OUTPUT_OR_RET_FALSE(client, sbom_out, "Creator: Tool: bomtool %s\n", PACKAGE_VERSION);
-	OUTPUT_OR_RET_FALSE(client, sbom_out, "\n\n");
+	bool ret = pkgconf_output_file_fmt(sbom_out, "SPDXVersion: %s\n", spdx_version)
+		&& pkgconf_output_file_fmt(sbom_out, "DataLicense: %s\n", bom_license)
+		&& pkgconf_output_file_fmt(sbom_out, "SPDXID: %s\n", document_ref)
+		&& pkgconf_output_file_fmt(sbom_out, "DocumentName: %s\n", docname)
+		&& pkgconf_output_file_fmt(sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION)
+		&& pkgconf_output_file_fmt(sbom_out, "Creator: Tool: bomtool %s\n", PACKAGE_VERSION)
+		&& pkgconf_output_file_fmt(sbom_out, "\n\n");
 
+	int errno_save = errno;
 	free(docname);
-	return true;
+
+	if (!ret)
+		pkgconf_error(client, "bomtool: Could not output to file: %s", strerror(errno_save));
+	return ret;
 }
 
 static const char *
@@ -179,10 +183,11 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	{
 		pkgconf_license_render(client, &pkg->license, &license_buf);
 		bool ret = pkgconf_output_file_fmt(sbom_out, "PackageLicenseDeclared: %s\n", pkgconf_buffer_str_or_empty(&license_buf));
+		int errno_save = errno;
 		pkgconf_buffer_finalize(&license_buf);
 		if (!ret)
 		{
-			pkgconf_error(client, "bomtool: could not output to file: %s", strerror(errno));
+			pkgconf_error(client, "bomtool: could not output to file: %s", strerror(errno_save));
 			return;
 		}
 	}
