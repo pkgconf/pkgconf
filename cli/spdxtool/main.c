@@ -247,6 +247,7 @@ usage(void)
 	printf("  --output FILE                     output SBOM data to file\n");
 	printf("  --spdx-base-id URL                Uset string as base of SPDX ids [default: %s]\n", xsd_any_uri_default_base);
 	printf("  --use-uri                         Use URIs not URLs as SPDX id");
+	printf("  --define-variable=varname=value   define variable global 'varname' as 'value'\n");
 
 	return EXIT_SUCCESS;
 }
@@ -286,6 +287,7 @@ main(int argc, char *argv[])
 		{ "output", required_argument, NULL, 103, },
 		{ "spdx-base-id", required_argument, NULL, 104, },
 		{ "use-uri", no_argument, NULL, 105, },
+		{ "define-variable", required_argument, NULL, 106, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -318,6 +320,9 @@ main(int argc, char *argv[])
 			if (!strcmp(spdx_id_base, xsd_any_url_default_base))
 				spdx_id_base = xsd_any_uri_default_base;
 			colon_sep = true;
+			break;
+		case 106:
+			pkgconf_tuple_define_global(&pkg_client, pkg_optarg);
 			break;
 		case '?':
 		case ':':
