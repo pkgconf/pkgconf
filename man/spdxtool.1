@@ -52,6 +52,13 @@ Default is document creation time.
 Set creation ID in /Core/CreationInfoc-class.
 As ID in creation info mainly have special format and it's
 default is '_:creationinfo_1'.
+.It Fl -define-variable Ns = Ns Ar varname Ns = Ns Ar value
+Define
+.Ar varname
+as
+.Ar value .
+Variables are used in query output, and some modules' results may change based
+on the presence of a variable definition.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width indent
