@@ -23,6 +23,7 @@
 #define PKG_ABOUT			(((uint64_t) 1) << 2)
 #define PKG_HELP			(((uint64_t) 1) << 3)
 #define PKG_OUTPUT			(((uint64_t) 1) << 4)
+#define PKG_DEFINE_VARIABLE	(((uint64_t) 1) << 5)
 
 static const char *spdx_version = "SPDX-2.2";
 static const char *bom_license = "CC0-1.0";
@@ -290,6 +291,7 @@ usage(void)
 	printf("  --about                           print bomtool version and license to stdout\n");
 	printf("  --version                         print bomtool version to stdout\n");
 	printf("  --output FILE                     output SBOM text to FILE\n");
+	printf("  --define-variable=varname=value   define variable 'varname' as 'value'\n");
 
 	return EXIT_SUCCESS;
 }
@@ -314,7 +316,8 @@ main(int argc, char *argv[])
 		{ "version", no_argument, &want_flags, PKG_VERSION, },
 		{ "about", no_argument, &want_flags, PKG_ABOUT, },
 		{ "help", no_argument, &want_flags, PKG_HELP, },
-		{ "output", required_argument, NULL, PKG_OUTPUT, }, 
+		{ "output", required_argument, NULL, PKG_OUTPUT, },
+		{ "define-variable", required_argument, NULL, PKG_DEFINE_VARIABLE, },
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -330,6 +333,9 @@ main(int argc, char *argv[])
 				return EXIT_FAILURE;
 			}
 
+			break;
+		case PKG_DEFINE_VARIABLE:
+			pkgconf_tuple_define_global(&pkg_client, pkg_optarg);
 			break;
 		case '?':
 		case ':':
