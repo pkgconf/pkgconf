@@ -1,4 +1,6 @@
 /*
+ * SPDX-License-Identifier: MIT
+ *
  * Dirent interface for Microsoft Visual Studio
  *
  * Copyright (C) 1998-2019 Toni Ronkko
