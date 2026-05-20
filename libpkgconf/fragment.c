@@ -2,6 +2,8 @@
  * fragment.c
  * Management of fragment lists.
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2012, 2013, 2014 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

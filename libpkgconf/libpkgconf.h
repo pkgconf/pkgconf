@@ -2,6 +2,8 @@
  * libpkgconf.h
  * Global include file for everything in libpkgconf.
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2011, 2015 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

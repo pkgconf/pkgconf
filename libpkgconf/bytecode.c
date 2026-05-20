@@ -2,6 +2,8 @@
  * bytecode.c
  * variable expansion bytecode evaluator
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2026 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

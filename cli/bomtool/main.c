@@ -2,6 +2,8 @@
  * bomtool/main.c
  * main() routine, printer functions
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
  *     pkgconf authors (see AUTHORS).
  *

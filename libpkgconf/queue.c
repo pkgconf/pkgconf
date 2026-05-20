@@ -2,6 +2,8 @@
  * queue.c
  * compilation of a list of packages into a world dependency set
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2012 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

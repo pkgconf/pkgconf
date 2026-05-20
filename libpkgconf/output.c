@@ -2,6 +2,8 @@
  * output.c
  * I/O abstraction layer
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2025 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

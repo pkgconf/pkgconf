@@ -2,6 +2,8 @@
  * renderer-msvc.c
  * MSVC library syntax renderer
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2017 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

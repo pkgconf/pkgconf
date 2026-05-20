@@ -2,6 +2,8 @@
  * stdinc.h
  * pull in standard headers (including portability hacks)
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2012 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

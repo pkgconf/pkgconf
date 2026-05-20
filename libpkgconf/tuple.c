@@ -2,6 +2,8 @@
  * tuple.c
  * management of key->value tuples
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2011, 2012 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
