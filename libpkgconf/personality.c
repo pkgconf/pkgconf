@@ -2,6 +2,8 @@
  * personality.c
  * libpkgconf cross-compile personality database
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2018 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

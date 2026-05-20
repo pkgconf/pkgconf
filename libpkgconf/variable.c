@@ -2,6 +2,8 @@
  * variable.c
  * variable management
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2026 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

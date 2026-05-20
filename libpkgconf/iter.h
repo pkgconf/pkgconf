@@ -2,6 +2,8 @@
  * iter.h
  * Linked lists and iterators.
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2013 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

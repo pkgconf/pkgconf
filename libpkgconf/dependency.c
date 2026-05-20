@@ -2,6 +2,8 @@
  * dependency.c
  * dependency parsing and management
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2011, 2012, 2013 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

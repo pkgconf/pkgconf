@@ -2,6 +2,8 @@
  * version.c
  * version comparison
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2011-2026 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any

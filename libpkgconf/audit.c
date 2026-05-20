@@ -2,6 +2,8 @@
  * audit.c
  * package audit log functions
  *
+ * SPDX-License-Identifier: pkgconf
+ *
  * Copyright (c) 2016 pkgconf authors (see AUTHORS).
  *
  * Permission to use, copy, modify, and/or distribute this software for any
