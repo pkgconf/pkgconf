@@ -35,6 +35,32 @@ contribution is conformant with the
 
    [dco]: DCO
 
+## License for new source file
+
+New source files should be licensed under pkgconf-license.
+Template for license header is:
+
+```
+/*
+ * [FILENAME].c
+ * Short one line description
+ *
+ * SPDX-License-Identifier: pkgconf
+ *
+ * Copyright (c) [YEAR] pkgconf authors (see AUTHORS).
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * This software is provided 'as is' and without any warranty, express or
+ * implied.  In no event shall the authors be liable for any damages arising
+ * from the use of this software.
+ */
+```
+
+Where `[FILENAME]` is source file's name like: `filename.c` and `[YEAR]` is current year
+
 ## Authorship, provenance and automated tooling
 
 Contributions to pkgconf must have clear and defensible provenance.
