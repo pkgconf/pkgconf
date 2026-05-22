@@ -39,20 +39,20 @@ static FILE *error_msgout = NULL;
 static FILE *sbom_out = NULL;
 
 #define OUTPUT_OR_RET(client, f, fmt, ...) \
-    do { \
-        if (!pkgconf_output_file_fmt((f), (fmt), ##__VA_ARGS__)) { \
-            pkgconf_error((client), "bomtool: Could not output to file: %s", strerror(errno)); \
-            return; \
-        } \
-    } while (0)
+	do { \
+		if (!pkgconf_output_file_fmt((f), (fmt), ##__VA_ARGS__)) { \
+			pkgconf_error((client), "bomtool: Could not output to file: %s", strerror(errno)); \
+			return; \
+		} \
+	} while (0)
 
 #define OUTPUT_OR_RET_FALSE(client, f, fmt, ...) \
-    do { \
-        if (!pkgconf_output_file_fmt((f), (fmt), ##__VA_ARGS__)) { \
-            pkgconf_error((client), "bomtool: Could not output to file: %s", strerror(errno)); \
-            return false; \
-        } \
-    } while (0)
+	do { \
+		if (!pkgconf_output_file_fmt((f), (fmt), ##__VA_ARGS__)) { \
+			pkgconf_error((client), "bomtool: Could not output to file: %s", strerror(errno)); \
+			return false; \
+		} \
+	} while (0)
 
 static const char *
 environ_lookup_handler(const pkgconf_client_t *client, const char *key)
@@ -109,23 +109,24 @@ sbom_name(pkgconf_pkg_t *world)
 static bool
 write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
 {
-	(void) client;
-	char *docname = sbom_name(world);
+	char *tmp = sbom_name(world);
+	if (!tmp)
+	{
+		pkgconf_error(client, "write_sbom_header: out of memory");
+		return false;
+	}
+	char *docname = PKGCONF_LOCAL_COPY(tmp);
+	free(tmp);
 
-	bool ret = pkgconf_output_file_fmt(sbom_out, "SPDXVersion: %s\n", spdx_version)
-		&& pkgconf_output_file_fmt(sbom_out, "DataLicense: %s\n", bom_license)
-		&& pkgconf_output_file_fmt(sbom_out, "SPDXID: %s\n", document_ref)
-		&& pkgconf_output_file_fmt(sbom_out, "DocumentName: %s\n", docname)
-		&& pkgconf_output_file_fmt(sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION)
-		&& pkgconf_output_file_fmt(sbom_out, "Creator: Tool: bomtool %s\n", PACKAGE_VERSION)
-		&& pkgconf_output_file_fmt(sbom_out, "\n\n");
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "SPDXVersion: %s\n", spdx_version);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "DataLicense: %s\n", bom_license);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "SPDXID: %s\n", document_ref);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "DocumentName: %s\n", docname);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "Creator: Tool: bomtool %s\n", PACKAGE_VERSION);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "\n\n");
 
-	int errno_save = errno;
-	free(docname);
-
-	if (!ret)
-		pkgconf_error(client, "bomtool: Could not output to file: %s", strerror(errno_save));
-	return ret;
+	return true;
 }
 
 static const char *

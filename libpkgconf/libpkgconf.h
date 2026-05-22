@@ -71,6 +71,14 @@ typedef struct pkgconf_license_ pkgconf_license_t;
 #define PKGCONF_FOREACH_LIST_ENTRY_REVERSE(tail, value) \
 	for ((value) = (tail); (value) != NULL; (value) = (value)->prev)
 
+#ifdef HAVE_STRDUPA
+#	define PKGCONF_LOCAL_COPY(s) strdupa(s)
+#elif defined(__INTEL_COMPILER) || defined(__GNUC__)
+#	define PKGCONF_LOCAL_COPY(s) __extension__({ char *_s = alloca(strlen(s) + 1); strcpy(_s, s); _s; })
+#else
+#	define PKGCONF_LOCAL_COPY(s) strcpy(alloca(strlen(s) + 1), s)
+#endif /* HAVE_STRDUPA */
+
 #define LIBPKGCONF_VERSION	20501
 #define LIBPKGCONF_VERSION_STR	"2.5.1"
 
