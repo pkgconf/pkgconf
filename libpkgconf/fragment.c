@@ -239,8 +239,10 @@ should_inject_sysroot(const pkgconf_client_t *client, const char *string, bool s
 		return false;
 
 	if (!strncmp(string + 2, client->sysroot_dir, strlen(client->sysroot_dir)) &&
-            *(string + 2 + strlen(client->sysroot_dir)) == '/')
+		*(string + 2 + strlen(client->sysroot_dir)) == '/')
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -273,8 +275,10 @@ should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragme
 		return false;
 
 	if (!strncmp(string, client->sysroot_dir, strlen(client->sysroot_dir)) &&
-            *(string + 1 + strlen(client->sysroot_dir)) == '/')
+		*(string + 1 + strlen(client->sysroot_dir)) == '/')
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -335,14 +339,14 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 	}
 
 	if (list->tail != NULL && list->tail->data != NULL &&
-	    !(client->flags & PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS))
+		!(client->flags & PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS))
 	{
 		pkgconf_fragment_t *parent = list->tail->data;
 
 		/* only attempt to merge 'special' fragments together */
 		if (!parent->type && parent->data != NULL &&
-		    pkgconf_fragment_is_unmergeable(parent->data) &&
-		    !(parent->flags & PKGCONF_PKG_FRAGF_TERMINATED))
+			pkgconf_fragment_is_unmergeable(parent->data) &&
+			!(parent->flags & PKGCONF_PKG_FRAGF_TERMINATED))
 		{
 			if (pkgconf_fragment_is_groupable(parent->data))
 				target = &parent->children;

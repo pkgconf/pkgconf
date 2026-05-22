@@ -934,7 +934,7 @@ static int strverscmp(const char *a, const char *b)
 			return 1;
 		}
 	} else if ((unsigned char)isdigit(a[j]) &&
-	    isdigit((unsigned char)b[j])) {
+		isdigit((unsigned char)b[j])) {
 		/* Numeric comparison */
 		size_t k1 = j;
 		size_t k2 = j;
