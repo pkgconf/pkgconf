@@ -177,7 +177,7 @@ personality_bool_func(pkgconf_cross_personality_t *p, const char *keyword, const
 	(void) warnprefix;
 
 	bool *dest = (bool *)((char *) p + offset);
-	*dest = strcasecmp(value, "true") == 0 || strcasecmp(value, "yes") == 0 || *value == '1';
+	*dest = strcasecmp(value, "true") == 0 || strcasecmp(value, "yes") == 0 || strcasecmp(value, "1") == 0;
 }
 
 static void
