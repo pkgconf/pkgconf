@@ -193,7 +193,7 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 		return false;
 	}
 
-    spdxtool_serialize_value_t *root = spdxtool_serialize_sbom(client, agent, creation, document);
+	spdxtool_serialize_value_t *root = spdxtool_serialize_sbom(client, agent, creation, document);
 	if (!root)
 	{
 		spdxtool_core_spdx_document_free(document);
@@ -202,7 +202,7 @@ generate_spdx(pkgconf_client_t *client, pkgconf_pkg_t *world, const char *creati
 		return false;
 	}
 
-    pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
 	spdxtool_serialize_value_to_buf(&buffer, root, 0);
 	spdxtool_serialize_value_free(root);
 

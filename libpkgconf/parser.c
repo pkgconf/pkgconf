@@ -85,8 +85,7 @@ pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops
 	while (*p && (isalpha((unsigned char)*p) || isdigit((unsigned char)*p) || *p == '_' || *p == '.'))
 		p++;
 
-	if (!isalpha((unsigned char)*key) &&
-	    !isdigit((unsigned char)*p))
+	if (!isalpha((unsigned char)*key) && !isdigit((unsigned char)*p))
 		return;
 
 	while (*p && isspace((unsigned char)*p))

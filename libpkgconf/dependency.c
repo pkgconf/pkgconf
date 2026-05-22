@@ -85,7 +85,7 @@ add_or_replace_dependency_node(pkgconf_client_t *client, pkgconf_dependency_t *d
 		const char *depstr2 = dependency_to_buf(dep2, &depbuf2);
 
 		PKGCONF_TRACE(client, "dependency collision: [%s/%x] -- [%s/%x]",
-			      depstr, dep->flags, depstr2, dep2->flags);
+			depstr, dep->flags, depstr2, dep2->flags);
 
 		/* prefer the uncoloured node, either dep or dep2 */
 		if (dep->flags && dep2->flags == 0)

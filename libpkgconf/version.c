@@ -161,7 +161,7 @@ static int
 pkgconf_version_compare_token(const pkgconf_version_token_t *a, const pkgconf_version_token_t *b)
 {
 	if (a->kind == PKGCONF_VERSION_TOKEN_TILDE || b->kind == PKGCONF_VERSION_TOKEN_TILDE)
-        {
+	{
 		if (a->kind != PKGCONF_VERSION_TOKEN_TILDE)
 			return 1;
 		if (b->kind != PKGCONF_VERSION_TOKEN_TILDE)
@@ -221,30 +221,32 @@ pkgconf_version_compare_token(const pkgconf_version_token_t *a, const pkgconf_ve
 int
 pkgconf_compare_version(const char *a, const char *b)
 {
-        pkgconf_version_iter_t ia, ib;
+	pkgconf_version_iter_t ia, ib;
 
-        if (a == NULL)
-                return -1;
-        if (b == NULL)
-                return 1;
+	if (a == NULL)
+		return -1;
+	if (b == NULL)
+		return 1;
 
-        if (!strcasecmp(a, b))
-                return 0;
+	if (!strcasecmp(a, b))
+		return 0;
 
-        ia.cur = a;
-        ib.cur = b;
+	ia.cur = a;
+	ib.cur = b;
 
-        for (;;)
-        {
-                pkgconf_version_token_t ta = pkgconf_version_next_token(&ia);
-                pkgconf_version_token_t tb = pkgconf_version_next_token(&ib);
-                int ret = pkgconf_version_compare_token(&ta, &tb);
+	for (;;)
+	{
+		pkgconf_version_token_t ta = pkgconf_version_next_token(&ia);
+		pkgconf_version_token_t tb = pkgconf_version_next_token(&ib);
+		int ret = pkgconf_version_compare_token(&ta, &tb);
 
-                if (ret != 0)
-                        return ret;
+		if (ret != 0)
+			return ret;
 
-                if (ta.kind == PKGCONF_VERSION_TOKEN_END &&
-                    tb.kind == PKGCONF_VERSION_TOKEN_END)
-                        return 0;
-        }
+		if (ta.kind == PKGCONF_VERSION_TOKEN_END &&
+			tb.kind == PKGCONF_VERSION_TOKEN_END)
+		{
+			return 0;
+		}
+	}
 }
