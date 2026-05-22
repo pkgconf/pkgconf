@@ -38,7 +38,7 @@ buffer_debug(pkgconf_buffer_t *buffer)
 {
 	for (char *c = buffer->base; c <= buffer->end; c++)
 	{
-		pkgconf_output_file_fmt(stderr, "%02x ", (unsigned char) *c);
+		fprintf(stderr, "%02x ", (unsigned char) *c);
 	}
 
 	pkgconf_output_file_fmt(stderr, "\n");
