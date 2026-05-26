@@ -1018,6 +1018,12 @@ dump_personality(pkgconf_output_t *output, const pkgconf_cross_personality_t *p)
 	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SystemIncludePaths: %s\n", pc_system_includedirs_buf.base);
 	pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "SystemLibraryPaths: %s\n", pc_system_libdirs_buf.base);
 
+	if (p->want_default_pure)
+		pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "WantDefaultPure: true\n");
+
+	if (p->want_default_static)
+		pkgconf_output_fmt(output, PKGCONF_OUTPUT_STDOUT, "WantDefaultStatic: true\n");
+
 	pkgconf_buffer_finalize(&pc_path_buf);
 	pkgconf_buffer_finalize(&pc_system_libdirs_buf);
 	pkgconf_buffer_finalize(&pc_system_includedirs_buf);
