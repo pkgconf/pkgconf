@@ -325,5 +325,5 @@ main(int argc, const char **argv)
 	TEST_RUN(basename, test_str_eq_slice);
 	TEST_RUN(basename, test_span_contains);
 
-	return 0;
+	return EXIT_SUCCESS;
 }

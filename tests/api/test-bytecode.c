@@ -224,7 +224,6 @@ int
 main(int argc, char *argv[])
 {
 	(void) argc;
-
 	const char *name = test_progname(argv[0]);
 
 	TEST_RUN(name, test_compile_produces_nonempty_buffer);
@@ -237,5 +236,5 @@ main(int argc, char *argv[])
 	TEST_RUN(name, test_eval_sysroot_detection);
 	TEST_RUN(name, test_compile_eval_roundtrip);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
