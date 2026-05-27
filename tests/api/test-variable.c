@@ -205,7 +205,7 @@ test_variable_list_free_handles_empty(void)
 {
 	pkgconf_list_t vars = PKGCONF_LIST_INITIALIZER;
 
-	/* Freeing an empty list should be a no-op and not crash. */
+	// Freeing an empty list should be a no-op and not crash. Mostly an ASan/leak smoke test.
 	pkgconf_variable_list_free(&vars);
 }
 

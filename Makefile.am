@@ -518,6 +518,7 @@ check: pkgconf test-runner test-path-utils test-api-buffer test-api-bytecode tes
 	$(builddir)/test-api-buffer$(EXEEXT)
 	$(builddir)/test-api-bytecode$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
+	$(builddir)/test-api-variable$(EXEEXT)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/ordering
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/parser

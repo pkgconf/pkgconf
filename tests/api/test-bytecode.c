@@ -89,8 +89,7 @@ test_eval_nested_variables(void)
 	seed_variable(&vars, "prefix", "/usr/local");
 	seed_variable(&vars, "libdir", "${prefix}/lib");
 
-	char *out = pkgconf_bytecode_eval_str(client, &vars,
-		"-L${libdir}", &saw_sysroot);
+	char *out = pkgconf_bytecode_eval_str(client, &vars, "-L${libdir}", &saw_sysroot);
 
 	TEST_ASSERT_NONNULL(out);
 	TEST_ASSERT_STRCMP_EQ(out, "-L/usr/local/lib");
@@ -145,8 +144,7 @@ test_eval_empty_input(void)
 	pkgconf_list_t vars = PKGCONF_LIST_INITIALIZER;
 	bool saw_sysroot = false;
 
-	char *out = pkgconf_bytecode_eval_str(client, &vars,
-		"", &saw_sysroot);
+	char *out = pkgconf_bytecode_eval_str(client, &vars, "", &saw_sysroot);
 
 	// An empty input may evaluate to either NULL or an empty string
 	if (out != NULL)
