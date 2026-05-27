@@ -44,6 +44,7 @@ core
 /pkgconf
 /pkgconf-gcov
 /pkgconf-profile
+/spdxtool
 
 # libtool
 /libtool
@@ -63,17 +64,6 @@ core
 /libpkgconf/config.h.in
 
 # tests
-/Kyuafile
-/tests/Kyuafile
-/tests/basic
-/tests/builtins
-/tests/conflicts
-/tests/framework
-/tests/parser
-/tests/provides
-/tests/regress
-/tests/requires
-/tests/symlink
-/tests/sysroot
-/tests/test_env.sh
-/tests/version
+/test-api-buffer
+/test-path-utils
+/test-runner
