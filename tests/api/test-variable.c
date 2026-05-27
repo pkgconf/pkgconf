@@ -40,7 +40,7 @@ test_variable_new_and_free(void)
 	pkgconf_variable_t *v = pkgconf_variable_new("prefix");
 
 	TEST_ASSERT_NONNULL(v);
-	TEST_STRCMP(v->key, "prefix");
+	TEST_ASSERT_STRCMP_EQ(v->key, "prefix");
 
 	pkgconf_variable_free(v);
 }
@@ -52,7 +52,7 @@ test_variable_get_or_create_creates(void)
 
 	pkgconf_variable_t *v = pkgconf_variable_get_or_create(&vars, "prefix");
 	TEST_ASSERT_NONNULL(v);
-	TEST_STRCMP(v->key, "prefix");
+	TEST_ASSERT_STRCMP_EQ(v->key, "prefix");
 
 	pkgconf_variable_list_free(&vars);
 }
@@ -68,7 +68,7 @@ test_variable_get_or_create_returns_existing(void)
 	// A second call with the same key should return the same object, not create a duplicate.
 	pkgconf_variable_t *second = pkgconf_variable_get_or_create(&vars, "libdir");
 	TEST_ASSERT_NONNULL(second);
-	TEST_EQ(first, second);
+	TEST_ASSERT_EQ(first, second);
 
 	pkgconf_variable_list_free(&vars);
 }
@@ -83,7 +83,7 @@ test_variable_find_present(void)
 
 	pkgconf_variable_t *found = pkgconf_variable_find(&vars, "prefix");
 	TEST_ASSERT_NONNULL(found);
-	TEST_EQ(created, found);
+	TEST_ASSERT_EQ(created, found);
 
 	pkgconf_variable_list_free(&vars);
 }
@@ -147,7 +147,7 @@ test_variable_eval_str_plain(void)
 
 	char *out = pkgconf_variable_eval_str(client, &vars, v, &saw_sysroot);
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "1.2.3");
+	TEST_ASSERT_STRCMP_EQ(out, "1.2.3");
 
 	free(out);
 	pkgconf_variable_list_free(&vars);
@@ -170,7 +170,7 @@ test_variable_eval_str_with_reference(void)
 
 	char *out = pkgconf_variable_eval_str(client, &vars, libdir, &saw_sysroot);
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "/opt/foo/lib");
+	TEST_ASSERT_STRCMP_EQ(out, "/opt/foo/lib");
 
 	free(out);
 	pkgconf_variable_list_free(&vars);
@@ -193,7 +193,7 @@ test_variable_eval_str_chained(void)
 
 	char *out = pkgconf_variable_eval_str(client, &vars, includedir, &saw_sysroot);
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "/usr/local/include");
+	TEST_ASSERT_STRCMP_EQ(out, "/usr/local/include");
 
 	free(out);
 	pkgconf_variable_list_free(&vars);

@@ -56,53 +56,62 @@
 			TEST_FAIL_("TEST_ASSERT_NONNULL(%s) was NULL", #expr);	\
 	} while (0)
 
-#define TEST_EQ(a, b)	\
+#define TEST_ASSERT_EQ(a, b)	\
 	do {	\
 		long long _a = (long long)(a);	\
 		long long _b = (long long)(b);	\
 		if (_a != _b)	\
-			TEST_FAIL_("TEST_EQ(%s, %s): %lld != %lld",	\
+			TEST_FAIL_("TEST_ASSERT_EQ(%s, %s): %lld != %lld",	\
 				#a, #b, _a, _b);	\
 	} while (0)
 
-#define TEST_NE(a, b)	\
+#define TEST_ASSERT_NE(a, b)	\
 	do {	\
 		long long _a = (long long)(a);	\
 		long long _b = (long long)(b);	\
 		if (_a == _b)	\
-			TEST_FAIL_("TEST_NE(%s, %s): both %lld",	\
+			TEST_FAIL_("TEST_ASSERT_NE(%s, %s): both %lld",	\
 				#a, #b, _a);	\
 	} while (0)
 
-#define TEST_STRCMP(actual, expected)	\
+#define TEST_ASSERT_STRCMP_EQ(actual, expected)	\
 	do {	\
 		const char *_a = (actual);	\
 		const char *_e = (expected);	\
 		if (_a == NULL || _e == NULL || strcmp(_a, _e) != 0)	\
-			TEST_FAIL_("TEST_STRCMP(%s, %s): [%s] != [%s]",	\
+			TEST_FAIL_("TEST_ASSERT_STRCMP_EQ(%s, %s): [%s] != [%s]",	\
 				#actual, #expected,	\
 				_a ? _a : "(null)", _e ? _e : "(null)");	\
 	} while (0)
 
-#define TEST_STRCASECMP(actual, expected)	\
+#define TEST_ASSERT_STRCASECMP_EQ(actual, expected)	\
 	do {	\
 		const char *_a = (actual);	\
 		const char *_e = (expected);	\
 		if (_a == NULL || _e == NULL || strcasecmp(_a, _e) != 0)	\
-			TEST_FAIL_("TEST_STRCASECMP(%s, %s): [%s] !~ [%s]",	\
+			TEST_FAIL_("TEST_ASSERT_STRCASECMP_EQ(%s, %s): [%s] !~ [%s]",	\
 				#actual, #expected,	\
 				_a ? _a : "(null)", _e ? _e : "(null)");	\
 	} while (0)
 
-#define TEST_STRNCMP(actual, expected, n)	\
+#define TEST_ASSERT_STRNCMP_EQ(actual, expected, n)	\
 	do {	\
 		const char *_a = (actual);	\
 		const char *_e = (expected);	\
 		size_t _n = (size_t)(n);	\
 		if (_a == NULL || _e == NULL || strncmp(_a, _e, _n) != 0)	\
-			TEST_FAIL_("TEST_STRNCMP(%s, %s, %zu): [%s] != [%s]",	\
+			TEST_FAIL_("TEST_ASSERT_STRNCMP_EQ(%s, %s, %zu): [%s] != [%s]",	\
 				#actual, #expected, _n,	\
 				_a ? _a : "(null)", _e ? _e : "(null)");	\
+	} while (0)
+
+#define TEST_ASSERT_EMPTY_STRING(expr)	\
+	do {	\
+		const char *_s = (expr);	\
+		if (_s == NULL)	\
+			TEST_FAIL_("TEST_ASSERT_EMPTY_STRING(%s) was NULL", #expr);	\
+		if (_s[0] != '\0')	\
+			TEST_FAIL_("TEST_ASSERT_EMPTY_STRING(%s) was [%s]", #expr, _s);	\
 	} while (0)
 
 #define TEST_RUN(name, fn)	\

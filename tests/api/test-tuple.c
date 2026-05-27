@@ -32,7 +32,7 @@ test_tuple_add_and_find(void)
 
 	const char *found = pkgconf_tuple_find(client, &tuples, "prefix");
 	TEST_ASSERT_NONNULL(found);
-	TEST_STRCMP(found, "/opt/foo");
+	TEST_ASSERT_STRCMP_EQ(found, "/opt/foo");
 
 	pkgconf_tuple_free(&tuples);
 	pkgconf_client_free(client);
@@ -45,7 +45,7 @@ test_tuple_find_absent(void)
 	pkgconf_list_t tuples = PKGCONF_LIST_INITIALIZER;
 
 	const char *found = pkgconf_tuple_find(client, &tuples, "nonexistent");
-	TEST_STRCMP(found, "");
+	TEST_ASSERT_EMPTY_STRING(found);
 
 	pkgconf_tuple_free(&tuples);
 	pkgconf_client_free(client);
@@ -61,10 +61,10 @@ test_tuple_add_multiple(void)
 	pkgconf_tuple_add(client, &tuples, "exec_prefix", "/usr/local", false, 0);
 	pkgconf_tuple_add(client, &tuples, "libdir", "/usr/lib", false, 0);
 
-	TEST_STRCMP(pkgconf_tuple_find(client, &tuples, "prefix"), "/usr");
-	TEST_STRCMP(pkgconf_tuple_find(client, &tuples, "exec_prefix"), "/usr/local");
-	TEST_STRCMP(pkgconf_tuple_find(client, &tuples, "libdir"), "/usr/lib");
-	TEST_STRCMP(pkgconf_tuple_find(client, &tuples, "datadir"), "");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_tuple_find(client, &tuples, "prefix"), "/usr");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_tuple_find(client, &tuples, "exec_prefix"), "/usr/local");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_tuple_find(client, &tuples, "libdir"), "/usr/lib");
+	TEST_ASSERT_EMPTY_STRING(pkgconf_tuple_find(client, &tuples, "datadir"));
 
 	pkgconf_tuple_free(&tuples);
 	pkgconf_client_free(client);
@@ -79,7 +79,7 @@ test_tuple_global_add_and_find(void)
 
 	const char *found = pkgconf_tuple_find_global(client, "PKG_TEST_KEY");
 	TEST_ASSERT_NONNULL(found);
-	TEST_STRCMP(found, "test_value");
+	TEST_ASSERT_STRCMP_EQ(found, "test_value");
 
 	pkgconf_tuple_free_global(client);
 	pkgconf_client_free(client);
@@ -91,7 +91,7 @@ test_tuple_global_find_absent(void)
 	pkgconf_client_t *client = test_client_new();
 
 	const char *found = pkgconf_tuple_find_global(client, "DOES_NOT_EXIST");
-	TEST_STRCMP(found, "");
+	TEST_ASSERT_EMPTY_STRING(found);
 
 	pkgconf_client_free(client);
 }
@@ -107,7 +107,7 @@ test_tuple_define_global_kv_form(void)
 
 	const char *found = pkgconf_tuple_find_global(client, "myvar");
 	TEST_ASSERT_NONNULL(found);
-	TEST_STRCMP(found, "myvalue");
+	TEST_ASSERT_STRCMP_EQ(found, "myvalue");
 
 	pkgconf_tuple_free_global(client);
 	pkgconf_client_free(client);
@@ -123,7 +123,7 @@ test_tuple_define_global_with_equals_in_value(void)
 
 	const char *found = pkgconf_tuple_find_global(client, "CFLAGS");
 	TEST_ASSERT_NONNULL(found);
-	TEST_STRCMP(found, "-DFOO=bar");
+	TEST_ASSERT_STRCMP_EQ(found, "-DFOO=bar");
 
 	pkgconf_tuple_free_global(client);
 	pkgconf_client_free(client);
@@ -138,9 +138,9 @@ test_tuple_global_multiple(void)
 	pkgconf_tuple_define_global(client, "b=2");
 	pkgconf_tuple_define_global(client, "c=3");
 
-	TEST_STRCMP(pkgconf_tuple_find_global(client, "a"), "1");
-	TEST_STRCMP(pkgconf_tuple_find_global(client, "b"), "2");
-	TEST_STRCMP(pkgconf_tuple_find_global(client, "c"), "3");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_tuple_find_global(client, "a"), "1");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_tuple_find_global(client, "b"), "2");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_tuple_find_global(client, "c"), "3");
 
 	pkgconf_tuple_free_global(client);
 	pkgconf_client_free(client);
@@ -155,7 +155,7 @@ test_tuple_global_free_resets(void)
 	TEST_ASSERT_NONNULL(pkgconf_tuple_find_global(client, "temp"));
 
 	pkgconf_tuple_free_global(client);
-	TEST_STRCMP(pkgconf_tuple_find_global(client, "temp"), "");
+	TEST_ASSERT_EMPTY_STRING(pkgconf_tuple_find_global(client, "temp"));
 
 	pkgconf_client_free(client);
 }
@@ -181,7 +181,7 @@ test_tuple_define_variable_end_to_end(void)
 	char *out = pkgconf_bytecode_eval_str(client, &vars, "-I${myprefix}/include", &saw_sysroot);
  
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "-I/opt/custom/include");
+	TEST_ASSERT_STRCMP_EQ(out, "-I/opt/custom/include");
  
 	free(out);
 	pkgconf_variable_list_free(&vars);
@@ -208,7 +208,7 @@ test_tuple_define_variable_overrides_local(void)
 	char *out = pkgconf_bytecode_eval_str(client, &vars, "${prefix}/lib", &saw_sysroot);
  
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "/custom/lib");
+	TEST_ASSERT_STRCMP_EQ(out, "/custom/lib");
  
 	free(out);
 	pkgconf_variable_list_free(&vars);
