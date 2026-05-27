@@ -242,7 +242,11 @@ pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 bool
 pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer)
 {
-	size_t newsize = pkgconf_buffer_len(buffer) - 1;
+	size_t len = pkgconf_buffer_len(buffer);
+	if (len == 0)
+		return false;
+
+	size_t newsize = len - 1;
 	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
 
 	if (newbase == NULL)
