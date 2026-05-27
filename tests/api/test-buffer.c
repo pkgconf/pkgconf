@@ -117,7 +117,7 @@ test_buffer_trim_byte(void)
 	pkgconf_buffer_push_byte(&buf, 'x');
 	TEST_ASSERT_TRUE(pkgconf_buffer_trim_byte(&buf));
 	TEST_EQ(pkgconf_buffer_len(&buf), 0);
-	TEST_ASSERT_TRUE(pkgconf_buffer_trim_byte(&buf));
+	TEST_ASSERT_FALSE(pkgconf_buffer_trim_byte(&buf));
 
 	pkgconf_buffer_finalize(&buf);
 }
