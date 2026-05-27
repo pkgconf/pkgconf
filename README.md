@@ -9,6 +9,11 @@ the original pkg-config.
 to allow other tooling such as compilers and IDEs to discover and use libraries 
 configured by pkgconf.
 
+`bomtool` and `spdxtool` are programs generating software bill of materials (SBOM)
+for a given set of pkg-config modules, in the SPDX 2.0 and SPDX Lite 3.0.1 format,
+respectively.  The output of these tools can then be translated into other SBOM
+formats as necessary.
+
 ## release tarballs
 
 Release tarballs are available on [distfiles.ariadne.space][distfiles].
