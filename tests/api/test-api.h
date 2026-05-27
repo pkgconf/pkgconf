@@ -133,4 +133,11 @@ test_progname(const char *argv0)
 	return argv0;
 }
 
+static inline pkgconf_client_t *
+test_client_new(void)
+{
+	pkgconf_cross_personality_t *pers = pkgconf_cross_personality_default();
+	return pkgconf_client_new(NULL, NULL, pers, NULL, NULL);
+}
+
 #endif // TEST_API_H
