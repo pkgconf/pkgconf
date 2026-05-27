@@ -50,7 +50,7 @@ test_eval_plain_text(void)
 	char *out = pkgconf_bytecode_eval_str(client, &vars, "plain text value", &saw_sysroot);
 
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "plain text value");
+	TEST_ASSERT_STRCMP_EQ(out, "plain text value");
 	TEST_ASSERT_FALSE(saw_sysroot);
 
 	free(out);
@@ -70,7 +70,7 @@ test_eval_variable_substitution(void)
 	char *out = pkgconf_bytecode_eval_str(client, &vars, "${prefix}/lib", &saw_sysroot);
 
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "/opt/foo/lib");
+	TEST_ASSERT_STRCMP_EQ(out, "/opt/foo/lib");
 	TEST_ASSERT_FALSE(saw_sysroot);
 
 	free(out);
@@ -93,7 +93,7 @@ test_eval_nested_variables(void)
 		"-L${libdir}", &saw_sysroot);
 
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "-L/usr/local/lib");
+	TEST_ASSERT_STRCMP_EQ(out, "-L/usr/local/lib");
 
 	free(out);
 	pkgconf_variable_list_free(&vars);
@@ -111,7 +111,7 @@ test_eval_undefined_variable(void)
 	char *out = pkgconf_bytecode_eval_str(client, &vars, "prefix=${nonexistent}/end", &saw_sysroot);
 
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "prefix=/end");
+	TEST_ASSERT_STRCMP_EQ(out, "prefix=/end");
 
 	free(out);
 	pkgconf_variable_list_free(&vars);
@@ -131,7 +131,7 @@ test_eval_multiple_variables(void)
 	char *out = pkgconf_bytecode_eval_str(client, &vars, "-I${prefix}/include -L${exec_prefix}/lib", &saw_sysroot);
 
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "-I/usr/include -L/usr/local/lib");
+	TEST_ASSERT_STRCMP_EQ(out, "-I/usr/include -L/usr/local/lib");
 
 	free(out);
 	pkgconf_variable_list_free(&vars);
@@ -151,7 +151,7 @@ test_eval_empty_input(void)
 	// An empty input may evaluate to either NULL or an empty string
 	if (out != NULL)
 	{
-		TEST_STRCMP(out, "");
+		TEST_ASSERT_STRCMP_EQ(out, "");
 		free(out);
 	}
 
@@ -189,7 +189,7 @@ test_compile_produces_nonempty_buffer(void)
 	pkgconf_bytecode_compile(&bc, "hello ${world}");
 
 	// The compiled bytecode buffer should be non-empty
-	TEST_NE(pkgconf_buffer_len(&bc), 0);
+	TEST_ASSERT_NE(pkgconf_buffer_len(&bc), 0);
 
 	pkgconf_buffer_finalize(&bc);
 }
@@ -213,7 +213,7 @@ test_compile_eval_roundtrip(void)
 
 	char *out = pkgconf_variable_eval_str(client, &vars, v, &saw_sysroot);
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "hello world");
+	TEST_ASSERT_STRCMP_EQ(out, "hello world");
 
 	free(out);
 	pkgconf_variable_list_free(&vars);

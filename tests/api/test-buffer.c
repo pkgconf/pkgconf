@@ -24,10 +24,10 @@ test_buffer_empty(void)
 {
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
-	TEST_EQ(pkgconf_buffer_len(&buf), 0);
+	TEST_ASSERT_EQ(pkgconf_buffer_len(&buf), 0);
 	TEST_ASSERT_NULL(pkgconf_buffer_str(&buf));
-	TEST_STRCMP(pkgconf_buffer_str_or_empty(&buf), "");
-	TEST_EQ(pkgconf_buffer_lastc(&buf), '\0');
+	TEST_ASSERT_EMPTY_STRING(pkgconf_buffer_str_or_empty(&buf));
+	TEST_ASSERT_EQ(pkgconf_buffer_lastc(&buf), '\0');
 
 	pkgconf_buffer_finalize(&buf);
 }
@@ -38,14 +38,14 @@ test_buffer_append(void)
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
 	TEST_ASSERT_TRUE(pkgconf_buffer_append(&buf, "hello"));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "hello");
-	TEST_EQ(pkgconf_buffer_len(&buf), 5);
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "hello");
+	TEST_ASSERT_EQ(pkgconf_buffer_len(&buf), 5);
 
 	TEST_ASSERT_TRUE(pkgconf_buffer_append(&buf, " world"));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "hello world");
-	TEST_EQ(pkgconf_buffer_len(&buf), 11);
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "hello world");
+	TEST_ASSERT_EQ(pkgconf_buffer_len(&buf), 11);
 
-	TEST_EQ(pkgconf_buffer_lastc(&buf), 'd');
+	TEST_ASSERT_EQ(pkgconf_buffer_lastc(&buf), 'd');
 
 	pkgconf_buffer_finalize(&buf);
 }
@@ -56,10 +56,10 @@ test_buffer_append_slice(void)
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
 	TEST_ASSERT_TRUE(pkgconf_buffer_append_slice(&buf, "abcdefgh", 3));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "abc");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "abc");
 
 	TEST_ASSERT_TRUE(pkgconf_buffer_append_slice(&buf, "xyz", 0));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "abc");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "abc");
 
 	pkgconf_buffer_finalize(&buf);
 }
@@ -70,10 +70,10 @@ test_buffer_append_fmt(void)
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
 	TEST_ASSERT_TRUE(pkgconf_buffer_append_fmt(&buf, "%s=%d", "x", 42));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "x=42");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "x=42");
 
 	TEST_ASSERT_TRUE(pkgconf_buffer_append_fmt(&buf, " %s", "ok"));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "x=42 ok");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "x=42 ok");
 
 	pkgconf_buffer_finalize(&buf);
 }
@@ -85,7 +85,7 @@ test_buffer_prepend(void)
 
 	pkgconf_buffer_append(&buf, "world");
 	TEST_ASSERT_TRUE(pkgconf_buffer_prepend(&buf, "hello "));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "hello world");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "hello world");
 
 	pkgconf_buffer_finalize(&buf);
 }
@@ -98,8 +98,8 @@ test_buffer_push_byte(void)
 	TEST_ASSERT_TRUE(pkgconf_buffer_push_byte(&buf, 'a'));
 	TEST_ASSERT_TRUE(pkgconf_buffer_push_byte(&buf, 'b'));
 	TEST_ASSERT_TRUE(pkgconf_buffer_push_byte(&buf, 'c'));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "abc");
-	TEST_EQ(pkgconf_buffer_len(&buf), 3);
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "abc");
+	TEST_ASSERT_EQ(pkgconf_buffer_len(&buf), 3);
 
 	pkgconf_buffer_finalize(&buf);
 }
@@ -111,12 +111,12 @@ test_buffer_trim_byte(void)
 
 	pkgconf_buffer_append(&buf, "hello\n");
 	TEST_ASSERT_TRUE(pkgconf_buffer_trim_byte(&buf));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "hello");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "hello");
 
 	pkgconf_buffer_reset(&buf);
 	pkgconf_buffer_push_byte(&buf, 'x');
 	TEST_ASSERT_TRUE(pkgconf_buffer_trim_byte(&buf));
-	TEST_EQ(pkgconf_buffer_len(&buf), 0);
+	TEST_ASSERT_EQ(pkgconf_buffer_len(&buf), 0);
 	TEST_ASSERT_FALSE(pkgconf_buffer_trim_byte(&buf));
 
 	pkgconf_buffer_finalize(&buf);
@@ -128,14 +128,14 @@ test_buffer_reset(void)
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
 	pkgconf_buffer_append(&buf, "some content");
-	TEST_NE(pkgconf_buffer_len(&buf), 0);
+	TEST_ASSERT_NE(pkgconf_buffer_len(&buf), 0);
 
 	pkgconf_buffer_reset(&buf);
-	TEST_EQ(pkgconf_buffer_len(&buf), 0);
+	TEST_ASSERT_EQ(pkgconf_buffer_len(&buf), 0);
 	TEST_ASSERT_NULL(pkgconf_buffer_str(&buf));
 
 	TEST_ASSERT_TRUE(pkgconf_buffer_append(&buf, "fresh"));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "fresh");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "fresh");
 
 	pkgconf_buffer_finalize(&buf);
 }
@@ -148,8 +148,8 @@ test_buffer_freeze(void)
 	pkgconf_buffer_append(&buf, "frozen");
 	char *out = pkgconf_buffer_freeze(&buf);
 	TEST_ASSERT_NONNULL(out);
-	TEST_STRCMP(out, "frozen");
-	TEST_EQ(pkgconf_buffer_len(&buf), 0);
+	TEST_ASSERT_STRCMP_EQ(out, "frozen");
+	TEST_ASSERT_EQ(pkgconf_buffer_len(&buf), 0);
 
 	TEST_ASSERT_NULL(pkgconf_buffer_freeze(&buf));
 
@@ -166,8 +166,8 @@ test_buffer_copy(void)
 	pkgconf_buffer_append(&src, "original");
 	pkgconf_buffer_append(&dst, "to be replaced");
 	TEST_ASSERT_TRUE(pkgconf_buffer_copy(&src, &dst));
-	TEST_STRCMP(pkgconf_buffer_str(&dst), "original");
-	TEST_STRCMP(pkgconf_buffer_str(&src), "original"); // src is unchanged
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&dst), "original");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&src), "original"); // src is unchanged
 
 	pkgconf_buffer_finalize(&src);
 	pkgconf_buffer_finalize(&dst);
@@ -179,7 +179,7 @@ test_buffer_join(void)
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
 	TEST_ASSERT_TRUE(pkgconf_buffer_join(&buf, '/', "usr", "local", "lib", NULL));
-	TEST_STRCMP(pkgconf_buffer_str(&buf), "usr/local/lib");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "usr/local/lib");
 
 	pkgconf_buffer_finalize(&buf);
 }
@@ -251,7 +251,7 @@ test_buffer_subst(void)
 
 	pkgconf_buffer_append(&src, "prefix=${PREFIX}/share");
 	TEST_ASSERT_TRUE(pkgconf_buffer_subst(&dst, &src, "${PREFIX}", "/opt/foo"));
-	TEST_STRCMP(pkgconf_buffer_str(&dst), "prefix=/opt/foo/share");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&dst), "prefix=/opt/foo/share");
 
 	pkgconf_buffer_finalize(&src);
 	pkgconf_buffer_finalize(&dst);
@@ -270,7 +270,7 @@ test_buffer_escape(void)
 
 	pkgconf_buffer_append(&src, "a b\tc");
 	TEST_ASSERT_TRUE(pkgconf_buffer_escape(&dst, &src, spans, PKGCONF_ARRAY_SIZE(spans)));
-	TEST_STRCMP(pkgconf_buffer_str(&dst), "a\\ b\\\tc");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&dst), "a\\ b\\\tc");
 
 	pkgconf_buffer_finalize(&src);
 	pkgconf_buffer_finalize(&dst);
