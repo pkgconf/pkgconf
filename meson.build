@@ -224,6 +224,20 @@ test_path_utils_exe = executable('test-path-utils',
 
 test('path-utils', test_path_utils_exe)
 
+api_tests = [
+  'buffer',
+]
+
+foreach t : api_tests
+  exe = executable('test-api-' + t,
+    'tests/api/test-' + t + '.c',
+    link_with : libpkgconf,
+    c_args : build_static,
+    include_directories : [include_directories('.'), include_directories('tests/api')],
+    install : false)
+  test('api-' + t, exe)
+endforeach
+
 fixtures_dir = join_paths(meson.current_source_dir(), 'tests')
 tool_dir = meson.current_build_dir()
 
