@@ -262,6 +262,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/test-path-utils.c \
 		tests/api/test-api.h \
 		tests/api/test-buffer.c \
+		tests/api/test-bytecode.c \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
@@ -469,7 +470,7 @@ spdxtool_SOURCES  = \
 	cli/getopt_long.c
 spdxtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/spdxtool
 
-noinst_PROGRAMS = test-runner test-path-utils test-api-buffer
+noinst_PROGRAMS = test-runner test-path-utils test-api-buffer test-api-bytecode
 test_runner_LDADD = libpkgconf.la
 test_runner_SOURCES = \
 	cli/core.c \
@@ -485,6 +486,10 @@ test_api_buffer_LDADD = libpkgconf.la
 test_api_buffer_SOURCES = tests/api/test-buffer.c
 test_api_buffer_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
 
+test_api_bytecode_LDADD = libpkgconf.la
+test_api_bytecode_SOURCES = tests/api/test-buffer.c
+test_api_bytecode_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+
 dist_doc_DATA = CONTRIBUTING.md DCO README.md AUTHORS
 
 m4datadir              = $(datadir)/aclocal
@@ -492,9 +497,10 @@ m4data_DATA            = pkg.m4
 
 CLEANFILES =	$(EXTRA_PROGRAMS)
 
-check: pkgconf test-runner test-path-utils test-api-buffer
+check: pkgconf test-runner test-path-utils test-api-buffer test-api-bytecode
 	$(builddir)/test-path-utils$(EXEEXT)
 	$(builddir)/test-api-buffer$(EXEEXT)
+	$(builddir)/test-api-bytecode$(EXEEXT)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/ordering
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/parser
