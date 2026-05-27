@@ -18,10 +18,11 @@
 #ifndef TEST_API_H
 #define TEST_API_H
 
+#include <libpkgconf/stdinc.h>
+#include <libpkgconf/libpkgconf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 
 #define TEST_FAIL_(fmt, ...)	\
 	do {	\
