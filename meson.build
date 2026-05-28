@@ -215,21 +215,13 @@ test_runner_exe = executable('test-runner',
   include_directories : cli_include,
   install : false)
 
-test_path_utils_exe = executable('test-path-utils',
-  'tests/test-path-utils.c',
-  link_with : libpkgconf,
-  c_args : build_static,
-  include_directories : include_directories('.'),
-  install : false)
-
-test('path-utils', test_path_utils_exe)
-
 api_tests = [
   'buffer',
   'bytecode',
   'client',
   'dependency',
   'fragment',
+  'path-utils',
   'tuple',
   'variable',
 ]
