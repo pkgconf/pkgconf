@@ -348,7 +348,8 @@ test_dependency_collision_drops_flagged_existing(void)
 	pkgconf_client_t *client = test_client_new();
 	pkgconf_list_t deps = PKGCONF_LIST_INITIALIZER;
 
-	pkgconf_dependency_add(client, &deps, "foo", "1.0", PKGCONF_CMP_EQUAL, PKGCONF_PKG_DEPF_INTERNAL);
+	pkgconf_dependency_t *first = pkgconf_dependency_add(client, &deps, "foo", "1.0", PKGCONF_CMP_EQUAL, PKGCONF_PKG_DEPF_INTERNAL);
+	TEST_ASSERT_NONNULL(first);
 	TEST_ASSERT_EQ(dependency_count(&deps), 1);
 
 	/* Adding the same dep UNFLAGGED collides; the existing flagged
@@ -359,6 +360,7 @@ test_dependency_collision_drops_flagged_existing(void)
 	TEST_ASSERT_EQ(dependency_count(&deps), 1);
 	TEST_ASSERT_EQ(second->flags, 0);
 
+	pkgconf_dependency_unref(client, first);
 	pkgconf_dependency_unref(client, second);
 	pkgconf_dependency_free(&deps);
 	pkgconf_client_free(client);
