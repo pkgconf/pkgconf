@@ -416,6 +416,50 @@ test_version_trailing_zero_segments(void)
 	TEST_ASSERT_LT(pkgconf_compare_version("1", "1.0.0.0"), 0);
 }
 
+static void
+test_version_null_handling(void)
+{
+	TEST_ASSERT_LT(pkgconf_compare_version(NULL, "1.0"), 0);
+	TEST_ASSERT_GT(pkgconf_compare_version("1.0", NULL), 0);
+	TEST_ASSERT_LT(pkgconf_compare_version(NULL, NULL), 0);
+}
+
+static void
+test_version_tilde_both_sides(void)
+{
+	TEST_ASSERT_LT(pkgconf_compare_version("1.0~", "1.0a"), 0);
+	TEST_ASSERT_GT(pkgconf_compare_version("1.0a", "1.0~"), 0);
+
+	TEST_ASSERT_EQ(pkgconf_compare_version("1.0~rc", "1.0~rc"), 0);
+	TEST_ASSERT_LT(pkgconf_compare_version("1.0~a", "1.0~b"), 0);
+	TEST_ASSERT_LT(pkgconf_compare_version("1.0~1", "1.0~2"), 0);
+}
+
+static void
+test_version_separator_equivalence(void)
+{
+	TEST_ASSERT_EQ(pkgconf_compare_version("1.0", "1-0"), 0);
+	TEST_ASSERT_EQ(pkgconf_compare_version("1.2.3", "1_2_3"), 0);
+	TEST_ASSERT_EQ(pkgconf_compare_version("1..2", "1.2"), 0);
+}
+
+static void
+test_version_case_insensitive(void)
+{
+	TEST_ASSERT_EQ(pkgconf_compare_version("1.0RC1", "1.0rc1"), 0);
+	TEST_ASSERT_EQ(pkgconf_compare_version("1.0A", "1.0a"), 0);
+}
+
+static void
+test_version_alpha_prefix(void)
+{
+	TEST_ASSERT_LT(pkgconf_compare_version("1.0alpha", "1.0alphabeta"), 0);
+	TEST_ASSERT_GT(pkgconf_compare_version("1.0alphabeta", "1.0alpha"), 0);
+
+	TEST_ASSERT_LT(pkgconf_compare_version("1.0a", "1.0ab"), 0);
+	TEST_ASSERT_GT(pkgconf_compare_version("1.0ab", "1.0a"), 0);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -449,6 +493,11 @@ main(int argc, char *argv[])
 	TEST_RUN(basename, test_version_dotted_vs_hyphenated);
 	TEST_RUN(basename, test_version_leading_zeros);
 	TEST_RUN(basename, test_version_trailing_zero_segments);
+	TEST_RUN(basename, test_version_null_handling);
+	TEST_RUN(basename, test_version_tilde_both_sides);
+	TEST_RUN(basename, test_version_separator_equivalence);
+	TEST_RUN(basename, test_version_case_insensitive);
+	TEST_RUN(basename, test_version_alpha_prefix);
 
 	return EXIT_SUCCESS;
 }
