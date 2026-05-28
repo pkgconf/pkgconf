@@ -16,6 +16,7 @@
  * from the use of this software.
  */
 
+#include <ctype.h>
 #include <time.h>
 
 #include "libpkgconf/config.h"
@@ -77,9 +78,21 @@ static const char *
 sbom_spdx_identity(pkgconf_pkg_t *pkg)
 {
 	static char buf[PKGCONF_ITEM_SIZE];
+	size_t i, o;
 
-	snprintf(buf, sizeof buf, "%sC64%s", pkg->id, pkg->version);
-
+	/* Sanitize the package ID: only letters, numbers, dot (.) and dash (-)
+	 * are allowed.
+	 */
+	for (i = 0, o = 0; i < strlen(pkg->id) && o < sizeof(buf); i++, o++) {
+		char c = pkg->id[i];
+		if (c == '-' || c == '.' || isalnum(c))
+			buf[o] = c;
+		else {
+			snprintf(buf + o, sizeof(buf) - o, "C%02x", c);
+			o += 2;
+		}
+	}
+	snprintf(buf + o, sizeof(buf) - o, "C64%s", pkg->version);
 	return buf;
 }
 
@@ -252,7 +265,7 @@ write_sbom_relationships(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unu
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
 
-	snprintf(baseref, sizeof baseref, "SPDXRef-Package-%sC64%s", pkg->id, pkg->version);
+	snprintf(baseref, sizeof baseref, "SPDXRef-Package-%s", sbom_spdx_identity(pkg));
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->required.head, node)
 	{
