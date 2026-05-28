@@ -16,6 +16,8 @@
  * from the use of this software.
  */
 
+#include <time.h>
+
 #include "libpkgconf/config.h"
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
@@ -109,6 +111,10 @@ sbom_name(pkgconf_pkg_t *world)
 static bool
 write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
 {
+	time_t t;
+	struct tm *tm;
+	char buf[21];
+
 	OUTPUT_OR_RET_FALSE(client, sbom_out, "SPDXVersion: %s\n", spdx_version);
 	OUTPUT_OR_RET_FALSE(client, sbom_out, "DataLicense: %s\n", bom_license);
 	OUTPUT_OR_RET_FALSE(client, sbom_out, "SPDXID: %s\n", document_ref);
@@ -130,6 +136,12 @@ write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
 
 	OUTPUT_OR_RET_FALSE(client, sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION);
 	OUTPUT_OR_RET_FALSE(client, sbom_out, "Creator: Tool: bomtool %s\n", PACKAGE_VERSION);
+
+	t = time(NULL);
+	tm = gmtime(&t);
+	strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", tm);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "Created: %s\n", buf);
+
 	OUTPUT_OR_RET_FALSE(client, sbom_out, "\n\n");
 
 	return true;
