@@ -1794,6 +1794,14 @@ pkgconf_pkg_libs_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *dat
 			pkgconf_fragment_copy(client, list, frag, true);
 		}
 	}
+	else
+	{
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->libs_shared.head, node)
+		{
+			pkgconf_fragment_t *frag = node->data;
+			pkgconf_fragment_copy(client, list, frag, true);
+		}
+	}
 }
 
 /*
