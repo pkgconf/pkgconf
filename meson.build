@@ -220,6 +220,7 @@ api_tests = [
   'client',
   'dependency',
   'fragment',
+  'license',
   'path-utils',
   'tuple',
   'variable',

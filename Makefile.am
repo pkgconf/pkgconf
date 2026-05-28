@@ -267,6 +267,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/api/test-client.c \
 		tests/api/test-dependency.c \
 		tests/api/test-fragment.c \
+		tests/api/test-license.c \
 		tests/api/test-path-utils.c \
 		tests/api/test-tuple.c \
 		tests/api/test-variable.c \
@@ -484,6 +485,7 @@ API_TEST_PROGS =		\
 	test-api-client		\
 	test-api-dependency	\
 	test-api-fragment	\
+	test-api-license	\
 	test-api-path-utils	\
 	test-api-tuple		\
 	test-api-variable
@@ -520,6 +522,10 @@ test_api_fragment_LDADD = $(api_test_ldadd)
 test_api_fragment_SOURCES = tests/api/test-fragment.c
 test_api_fragment_CPPFLAGS = $(api_test_cppflags)
 
+test_api_license_LDADD = $(api_test_ldadd)
+test_api_license_SOURCES = tests/api/test-license.c
+test_api_license_CPPFLAGS = $(api_test_cppflags)
+
 test_api_path_utils_LDADD = $(api_test_ldadd)
 test_api_path_utils_SOURCES = tests/api/test-path-utils.c
 test_api_path_utils_CPPFLAGS = $(api_test_cppflags)
@@ -545,6 +551,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-api-client$(EXEEXT)
 	$(builddir)/test-api-dependency$(EXEEXT)
 	$(builddir)/test-api-fragment$(EXEEXT)
+	$(builddir)/test-api-license$(EXEEXT)
 	$(builddir)/test-api-path-utils$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
