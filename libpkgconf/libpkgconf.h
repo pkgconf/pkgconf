@@ -79,8 +79,8 @@ typedef struct pkgconf_license_ pkgconf_license_t;
 #	define PKGCONF_LOCAL_COPY(s) strcpy(alloca(strlen(s) + 1), s)
 #endif /* HAVE_STRDUPA */
 
-#define LIBPKGCONF_VERSION	20501
-#define LIBPKGCONF_VERSION_STR	"2.5.1"
+#define LIBPKGCONF_VERSION	30000
+#define LIBPKGCONF_VERSION_STR	"3.0.0"
 
 struct pkgconf_queue_ {
 	pkgconf_node_t iter;
