@@ -468,7 +468,7 @@ pkgconf_bytecode_references_var(const pkgconf_buffer_t *buf, const char *key)
 
 		if (op->tag == PKGCONF_BYTECODE_OP_VAR)
 		{
-			if (op->size == (uint32_t) klen && pkgconf_str_eq_slice(op->data, key, klen))
+			if (op->size == (uint32_t) klen && memcmp(op->data, key, klen) == 0)
 				return true;
 		}
 
@@ -489,7 +489,7 @@ pkgconf_bytecode_op_is_selfref(const pkgconf_bytecode_op_t *op, const char *key)
 	if (op->size != (uint32_t) klen)
 		return false;
 
-	return pkgconf_str_eq_slice(op->data, key, klen);
+	return memcmp(op->data, key, klen) == 0;
 }
 
 static bool
