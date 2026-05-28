@@ -321,6 +321,50 @@ test_dependency_add_multiple(void)
 }
 
 static void
+test_dependency_collision_drops_flagged_newcomer(void)
+{
+	pkgconf_client_t *client = test_client_new();
+	pkgconf_list_t deps = PKGCONF_LIST_INITIALIZER;
+
+	pkgconf_dependency_t *first = pkgconf_dependency_add(client, &deps, "foo", "1.0", PKGCONF_CMP_EQUAL, 0);
+	TEST_ASSERT_NONNULL(first);
+	TEST_ASSERT_EQ(dependency_count(&deps), 1);
+
+	/* Adding the same dep WITH flags collides; the flagged newcomer
+	 * is dropped in favour of the existing unflagged node, so _add
+	 * returns NULL and the count stays at 1 */
+	pkgconf_dependency_t *second = pkgconf_dependency_add(client, &deps, "foo", "1.0", PKGCONF_CMP_EQUAL, PKGCONF_PKG_DEPF_INTERNAL);
+	TEST_ASSERT_NULL(second);
+	TEST_ASSERT_EQ(dependency_count(&deps), 1);
+
+	pkgconf_dependency_unref(client, first);
+	pkgconf_dependency_free(&deps);
+	pkgconf_client_free(client);
+}
+
+static void
+test_dependency_collision_drops_flagged_existing(void)
+{
+	pkgconf_client_t *client = test_client_new();
+	pkgconf_list_t deps = PKGCONF_LIST_INITIALIZER;
+
+	pkgconf_dependency_add(client, &deps, "foo", "1.0", PKGCONF_CMP_EQUAL, PKGCONF_PKG_DEPF_INTERNAL);
+	TEST_ASSERT_EQ(dependency_count(&deps), 1);
+
+	/* Adding the same dep UNFLAGGED collides; the existing flagged
+	 * node is deleted and unref'd, the unflagged newcomer takes its
+	 * place; count stays at 1, but the node is now the new one */
+	pkgconf_dependency_t *second = pkgconf_dependency_add(client, &deps, "foo", "1.0", PKGCONF_CMP_EQUAL, 0);
+	TEST_ASSERT_NONNULL(second);
+	TEST_ASSERT_EQ(dependency_count(&deps), 1);
+	TEST_ASSERT_EQ(second->flags, 0);
+
+	pkgconf_dependency_unref(client, second);
+	pkgconf_dependency_free(&deps);
+	pkgconf_client_free(client);
+}
+
+static void
 test_version_equal(void)
 {
 	TEST_ASSERT_EQ(pkgconf_compare_version("1.0", "1.0"), 0);
@@ -481,6 +525,8 @@ main(int argc, char *argv[])
 	TEST_RUN(basename, test_dependency_add);
 	TEST_RUN(basename, test_dependency_add_no_version);
 	TEST_RUN(basename, test_dependency_add_multiple);
+	TEST_RUN(basename, test_dependency_collision_drops_flagged_newcomer);
+	TEST_RUN(basename, test_dependency_collision_drops_flagged_existing);
 
 	TEST_RUN(basename, test_version_equal);
 	TEST_RUN(basename, test_version_simple_numeric);

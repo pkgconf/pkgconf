@@ -210,6 +210,10 @@ canned_environ_handler(const pkgconf_client_t *client, const char *key)
 		return "the_value";
 	if (!strcmp(key, "EMPTY_VAR"))
 		return "";
+	if (!strcmp(key, "PKG_CONFIG_SYSTEM_INCLUDE_PATH"))
+		return "/custom/include";
+	if (!strcmp(key, "PKG_CONFIG_SYSTEM_LIBRARY_PATH"))
+		return "/custom/lib";
 
 	return NULL;
 }
@@ -253,6 +257,48 @@ test_client_dir_list_build_smoke(void)
 	pkgconf_client_free(client);
 }
 
+static void
+test_client_init_system_paths_from_environ(void)
+{
+	pkgconf_cross_personality_t *pers = pkgconf_cross_personality_default();
+	pkgconf_client_t *client = pkgconf_client_new(NULL, NULL, pers, NULL, canned_environ_handler);
+	TEST_ASSERT_NONNULL(client);
+
+	/* With PKG_CONFIG_SYSTEM_{INCLUDE,LIBRARY}_PATH set, init builds the filter dirs from the 
+	 * environment instead of copying the personality's defaults. */
+	TEST_ASSERT_TRUE(pkgconf_path_match_list("/custom/include", &client->filter_includedirs));
+	TEST_ASSERT_TRUE(pkgconf_path_match_list("/custom/lib", &client->filter_libdirs));
+
+	pkgconf_client_free(client);
+}
+
+static void
+test_client_preload_from_environ(void)
+{
+	pkgconf_cross_personality_t *pers = pkgconf_cross_personality_default();
+	pkgconf_client_t *client = pkgconf_client_new(NULL, NULL, pers, NULL, NULL);
+	TEST_ASSERT_NONNULL(client);
+
+	/* preload_from_environ reads the named var via getenv directly.
+	 * Point it at a dir; preload_path will try to load .pc files from there.
+	 * An empty/nonexistent dir is fine; we're exercising the split-and-iterate path, not asserting
+	 * loads. */
+	setenv("PKG_TEST_PRELOAD", "/nonexistent/dir", 1);
+
+	pkgconf_client_preload_from_environ(client, "PKG_TEST_PRELOAD");
+
+	unsetenv("PKG_TEST_PRELOAD");
+	pkgconf_client_free(client);
+}
+
+#ifndef PKGCONF_LITE
+static void
+test_client_trace_null_client(void)
+{
+	TEST_ASSERT_FALSE(pkgconf_trace(NULL, "test.c", 42, "func", "msg %d", 42));
+}
+#endif
+
 int
 main(int argc, char *argv[])
 {
@@ -261,6 +307,8 @@ main(int argc, char *argv[])
 
 	TEST_RUN(basename, test_client_new_and_free);
 	TEST_RUN(basename, test_client_init_and_deinit_stack);
+	TEST_RUN(basename, test_client_init_system_paths_from_environ);
+	TEST_RUN(basename, test_client_preload_from_environ);
 
 	TEST_RUN(basename, test_client_sysroot_dir);
 	TEST_RUN(basename, test_client_buildroot_dir);
@@ -277,6 +325,10 @@ main(int argc, char *argv[])
 	TEST_RUN(basename, test_client_getenv_via_handler);
 
 	TEST_RUN(basename, test_client_dir_list_build_smoke);
+
+#ifndef PKGCONF_LITE
+	TEST_RUN(basename, test_client_trace_null_client);
+#endif
 
 	return EXIT_SUCCESS;
 }

@@ -216,8 +216,14 @@ test_buffer_match(void)
 	pkgconf_buffer_append(&b, "identical");
 	TEST_ASSERT_TRUE(pkgconf_buffer_match(&a, &b));
 
+	// Identical length, but different contents
 	pkgconf_buffer_reset(&b);
 	pkgconf_buffer_append(&b, "different");
+	TEST_ASSERT_FALSE(pkgconf_buffer_match(&a, &b));
+
+	// Different length and contents
+	pkgconf_buffer_reset(&b);
+	pkgconf_buffer_append(&b, "different!");
 	TEST_ASSERT_FALSE(pkgconf_buffer_match(&a, &b));
 
 	pkgconf_buffer_finalize(&a);
@@ -255,6 +261,42 @@ test_buffer_subst(void)
 
 	pkgconf_buffer_finalize(&src);
 	pkgconf_buffer_finalize(&dst);
+}
+
+static void
+test_buffer_subst_empty_pattern(void)
+{
+	pkgconf_buffer_t src = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t dst0 = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t dst1 = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t dst2 = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t dst3 = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t dst4 = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t dst5 = PKGCONF_BUFFER_INITIALIZER;
+
+	pkgconf_buffer_append(&src, "prefix=${PREFIX}/share");
+
+	TEST_ASSERT_TRUE(pkgconf_buffer_subst(&dst0, &src, "", "foo"));
+	TEST_ASSERT_TRUE(pkgconf_buffer_subst(&dst1, &src, "", ""));
+	TEST_ASSERT_TRUE(pkgconf_buffer_subst(&dst2, &src, "", NULL));
+	TEST_ASSERT_TRUE(pkgconf_buffer_subst(&dst3, &src, NULL, "foo"));
+	TEST_ASSERT_TRUE(pkgconf_buffer_subst(&dst4, &src, NULL, ""));
+	TEST_ASSERT_TRUE(pkgconf_buffer_subst(&dst5, &src, NULL, NULL));
+
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&dst0), "prefix=${PREFIX}/share");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&dst1), "prefix=${PREFIX}/share");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&dst2), "prefix=${PREFIX}/share");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&dst3), "prefix=${PREFIX}/share");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&dst4), "prefix=${PREFIX}/share");
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&dst5), "prefix=${PREFIX}/share");
+
+	pkgconf_buffer_finalize(&src);
+	pkgconf_buffer_finalize(&dst0);
+	pkgconf_buffer_finalize(&dst1);
+	pkgconf_buffer_finalize(&dst2);
+	pkgconf_buffer_finalize(&dst3);
+	pkgconf_buffer_finalize(&dst4);
+	pkgconf_buffer_finalize(&dst5);
 }
 
 static void
@@ -299,6 +341,49 @@ test_span_contains(void)
 	TEST_ASSERT_FALSE(pkgconf_span_contains('!', spans, PKGCONF_ARRAY_SIZE(spans)));
 }
 
+static void
+test_buffer_fputs_nonempty(void)
+{
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+	FILE *f = tmpfile();
+	TEST_ASSERT_NONNULL(f);
+
+	pkgconf_buffer_append(&buf, "hello world");
+	TEST_ASSERT_TRUE(pkgconf_buffer_fputs(&buf, f));
+
+	char out[64];
+	rewind(f);
+	size_t n = fread(out, 1, sizeof(out) - 1, f);
+	out[n] = '\0';
+
+	// Buffer contents followed by a newline.
+	TEST_ASSERT_STRCMP_EQ(out, "hello world\n");
+
+	fclose(f);
+	pkgconf_buffer_finalize(&buf);
+}
+
+static void
+test_buffer_fputs_empty(void)
+{
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+	FILE *f = tmpfile();
+	TEST_ASSERT_NONNULL(f);
+
+	// An empty buffer writes only a newline.
+	TEST_ASSERT_TRUE(pkgconf_buffer_fputs(&buf, f));
+
+	char out[64];
+	rewind(f);
+	size_t n = fread(out, 1, sizeof(out) - 1, f);
+	out[n] = '\0';
+
+	TEST_ASSERT_STRCMP_EQ(out, "\n");
+
+	fclose(f);
+	pkgconf_buffer_finalize(&buf);
+}
+
 int
 main(int argc, const char **argv)
 {
@@ -321,9 +406,12 @@ main(int argc, const char **argv)
 	TEST_RUN(basename, test_buffer_match);
 	TEST_RUN(basename, test_buffer_has_prefix);
 	TEST_RUN(basename, test_buffer_subst);
+	TEST_RUN(basename, test_buffer_subst_empty_pattern);
 	TEST_RUN(basename, test_buffer_escape);
 	TEST_RUN(basename, test_str_eq_slice);
 	TEST_RUN(basename, test_span_contains);
+	TEST_RUN(basename, test_buffer_fputs_nonempty);
+	TEST_RUN(basename, test_buffer_fputs_empty);
 
 	return EXIT_SUCCESS;
 }
