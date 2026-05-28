@@ -472,6 +472,13 @@ bool
 pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value)
 {
 	const char *iter = src->base;
+
+	if (pattern == NULL)
+		pattern = "";
+
+	if (value == NULL)
+		value = "";
+
 	size_t pattern_len = strlen(pattern);
 
 	if (!pkgconf_buffer_len(src))
