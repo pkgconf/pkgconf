@@ -170,6 +170,9 @@ test_parse_str_multiple_comma_separated(void)
 	const pkgconf_dependency_t *d0 = dependency_at(&deps, 0);
 	const pkgconf_dependency_t *d1 = dependency_at(&deps, 1);
 	const pkgconf_dependency_t *d2 = dependency_at(&deps, 2);
+	TEST_ASSERT_NONNULL(d0);
+	TEST_ASSERT_NONNULL(d1);
+	TEST_ASSERT_NONNULL(d2);
 	TEST_ASSERT_STRCMP_EQ(d0->package, "foo");
 	TEST_ASSERT_STRCMP_EQ(d1->package, "bar");
 	TEST_ASSERT_STRCMP_EQ(d2->package, "baz");
@@ -191,6 +194,10 @@ test_parse_str_mixed_versioned_and_bare(void)
 	const pkgconf_dependency_t *d0 = dependency_at(&deps, 0);
 	const pkgconf_dependency_t *d1 = dependency_at(&deps, 1);
 	const pkgconf_dependency_t *d2 = dependency_at(&deps, 2);
+	
+	TEST_ASSERT_NONNULL(d0);
+	TEST_ASSERT_NONNULL(d1);
+	TEST_ASSERT_NONNULL(d2);
 
 	TEST_ASSERT_STRCMP_EQ(d0->package, "foo");
 	TEST_ASSERT_EQ(d0->compare, PKGCONF_CMP_GREATER_THAN_EQUAL);
@@ -236,6 +243,13 @@ test_parse_str_all_comparators(void)
 	const pkgconf_dependency_t *d3 = dependency_at(&deps, 3);
 	const pkgconf_dependency_t *d4 = dependency_at(&deps, 4);
 	const pkgconf_dependency_t *d5 = dependency_at(&deps, 5);
+	
+	TEST_ASSERT_NONNULL(d0);
+	TEST_ASSERT_NONNULL(d1);
+	TEST_ASSERT_NONNULL(d2);
+	TEST_ASSERT_NONNULL(d3);
+	TEST_ASSERT_NONNULL(d4);
+	TEST_ASSERT_NONNULL(d5);
 
 	TEST_ASSERT_EQ(d0->compare, PKGCONF_CMP_EQUAL);
 	TEST_ASSERT_EQ(d1->compare, PKGCONF_CMP_NOT_EQUAL);
@@ -292,6 +306,10 @@ test_dependency_add_multiple(void)
 	pkgconf_dependency_t *d0 = pkgconf_dependency_add(client, &deps, "foo", NULL, PKGCONF_CMP_ANY, 0);
 	pkgconf_dependency_t *d1 = pkgconf_dependency_add(client, &deps, "bar", "2.0", PKGCONF_CMP_EQUAL, 0);
 	pkgconf_dependency_t *d2 = pkgconf_dependency_add(client, &deps, "baz", "3.0", PKGCONF_CMP_LESS_THAN, 0);
+	
+	TEST_ASSERT_NONNULL(d0);
+	TEST_ASSERT_NONNULL(d1);
+	TEST_ASSERT_NONNULL(d2);
 
 	TEST_ASSERT_EQ(dependency_count(&deps), 3);
 
