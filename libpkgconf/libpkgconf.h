@@ -74,9 +74,9 @@ typedef struct pkgconf_license_ pkgconf_license_t;
 #ifdef HAVE_STRDUPA
 #	define PKGCONF_LOCAL_COPY(s) strdupa(s)
 #elif defined(__INTEL_COMPILER) || defined(__GNUC__)
-#	define PKGCONF_LOCAL_COPY(s) __extension__({ char *_s = alloca(strlen(s) + 1); strcpy(_s, s); _s; })
+#	define PKGCONF_LOCAL_COPY(s) __extension__({ size_t _l = strlen(s) + 1; size_t _cl = _l < PKGCONF_BUFSIZE ? _l : PKGCONF_BUFSIZE; char *_s = alloca(_cl); memcpy(_s, s, _cl - 1); _s[_cl - 1] = '\0'; _s; })
 #else
-#	define PKGCONF_LOCAL_COPY(s) strcpy(alloca(strlen(s) + 1), s)
+#	define PKGCONF_LOCAL_COPY(s) memcpy(alloca(strlen(s) + 1 < PKGCONF_BUFSIZE ? strlen(s) + 1 : PKGCONF_BUFSIZE), s, strlen(s) + 1 < PKGCONF_BUFSIZE ? strlen(s) + 1 : PKGCONF_BUFSIZE - 1)
 #endif /* HAVE_STRDUPA */
 
 #define LIBPKGCONF_VERSION	20501
