@@ -222,6 +222,7 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 	}
 	else
 		OUTPUT_OR_RET(client, sbom_out, "PackageLicenseDeclared: NOASSERTION\n");
+	OUTPUT_OR_RET(client, sbom_out, "PackageLicenseConcluded: NOASSERTION\n");
 
 	if (!write_copyright_lines(client, &pkg->copyright))
 		return;
