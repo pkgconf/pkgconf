@@ -235,6 +235,7 @@ struct pkgconf_pkg_ {
 
 	pkgconf_list_t libs;
 	pkgconf_list_t libs_private;
+	pkgconf_list_t libs_shared;
 	pkgconf_list_t cflags;
 	pkgconf_list_t cflags_private;
 	pkgconf_list_t cflags_shared;

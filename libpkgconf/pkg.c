@@ -292,6 +292,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"Description", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, description)},
 	{"LIBS", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs)},
 	{"LIBS.private", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs_private)},
+	{"LIBS.shared", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs_shared)},
 	{"License", pkgconf_pkg_evaluate_license_func, offsetof(pkgconf_pkg_t, license)},
 	{"License.file", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, license_file)},
 	{"Maintainer", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, maintainer)},
@@ -620,6 +621,7 @@ pkg_free_lists(pkgconf_pkg_t *pkg)
 	pkgconf_license_free(&pkg->license);
 	pkgconf_fragment_free(&pkg->libs);
 	pkgconf_fragment_free(&pkg->libs_private);
+	pkgconf_fragment_free(&pkg->libs_shared);
 
 	pkgconf_tuple_free(&pkg->vars);
 }
