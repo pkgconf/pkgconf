@@ -227,6 +227,7 @@ test('path-utils', test_path_utils_exe)
 api_tests = [
   'buffer',
   'bytecode',
+  'client',
   'dependency',
   'fragment',
   'tuple',

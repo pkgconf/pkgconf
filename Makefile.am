@@ -265,6 +265,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/api/test-api.h \
 		tests/api/test-buffer.c \
 		tests/api/test-bytecode.c \
+		tests/api/test-client.c \
 		tests/api/test-dependency.c \
 		tests/api/test-fragment.c \
 		tests/api/test-tuple.c \
@@ -480,6 +481,7 @@ spdxtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdi
 API_TEST_PROGS =		\
 	test-api-buffer		\
 	test-api-bytecode	\
+	test-api-client		\
 	test-api-dependency	\
 	test-api-fragment	\
 	test-api-tuple		\
@@ -509,6 +511,10 @@ test_api_bytecode_LDADD = $(api_test_ldadd)
 test_api_bytecode_SOURCES = tests/api/test-bytecode.c
 test_api_bytecode_CPPFLAGS = $(api_test_cppflags)
 
+test_api_client_LDADD = $(api_test_ldadd)
+test_api_client_SOURCES = tests/api/test-client.c
+test_api_client_CPPFLAGS = $(api_test_cppflags)
+
 test_api_dependency_LDADD = $(api_test_ldadd)
 test_api_dependency_SOURCES = tests/api/test-dependency.c
 test_api_dependency_CPPFLAGS = $(api_test_cppflags)
@@ -536,6 +542,7 @@ check: pkgconf test-runner test-path-utils $(API_TEST_PROGS)
 	$(builddir)/test-path-utils$(EXEEXT)
 	$(builddir)/test-api-buffer$(EXEEXT)
 	$(builddir)/test-api-bytecode$(EXEEXT)
+	$(builddir)/test-api-client$(EXEEXT)
 	$(builddir)/test-api-dependency$(EXEEXT)
 	$(builddir)/test-api-fragment$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
