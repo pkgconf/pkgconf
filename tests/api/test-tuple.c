@@ -216,6 +216,24 @@ test_tuple_define_variable_overrides_local(void)
 	pkgconf_client_free(client);
 }
 
+static void
+test_tuple_escaped_quote(void)
+{
+	pkgconf_client_t *client = test_client_new();
+	pkgconf_list_t tuples = PKGCONF_LIST_INITIALIZER;
+
+	// A double-quoted value containing an escaped double-quote
+	pkgconf_tuple_t *t = pkgconf_tuple_add(client, &tuples, "key", "\"a\\\"b\"", true, 0);
+	TEST_ASSERT_NONNULL(t);
+
+	const char *found = pkgconf_tuple_find(client, &tuples, "key");
+	TEST_ASSERT_NONNULL(found);
+	TEST_ASSERT_STRCMP_EQ(found, "a\"b");
+
+	pkgconf_tuple_free(&tuples);
+	pkgconf_client_free(client);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -234,6 +252,7 @@ main(int argc, char *argv[])
 	TEST_RUN(basename, test_tuple_global_free_resets);
 	TEST_RUN(basename, test_tuple_define_variable_end_to_end);
 	TEST_RUN(basename, test_tuple_define_variable_overrides_local);
+	TEST_RUN(basename, test_tuple_escaped_quote);
 
 	return EXIT_SUCCESS;
 }
