@@ -215,6 +215,7 @@ test_runner_exe = executable('test-runner',
   install : false)
 
 api_tests = [
+  'audit',
   'buffer',
   'bytecode',
   'client',
