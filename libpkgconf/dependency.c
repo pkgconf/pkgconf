@@ -176,6 +176,8 @@ pkgconf_dependency_add(pkgconf_client_t *client, pkgconf_list_t *list, const cha
 	pkgconf_dependency_t *dep;
 	dep = pkgconf_dependency_addraw(client, list, package, strlen(package), version,
 					version != NULL ? strlen(version) : 0, compare, flags);
+	if (dep == NULL)
+		return NULL;
 	return pkgconf_dependency_ref(dep->owner, dep);
 }
 
