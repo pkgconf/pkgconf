@@ -57,6 +57,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/libs-cflags-version-not-provided.test \
 		t/basic/libs-env.test \
 		t/basic/libs-only.test \
+		t/basic/libs-shared.test \
+		t/basic/libs-shared-static.test \
 		t/basic/malformed-empty-package.test \
 		t/basic/modversion-fullpath.test \
 		t/basic/modversion-noflatten.test \
