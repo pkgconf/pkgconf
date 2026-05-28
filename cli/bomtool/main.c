@@ -177,10 +177,17 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 		return;
 
 	OUTPUT_OR_RET(client, sbom_out, "##### Package: %s\n\n", sbom_identity(pkg));
-	OUTPUT_OR_RET(client, sbom_out, "PackageName: %s\n", pkg->id);
+	OUTPUT_OR_RET(client, sbom_out, "PackageName: %s\n", sbom_identity(pkg));
 	OUTPUT_OR_RET(client, sbom_out, "SPDXID: SPDXRef-Package-%s\n", sbom_spdx_identity(pkg));
 	OUTPUT_OR_RET(client, sbom_out, "PackageVersion: %s\n", pkg->version);
+	OUTPUT_OR_RET(client, sbom_out, "PackageDownloadLocation: NOASSERTION\n");
+
+	/* NOASSERTION is not a valide value for PackageVerificationCode. It
+	 * expect 40 lowercase hexadecimal digits.
+	 */
+#if 0
 	OUTPUT_OR_RET(client, sbom_out, "PackageVerificationCode: NOASSERTION\n");
+#endif
 
 	/* XXX: What about projects? */
 	if (pkg->maintainer != NULL)
