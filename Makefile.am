@@ -265,6 +265,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/api/test-api.h \
 		tests/api/test-buffer.c \
 		tests/api/test-bytecode.c \
+		tests/api/test-dependency.c \
 		tests/api/test-fragment.c \
 		tests/api/test-tuple.c \
 		tests/api/test-variable.c \
@@ -476,14 +477,16 @@ spdxtool_SOURCES  = \
 	cli/getopt_long.c
 spdxtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/spdxtool
 
-noinst_PROGRAMS =		\
-	test-runner		\
-	test-path-utils		\
+API_TEST_PROGS =		\
 	test-api-buffer		\
 	test-api-bytecode	\
+	test-api-dependency	\
 	test-api-fragment	\
 	test-api-tuple		\
 	test-api-variable
+
+noinst_PROGRAMS = test-runner test-path-utils $(API_TEST_PROGS)
+
 test_runner_LDADD = libpkgconf.la
 test_runner_SOURCES = \
 	cli/core.c \
@@ -495,25 +498,32 @@ test_path_utils_LDADD = libpkgconf.la
 test_path_utils_SOURCES = tests/test-path-utils.c
 test_path_utils_CPPFLAGS = -I$(top_srcdir)/libpkgconf
 
-test_api_buffer_LDADD = libpkgconf.la
+api_test_ldadd = libpkgconf.la
+api_test_cppflags = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+
+test_api_buffer_LDADD = $(api_test_ldadd)
 test_api_buffer_SOURCES = tests/api/test-buffer.c
-test_api_buffer_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+test_api_buffer_CPPFLAGS = $(api_test_cppflags)
 
-test_api_bytecode_LDADD = libpkgconf.la
+test_api_bytecode_LDADD = $(api_test_ldadd)
 test_api_bytecode_SOURCES = tests/api/test-bytecode.c
-test_api_bytecode_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+test_api_bytecode_CPPFLAGS = $(api_test_cppflags)
 
-test_api_fragment_LDADD = libpkgconf.la
+test_api_dependency_LDADD = $(api_test_ldadd)
+test_api_dependency_SOURCES = tests/api/test-dependency.c
+test_api_dependency_CPPFLAGS = $(api_test_cppflags)
+
+test_api_fragment_LDADD = $(api_test_ldadd)
 test_api_fragment_SOURCES = tests/api/test-fragment.c
-test_api_fragment_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+test_api_fragment_CPPFLAGS = $(api_test_cppflags)
 
-test_api_tuple_LDADD = libpkgconf.la
+test_api_tuple_LDADD = $(api_test_ldadd)
 test_api_tuple_SOURCES = tests/api/test-tuple.c
-test_api_tuple_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+test_api_tuple_CPPFLAGS = $(api_test_cppflags)
 
-test_api_variable_LDADD = libpkgconf.la
+test_api_variable_LDADD = $(api_test_ldadd)
 test_api_variable_SOURCES = tests/api/test-variable.c
-test_api_variable_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+test_api_variable_CPPFLAGS = $(api_test_cppflags)
 
 dist_doc_DATA = CONTRIBUTING.md DCO README.md AUTHORS
 
@@ -522,10 +532,11 @@ m4data_DATA            = pkg.m4
 
 CLEANFILES =	$(EXTRA_PROGRAMS)
 
-check: pkgconf test-runner test-path-utils test-api-buffer test-api-bytecode test-api-fragment test-api-tuple test-api-variable
+check: pkgconf test-runner test-path-utils $(API_TEST_PROGS)
 	$(builddir)/test-path-utils$(EXEEXT)
 	$(builddir)/test-api-buffer$(EXEEXT)
 	$(builddir)/test-api-bytecode$(EXEEXT)
+	$(builddir)/test-api-dependency$(EXEEXT)
 	$(builddir)/test-api-fragment$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
