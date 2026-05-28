@@ -262,6 +262,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/tuple/duplicate-upsert.test \
 		t/tuple/empty-tuple.test \
 		tests/api/test-api.h \
+		tests/api/test-audit.c \
 		tests/api/test-buffer.c \
 		tests/api/test-bytecode.c \
 		tests/api/test-client.c \
@@ -480,6 +481,7 @@ spdxtool_SOURCES  = \
 spdxtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/spdxtool
 
 API_TEST_PROGS =		\
+	test-api-audit		\
 	test-api-buffer		\
 	test-api-bytecode	\
 	test-api-client		\
@@ -501,6 +503,10 @@ test_runner_SOURCES = \
 
 api_test_ldadd = libpkgconf.la
 api_test_cppflags = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+
+test_api_audit_LDADD = $(api_test_ldadd)
+test_api_audit_SOURCES = tests/api/test-audit.c
+test_api_audit_CPPFLAGS = $(api_test_cppflags)
 
 test_api_buffer_LDADD = $(api_test_ldadd)
 test_api_buffer_SOURCES = tests/api/test-buffer.c
@@ -546,6 +552,7 @@ m4data_DATA            = pkg.m4
 CLEANFILES =	$(EXTRA_PROGRAMS)
 
 check: pkgconf test-runner $(API_TEST_PROGS)
+	$(builddir)/test-api-audit$(EXEEXT)
 	$(builddir)/test-api-buffer$(EXEEXT)
 	$(builddir)/test-api-bytecode$(EXEEXT)
 	$(builddir)/test-api-client$(EXEEXT)
