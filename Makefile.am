@@ -261,13 +261,13 @@ EXTRA_DIST =	pkg.m4 \
 		t/tuple/define-variable.test \
 		t/tuple/duplicate-upsert.test \
 		t/tuple/empty-tuple.test \
-		tests/test-path-utils.c \
 		tests/api/test-api.h \
 		tests/api/test-buffer.c \
 		tests/api/test-bytecode.c \
 		tests/api/test-client.c \
 		tests/api/test-dependency.c \
 		tests/api/test-fragment.c \
+		tests/api/test-path-utils.c \
 		tests/api/test-tuple.c \
 		tests/api/test-variable.c \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
@@ -484,10 +484,11 @@ API_TEST_PROGS =		\
 	test-api-client		\
 	test-api-dependency	\
 	test-api-fragment	\
+	test-api-path-utils	\
 	test-api-tuple		\
 	test-api-variable
 
-noinst_PROGRAMS = test-runner test-path-utils $(API_TEST_PROGS)
+noinst_PROGRAMS = test-runner $(API_TEST_PROGS)
 
 test_runner_LDADD = libpkgconf.la
 test_runner_SOURCES = \
@@ -495,10 +496,6 @@ test_runner_SOURCES = \
 	cli/getopt_long.c \
 	cli/renderer-msvc.c \
 	tests/test-runner.c
-
-test_path_utils_LDADD = libpkgconf.la
-test_path_utils_SOURCES = tests/test-path-utils.c
-test_path_utils_CPPFLAGS = -I$(top_srcdir)/libpkgconf
 
 api_test_ldadd = libpkgconf.la
 api_test_cppflags = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
@@ -523,6 +520,10 @@ test_api_fragment_LDADD = $(api_test_ldadd)
 test_api_fragment_SOURCES = tests/api/test-fragment.c
 test_api_fragment_CPPFLAGS = $(api_test_cppflags)
 
+test_api_path_utils_LDADD = $(api_test_ldadd)
+test_api_path_utils_SOURCES = tests/api/test-path-utils.c
+test_api_path_utils_CPPFLAGS = $(api_test_cppflags)
+
 test_api_tuple_LDADD = $(api_test_ldadd)
 test_api_tuple_SOURCES = tests/api/test-tuple.c
 test_api_tuple_CPPFLAGS = $(api_test_cppflags)
@@ -538,13 +539,13 @@ m4data_DATA            = pkg.m4
 
 CLEANFILES =	$(EXTRA_PROGRAMS)
 
-check: pkgconf test-runner test-path-utils $(API_TEST_PROGS)
-	$(builddir)/test-path-utils$(EXEEXT)
+check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-api-buffer$(EXEEXT)
 	$(builddir)/test-api-bytecode$(EXEEXT)
 	$(builddir)/test-api-client$(EXEEXT)
 	$(builddir)/test-api-dependency$(EXEEXT)
 	$(builddir)/test-api-fragment$(EXEEXT)
+	$(builddir)/test-api-path-utils$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic
