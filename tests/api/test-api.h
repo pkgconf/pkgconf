@@ -141,6 +141,16 @@
 				_a ? _a : "(null)", _e ? _e : "(null)");	\
 	} while (0)
 
+#define TEST_ASSERT_STRSTR(haystack, needle)	\
+	do {	\
+		const char *_h = (haystack);	\
+		const char *_n = (needle);	\
+		if (_h == NULL || _n == NULL || strstr(_h, _n) == NULL)	\
+			TEST_FAIL_("TEST_ASSERT_STRSTR(%s, %s): [%s] does not contain [%s]",	\
+				#haystack, #needle,	\
+				_h ? _h : "(null)", _n ? _n : "(null)");	\
+	} while (0)
+
 #define TEST_ASSERT_EMPTY_STRING(expr)	\
 	do {	\
 		const char *_s = (expr);	\
