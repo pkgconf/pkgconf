@@ -262,6 +262,7 @@ test_dependency_add(void)
 
 	TEST_ASSERT_EQ(dependency_count(&deps), 1);
 
+	pkgconf_dependency_unref(client, d);
 	pkgconf_dependency_free(&deps);
 	pkgconf_client_free(client);
 }
@@ -277,6 +278,7 @@ test_dependency_add_no_version(void)
 	TEST_ASSERT_STRCMP_EQ(d->package, "foo");
 	TEST_ASSERT_EQ(d->compare, PKGCONF_CMP_ANY);
 
+	pkgconf_dependency_unref(client, d);
 	pkgconf_dependency_free(&deps);
 	pkgconf_client_free(client);
 }
@@ -287,12 +289,15 @@ test_dependency_add_multiple(void)
 	pkgconf_client_t *client = test_client_new();
 	pkgconf_list_t deps = PKGCONF_LIST_INITIALIZER;
 
-	pkgconf_dependency_add(client, &deps, "foo", NULL, PKGCONF_CMP_ANY, 0);
-	pkgconf_dependency_add(client, &deps, "bar", "2.0", PKGCONF_CMP_EQUAL, 0);
-	pkgconf_dependency_add(client, &deps, "baz", "3.0", PKGCONF_CMP_LESS_THAN, 0);
+	pkgconf_dependency_t *d0 = pkgconf_dependency_add(client, &deps, "foo", NULL, PKGCONF_CMP_ANY, 0);
+	pkgconf_dependency_t *d1 = pkgconf_dependency_add(client, &deps, "bar", "2.0", PKGCONF_CMP_EQUAL, 0);
+	pkgconf_dependency_t *d2 = pkgconf_dependency_add(client, &deps, "baz", "3.0", PKGCONF_CMP_LESS_THAN, 0);
 
 	TEST_ASSERT_EQ(dependency_count(&deps), 3);
 
+	pkgconf_dependency_unref(client, d0);
+	pkgconf_dependency_unref(client, d1);
+	pkgconf_dependency_unref(client, d2);
 	pkgconf_dependency_free(&deps);
 	pkgconf_client_free(client);
 }
