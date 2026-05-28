@@ -17,6 +17,11 @@
 
 #include "test-api.h"
 
+#ifdef _WIN32
+#	define setenv(n, v, o) _putenv_s(n, v)
+#	define unsetenv(n) _putenv_s(n, "")
+#endif
+
 static void
 test_client_new_and_free(void)
 {
