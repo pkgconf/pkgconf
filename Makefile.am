@@ -292,6 +292,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/static-archive-libs.pc \
 		tests/lib1/cflags-libs-only.pc \
 		tests/lib1/cflags-shared-test.pc \
+		tests/lib1/libs-shared-test.pc \
 		tests/lib1/intermediary-2.pc \
 		tests/lib1/static-libs.pc \
 		tests/lib1/circular-1.pc \
