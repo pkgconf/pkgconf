@@ -265,6 +265,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/api/test-api.h \
 		tests/api/test-buffer.c \
 		tests/api/test-bytecode.c \
+		tests/api/test-fragment.c \
 		tests/api/test-tuple.c \
 		tests/api/test-variable.c \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
@@ -480,6 +481,7 @@ noinst_PROGRAMS =		\
 	test-path-utils		\
 	test-api-buffer		\
 	test-api-bytecode	\
+	test-api-fragment	\
 	test-api-tuple		\
 	test-api-variable
 test_runner_LDADD = libpkgconf.la
@@ -501,6 +503,10 @@ test_api_bytecode_LDADD = libpkgconf.la
 test_api_bytecode_SOURCES = tests/api/test-bytecode.c
 test_api_bytecode_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
 
+test_api_fragment_LDADD = libpkgconf.la
+test_api_fragment_SOURCES = tests/api/test-fragment.c
+test_api_fragment_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+
 test_api_tuple_LDADD = libpkgconf.la
 test_api_tuple_SOURCES = tests/api/test-tuple.c
 test_api_tuple_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
@@ -516,10 +522,11 @@ m4data_DATA            = pkg.m4
 
 CLEANFILES =	$(EXTRA_PROGRAMS)
 
-check: pkgconf test-runner test-path-utils test-api-buffer test-api-bytecode test-api-tuple test-api-variable
+check: pkgconf test-runner test-path-utils test-api-buffer test-api-bytecode test-api-fragment test-api-tuple test-api-variable
 	$(builddir)/test-path-utils$(EXEEXT)
 	$(builddir)/test-api-buffer$(EXEEXT)
 	$(builddir)/test-api-bytecode$(EXEEXT)
+	$(builddir)/test-api-fragment$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic
