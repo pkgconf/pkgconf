@@ -65,6 +65,42 @@
 				#a, #b, _a, _b);	\
 	} while (0)
 
+#define TEST_ASSERT_LT(a, b)	\
+	do {	\
+		long long _a = (long long)(a);	\
+		long long _b = (long long)(b);	\
+		if (_a >= _b)	\
+			TEST_FAIL_("TEST_ASSERT_LT(%s, %s): %lld >= %lld",	\
+				#a, #b, _a, _b);	\
+	} while (0)
+
+#define TEST_ASSERT_LE(a, b)	\
+	do {	\
+		long long _a = (long long)(a);	\
+		long long _b = (long long)(b);	\
+		if (_a > _b)	\
+			TEST_FAIL_("TEST_ASSERT_LE(%s, %s): %lld > %lld",	\
+				#a, #b, _a, _b);	\
+	} while (0)
+
+#define TEST_ASSERT_GT(a, b)	\
+	do {	\
+		long long _a = (long long)(a);	\
+		long long _b = (long long)(b);	\
+		if (_a <= _b)	\
+			TEST_FAIL_("TEST_ASSERT_GT(%s, %s): %lld <= %lld",	\
+				#a, #b, _a, _b);	\
+	} while (0)
+
+#define TEST_ASSERT_GE(a, b)	\
+	do {	\
+		long long _a = (long long)(a);	\
+		long long _b = (long long)(b);	\
+		if (_a < _b)	\
+			TEST_FAIL_("TEST_ASSERT_GE(%s, %s): %lld < %lld",	\
+				#a, #b, _a, _b);	\
+	} while (0)
+
 #define TEST_ASSERT_NE(a, b)	\
 	do {	\
 		long long _a = (long long)(a);	\
