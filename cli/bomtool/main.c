@@ -162,8 +162,10 @@ write_copyright_lines(pkgconf_client_t *client, const pkgconf_list_t *copyright_
 {
 	const pkgconf_node_t *node;
 
-	if (copyright_lines->head == NULL)
+	if (copyright_lines->head == NULL) {
+		OUTPUT_OR_RET_FALSE(client, sbom_out, "PackageCopyrightText: NOASSERTION\n");
 		return true;
+	}
 
 	OUTPUT_OR_RET_FALSE(client, sbom_out, "PackageCopyrightText: <text>");
 
