@@ -306,16 +306,27 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add build-base meson
+          apk add build-base meson gcovr bash git curl gpg
 
       - name: Build
         run: |
-          meson _build -Dwerror=true
+          meson _build -Dwerror=true -Db_coverage=true
           meson compile -C _build
 
       - name: Run tests
         run: |
           meson test -v -C _build
+
+      - name: Run coverage
+        run: |
+          ninja -C _build coverage-xml
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          fail_ci_if_error: true
+          files: ./_build/meson-logs/coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   alpine-muon:
     runs-on: ubuntu-latest

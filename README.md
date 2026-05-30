@@ -1,4 +1,4 @@
-# pkgconf [![test](https://github.com/pkgconf/pkgconf/actions/workflows/test.yml/badge.svg)](https://github.com/pkgconf/pkgconf/actions/workflows/test.yml)
+# pkgconf [![test](https://github.com/pkgconf/pkgconf/actions/workflows/test.yml/badge.svg)](https://github.com/pkgconf/pkgconf/actions/workflows/test.yml) [![Coverage](https://img.shields.io/codecov/c/github/pkgconf/pkgconf)](https://app.codecov.io/github/pkgconf/pkgconf)
 
 `pkgconf` is a program which helps to configure compiler and linker flags for
 development libraries.  It is a superset of the functionality provided by
