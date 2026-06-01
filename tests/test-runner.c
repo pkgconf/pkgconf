@@ -18,6 +18,7 @@
 #include <libpkgconf/config.h>
 #include <libpkgconf/libpkgconf.h>
 #include <libpkgconf/stdinc.h>
+#include <sys/types.h>
 #include <cli/core.h>
 #include <cli/getopt_long.h>
 #include <limits.h>
@@ -43,6 +44,11 @@
 #ifdef _WIN32
 #	define mkdir(p, m) _mkdir(p)
 #	define setenv(n, v, o) _putenv_s(n, v)
+
+#	ifndef PATH_MAX
+#		define PATH_MAX MAX_PATH
+#	endif // !PATH_MAX
+
 #endif // _WIN32
 
 // MSVC-specific shims
@@ -54,10 +60,6 @@
 #	define unlink _unlink
 #	define popen _popen
 #	define pclose _pclose
-
-#	ifndef PATH_MAX
-#		define PATH_MAX 32767  // Windows max path for long-path support
-#	endif
 
 static char *
 mkdtemp(char *tmpl)
