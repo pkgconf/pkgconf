@@ -219,7 +219,7 @@ int
 main(int argc, const char **argv)
 {
 	(void) argc;
-	const char *basename = test_progname(argv[0]);
+	const char *basename = pkgconf_path_find_basename(argv[0]);
 
 	TEST_RUN(basename, test_fgetline_no_trailing_newline);
 	TEST_RUN(basename, test_fgetline_empty_stream);

@@ -270,6 +270,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/link-abi/private-requires-shared.test \
 		t/link-abi/private-requires-static.test \
 		t/link-abi/multi-dedup.test \
+		tests/win-shim.h \
 		tests/api/test-api.h \
 		tests/api/test-audit.c \
 		tests/api/test-buffer.c \
@@ -513,6 +514,7 @@ API_TEST_PROGS =		\
 noinst_PROGRAMS = test-runner $(API_TEST_PROGS)
 
 test_runner_LDADD = libpkgconf.la
+test_runner_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
 test_runner_SOURCES = \
 	cli/core.c \
 	cli/getopt_long.c \
@@ -520,7 +522,7 @@ test_runner_SOURCES = \
 	tests/test-runner.c
 
 api_test_ldadd = libpkgconf.la
-api_test_cppflags = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
+api_test_cppflags = -I$(top_srcdir) -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/tests/api
 
 test_api_audit_LDADD = $(api_test_ldadd)
 test_api_audit_SOURCES = tests/api/test-audit.c

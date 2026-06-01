@@ -228,7 +228,7 @@ int
 main(int argc, char *argv[])
 {
 	(void) argc;
-	const char *basename = test_progname(argv[0]);
+	const char *basename = pkgconf_path_find_basename(argv[0]);
 
 	TEST_RUN(basename, test_variable_new_and_free);
 	TEST_RUN(basename, test_variable_get_or_create_creates);

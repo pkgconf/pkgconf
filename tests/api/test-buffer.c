@@ -389,7 +389,7 @@ main(int argc, const char **argv)
 {
 	(void) argc;
 
-	const char *basename = test_progname(argv[0]);
+	const char *basename = pkgconf_path_find_basename(argv[0]);
 
 	TEST_RUN(basename, test_buffer_empty);
 	TEST_RUN(basename, test_buffer_append);
