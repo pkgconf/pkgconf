@@ -20,6 +20,7 @@
 
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
+#include <tests/win-shim.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
