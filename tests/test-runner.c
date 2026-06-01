@@ -21,6 +21,7 @@
 #include <cli/core.h>
 #include <cli/getopt_long.h>
 #include <limits.h>
+#include <assert.h>
 #ifdef _WIN32
 #	include <direct.h>
 #	include <io.h>
@@ -781,7 +782,18 @@ rmdir_recursive(const char *path)
 #ifdef _WIN32
 		if (_access(pkgconf_buffer_str(&child), 0) == 0)
 		{
-			DWORD attrs = GetFileAttributesA(pkgconf_buffer_str(&child));
+			// Get required buffer size
+			int size = MultiByteToWideChar(CP_ACP, 0, pkgconf_buffer_str(&child), -1, NULL, 0);
+
+			// Allocate and convert
+			wchar_t* wide_path = calloc(size, sizeof(wchar_t));
+			assert(wide_path != NULL);
+			MultiByteToWideChar(CP_ACP, 0, pkgconf_buffer_str(&child), -1, wide_path, size);
+
+			DWORD attrs = GetFileAttributesW(wide_path);
+
+			free(wide_path);
+
 			if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY))
 				rmdir_recursive(pkgconf_buffer_str(&child));
 			else
