@@ -158,7 +158,7 @@ int
 main(int argc, char *argv[])
 {
 	(void) argc;
-	const char *basename = test_progname(argv[0]);
+	const char *basename = pkgconf_path_find_basename(argv[0]);
 
 	TEST_RUN(basename, test_audit_log_no_logfile_is_noop);
 	TEST_RUN(basename, test_audit_set_log_and_write);

@@ -26,6 +26,7 @@
 // Shims shared by both MSVC and MSYS2
 #define mkdir(p, m) _mkdir(p)
 #define setenv(n, v, o) _putenv_s(n, v)
+#define unsetenv(n) _putenv_s(n, "")
 
 #ifndef PATH_MAX
 #	define PATH_MAX MAX_PATH

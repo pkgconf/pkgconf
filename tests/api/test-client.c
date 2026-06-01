@@ -17,11 +17,6 @@
 
 #include "test-api.h"
 
-#ifdef _WIN32
-#	define setenv(n, v, o) _putenv_s(n, v)
-#	define unsetenv(n) _putenv_s(n, "")
-#endif
-
 static void
 test_client_new_and_free(void)
 {
@@ -308,7 +303,7 @@ int
 main(int argc, char *argv[])
 {
 	(void) argc;
-	const char *basename = test_progname(argv[0]);
+	const char *basename = pkgconf_path_find_basename(argv[0]);
 
 	TEST_RUN(basename, test_client_new_and_free);
 	TEST_RUN(basename, test_client_init_and_deinit_stack);

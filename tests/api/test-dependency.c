@@ -510,7 +510,7 @@ int
 main(int argc, char *argv[])
 {
 	(void) argc;
-	const char *basename = test_progname(argv[0]);
+	const char *basename = pkgconf_path_find_basename(argv[0]);
 
 	TEST_RUN(basename, test_comparator_lookup_known);
 	TEST_RUN(basename, test_comparator_lookup_unknown);

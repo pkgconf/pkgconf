@@ -20,6 +20,7 @@
 
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
+#include <libpkgconf/path.h>
 #include <tests/win-shim.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -174,27 +175,6 @@
 		fn();	\
 		fprintf(stderr, " PASS\n");	\
 	} while (0)
-
-static inline const char *
-test_progname(const char *argv0)
-{
-	const char *p;
-
-	if (argv0 == NULL || *argv0 == '\0')
-		return "test";
-
-	p = strrchr(argv0, '/');
-	if (p != NULL)
-		argv0 = p + 1;
-
-#ifdef _WIN32
-	p = strrchr(argv0, '\\');
-	if (p != NULL)
-		argv0 = p + 1;
-#endif
-
-	return argv0;
-}
 
 static inline pkgconf_client_t *
 test_client_new(void)
