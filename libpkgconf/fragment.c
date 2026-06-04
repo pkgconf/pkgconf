@@ -325,7 +325,10 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 	char *string;
 
 	if (!pkgconf_bytecode_eval_str_to_buf(client, vars, value, &saw_sysroot, &evalbuf))
+	{
+		pkgconf_buffer_finalize(&evalbuf);
 		return;
+	}
 
 	string = pkgconf_buffer_freeze(&evalbuf);
 	if (string == NULL)
