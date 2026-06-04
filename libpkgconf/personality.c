@@ -189,6 +189,10 @@ personality_copy_func(pkgconf_cross_personality_t *p, const char *keyword, const
 	(void) warnprefix;
 
 	char **dest = (char **)((char *) p + offset);
+
+	if (*dest != NULL)
+		free(*dest);
+
 	*dest = strdup(value);
 }
 
