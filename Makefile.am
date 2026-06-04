@@ -240,6 +240,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/sysroot/explicit-sysroot.test \
 		t/sysroot/idirafter-munge-sysroot.test \
 		t/sysroot/isystem-munge-sysroot.test \
+		t/sysroot/isystem-sysroot-prefixed.test \
 		t/sysroot/no-pc_sysrootdir-rewriting-2.test \
 		t/sysroot/no-pc_sysrootdir-rewriting-3.test \
 		t/sysroot/no-pc_sysrootdir-rewriting-4.test \
@@ -324,6 +325,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/omg-uninstalled.pc \
 		tests/lib1/omg-sysroot-uninstalled.pc \
 		tests/lib1/isystem.pc \
+		tests/lib1/isystem-sysroot-prefixed.pc \
 		tests/lib1/idirafter.pc \
 		tests/lib1/idirafter-ordering.pc \
 		tests/lib1/depgraph-break.pc \
