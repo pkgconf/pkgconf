@@ -54,7 +54,10 @@ build_default_search_path(pkgconf_list_t* dirlist)
 
 	p = strrchr(namebuf, '/');
 	if (p == NULL)
+	{
 		pkgconf_path_split(PKG_DEFAULT_PATH, dirlist, true);
+		return;
+	}
 	*p = '\0';
 
 	pkgconf_buffer_append_fmt(&pathbuf, "%s/../lib/pkgconfig", namebuf);
