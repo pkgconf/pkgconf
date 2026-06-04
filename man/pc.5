@@ -98,13 +98,13 @@ These flags are always used, regardless of whether static compilation is request
 (optional; fragment list)
 .It Cflags.private
 Required compiler flags for static compilation only.
-(optional; fragment list; pkgconf extension)
+(optional; fragment list; pkgconf extension; introduced in pkgconf 0.9.3)
 .It Cflags.shared
 Required compiler flags for shared compilation only.
-(optional; fragment list; pkgconf extension)
+(optional; fragment list; pkgconf extension; introduced in pkgconf 3.0.0)
 .It Copyright
 A copyright attestation statement.
-(optional; literal; pkgconf extension)
+(optional; literal; pkgconf extension; introduced in pkgconf 1.9.3)
 .It Libs
 Required linking flags for this package.
 Libraries this package depends on for linking against it, which are not
@@ -115,7 +115,7 @@ Required linking flags for this package that are only required when linking
 statically.
 Libraries this package depends on for linking against it statically, which are
 not described as dependencies should be specified here.
-(optional; fragment list)
+(optional; fragment list; introduced in pkgconf 3.0.0)
 .It License
 The asserted SPDX license tag that should be applied to the given package.
 One should try to determine the correct SPDX license tag for package
@@ -124,20 +124,20 @@ LicenseRef-tag. For complex licensing details, utilize
 SPDX expression notation.
 It’s possible to assign multiple license tags in pc-file, which are
 then merged together with an 'AND' when rendering output.
-(optional; literal; pkgconf extension)
+(optional; literal; pkgconf extension; introduced in pkgconf 1.9.0)
 .It License.file
 License file location for whole license text.
-(optional; literal; pkgconf extension)
+(optional; literal; pkgconf extension; introduced in pkgconf 3.0.0)
 .It Maintainer
 The preferred contact for the maintainer.  This should be in the format of a
 name followed by an e-mail address or website.
-(optional; literal; pkgconf extension)
+(optional; literal; pkgconf extension; introduced in pkgconf 1.9.3)
 .It Source
 The asserted SPDX downloadLocation tag that should be applied to the given package.
 Source should be URI contain tarball with exact version or Repository that contains
 tag with version same as mentioned in version tag. It can be also be URI with hash
 that is exact release point of the source.
-(optional; literal; pkgconf extension)
+(optional; literal; pkgconf extension; introduced in pkgconf 3.0.0)
 .It Requires
 Required dependencies that must be met for the package to be usable.
 All dependencies must be satisfied or the pkg-config implementation must not use
@@ -149,7 +149,7 @@ static linking.
 The main differences verses Requires.private are that CFLAGS will not be
 included and the solver will not consider the dependency when solving for
 CFLAGS only.
-(optional; dependency list; pkgconf extension)
+(optional; dependency list; pkgconf extension; introduced in pkgconf 1.5.0)
 .It Requires.private
 Required dependencies that must be met for the package to be usable for header
 inclusion and static linking.
@@ -160,7 +160,7 @@ the package for header inclusion and static linking.
 Required dependencies that are only traversed when not in static mode. This allows
 a package to express dependencies that are only relevant when it is used as a
 shared library.
-(optional; dependency list; pkgconf extension)
+(optional; dependency list; pkgconf extension; introduced in pkgconf 3.0.0)
 .It Conflicts
 Dependencies that must not be met for the package to be usable.
 If any package in the proposed dependency solution match any dependency in the
@@ -170,7 +170,7 @@ Conflicts list, the package being considered is not usable.
 Dependencies that may be provided by an alternate package.
 If a package cannot be found, the entire package collection is scanned for
 providers which can match the requested dependency.
-(optional; dependency list; pkgconf extension)
+(optional; dependency list; pkgconf extension; introduced in pkgconf 1.1.0)
 .El
 .Ss EXTENSIONS
 Features that have been marked as a pkgconf extension are only guaranteed to work
