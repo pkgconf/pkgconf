@@ -18,6 +18,12 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+#define push_or_return_fail(buf, c) \
+	do { if (!pkgconf_buffer_push_byte((buf), (char) (c))) return false; } while (0)
+
+#define trim_or_return_fail(buf) \
+	do { if (!pkgconf_buffer_trim_byte((buf))) return false; } while (0)
+
 bool
 pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 {
@@ -48,13 +54,13 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 					continue;
 				}
 				else
-					pkgconf_buffer_push_byte(buffer, (char) c);
+					push_or_return_fail(buffer, (char) c);
 
 				goto done;
 			}
 			else if (c == '\r')
 			{
-				pkgconf_buffer_push_byte(buffer, '\n');
+				push_or_return_fail(buffer, '\n');
 
 				if (*p == '\n')
 					p++;
@@ -71,11 +77,11 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 			{
 				if (quoted)
 				{
-					pkgconf_buffer_push_byte(buffer, '\\');
+					push_or_return_fail(buffer, '\\');
 					quoted = false;
 				}
 
-				pkgconf_buffer_push_byte(buffer, (char) c);
+				push_or_return_fail(buffer, (char) c);
 			}
 		}
 	}
@@ -83,10 +89,10 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 done:
 	/* Remove newline character. */
 	if (pkgconf_buffer_lastc(buffer) == '\n')
-		pkgconf_buffer_trim_byte(buffer);
+		trim_or_return_fail(buffer);
 
 	if (pkgconf_buffer_lastc(buffer) == '\r')
-		pkgconf_buffer_trim_byte(buffer);
+		trim_or_return_fail(buffer);
 
 	if (!got_data)
 		return false;
