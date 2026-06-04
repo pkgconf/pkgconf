@@ -275,7 +275,7 @@ should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragme
 		return false;
 
 	if (!strncmp(string, client->sysroot_dir, strlen(client->sysroot_dir)) &&
-		*(string + 1 + strlen(client->sysroot_dir)) == '/')
+		*(string + strlen(client->sysroot_dir)) == '/')
 	{
 		return false;
 	}
