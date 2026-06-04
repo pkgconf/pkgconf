@@ -242,6 +242,47 @@ test_license_copy_list(void)
 	pkgconf_client_free(client);
 }
 
+static void
+test_license_evaluate_long_sanitized_token(void)
+{
+	pkgconf_client_t *client = test_client_new();
+	pkgconf_list_t licenses = PKGCONF_LIST_INITIALIZER;
+
+	char token[512];
+	token[0] = 'A';
+	memset(token + 1, '_', 400);
+	token[401] = '\0';
+
+	pkgconf_license_evaluate_str(client, &licenses, token, 0);
+
+	TEST_ASSERT_EQ(license_count(&licenses), 1);
+	const pkgconf_license_t *l = licenses.head->data;
+	TEST_ASSERT_EQ(l->type, PKGCONF_LICENSE_EXPRESSION);
+	TEST_ASSERT_STRCMP_EQ(l->data, "A");
+
+	pkgconf_license_free(&licenses);
+	pkgconf_client_free(client);
+}
+
+static void
+test_license_evaluate_unterminated_quote(void)
+{
+	pkgconf_client_t *client = test_client_new();
+	pkgconf_list_t licenses = PKGCONF_LIST_INITIALIZER;
+
+	pkgconf_license_evaluate_str(client, &licenses, "\"", 0);
+	TEST_ASSERT_EQ(license_count(&licenses), 0);
+
+	pkgconf_license_evaluate_str(client, &licenses, "MIT \"unterminated", 0);
+	TEST_ASSERT_EQ(license_count(&licenses), 0);
+
+	pkgconf_license_evaluate_str(client, &licenses, "\\", 0);
+	TEST_ASSERT_EQ(license_count(&licenses), 0);
+
+	pkgconf_license_free(&licenses);
+	pkgconf_client_free(client);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -258,6 +299,8 @@ main(int argc, char *argv[])
 	TEST_RUN(basename, test_license_evaluate_brackets);
 	TEST_RUN(basename, test_license_evaluate_empty);
 	TEST_RUN(basename, test_license_evaluate_sanitizes);
+	TEST_RUN(basename, test_license_evaluate_long_sanitized_token);
+	TEST_RUN(basename, test_license_evaluate_unterminated_quote);
 
 	TEST_RUN(basename, test_license_render_empty);
 	TEST_RUN(basename, test_license_render_single);
