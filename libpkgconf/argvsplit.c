@@ -41,6 +41,9 @@
 void
 pkgconf_argv_free(char **argv)
 {
+	if (argv == NULL)
+		return;
+
 	free(argv[0]);
 	free(argv);
 }
@@ -150,6 +153,7 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 	{
 		free(*argv);
 		free(buf);
+		*argv = NULL;
 		return -1;
 	}
 
