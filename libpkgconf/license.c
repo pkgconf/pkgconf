@@ -184,8 +184,12 @@ pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *license_l
 			if (string_len >= 1)
 			{
 				license_sanitize_string(cur_word, &out_buffer);
-				cur_word = (char *)pkgconf_buffer_str_or_empty(&out_buffer);
-				if (!strnlen(cur_word, buf_size))
+				if (!pkgconf_buffer_len(&out_buffer))
+					continue;
+
+				cur_word = (char *)pkgconf_buffer_str(&out_buffer);
+				size_t cur_len = strnlen(cur_word, buf_size);
+				if (!cur_len)
 				{
 					i ++;
 					pkgconf_buffer_finalize(&out_buffer);
@@ -199,18 +203,18 @@ pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *license_l
 					 * Then append rest to fragments as license.
 					 * This is expression like GPL-2.0-only OR (BSD-2-Clause AND ISC)
 					 */
-					if (string_len >= 2)
+					if (cur_len >= 2)
 					{
 						cur_word ++;
 						pkgconf_license_insert(client, license_list, PKGCONF_LICENSE_EXPRESSION, cur_word);
 					}
 				}
-				else if (cur_word[string_len - 1] == ')')
+				else if (cur_word[cur_len - 1] == ')')
 				{
-					if (string_len >= 2)
+					if (cur_len >= 2)
 					{
-						argv[i][string_len - 1] = 0x00;
-						pkgconf_license_insert(client, license_list, PKGCONF_LICENSE_EXPRESSION, argv[i]);
+						cur_word[cur_len - 1] = 0x00;
+						pkgconf_license_insert(client, license_list, PKGCONF_LICENSE_EXPRESSION, cur_word);
 					}
 					pkgconf_license_insert(client, license_list, PKGCONF_LICENSE_BRACKET_CLOSE, ")");
 				}
@@ -234,9 +238,9 @@ pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *license_l
 			}
 			i++;
 		}
-	}
 
-	pkgconf_argv_free(argv);
+		pkgconf_argv_free(argv);
+	}
 }
 
 /*
