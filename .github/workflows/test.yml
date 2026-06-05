@@ -115,7 +115,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apt-get update
-          apt-get install -y kyua atf-sh build-essential meson
+          apt-get install -y build-essential meson
 
       - name: Build
         run: |
@@ -137,7 +137,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apt-get update
-          apt-get install -y kyua atf-sh build-essential meson
+          apt-get install -y build-essential meson
 
       - name: Build
         run: |
@@ -161,7 +161,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apt-get update
-          apt-get install -y kyua atf-sh build-essential autoconf libtool
+          apt-get install -y build-essential autoconf libtool
 
       - name: Build
         run: |
@@ -184,7 +184,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add kyua atf build-base meson
+          apk add build-base meson
 
       - name: Build
         run: |
@@ -206,7 +206,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add kyua atf build-base muon samurai
+          apk add build-base muon samurai
 
       - name: Build
         run: |
@@ -229,7 +229,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add kyua atf build-base autoconf automake libtool xz gzip tar
+          apk add build-base autoconf automake libtool xz gzip tar
 
       - name: Build
         run: |
@@ -252,14 +252,12 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add kyua atf build-base autoconf automake libtool xz gzip
+          apk add build-base meson libtool xz gzip
 
       - name: Build
         run: |
-          export CFLAGS="-Wall -Werror -O2 -ggdb3 -fanalyzer"
-          ./autogen.sh
-          ./configure
-          make -j9 CFLAGS="$CFLAGS"
+          CC=gcc meson setup _build -Danalyzer=true -Dwerror=true
+          meson compile -C _build
 
   llvm-sanitizers:
     runs-on: ubuntu-latest
@@ -272,7 +270,7 @@ jobs:
       - name: Update system and add dependencies
         run: |
           apk update
-          apk add kyua atf build-base meson clang cmd:llvm-symbolizer compiler-rt
+          apk add build-base meson clang cmd:llvm-symbolizer compiler-rt
 
       - name: Build
         run: |
