@@ -18,3 +18,9 @@ option(
   value: false,
   description: 'Build libFuzzer targets'
 )
+
+option('analyzer',
+  type : 'boolean',
+  value : false,
+  description : 'enable GCC static analysis (-fanalyzer) on project targets'
+)
