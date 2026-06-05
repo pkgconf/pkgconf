@@ -24,6 +24,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(__GNUC__) && !defined(__clang__)
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wpragmas" // older gcc may not know the next one
+	// Stop false-positive warnings for test cases
+#	pragma GCC diagnostic ignored "-Wanalyzer-tainted-assertion"
+#endif
+
 #define TEST_FAIL_(fmt, ...)	\
 	do {	\
 		fprintf(stderr, "FAIL: %s:%d: " fmt "\n",	\
