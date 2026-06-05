@@ -115,7 +115,13 @@ Required linking flags for this package that are only required when linking
 statically.
 Libraries this package depends on for linking against it statically, which are
 not described as dependencies should be specified here.
-(optional; fragment list; introduced in pkgconf 3.0.0)
+(optional; fragment list)
+.It Libs.shared
+Required linking flags for this package that are only required for dynamic
+linking.
+Libraries this package depends on for linking against it dynamically, which are
+not described as dependencies should be specified here.
+(optional; fragment list; pkgconf extension; introduced in pkgconf 3.0.0)
 .It License
 The asserted SPDX license tag that should be applied to the given package.
 One should try to determine the correct SPDX license tag for package
