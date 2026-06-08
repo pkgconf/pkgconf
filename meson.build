@@ -179,11 +179,23 @@ pkg.generate(libpkgconf,
 
 cli_include = include_directories('cli')
 
+windows_manifest = []
+if host_machine.system() == 'windows'
+  conf_data = configuration_data()
+  # The assemblyIdentity.version must always be in the format X.X.X.X.
+  conf_data.set('VERSION', meson.project_version() + '.0')
+  manifest_file = configure_file(input: 'pkgconf.manifest.in', output: 'pkgconf.manifest', configuration: conf_data)
+
+  windows = import('windows')
+  windows_manifest += windows.compile_resources('pkgconf.rc', depend_files: manifest_file)
+endif
+
 pkgconf_exe = executable('pkgconf',
   'cli/main.c',
   'cli/core.c',
   'cli/getopt_long.c',
   'cli/renderer-msvc.c',
+  windows_manifest,
   link_with : libpkgconf,
   c_args : build_static,
   include_directories : cli_include,
@@ -192,6 +204,7 @@ pkgconf_exe = executable('pkgconf',
 bomtool_exe = executable('bomtool',
   'cli/bomtool/main.c',
   'cli/getopt_long.c',
+  windows_manifest,
   link_with : libpkgconf,
   c_args : build_static,
   include_directories : cli_include,
@@ -205,6 +218,7 @@ spdxtool_exe = executable('spdxtool',
   'cli/spdxtool/simplelicensing.c',
   'cli/spdxtool/util.c',
   'cli/getopt_long.c',
+  windows_manifest,
   link_with : libpkgconf,
   c_args : build_static,
   include_directories : include_directories('cli', 'cli/spdxtool'),
@@ -215,6 +229,7 @@ test_runner_exe = executable('test-runner',
   'cli/getopt_long.c',
   'cli/renderer-msvc.c',
   'tests/test-runner.c',
+  windows_manifest,
   link_with : libpkgconf,
   c_args : build_static,
   include_directories : cli_include,
@@ -236,6 +251,7 @@ api_tests = [
 foreach t : api_tests
   exe = executable('test-api-' + t,
     'tests/api/test-' + t + '.c',
+    windows_manifest,
     link_with : libpkgconf,
     c_args : build_static,
     include_directories : [include_directories('.'), include_directories('tests/api')],
