@@ -87,6 +87,18 @@ deduce_personality(char *argv[])
 }
 #endif
 
+#ifdef _WIN32
+static UINT original_console_cp;
+static UINT original_console_out_cp;
+
+static void
+restore_console_code_page(void)
+{
+	SetConsoleCP(original_console_cp);
+	SetConsoleOutputCP(original_console_out_cp);
+}
+#endif
+
 static void
 version(void)
 {
@@ -212,6 +224,21 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
+#ifdef _WIN32
+	// When activeCodePage is set to UTF-8 in the application manifest (requires Windows 1903+),
+	// GetACP() returns CP_UTF8 but the console code pages are not automatically updated to match.
+	// Detect this condition via GetACP() == CP_UTF8 and align the console code pages accordingly.
+	// Restoring on exit is safe: if ACP is already CP_UTF8, resetting to the saved values is a no-op.
+	if (GetACP() == CP_UTF8)
+	{
+		original_console_cp = GetConsoleCP();
+		original_console_out_cp = GetConsoleOutputCP();
+		SetConsoleCP(CP_UTF8);
+		SetConsoleOutputCP(CP_UTF8);
+		atexit(restore_console_code_page);
+	}
+#endif
+
 	int ret;
 	pkgconf_cli_state_t state = {
 		.want_flags = 0,
