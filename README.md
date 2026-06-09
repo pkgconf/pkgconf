@@ -124,9 +124,9 @@ For non-bootstrap builds, Meson is recommended.
 > **Warning:** The autotools build system is deprecated as of pkgconf 3.0 and will be
 > removed in pkgconf 3.1.  Please migrate to Meson or Muon.
 
-If you need to build pkgconf with autotools in 3.0, you will need to regenerate
-the build system artifacts from the git sources or a GitHub snapshot.  For example,
-on Alpine:
+If you would like to use the git sources directly, or a snapshot of the sources from
+GitHub, you will need to regenerate the autotools build system artifacts yourself, or
+use Meson instead (recoommended).  For example, on Alpine:
 
     $ apk add autoconf automake libtool build-base
     $ sh ./autogen.sh
