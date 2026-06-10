@@ -181,13 +181,17 @@ cli_include = include_directories('cli')
 
 windows_manifest = []
 if host_machine.system() == 'windows'
-  conf_data = configuration_data()
+  manifest_conf_data = configuration_data()
   # The assemblyIdentity.version must always be in the format X.X.X.X.
-  conf_data.set('VERSION', meson.project_version() + '.0')
-  manifest_file = configure_file(input: 'pkgconf.manifest.in', output: 'pkgconf.manifest', configuration: conf_data)
+  manifest_conf_data.set('VERSION', meson.project_version() + '.0')
+  manifest_file = configure_file(input: 'pkgconf.manifest.in', output: 'pkgconf.manifest', configuration: manifest_conf_data)
+  
+  resource_file_conf_data = configuration_data()
+  resource_file_conf_data.set('MANIFEST_FILE', join_paths(meson.current_build_dir(), 'pkgconf.manifest'))
+  resources_file = configure_file(input: 'pkgconf.rc.in', output: 'pkgconf.rc', configuration: resource_file_conf_data)
 
   windows = import('windows')
-  windows_manifest += windows.compile_resources('pkgconf.rc', depend_files: manifest_file)
+  windows_manifest += windows.compile_resources(resources_file, depend_files: manifest_file)
 endif
 
 pkgconf_exe = executable('pkgconf',
