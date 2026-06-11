@@ -187,6 +187,16 @@ Accordingly, it is suggested that
 .Nm .pc
 files which absolutely depend on these extensions declare a requirement on the
 pkgconf virtual.
+.Pp
+In addition it should be noted that the pkgconf virtual is versioned, and thus
+files which absolutely depend on these extensions can declare a requirement on
+the specific pkgconf version which introduced the extension.
+.Pp
+As an example:
+.Bd -literal
+Requires: pkgconf >= 3.0.0
+Libs.shared: ...
+.Ed
 .Sh EXAMPLES
 An example .pc file:
 .Bd -literal
