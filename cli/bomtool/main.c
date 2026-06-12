@@ -92,7 +92,8 @@ sbom_spdx_identity(pkgconf_pkg_t *pkg)
 			o += 2;
 		}
 	}
-	snprintf(buf + o, sizeof(buf) - o, "C64%s", pkg->version);
+	snprintf(buf + o, sizeof(buf) - o, "C40%s", pkg->version);
+	/*                                  ^^^ 0x40 is the at sign (@) */
 	return buf;
 }
 
