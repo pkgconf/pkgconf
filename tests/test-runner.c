@@ -110,6 +110,7 @@ typedef struct test_case_
 	pkgconf_buffer_t fragment_filter;
 
 	pkgconf_buffer_t skip_platforms;
+	bool require_utf8_locale;
 
 	pkgconf_list_t define_variables;
 
@@ -335,6 +336,16 @@ test_keyword_set_int(pkgconf_test_case_t *testcase, const char *keyword, const c
 }
 
 static void
+test_keyword_set_bool(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+{
+	(void) keyword;
+	(void) warnprefix;
+
+	bool *dest = (bool *)((char *) testcase + offset);
+	*dest = !strcasecmp(value, "true");
+}
+
+static void
 test_keyword_set_buffer(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
@@ -546,6 +557,7 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] =
 	{"MaxVersion",		test_keyword_set_buffer,		offsetof(pkgconf_test_case_t, max_version)},
 	{"PackageSearchPath",	test_keyword_set_path_list,		offsetof(pkgconf_test_case_t, search_path)},
 	{"Query",		test_keyword_set_buffer,		offsetof(pkgconf_test_case_t, query)},
+	{"RequireUtf8Locale",	test_keyword_set_bool,			offsetof(pkgconf_test_case_t, require_utf8_locale)},
 	{"SetupCopy",		test_keyword_extend_bufferset,		offsetof(pkgconf_test_case_t, copies)},
 	{"SetupMkdir",		test_keyword_extend_bufferset,		offsetof(pkgconf_test_case_t, mkdirs)},
 #ifdef _WIN32
@@ -1196,6 +1208,12 @@ run_test_case(const pkgconf_test_case_t *testcase)
 	{
 		printf("# test skipped on %s\nSKIP: %s\n",
 			pkgconf_buffer_str(our_platform), testcase->name);
+		return true;
+	}
+
+	if (testcase->require_utf8_locale && !pkgconf_is_locale_utf8())
+	{
+		printf("# test skipped: requires a UTF-8 locale\nSKIP: %s\n", testcase->name);
 		return true;
 	}
 

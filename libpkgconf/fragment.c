@@ -18,6 +18,11 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+#ifndef _WIN32
+#include <locale.h>
+#include <langinfo.h>
+#endif
+
 /*
  * !doc
  *
@@ -651,6 +656,41 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 	}
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_is_locale_utf8(void)
+ *
+ *    Check whether text is expected to be UTF-8 encoded in the current environment.
+ *
+ *    :return: :code:`true` if text is expected to be UTF-8 encoded, :code:`false` otherwise.
+ */
+bool
+pkgconf_is_locale_utf8(void)
+{
+#ifdef _WIN32
+	return GetACP() == CP_UTF8;
+#else
+	static int cached = -1;
+
+	if (cached < 0)
+	{
+		locale_t loc = newlocale(LC_CTYPE_MASK, "", (locale_t)0);
+
+		if (loc != (locale_t)0)
+		{
+			const char *codeset = nl_langinfo_l(CODESET, loc);
+			cached = codeset != NULL && (!strcasecmp(codeset, "UTF-8") || !strcasecmp(codeset, "UTF8"));
+			freelocale(loc);
+		}
+		else
+			cached = 0;
+	}
+
+	return cached;
+#endif
+}
+
 static void
 fragment_quote(pkgconf_buffer_t *out, const pkgconf_fragment_t *frag)
 {
@@ -671,7 +711,25 @@ fragment_quote(pkgconf_buffer_t *out, const pkgconf_fragment_t *frag)
 		{ 0x7f, 0xff },
 	};
 
-	pkgconf_buffer_escape(out, src, quote_spans, PKGCONF_ARRAY_SIZE(quote_spans));
+	/* If the local is UTF-8 we must not split character over 0x7f because it would add "\" between each bytes.
+	   So only DEL (0x7f) needs escaping */
+	const pkgconf_span_t quote_spans_utf8[] = {
+		{ 0x00, 0x1f },
+		{ (unsigned char)' ', (unsigned char)'#' },
+		{ (unsigned char)'%', (unsigned char)'\'' },
+		{ (unsigned char)'*', (unsigned char)'*' },
+		{ (unsigned char)';', (unsigned char)'<' },
+		{ (unsigned char)'>', (unsigned char)'?' },
+		{ (unsigned char)'[', (unsigned char)']' },
+		{ (unsigned char)'`', (unsigned char)'`' },
+		{ (unsigned char)'{', (unsigned char)'}' },
+		{ 0x7f, 0x7f },
+	};
+
+	if (pkgconf_is_locale_utf8())
+		pkgconf_buffer_escape(out, src, quote_spans_utf8, PKGCONF_ARRAY_SIZE(quote_spans_utf8));
+	else
+		pkgconf_buffer_escape(out, src, quote_spans, PKGCONF_ARRAY_SIZE(quote_spans));
 }
 
 static void
