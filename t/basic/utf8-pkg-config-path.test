@@ -1,4 +1,5 @@
 Environment: PKG_CONFIG_PATH=%TEST_FIXTURES_DIR%/lib1/tÃ«ðŸ˜‹st/lib/pkgconfig
 WantedFlags: cflags define-prefix
 Query: utf8
-ExpectedStdout: -I%TEST_FIXTURES_DIR%/lib1/t\Ã\«\ð\Ÿ\˜\‹st/include
+ExpectedStdout: -I%TEST_FIXTURES_DIR%/lib1/tÃ«ðŸ˜‹st/include
+RequireUtf8Locale: true
