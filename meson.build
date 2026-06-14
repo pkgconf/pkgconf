@@ -300,6 +300,7 @@ if host_machine.system() == 'windows'
   conf_data.set('VERSION', meson.project_version())
   conf_data.set('EXE', pkgconf_exe.full_path())
   conf_data.set('DLL', libpkgconf.full_path())
+  conf_data.set('BUILD_TYPE', libtype)
 
   if host_machine.cpu_family() == 'x86'
     wix_arch = 'x86'

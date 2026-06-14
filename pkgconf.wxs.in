@@ -41,11 +41,13 @@
                     Source="@EXE@"
                     KeyPath="yes" />
           </Component>
-          <Component Id="PkgconfDll" Guid="*">
-              <File Id="PkgconfDllFile"
-                    Source="@DLL@"
-                    KeyPath="yes" />
-          </Component>
+          <?if "@BUILD_TYPE@" = "shared" ?>
+            <Component Id="PkgconfDll" Guid="*">
+                <File Id="PkgconfDllFile"
+                        Source="@DLL@"
+                        KeyPath="yes" />
+            </Component>
+          <?endif?>
       </ComponentGroup>
 
       <ui:WixUI Id="WixUI_Minimal" InstallDirectory="INSTALLFOLDER" />
