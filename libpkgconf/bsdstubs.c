@@ -24,12 +24,15 @@
 static inline char *
 strndup(const char *src, size_t len)
 {
-	char *out = malloc(len + 1);
+	const char *end = memchr(src, '\0', len);
+	size_t n = end != NULL ? (size_t)(end - src) : len;
+	char *out = malloc(n + 1);
+
 	if (out == NULL)
 		return NULL;
 
-	memcpy(out, src, len);
-	out[len] = '\0';
+	memcpy(out, src, n);
+	out[n] = '\0';
 
 	return out;
 }
