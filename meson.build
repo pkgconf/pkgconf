@@ -282,6 +282,16 @@ spdxtool_exe = executable('spdxtool',
   include_directories : include_directories('cli', 'cli/spdxtool'),
   install : true)
 
+pccritic_exe = executable('pccritic',
+  'cli/pccritic/main.c',
+  'cli/pccritic/critic.c',
+  'cli/getopt_long.c',
+  windows_manifest,
+  link_with : libpkgconf,
+  c_args : build_static,
+  include_directories : include_directories('cli', 'cli/pccritic'),
+  install : true)
+
 test_runner_exe = executable('test-runner',
   'cli/core.c',
   'cli/getopt_long.c',

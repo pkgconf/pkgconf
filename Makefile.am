@@ -12,7 +12,7 @@ nodist_pkgconfig_DATA  = libpkgconf.pc
 ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -DPERSONALITY_PATH=\"$(personality_dir)\" -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
 
-bin_PROGRAMS = pkgconf bomtool spdxtool
+bin_PROGRAMS = pkgconf bomtool spdxtool pccritic
 lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	pkg.m4 \
@@ -617,7 +617,8 @@ noinst_HEADERS   = \
 	cli/spdxtool/serialize.h			\
 	cli/spdxtool/simplelicensing.h		\
 	cli/spdxtool/software.h				\
-	cli/spdxtool/util.h
+	cli/spdxtool/util.h					\
+	cli/pccritic/critic.h
 
 bomtool_LDADD    = libpkgconf.la
 bomtool_SOURCES  = \
@@ -636,6 +637,13 @@ spdxtool_SOURCES  = \
 	cli/spdxtool/generate.c		\
 	cli/getopt_long.c
 spdxtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/spdxtool
+
+pccritic_LDADD    = libpkgconf.la
+pccritic_SOURCES  = \
+	cli/pccritic/main.c		\
+	cli/pccritic/critic.c		\
+	cli/getopt_long.c
+pccritic_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/pccritic
 
 API_TEST_PROGS =		\
 	test-api-audit		\
