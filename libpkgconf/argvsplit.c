@@ -123,8 +123,19 @@ pkgconf_argv_split(const char *src, int *argc, char ***argv)
 
 				if (argc_count == argv_size)
 				{
+					char **new_argv;
+
 					argv_size += 5;
-					*argv = realloc(*argv, sizeof(void *) * argv_size);
+					new_argv = pkgconf_reallocarray(*argv, argv_size, sizeof(void *));
+					if (new_argv == NULL)
+					{
+						free(*argv);
+						free(buf);
+						*argv = NULL;
+						return -1;
+					}
+
+					*argv = new_argv;
 				}
 
 				(*argv)[argc_count] = dst_iter;
