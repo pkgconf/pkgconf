@@ -185,7 +185,11 @@ pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *license_l
 			{
 				license_sanitize_string(cur_word, &out_buffer);
 				if (!pkgconf_buffer_len(&out_buffer))
+				{
+					i ++;
+					pkgconf_buffer_finalize(&out_buffer);
 					continue;
+				}
 
 				cur_word = (char *)pkgconf_buffer_str(&out_buffer);
 				size_t cur_len = strnlen(cur_word, buf_size);
