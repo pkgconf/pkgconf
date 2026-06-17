@@ -45,7 +45,14 @@ build_default_search_path(pkgconf_list_t* dirlist)
 	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 	char *p;
 
-	int sizepath = GetModuleFileName(NULL, namebuf, sizeof namebuf);
+	/* Reserve one byte for the NUL: GetModuleFileName returns the size passed
+	 * to it (nSize) when the path is truncated, so passing sizeof namebuf could
+	 * yield sizepath == sizeof namebuf and overflow namebuf[] by one byte below.
+	 *
+	 * See the GetModuleFileNameA return-value documentation:
+	 * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
+	 */
+	int sizepath = GetModuleFileName(NULL, namebuf, sizeof namebuf - 1);
 	char * winslash;
 	namebuf[sizepath] = '\0';
 
