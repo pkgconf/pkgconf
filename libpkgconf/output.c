@@ -127,7 +127,7 @@ bool
 pkgconf_output_file_vfmt(FILE *f, const char *fmt, va_list va)
 {
 	int ret = vfprintf(f, fmt, va);
-	return ret > 0;
+	return ret >= 0;
 }
 
 /*
