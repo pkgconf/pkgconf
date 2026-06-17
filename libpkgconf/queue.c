@@ -49,6 +49,9 @@ pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *
 	pkgconf_buffer_t depbuf = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_queue_t *pkgq = calloc(1, sizeof(pkgconf_queue_t));
 
+	if (pkgq == NULL)
+		return;
+
 	pkgconf_buffer_append(&depbuf, dep->package);
 	if (dep->version != NULL)
 		pkgconf_buffer_append_fmt(&depbuf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
@@ -72,6 +75,9 @@ void
 pkgconf_queue_push(pkgconf_list_t *list, const char *package)
 {
 	pkgconf_queue_t *pkgq = calloc(1, sizeof(pkgconf_queue_t));
+
+	if (pkgq == NULL)
+		return;
 
 	pkgq->package = strdup(package);
 	pkgconf_node_insert_tail(&pkgq->iter, pkgq, list);

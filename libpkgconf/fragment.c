@@ -202,6 +202,9 @@ pkgconf_fragment_insert(pkgconf_client_t *client, pkgconf_list_t *list, char typ
 	pkgconf_fragment_t *frag;
 
 	frag = calloc(1, sizeof(pkgconf_fragment_t));
+	if (frag == NULL)
+		return;
+
 	frag->type = type;
 	frag->data = strdup(data);
 
@@ -569,6 +572,8 @@ pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, cons
 		return;
 
 	frag = calloc(1, sizeof(pkgconf_fragment_t));
+	if (frag == NULL)
+		return;
 
 	frag->type = base->type;
 	pkgconf_fragment_copy_list(client, &frag->children, &base->children);

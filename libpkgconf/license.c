@@ -59,6 +59,9 @@ pkgconf_license_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, 
 		pkgconf_license_t *license = node->data;
 		pkgconf_license_t *cpy_license = calloc(1, sizeof(pkgconf_license_t));
 
+		if (cpy_license == NULL)
+			continue;
+
 		cpy_license->type = license->type;
 
 		if (license->data != NULL)
