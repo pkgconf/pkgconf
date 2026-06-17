@@ -209,6 +209,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
 		t/sbom/license-isc.test \
+		t/sbom/license-malformed-token.test \
 		t/sbom/license-noassertion.test \
 		t/sbom/source-tag-bar.test \
 		t/sbom/source-tag-foo.test \
@@ -283,6 +284,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/argv-parse-3.pc \
 		tests/lib1/foo.pc \
 		tests/lib1/foobar.pc \
+		tests/lib1/license-malformed.pc \
 		tests/lib1/unavailable-provider.pc \
 		tests/lib1/prefix-foo1.pc \
 		tests/lib1/argv-parse.pc \
