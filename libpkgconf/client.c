@@ -845,7 +845,7 @@ pkgconf_client_preload_from_environ(pkgconf_client_t *client, const char *env)
 	pkgconf_node_t *n;
 	bool ret = true;
 
-	data = getenv(env);
+	data = pkgconf_client_getenv(client, env);
 	if (data == NULL)
 		return true;
 
