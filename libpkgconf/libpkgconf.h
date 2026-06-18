@@ -705,7 +705,7 @@ static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer)
 	if (buffer->base == NULL)
 		return NULL;
 
-	char *out = strdup(pkgconf_buffer_str(buffer));
+	char *out = pkgconf_strndup(pkgconf_buffer_str(buffer), pkgconf_buffer_len(buffer));
 	pkgconf_buffer_reset(buffer);
 	return out;
 }
