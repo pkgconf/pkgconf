@@ -167,6 +167,9 @@ pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *license_l
 
 	(void)flags;
 
+	if (expression == NULL)
+		return;
+
 	buf_size = strlen(expression) + 1;
 	ret = pkgconf_argv_split(expression, &argc, &argv);
 	if (!ret)
