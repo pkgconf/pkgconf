@@ -16,13 +16,15 @@
 #include <libpkgconf/bsdstubs.h>
 #include <libpkgconf/config.h>
 
-#if !HAVE_DECL_STRNDUP
+#if HAVE_DECL_STRNDUP
+# define pkgconf_strndup_impl strndup
+#else
 /*
  * Creates a memory buffer and copies at most 'len' characters to it.
  * If 'len' is less than the length of the source string, truncation occured.
  */
 static inline char *
-strndup(const char *src, size_t len)
+pkgconf_strndup_impl(const char *src, size_t len)
 {
 	const char *end = memchr(src, '\0', len);
 	size_t n = end != NULL ? (size_t)(end - src) : len;
@@ -38,9 +40,11 @@ strndup(const char *src, size_t len)
 }
 #endif
 
-#if !HAVE_DECL_PLEDGE
+#if HAVE_DECL_PLEDGE
+# define pkgconf_pledge_impl pledge
+#else
 static inline int
-pledge(const char *promises, const char *execpromises)
+pkgconf_pledge_impl(const char *promises, const char *execpromises)
 {
 	(void) promises;
 	(void) execpromises;
@@ -49,9 +53,11 @@ pledge(const char *promises, const char *execpromises)
 }
 #endif
 
-#if !HAVE_DECL_UNVEIL
+#if HAVE_DECL_UNVEIL
+# define pkgconf_unveil_impl unveil
+#else
 static inline int
-unveil(const char *path, const char *permissions)
+pkgconf_unveil_impl(const char *path, const char *permissions)
 {
 	(void) path;
 	(void) permissions;
@@ -60,15 +66,11 @@ unveil(const char *path, const char *permissions)
 }
 #endif
 
-char *
-pkgconf_strndup(const char *src, size_t len)
-{
-	return strndup(src, len);
-}
-
-#if !HAVE_DECL_REALLOCARRAY
+#if HAVE_DECL_REALLOCARRAY
+# define pkgconf_reallocarray_impl reallocarray
+#else
 static inline void *
-reallocarray(void *ptr, size_t m, size_t n)
+pkgconf_reallocarray_impl(void *ptr, size_t m, size_t n)
 {
 	if (n && m > -1 / n)
 	{
@@ -80,20 +82,26 @@ reallocarray(void *ptr, size_t m, size_t n)
 }
 #endif
 
+char *
+pkgconf_strndup(const char *src, size_t len)
+{
+	return pkgconf_strndup_impl(src, len);
+}
+
 void *
 pkgconf_reallocarray(void *ptr, size_t m, size_t n)
 {
-	return reallocarray(ptr, m, n);
+	return pkgconf_reallocarray_impl(ptr, m, n);
 }
 
 int
 pkgconf_pledge(const char *promises, const char *execpromises)
 {
-	return pledge(promises, execpromises);
+	return pkgconf_pledge_impl(promises, execpromises);
 }
 
 int
 pkgconf_unveil(const char *path, const char *permissions)
 {
-	return unveil(path, permissions);
+	return pkgconf_unveil_impl(path, permissions);
 }
