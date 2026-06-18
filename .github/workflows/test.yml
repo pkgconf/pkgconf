@@ -305,3 +305,40 @@ jobs:
           export CC=clang
           export CFLAGS="-O2 -Wall -Wextra -ggdb3 -fsanitize=address,undefined"
           make -f Makefile.lite PKG_DEFAULT_PATH="/usr/lib/pkgconfig:/usr/share/pkgconfig" SYSTEM_LIBDIR="/usr/lib" SYSTEM_INCLUDEDIR="/usr/include" -j $(nproc) check
+
+  fuzz:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Update system and add dependencies
+        run: |
+          apk update
+          apk add build-base meson clang cmd:llvm-symbolizer compiler-rt
+
+      - name: Build
+        run: |
+          CC=clang meson setup _fuzz -Dfuzzing=true -Ddefault_library=static -Db_sanitize=address,undefined -Db_lundef=false
+          meson compile -C _fuzz
+
+      - name: Run fuzzer
+        run: |
+          mkdir -p _fuzz/corpus
+          ./_fuzz/fuzzer/parser-fuzzer -max_total_time=120 -max_len=8192 -rss_limit_mb=2048 -print_final_stats=1 _fuzz/corpus tests/lib1
+        env:
+          ASAN_OPTIONS: "abort_on_error=1:halt_on_error=1:detect_leaks=0"
+          UBSAN_OPTIONS: "halt_on_error=1:print_stacktrace=1"
+
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crashes
+          path: |
+            crash-*
+            oom-*
+            timeout-*
+          if-no-files-found: ignore
