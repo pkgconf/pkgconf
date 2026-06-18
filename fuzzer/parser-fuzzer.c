@@ -18,94 +18,9 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
+#include "alloc-inject.h"
+
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
-
-/* this is for malloc fault injection to make the fuzzer exercise OOM paths */
-static bool alloc_armed = false;
-static unsigned long alloc_seen = 0;
-static unsigned long alloc_fail_at = 0;
-static bool alloc_injected = false;
-
-void *__real_malloc(size_t size);
-void *__real_calloc(size_t nmemb, size_t size);
-void *__real_realloc(void *ptr, size_t size);
-void *__real_reallocarray(void *ptr, size_t nmemb, size_t size);
-char *__real_strdup(const char *s);
-char *__real_strndup(const char *s, size_t n);
-
-void *__wrap_malloc(size_t size);
-void *__wrap_calloc(size_t nmemb, size_t size);
-void *__wrap_realloc(void *ptr, size_t size);
-void *__wrap_reallocarray(void *ptr, size_t nmemb, size_t size);
-char *__wrap_strdup(const char *s);
-char *__wrap_strndup(const char *s, size_t n);
-
-static bool
-alloc_should_fail(void)
-{
-	if (!alloc_armed)
-		return false;
-
-	if (++alloc_seen != alloc_fail_at)
-		return false;
-
-	alloc_injected = true;
-	return true;
-}
-
-void *
-__wrap_malloc(size_t size)
-{
-	if (alloc_should_fail())
-		return NULL;
-
-	return __real_malloc(size);
-}
-
-void *
-__wrap_calloc(size_t nmemb, size_t size)
-{
-	if (alloc_should_fail())
-		return NULL;
-
-	return __real_calloc(nmemb, size);
-}
-
-void *
-__wrap_realloc(void *ptr, size_t size)
-{
-	if (alloc_should_fail())
-		return NULL;
-
-	return __real_realloc(ptr, size);
-}
-
-void *
-__wrap_reallocarray(void *ptr, size_t nmemb, size_t size)
-{
-	if (alloc_should_fail())
-		return NULL;
-
-	return __real_reallocarray(ptr, nmemb, size);
-}
-
-char *
-__wrap_strdup(const char *s)
-{
-	if (alloc_should_fail())
-		return NULL;
-
-	return __real_strdup(s);
-}
-
-char *
-__wrap_strndup(const char *s, size_t n)
-{
-	if (alloc_should_fail())
-		return NULL;
-
-	return __real_strndup(s, n);
-}
 
 /* bound the number of injection rounds per input to keep executions cheap */
 #define ALLOC_FAIL_MAX 4096
@@ -200,17 +115,12 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	/* then fail each allocation site reachable by this input, one at a time */
 	for (unsigned long i = 1; i <= ALLOC_FAIL_MAX; i++)
 	{
-		alloc_seen = 0;
-		alloc_fail_at = i;
-		alloc_injected = false;
-		alloc_armed = true;
-
+		alloc_inject_arm(i);
 		run_once(client, path);
-
-		alloc_armed = false;
+		alloc_inject_disarm();
 
 		/* this input made fewer than i allocations; no point going further */
-		if (!alloc_injected)
+		if (!alloc_inject_fired())
 			break;
 	}
 
