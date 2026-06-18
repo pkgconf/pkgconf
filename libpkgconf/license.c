@@ -29,7 +29,7 @@ static void license_sanitize_string(const char *s, pkgconf_buffer_t *buf)
 	 */
 	for (i = 0; i < strlen(s); i ++)
 	{
-		if (isalnum(s[i]) || s[i] == '-' || s[i] == '+' || s[i] == '(' || s[i] == ')' || s[i] == '.' || s[i] == ':')
+		if (isalnum((unsigned char) s[i]) || s[i] == '-' || s[i] == '+' || s[i] == '(' || s[i] == ')' || s[i] == '.' || s[i] == ':')
 		{
 			pkgconf_buffer_push_byte(buf, s[i]);
 		}
