@@ -43,6 +43,9 @@ pkgconf_pkg_traverse_main(pkgconf_client_t *client,
 static inline bool
 str_has_suffix(const char *str, const char *suffix)
 {
+	if (str == NULL || suffix == NULL)
+		return false;
+
 	size_t str_len = strlen(str);
 	size_t suf_len = strlen(suffix);
 
