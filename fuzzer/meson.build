@@ -5,7 +5,15 @@ parser_fuzzer_exe = executable(
   include_directories: include_directories('..'),
   install: false,
   c_args: ['-fsanitize=fuzzer'],
-  link_args: ['-fsanitize=fuzzer'],
+  link_args: [
+    '-fsanitize=fuzzer',
+    '-Wl,--wrap=malloc',
+    '-Wl,--wrap=calloc',
+    '-Wl,--wrap=realloc',
+    '-Wl,--wrap=reallocarray',
+    '-Wl,--wrap=strdup',
+    '-Wl,--wrap=strndup',
+  ],
 )
 
 fuzz_root = join_paths(meson.project_build_root(), 'fuzz')
