@@ -268,6 +268,9 @@ should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragme
 	if (last->type)
 		return false;
 
+	if (last->data == NULL)
+		return false;
+
 	if (client->sysroot_dir == NULL)
 		return false;
 
@@ -430,6 +433,14 @@ pkgconf_fragment_lookup(pkgconf_list_t *list, const pkgconf_fragment_t *base)
 		if (base->type != frag->type)
 			continue;
 
+		if (base->data == NULL || frag->data == NULL)
+		{
+			if (base->data == frag->data)
+				return frag;
+
+			continue;
+		}
+
 		if (!strcmp(base->data, frag->data))
 			return frag;
 	}
@@ -469,6 +480,9 @@ pkgconf_fragment_can_merge(const pkgconf_fragment_t *base, unsigned int flags, b
 		return false;
 
 	if (base->children.head != NULL)
+		return false;
+
+	if (base->data == NULL)
 		return false;
 
 	return pkgconf_fragment_is_unmergeable(base->data);
