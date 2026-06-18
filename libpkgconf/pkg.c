@@ -446,7 +446,9 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 		value = env_content;
 	}
 
-	pkgconf_buffer_append(&canonicalized_value, value);
+	if (!pkgconf_buffer_append(&canonicalized_value, value))
+		goto out;
+
 	canonicalize_path(canonicalized_value.base);
 
 	if (!(pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
