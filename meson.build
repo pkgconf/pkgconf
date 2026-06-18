@@ -54,7 +54,8 @@ endif
 fuzzing = get_option('fuzzing')
 
 if host_machine.system() != 'windows' and cc.get_id() == 'clang' and fuzzing
-  add_project_arguments('-fno-omit-frame-pointer', language: 'c')
+  add_project_arguments('-fno-omit-frame-pointer', '-fsanitize=fuzzer-no-link', language: 'c')
+  add_project_link_arguments('-fsanitize=fuzzer-no-link', language: 'c')
 elif fuzzing
   warning('fuzzing requested, but not on a supported platform.  a clang compiler in a unix-like environment is required')
   fuzzing = false
