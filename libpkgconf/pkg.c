@@ -1147,6 +1147,9 @@ pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep)
 pkgconf_pkg_comparator_t
 pkgconf_pkg_comparator_lookup_by_name(const char *name)
 {
+	if (name == NULL)
+		return PKGCONF_CMP_ANY;
+
 	const pkgconf_pkg_comparator_pair_t *p = bsearch(name, pkgconf_pkg_comparator_names,
 		PKGCONF_ARRAY_SIZE(pkgconf_pkg_comparator_names), sizeof(pkgconf_pkg_comparator_pair_t),
 		pkgconf_pkg_comparator_pair_namecmp);
