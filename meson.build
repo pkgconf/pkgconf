@@ -430,13 +430,14 @@ test_suites = [
   'tuple',
   'bomtool',
   'spdxtool',
+  'pccritic',
   'symlink'
 ]
 
 foreach t : test_suites
   test(t, test_runner_exe,
     args : ['--test-fixtures', fixtures_dir, '--tool-dir', tool_dir, join_paths(meson.current_source_dir(), 't', t)],
-    depends : [pkgconf_exe, spdxtool_exe, bomtool_exe])
+    depends : [pkgconf_exe, spdxtool_exe, bomtool_exe, pccritic_exe])
 endforeach
 
 install_man('man/bomtool.1')

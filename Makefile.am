@@ -321,6 +321,15 @@ EXTRA_DIST =	pkg.m4 \
 		t/spdxtool/version.test \
 		t/spdxtool/version-operator.test \
 		t/spdxtool/with-dependency.test \
+		t/pccritic/about.test \
+		t/pccritic/help.test \
+		t/pccritic/min-score.test \
+		t/pccritic/missing-field.test \
+		t/pccritic/no-arguments.test \
+		t/pccritic/perfect.test \
+		t/pccritic/polluted.test \
+		t/pccritic/unknown-package.test \
+		t/pccritic/version.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
 		t/sbom/license-isc.test \
@@ -778,6 +787,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/sbom
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/bomtool
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/spdxtool
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/pccritic
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/symlink
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/sysroot
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/tuple
