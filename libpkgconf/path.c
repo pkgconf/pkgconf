@@ -115,6 +115,11 @@ prepare_path_node(const char *text, pkgconf_list_t *dirlist, bool filter)
 	}
 
 	node->path = pkgconf_buffer_freeze(&pathbuf);
+	if (node->path == NULL)
+	{
+		free(node);
+		return NULL;
+	}
 
 #ifdef PKGCONF_CACHE_INODES
 	if (filter)
@@ -259,11 +264,20 @@ pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
 	pkgconf_buffer_t relocated = PKGCONF_BUFFER_INITIALIZER;
 	const char *cpath = path;
 
+	if (path == NULL)
+		return false;
+
 	pkgconf_buffer_append(&relocated, path);
 	cpath = pkgconf_buffer_str(&relocated);
 
 	if (pkgconf_path_relocate(&relocated))
 		cpath = pkgconf_buffer_str(&relocated);
+
+	if (cpath == NULL)
+	{
+		pkgconf_buffer_finalize(&relocated);
+		return false;
+	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(dirlist->head, n)
 	{
@@ -305,6 +319,11 @@ pkgconf_path_copy_list(pkgconf_list_t *dst, const pkgconf_list_t *src)
 			continue;
 
 		path->path = strdup(srcpath->path);
+		if (path->path == NULL)
+		{
+			free(path);
+			continue;
+		}
 
 #ifdef PKGCONF_CACHE_INODES
 		path->handle_path = srcpath->handle_path;
@@ -340,6 +359,11 @@ pkgconf_path_prepend_list(pkgconf_list_t *dst, const pkgconf_list_t *src)
 			continue;
 
 		path->path = strdup(srcpath->path);
+		if (path->path == NULL)
+		{
+			free(path);
+			continue;
+		}
 
 #ifdef PKGCONF_CACHE_INODES
 		path->handle_path = srcpath->handle_path;
