@@ -144,9 +144,25 @@ static void
 run_once(pkgconf_client_t *client, const char *path)
 {
 	pkgconf_pkg_t *pkg = pkgconf_pkg_new_from_path(client, path, 0);
+	if (pkg == NULL)
+		return;
 
-	if (pkg != NULL)
-		pkgconf_pkg_free(client, pkg);
+	pkgconf_list_t cflags = PKGCONF_LIST_INITIALIZER;
+	pkgconf_list_t libs = PKGCONF_LIST_INITIALIZER;
+	pkgconf_buffer_t render = PKGCONF_BUFFER_INITIALIZER;
+
+	pkgconf_pkg_verify_graph(client, pkg, 2);
+
+	pkgconf_pkg_cflags(client, pkg, &cflags, 2);
+	pkgconf_pkg_libs(client, pkg, &libs, 2);
+
+	pkgconf_fragment_render_buf(&cflags, &render, true, NULL, ' ');
+	pkgconf_fragment_render_buf(&libs, &render, true, NULL, ' ');
+
+	pkgconf_buffer_finalize(&render);
+	pkgconf_fragment_free(&cflags);
+	pkgconf_fragment_free(&libs);
+	pkgconf_pkg_free(client, pkg);
 }
 
 int
