@@ -324,10 +324,18 @@ jobs:
           CC=clang meson setup _fuzz -Dfuzzing=true -Ddefault_library=static -Db_sanitize=address,undefined -Db_lundef=false
           meson compile -C _fuzz
 
-      - name: Run fuzzer
+      - name: Run parser fuzzer
         run: |
           mkdir -p _fuzz/corpus
           ./_fuzz/fuzzer/parser-fuzzer -max_total_time=120 -max_len=8192 -rss_limit_mb=2048 -print_final_stats=1 _fuzz/corpus tests/lib1
+        env:
+          ASAN_OPTIONS: "abort_on_error=1:halt_on_error=1:detect_leaks=0"
+          UBSAN_OPTIONS: "halt_on_error=1:print_stacktrace=1"
+
+      - name: Run solver fuzzer
+        run: |
+          mkdir -p _fuzz/solver-corpus
+          ./_fuzz/fuzzer/solver-fuzzer -max_total_time=120 -max_len=8192 -rss_limit_mb=2048 -print_final_stats=1 _fuzz/solver-corpus fuzzer/solver-corpus
         env:
           ASAN_OPTIONS: "abort_on_error=1:halt_on_error=1:detect_leaks=0"
           UBSAN_OPTIONS: "halt_on_error=1:print_stacktrace=1"
