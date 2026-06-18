@@ -199,6 +199,12 @@ pkgconf_queue_collect_dependencies_walk(pkgconf_client_t *client,
 		eflags |= pkgconf_queue_collect_dependencies_main(client, pkg, data, depth - 1);
 
 		flattened_dep = pkgconf_dependency_copy(client, dep);
+		if (flattened_dep == NULL)
+		{
+			eflags |= PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
+			continue;
+		}
+
 		pkgconf_node_insert(&flattened_dep->iter, flattened_dep, &world->required);
 	}
 
@@ -293,6 +299,11 @@ pkgconf_queue_collect_conflicts(pkgconf_client_t *client,
 		{
 			pkgconf_dependency_t *conflict = cnode->data;
 			pkgconf_dependency_t *flattened_conflict = pkgconf_dependency_copy(client, conflict);
+			if (flattened_conflict == NULL)
+			{
+				eflags |= PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
+				continue;
+			}
 
 			flattened_conflict->why = strdup(pkg->id);
 			pkgconf_node_insert(&flattened_conflict->iter, flattened_conflict, &world->conflicts);
