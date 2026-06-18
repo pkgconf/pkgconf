@@ -511,6 +511,9 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/duplicate-tuple.pc \
 		tests/lib1/flag-whitespace.pc \
 		tests/lib1/flag-whitespace-2.pc \
+		tests/lib-pccritic/perfect.pc \
+		tests/lib-pccritic/polluted.pc \
+		tests/lib-pccritic/nodesc.pc \
 		tests/lib-sbom/meta_package.pc \
 		tests/lib-sbom/test1.pc \
 		tests/lib-sbom/test2.pc \
