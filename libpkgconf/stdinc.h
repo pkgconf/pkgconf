@@ -18,6 +18,11 @@
 #ifndef LIBPKGCONF_STDINC_H
 #define LIBPKGCONF_STDINC_H
 
+/* make POSIX/BSD declarations (e.g. strdup) visible even under a strict -std= */
+#ifndef _DEFAULT_SOURCE
+# define _DEFAULT_SOURCE
+#endif
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
