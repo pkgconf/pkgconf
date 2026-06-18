@@ -90,21 +90,33 @@ clean:
 preflight: preflight-system-libdir preflight-system-includedir preflight-pkg-default-path
 
 preflight-system-libdir:
-	@if test -z "${SYSTEM_LIBDIR}"; then		\
-		echo "SYSTEM_LIBDIR not set.";		\
-		exit 1;					\
+	@if test -z "${SYSTEM_LIBDIR}"; then							\
+		echo "SYSTEM_LIBDIR is not set.";						\
+		echo "  Set it to the compiler's default library directory (e.g. /usr/lib).";	\
+		echo "  pkgconf strips this path from --libs output so a package does not emit";	\
+		echo "  a redundant -L for a directory already on the linker's search path.";	\
+		echo "  Example: make -f Makefile.lite SYSTEM_LIBDIR=/usr/lib ...";		\
+		exit 1;										\
 	fi
 
 preflight-system-includedir:
-	@if test -z "${SYSTEM_INCLUDEDIR}"; then	\
-		echo "SYSTEM_INCLUDEDIR not set.";	\
-		exit 1;					\
+	@if test -z "${SYSTEM_INCLUDEDIR}"; then						\
+		echo "SYSTEM_INCLUDEDIR is not set.";						\
+		echo "  Set it to the compiler's default include directory (e.g. /usr/include).";	\
+		echo "  pkgconf strips this path from --cflags output so a package does not emit";	\
+		echo "  a redundant -I for a directory already on the compiler's search path.";	\
+		echo "  Example: make -f Makefile.lite SYSTEM_INCLUDEDIR=/usr/include ...";	\
+		exit 1;										\
 	fi
 
 preflight-pkg-default-path:
-	@if test -z "${PKG_DEFAULT_PATH}"; then		\
-		echo "PKG_DEFAULT_PATH not set.";	\
-		exit 1;					\
+	@if test -z "${PKG_DEFAULT_PATH}"; then							\
+		echo "PKG_DEFAULT_PATH is not set.";						\
+		echo "  Set it to the colon-separated (semicolon on Windows) list of directories where this";	\
+		echo "  system installs .pc files; it is the default search path pkgconf uses when";	\
+		echo "  PKG_CONFIG_PATH is unset.  Without it pkgconf cannot locate any package.";	\
+		echo "  Example: make -f Makefile.lite PKG_DEFAULT_PATH=/usr/lib/pkgconfig:/usr/share/pkgconfig ...";	\
+		exit 1;										\
 	fi
 
 .PHONY: preflight preflight-system-libdir preflight-system-includedir preflight-pkg-default-path clean
