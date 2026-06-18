@@ -194,6 +194,9 @@ pkgconf_path_split(const char *text, pkgconf_list_t *dirlist, bool filter)
 		return 0;
 
 	iter = workbuf = strdup(text);
+	if (workbuf == NULL)
+		return 0;
+
 	while ((p = strtok(iter, PKG_CONFIG_PATH_SEP_S)) != NULL)
 	{
 		pkgconf_path_add(p, dirlist, filter);
