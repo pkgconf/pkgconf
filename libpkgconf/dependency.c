@@ -335,10 +335,10 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 	if (depends == NULL || *depends == '\0')
 		return;
 
-	pkgconf_buffer_append(&buf, depends);
-	pkgconf_buffer_append(&buf, " ");
+	if (!pkgconf_buffer_append(&buf, depends))
+		goto out;
 
-	if (buf.base == NULL)
+	if (!pkgconf_buffer_append(&buf, " "))
 		goto out;
 
 	start = ptr = buf.base;
