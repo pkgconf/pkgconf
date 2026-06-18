@@ -330,7 +330,7 @@ determine_prefix(const pkgconf_pkg_t *pkg, pkgconf_buffer_t *pathbuf)
 
 	pkgconf_path_trim_basename(pathbuf);
 
-	if (strcmp(pkgconf_path_find_basename(pkgconf_buffer_str(pathbuf)), "pkgconfig"))
+	if (strcmp(pkgconf_path_find_basename(pkgconf_buffer_str_or_empty(pathbuf)), "pkgconfig"))
 		return false;
 
 	if (!pkgconf_path_trim_basename(pathbuf))
