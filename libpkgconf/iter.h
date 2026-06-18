@@ -18,6 +18,8 @@
 #ifndef LIBPKGCONF_ITER_H
 #define LIBPKGCONF_ITER_H
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

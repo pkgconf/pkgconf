@@ -18,6 +18,8 @@
 #ifndef LIBPKGCONF_BSDSTUBS_H
 #define LIBPKGCONF_BSDSTUBS_H
 
+#include <stddef.h>
+
 #include <libpkgconf/libpkgconf-api.h>
 
 #ifdef __cplusplus
