@@ -1881,3 +1881,71 @@ pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *
 
 	return eflag;
 }
+
+static void
+pkgconf_pkg_link_abi_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+{
+	pkgconf_list_t *list = data;
+	pkgconf_node_t *node;
+
+	if (!(client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE) && pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE)
+		return;
+
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->link_abi.head, node)
+	{
+		pkgconf_bufferset_t *tag = node->data;
+		pkgconf_node_t *iter;
+		bool seen = false;
+
+		PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
+		{
+			pkgconf_bufferset_t *existing = iter->data;
+
+			if (pkgconf_buffer_match(&existing->buffer, &tag->buffer))
+			{
+				seen = true;
+				break;
+			}
+		}
+
+		if (!seen)
+			pkgconf_bufferset_extend(list, &tag->buffer);
+	}
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: int pkgconf_pkg_link_abi(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth)
+ *
+ *    Walks a dependency graph and collects the union of ``Link.ABI`` tags.
+ *
+ *    The tags describe the ABI a consumer must link the module against.  They
+ *    are gathered over the same closure as ``LIBS``: the module's own tags and
+ *    those of its public ``Requires`` always contribute, while ``Requires.private``
+ *    tags contribute only when private dependencies are being linked (i.e. a
+ *    static link).  Unlike a runtime library load, ABI compatibility of the
+ *    exposed interface applies equally to shared and static linking.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param pkgconf_pkg_t* root: The root of the dependency graph.
+ *    :param pkgconf_list_t* list: The bufferset list to add the collected ``Link.ABI`` tags to.
+ *    :param int maxdepth: The maximum allowed depth for dependency resolution.  -1 means infinite recursion.
+ *    :return: ``PKGCONF_PKG_ERRF_OK`` if successful, otherwise an error code.
+ *    :rtype: unsigned int
+ */
+unsigned int
+pkgconf_pkg_link_abi(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth)
+{
+	unsigned int eflag;
+
+	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_link_abi_collect, list, maxdepth, 0);
+
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+	{
+		pkgconf_bufferset_free(list);
+		return eflag;
+	}
+
+	return eflag;
+}
