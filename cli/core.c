@@ -839,10 +839,6 @@ apply_link_abi(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int m
 		return false;
 	}
 
-	/* an empty set means plain C, the bottom of the lattice */
-	if (abis.head == NULL)
-		pkgconf_buffer_append(&render_buf, "c");
-
 	PKGCONF_FOREACH_LIST_ENTRY(abis.head, node)
 	{
 		pkgconf_bufferset_t *tag = node->data;

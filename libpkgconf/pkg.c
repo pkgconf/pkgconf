@@ -763,6 +763,18 @@ pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsign
 		return NULL;
 	}
 
+	/* a package that does not declare a Link.ABI defaults to the C ABI; a
+	 * declared Link.ABI replaces this default rather than adding to it.
+	 */
+	if (pkg->link_abi.head == NULL)
+	{
+		pkgconf_buffer_t abibuf = PKGCONF_BUFFER_INITIALIZER;
+
+		pkgconf_buffer_append(&abibuf, "c");
+		pkgconf_bufferset_extend(&pkg->link_abi, &abibuf);
+		pkgconf_buffer_finalize(&abibuf);
+	}
+
 	pkgconf_dependency_t *dep = pkgconf_dependency_add(client, &pkg->provides, pkg->id, pkg->version, PKGCONF_CMP_EQUAL, 0);
 	if (dep == NULL)
 	{

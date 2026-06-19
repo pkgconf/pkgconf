@@ -2,4 +2,4 @@ PackageSearchPath: lib1
 Query: link-abi-public
 WantedFlags: link-abi
 ExpectedExitCode: 0
-ExpectedStdout: c++
+ExpectedStdout: c c++
