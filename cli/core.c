@@ -824,6 +824,43 @@ apply_license(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int ma
 	return true;
 }
 
+static bool
+apply_link_abi(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth)
+{
+	pkgconf_list_t abis = PKGCONF_LIST_INITIALIZER;
+	pkgconf_buffer_t render_buf = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_node_t *node;
+	int *retval = data;
+
+	if (pkgconf_pkg_link_abi(client, world, &abis, maxdepth) != PKGCONF_PKG_ERRF_OK)
+	{
+		pkgconf_bufferset_free(&abis);
+		*retval = EXIT_FAILURE;
+		return false;
+	}
+
+	/* an empty set means plain C, the bottom of the lattice */
+	if (abis.head == NULL)
+		pkgconf_buffer_append(&render_buf, "c");
+
+	PKGCONF_FOREACH_LIST_ENTRY(abis.head, node)
+	{
+		pkgconf_bufferset_t *tag = node->data;
+
+		if (pkgconf_buffer_len(&render_buf))
+			pkgconf_buffer_push_byte(&render_buf, ' ');
+
+		pkgconf_buffer_append(&render_buf, pkgconf_buffer_str(&tag->buffer));
+	}
+
+	pkgconf_output_putbuf(client->output, PKGCONF_OUTPUT_STDOUT, &render_buf, true);
+
+	pkgconf_buffer_finalize(&render_buf);
+	pkgconf_bufferset_free(&abis);
+
+	return true;
+}
+
 static void
 print_license_file(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
 {
@@ -1309,6 +1346,16 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	if ((state->want_flags & PKG_DUMP_LICENSE) == PKG_DUMP_LICENSE)
 	{
 		apply_license(&state->pkg_client, &world, &ret, 2);
+		goto out;
+	}
+
+	if ((state->want_flags & PKG_LINK_ABI) == PKG_LINK_ABI)
+	{
+		/* private dependencies only contribute their ABI when statically linked */
+		if (!(state->want_flags & PKG_STATIC))
+			pkgconf_client_set_flags(&state->pkg_client, state->pkg_client.flags & ~PKGCONF_PKG_PKGF_SEARCH_PRIVATE);
+
+		apply_link_abi(&state->pkg_client, &world, &ret, 2);
 		goto out;
 	}
 

@@ -70,6 +70,7 @@
 #define PKG_DUMP_LICENSE_FILE		(((uint64_t) 1) << 50)
 #define PKG_NEWLINES			(((uint64_t) 1) << 51)
 #define PKG_PRINT_DIGRAPH_QUERY_NODES	(((uint64_t) 1) << 52)
+#define PKG_LINK_ABI			(((uint64_t) 1) << 53)
 
 typedef struct {
 	pkgconf_client_t pkg_client;
