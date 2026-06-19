@@ -284,6 +284,11 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/argv-parse-3.pc \
 		tests/lib1/foo.pc \
 		tests/lib1/foobar.pc \
+		tests/lib1/link-abi-plainc.pc \
+		tests/lib1/link-abi-cxx.pc \
+		tests/lib1/link-abi-multi.pc \
+		tests/lib1/link-abi-public.pc \
+		tests/lib1/link-abi-private.pc \
 		tests/lib1/license-malformed.pc \
 		tests/lib1/unavailable-provider.pc \
 		tests/lib1/prefix-foo1.pc \
