@@ -73,6 +73,7 @@ test-runner-lite: preflight libpkgconf/config.h ${TEST_RUNNER_OBJS}
 
 check: test-runner-lite
 	./test-runner-lite --test-fixtures ./tests ./t/basic
+	./test-runner-lite --test-fixtures ./tests ./t/link-abi
 	./test-runner-lite --test-fixtures ./tests ./t/ordering
 	./test-runner-lite --test-fixtures ./tests ./t/parser
 	./test-runner-lite --test-fixtures ./tests ./t/personality

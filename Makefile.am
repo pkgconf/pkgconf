@@ -263,6 +263,13 @@ EXTRA_DIST =	pkg.m4 \
 		t/tuple/define-variable.test \
 		t/tuple/duplicate-upsert.test \
 		t/tuple/empty-tuple.test \
+		t/link-abi/default-c.test \
+		t/link-abi/cxx-leaf.test \
+		t/link-abi/cxx-leaf-static.test \
+		t/link-abi/public-requires.test \
+		t/link-abi/private-requires-shared.test \
+		t/link-abi/private-requires-static.test \
+		t/link-abi/multi-dedup.test \
 		tests/api/test-api.h \
 		tests/api/test-audit.c \
 		tests/api/test-buffer.c \
@@ -284,6 +291,11 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/argv-parse-3.pc \
 		tests/lib1/foo.pc \
 		tests/lib1/foobar.pc \
+		tests/lib1/link-abi-plainc.pc \
+		tests/lib1/link-abi-cxx.pc \
+		tests/lib1/link-abi-multi.pc \
+		tests/lib1/link-abi-public.pc \
+		tests/lib1/link-abi-private.pc \
 		tests/lib1/license-malformed.pc \
 		tests/lib1/unavailable-provider.pc \
 		tests/lib1/prefix-foo1.pc \
@@ -567,6 +579,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-api-tuple$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/link-abi
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/ordering
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/parser
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/personality

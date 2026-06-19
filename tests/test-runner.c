@@ -392,6 +392,7 @@ static const pkgconf_test_flag_pair_t test_flag_pairs[] =
 	{"libs-only-ldpath",		PKG_LIBS_ONLY_LDPATH},
 	{"libs-only-libname",		PKG_LIBS_ONLY_LIBNAME},
 	{"libs-only-other",		PKG_LIBS_ONLY_OTHER},
+	{"link-abi",			PKG_LINK_ABI},
 	{"list",			PKG_LIST},
 	{"list-package-names",		PKG_LIST_PACKAGE_NAMES},
 	{"modversion",			PKG_MODVERSION},

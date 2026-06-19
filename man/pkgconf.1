@@ -80,6 +80,7 @@ Limited-output options:
 .Fl -validate ,
 .Fl -license ,
 .Fl -license-file ,
+.Fl -link-abi ,
 .Fl -source ,
 .Fl -uninstalled ,
 and
@@ -286,6 +287,29 @@ flags, or only the linker flags that are neither library path
 nor library flags, respectively.
 These options imply
 .Fl -print-errors .
+.It Fl -link-abi
+Print the set of link ABI tags
+.Pq for example Sy c No or Sy c++
+that the
+.Ar module
+must be linked against, derived from the
+.Sy Link.ABI
+properties found across its dependency closure.
+The tags from a package's own
+.Sy Link.ABI
+property and those of its public
+.Sy Requires
+always apply, while
+.Sy Requires.private
+tags apply only when linking statically
+.Pq Fl -static .
+A module with no link ABI requirements prints
+.Sy c .
+See
+.Xr pc 5
+for details of the
+.Sy Link.ABI
+property.
 .It Fl -list-all
 Walk the module search path in the order of descending priority.
 For each

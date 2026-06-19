@@ -174,6 +174,38 @@ pkgconf_pkg_parser_bufferset_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, 
 	pkgconf_buffer_finalize(&buf);
 }
 
+/* parses a comma-separated list of ABI tags, lowercasing each, into a bufferset */
+static void
+pkgconf_pkg_parser_link_abi_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+{
+	(void) keyword;
+	(void) warnprefix;
+
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+	char *expanded = pkgconf_bytecode_eval_str(client, &pkg->vars, value, NULL);
+
+	if (expanded == NULL)
+		return;
+
+	for (char *p = expanded; *p != '\0';)
+	{
+		pkgconf_buffer_t tag = PKGCONF_BUFFER_INITIALIZER;
+
+		while (*p == ',' || isspace((unsigned char) *p))
+			p++;
+
+		while (*p != '\0' && *p != ',' && !isspace((unsigned char) *p))
+			pkgconf_buffer_push_byte(&tag, (char) tolower((unsigned char) *p++));
+
+		if (pkgconf_buffer_len(&tag))
+			pkgconf_bufferset_extend(dest, &tag);
+
+		pkgconf_buffer_finalize(&tag);
+	}
+
+	free(expanded);
+}
+
 static void
 pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
@@ -298,6 +330,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"LIBS.shared", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs_shared)},
 	{"License", pkgconf_pkg_evaluate_license_func, offsetof(pkgconf_pkg_t, license)},
 	{"License.file", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, license_file)},
+	{"Link.ABI", pkgconf_pkg_parser_link_abi_func, offsetof(pkgconf_pkg_t, link_abi)},
 	{"Maintainer", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, maintainer)},
 	{"Name", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, realname)},
 	{"Provides", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, provides)},
@@ -613,6 +646,7 @@ static void
 pkg_free_lists(pkgconf_pkg_t *pkg)
 {
 	pkgconf_bufferset_free(&pkg->copyright);
+	pkgconf_bufferset_free(&pkg->link_abi);
 
 	pkgconf_dependency_free(&pkg->required);
 	pkgconf_dependency_free(&pkg->requires_private);
@@ -1842,6 +1876,74 @@ pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 	{
 		pkgconf_fragment_free(list);
+		return eflag;
+	}
+
+	return eflag;
+}
+
+static void
+pkgconf_pkg_link_abi_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+{
+	pkgconf_list_t *list = data;
+	pkgconf_node_t *node;
+
+	if (!(client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE) && pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE)
+		return;
+
+	PKGCONF_FOREACH_LIST_ENTRY(pkg->link_abi.head, node)
+	{
+		pkgconf_bufferset_t *tag = node->data;
+		pkgconf_node_t *iter;
+		bool seen = false;
+
+		PKGCONF_FOREACH_LIST_ENTRY(list->head, iter)
+		{
+			pkgconf_bufferset_t *existing = iter->data;
+
+			if (pkgconf_buffer_match(&existing->buffer, &tag->buffer))
+			{
+				seen = true;
+				break;
+			}
+		}
+
+		if (!seen)
+			pkgconf_bufferset_extend(list, &tag->buffer);
+	}
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: int pkgconf_pkg_link_abi(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth)
+ *
+ *    Walks a dependency graph and collects the union of ``Link.ABI`` tags.
+ *
+ *    The tags describe the ABI a consumer must link the module against.  They
+ *    are gathered over the same closure as ``LIBS``: the module's own tags and
+ *    those of its public ``Requires`` always contribute, while ``Requires.private``
+ *    tags contribute only when private dependencies are being linked (i.e. a
+ *    static link).  Unlike a runtime library load, ABI compatibility of the
+ *    exposed interface applies equally to shared and static linking.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client object to use for dependency resolution.
+ *    :param pkgconf_pkg_t* root: The root of the dependency graph.
+ *    :param pkgconf_list_t* list: The bufferset list to add the collected ``Link.ABI`` tags to.
+ *    :param int maxdepth: The maximum allowed depth for dependency resolution.  -1 means infinite recursion.
+ *    :return: ``PKGCONF_PKG_ERRF_OK`` if successful, otherwise an error code.
+ *    :rtype: unsigned int
+ */
+unsigned int
+pkgconf_pkg_link_abi(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth)
+{
+	unsigned int eflag;
+
+	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_link_abi_collect, list, maxdepth, 0);
+
+	if (eflag != PKGCONF_PKG_ERRF_OK)
+	{
+		pkgconf_bufferset_free(list);
 		return eflag;
 	}
 

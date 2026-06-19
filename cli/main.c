@@ -206,6 +206,7 @@ usage(void)
 	printf("  --modversion                      print the specified module's version to stdout\n");
 	printf("  --internal-cflags                 do not filter 'internal' cflags from output\n");
 	printf("  --license                         print the specified module's license to stdout if known\n");
+	printf("  --link-abi                        print the link ABIs (e.g. c, c++) the module must be linked against\n");
 	printf("  --source                          print the specified module's source code location to stdout if known\n");
 	printf("  --exists-cflags                   add -DHAVE_FOO fragments to cflags for each found module\n");
 
@@ -334,6 +335,7 @@ main(int argc, char *argv[])
 #endif
 		{ "license", no_argument, &state.want_flags, PKG_DUMP_LICENSE },
 		{ "license-file", no_argument, &state.want_flags, PKG_DUMP_LICENSE_FILE },
+		{ "link-abi", no_argument, &state.want_flags, PKG_LINK_ABI },
 		{ "verbose", no_argument, NULL, 55 },
 		{ "exists-cflags", no_argument, &state.want_flags, PKG_EXISTS_CFLAGS },
 		{ "fragment-tree", no_argument, &state.want_flags, PKG_FRAGMENT_TREE },

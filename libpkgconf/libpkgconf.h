@@ -225,6 +225,8 @@ struct pkgconf_pkg_ {
 
 	pkgconf_list_t license;
 
+	pkgconf_list_t link_abi;
+
 	pkgconf_list_t libs;
 	pkgconf_list_t libs_private;
 	pkgconf_list_t libs_shared;
@@ -477,6 +479,7 @@ PKGCONF_API pkgconf_pkg_t *pkgconf_pkg_verify_dependency(pkgconf_client_t *clien
 PKGCONF_API const char *pkgconf_pkg_get_comparator(const pkgconf_dependency_t *pkgdep);
 PKGCONF_API unsigned int pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth);
 PKGCONF_API unsigned int pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth);
+PKGCONF_API unsigned int pkgconf_pkg_link_abi(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth);
 PKGCONF_API pkgconf_pkg_comparator_t pkgconf_pkg_comparator_lookup_by_name(const char *name);
 
 PKGCONF_API int pkgconf_compare_version(const char *a, const char *b);
