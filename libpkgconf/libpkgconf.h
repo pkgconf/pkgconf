@@ -120,7 +120,7 @@ struct pkgconf_bufferset_ {
 	pkgconf_buffer_t buffer;
 };
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(__clang__)
 # define PKGCONF_PACKED_STRUCT(name) __pragma(pack(push, 1)) struct name __pragma(pack(pop))
 #else
 # define PKGCONF_PACKED_STRUCT(name) struct __attribute__((__packed__)) name
