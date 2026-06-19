@@ -10,7 +10,7 @@ project('pkgconf', 'c',
 
 cc = meson.get_compiler('c')
 
-if cc.get_id() != 'msvc'
+if cc.get_argument_syntax() != 'msvc'
   if get_option('analyzer')
     add_project_arguments(
       cc.get_supported_arguments('-fanalyzer'),
