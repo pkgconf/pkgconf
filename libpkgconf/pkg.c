@@ -174,6 +174,38 @@ pkgconf_pkg_parser_bufferset_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, 
 	pkgconf_buffer_finalize(&buf);
 }
 
+/* parses a comma-separated list of ABI tags, lowercasing each, into a bufferset */
+static void
+pkgconf_pkg_parser_link_abi_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+{
+	(void) keyword;
+	(void) warnprefix;
+
+	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
+	char *expanded = pkgconf_bytecode_eval_str(client, &pkg->vars, value, NULL);
+
+	if (expanded == NULL)
+		return;
+
+	for (char *p = expanded; *p != '\0';)
+	{
+		pkgconf_buffer_t tag = PKGCONF_BUFFER_INITIALIZER;
+
+		while (*p == ',' || isspace((unsigned char) *p))
+			p++;
+
+		while (*p != '\0' && *p != ',' && !isspace((unsigned char) *p))
+			pkgconf_buffer_push_byte(&tag, (char) tolower((unsigned char) *p++));
+
+		if (pkgconf_buffer_len(&tag))
+			pkgconf_bufferset_extend(dest, &tag);
+
+		pkgconf_buffer_finalize(&tag);
+	}
+
+	free(expanded);
+}
+
 static void
 pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
@@ -298,6 +330,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 	{"LIBS.shared", pkgconf_pkg_parser_fragment_func, offsetof(pkgconf_pkg_t, libs_shared)},
 	{"License", pkgconf_pkg_evaluate_license_func, offsetof(pkgconf_pkg_t, license)},
 	{"License.file", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, license_file)},
+	{"Link.ABI", pkgconf_pkg_parser_link_abi_func, offsetof(pkgconf_pkg_t, link_abi)},
 	{"Maintainer", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, maintainer)},
 	{"Name", pkgconf_pkg_parser_tuple_func, offsetof(pkgconf_pkg_t, realname)},
 	{"Provides", pkgconf_pkg_parser_dependency_func, offsetof(pkgconf_pkg_t, provides)},
@@ -613,6 +646,7 @@ static void
 pkg_free_lists(pkgconf_pkg_t *pkg)
 {
 	pkgconf_bufferset_free(&pkg->copyright);
+	pkgconf_bufferset_free(&pkg->link_abi);
 
 	pkgconf_dependency_free(&pkg->required);
 	pkgconf_dependency_free(&pkg->requires_private);

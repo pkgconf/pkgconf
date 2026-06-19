@@ -225,6 +225,8 @@ struct pkgconf_pkg_ {
 
 	pkgconf_list_t license;
 
+	pkgconf_list_t link_abi;
+
 	pkgconf_list_t libs;
 	pkgconf_list_t libs_private;
 	pkgconf_list_t libs_shared;
