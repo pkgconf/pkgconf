@@ -269,6 +269,7 @@ tool_dir = meson.current_build_dir()
 
 test_suites = [
   'basic',
+  'link-abi',
   'ordering',
   'parser',
   'personality',
