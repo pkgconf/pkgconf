@@ -246,6 +246,7 @@ api_tests = [
   'bytecode',
   'client',
   'dependency',
+  'fileio',
   'fragment',
   'license',
   'path-utils',
