@@ -276,6 +276,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/api/test-bytecode.c \
 		tests/api/test-client.c \
 		tests/api/test-dependency.c \
+		tests/api/test-fileio.c \
 		tests/api/test-fragment.c \
 		tests/api/test-license.c \
 		tests/api/test-path-utils.c \
@@ -502,6 +503,7 @@ API_TEST_PROGS =		\
 	test-api-bytecode	\
 	test-api-client		\
 	test-api-dependency	\
+	test-api-fileio		\
 	test-api-fragment	\
 	test-api-license	\
 	test-api-path-utils	\
@@ -540,6 +542,10 @@ test_api_dependency_LDADD = $(api_test_ldadd)
 test_api_dependency_SOURCES = tests/api/test-dependency.c
 test_api_dependency_CPPFLAGS = $(api_test_cppflags)
 
+test_api_fileio_LDADD = $(api_test_ldadd)
+test_api_fileio_SOURCES = tests/api/test-fileio.c
+test_api_fileio_CPPFLAGS = $(api_test_cppflags)
+
 test_api_fragment_LDADD = $(api_test_ldadd)
 test_api_fragment_SOURCES = tests/api/test-fragment.c
 test_api_fragment_CPPFLAGS = $(api_test_cppflags)
@@ -573,6 +579,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-api-bytecode$(EXEEXT)
 	$(builddir)/test-api-client$(EXEEXT)
 	$(builddir)/test-api-dependency$(EXEEXT)
+	$(builddir)/test-api-fileio$(EXEEXT)
 	$(builddir)/test-api-fragment$(EXEEXT)
 	$(builddir)/test-api-license$(EXEEXT)
 	$(builddir)/test-api-path-utils$(EXEEXT)
