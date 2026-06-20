@@ -31,45 +31,65 @@ jobs:
         make distcheck -j$(nproc)
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tarball
         path: pkgconf-*.tar.*
 
   msi:
-    name: Build MSI
-    runs-on: windows-latest
+    name: Build MSI (${{ matrix.name }})
     strategy:
       fail-fast: false
       matrix:
-        include: [
-          { msystem: MINGW64, arch: x86_64},
-        ]
+        include:
+          - name: win32-x86
+            runs_on: windows-2025
+            msbuild_arch: x86
+
+          - name: win64-x64
+            runs_on: windows-2025
+            msbuild_arch: x64
+
+          - name: win-arm64
+            runs_on: windows-11-arm
+            msbuild_arch: arm64
+    runs-on: ${{ matrix.runs_on }}
     steps:
-      - uses: actions/checkout@v4
-      - name: setup-msys2
-        uses: msys2/setup-msys2@v2
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up MSBuild
+        uses: ilammy/msvc-dev-cmd@v1
         with:
-          msystem: ${{ matrix.msystem }}
-          update: true
-          install: >-
-            mingw-w64-${{ matrix.arch }}-meson
-            mingw-w64-${{ matrix.arch }}-ninja
-            mingw-w64-${{ matrix.arch }}-gcc
-            mingw-w64-${{ matrix.arch }}-msitools
+          arch: ${{ matrix.msbuild_arch }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Meson and Ninja
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install meson ninja
+
+      - name: Install WiX
+        run: |
+          dotnet tool install --global wix
+          $wixVersion = (wix --version).Trim()
+          wix eula accept wix7
+          wix extension add -g "WixToolset.UI.wixext/$wixVersion"
 
       - name: Build
-        shell: msys2 {0}
         run: |
-          # the code assumes msvc style printf atm
-          export CFLAGS=-D__USE_MINGW_ANSI_STDIO=0
-          meson _build --buildtype=release -Dtests=disabled -Db_lto=true
+          meson _build --vsenv --buildtype=release --default-library=static -Db_vscrt=static_from_buildtype
           meson compile -C _build msi
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: msi
+          name: msi-${{ matrix.msbuild_arch }}
           path: _build/pkgconf-*.msi
 
   release:
@@ -79,16 +99,11 @@ jobs:
       contents: write
     needs: [tarball, msi]
     steps:
-      - name: Download tarball artifact
-        uses: actions/download-artifact@v4
+      - name: Download artifact(s)
+        uses: actions/download-artifact@v8
         with:
-          name: tarball
           path: dist
-      - name: Download msi artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: msi
-          path: dist
+          merge-multiple: true
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
@@ -104,16 +119,11 @@ jobs:
       contents: write
     needs: [tarball, msi]
     steps:
-      - name: Download tarball artifact
-        uses: actions/download-artifact@v4
+      - name: Download artifact(s)
+        uses: actions/download-artifact@v8
         with:
-          name: tarball
           path: dist
-      - name: Download msi artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: msi
-          path: dist
+          merge-multiple: true
       - name: Upload dist tarballs to distfiles.ariadne.space
         env:
           DISTFILES_PRIVATE_KEY: ${{ secrets.DISTFILES_PRIVATE_KEY }}
