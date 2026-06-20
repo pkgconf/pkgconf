@@ -60,8 +60,6 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 			}
 			else if (c == '\r')
 			{
-				push_or_return_fail(buffer, '\n');
-
 				if (*p == '\n')
 					p++;
 
@@ -71,6 +69,7 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 					continue;
 				}
 
+				push_or_return_fail(buffer, '\n');
 				goto done;
 			}
 			else
