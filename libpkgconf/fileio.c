@@ -30,6 +30,7 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 	bool quoted = false;
 	bool got_data = false;
 	char in[PKGCONF_ITEM_SIZE];
+	long unread = 0;
 
 	while (fgets(in, sizeof in, stream) != NULL)
 	{
@@ -70,6 +71,8 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 				}
 
 				push_or_return_fail(buffer, '\n');
+				/* unlike '\n', a lone '\r' doesn't bound the fgets() call above */
+				unread = (long) strlen(p);
 				goto done;
 			}
 			else
@@ -86,6 +89,9 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 	}
 
 done:
+	if (unread > 0 && fseek(stream, -unread, SEEK_CUR) != 0)
+		return false;
+
 	/* Remove newline character. */
 	if (pkgconf_buffer_lastc(buffer) == '\n')
 		trim_or_return_fail(buffer);
