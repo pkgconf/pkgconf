@@ -690,7 +690,7 @@ pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsign
 	if (!str_has_suffix(filename, PKG_CONFIG_EXT))
 		return NULL;
 
-	f = fopen(filename, "r");
+	f = fopen(filename, "rb");
 	if (f == NULL)
 		return NULL;
 
