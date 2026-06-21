@@ -62,7 +62,22 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 			else if (c == '\r')
 			{
 				if (*p == '\n')
+				{
 					p++;
+				}
+				else if (*p == '\0')
+				{
+					/*
+					 * The matching '\n' may not have been read into `in`
+					 * yet if '\r' landed exactly on the fgets() buffer
+					 * boundary. Peek the real stream so a split CRLF
+					 * isn't misparsed as two lines.
+					 */
+					int next = getc(stream);
+
+					if (next != '\n' && next != EOF && ungetc(next, stream) == EOF)
+						return false;
+				}
 
 				if (quoted)
 				{

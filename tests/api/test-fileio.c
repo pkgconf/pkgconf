@@ -181,6 +181,40 @@ test_fgetline_backslash_not_continuation(void)
 	pkgconf_buffer_finalize(&buf);
 }
 
+// fgets() only stops on '\n', a full read buffer, or EOF. NOT on on a lone '\r'.
+// If a '\r' happens to be the very last byte fgets() manages to read
+// before the buffer fills up, the matching '\n' is still unread in the
+// stream and isn't visible to pkgconf_fgetline()'s lookahead, so the CRLF
+// pair gets split across two fgets() calls and is misparsed as two lines.
+static void
+test_fgetline_crlf_split_across_fgets_buffer(void)
+{
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+	size_t prefix_len = PKGCONF_ITEM_SIZE - 2;
+	char *content = malloc(prefix_len + strlen("\r\nworld\n") + 1);
+	FILE *f;
+
+	TEST_ASSERT_NONNULL(content);
+	memset(content, 'a', prefix_len);
+	strcpy(content + prefix_len, "\r\nworld\n");
+
+	f = fmemstream(content);
+	free(content);
+
+	TEST_ASSERT_TRUE(pkgconf_fgetline(&buf, f));
+	TEST_ASSERT_EQ(strlen(pkgconf_buffer_str(&buf)), prefix_len);
+
+	pkgconf_buffer_reset(&buf);
+	TEST_ASSERT_TRUE(pkgconf_fgetline(&buf, f));
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "world");
+
+	pkgconf_buffer_reset(&buf);
+	TEST_ASSERT_FALSE(pkgconf_fgetline(&buf, f));
+
+	fclose(f);
+	pkgconf_buffer_finalize(&buf);
+}
+
 int
 main(int argc, const char **argv)
 {
@@ -196,6 +230,7 @@ main(int argc, const char **argv)
 	TEST_RUN(basename, test_fgetline_backslash_continuation_crlf);
 	TEST_RUN(basename, test_fgetline_backslash_continuation_lone_cr);
 	TEST_RUN(basename, test_fgetline_backslash_not_continuation);
+	TEST_RUN(basename, test_fgetline_crlf_split_across_fgets_buffer);
 
 	return EXIT_SUCCESS;
 }
