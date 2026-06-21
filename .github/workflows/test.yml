@@ -153,6 +153,79 @@ jobs:
         run: |
           meson test -v -C _build
 
+  QEMU_VMs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: cpa.sh {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os_image: netbsd
+            version: '10.1'
+
+          - os_image: freebsd
+            version: '15.1'
+
+          - os_image: openbsd
+            version: '7.9'
+
+          - os_image: haiku
+            version: 'r1beta5'
+
+          - os_image: omnios
+            version: 'r151056'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Start VM on ${{ matrix.os_image }}
+        uses: cross-platform-actions/action@v1.3.0
+        with:
+          operating_system: ${{ matrix.os_image }}
+          version: ${{ matrix.version }}
+
+      - name: Install meson
+        run: |
+          case "${{ matrix.os_image }}" in
+            netbsd)
+              sudo pkgin -y install meson
+              ;;
+            freebsd)
+              # Using system compiler
+              sudo pkg -o ASSUME_ALWAYS_YES=yes install meson
+              ;;
+            openbsd)
+              sudo pkg_add meson
+              ;;
+            haiku)
+              pkgman install -y meson
+              ;;
+            omnios)
+              sudo pkg install --deny-new-be --no-backup-be \
+                pkg:/developer/gcc14 \
+                pkg:/library/python-3/meson-313 \
+                pkg:/ooce/developer/ninja
+              ;;
+          esac
+
+      - name: Build
+        run: |
+          if [[ "${{ matrix.os_image }}" == "omnios" ]]; then
+            export PATH=/usr/lib/python3.13/bin:$PATH
+          fi
+          meson _build -Dwerror=true
+          meson compile -C _build
+
+      - name: Run tests
+        run: |
+          if [[ "${{ matrix.os_image }}" == "omnios" ]]; then
+            export PATH=/usr/lib/python3.13/bin:$PATH
+          fi
+          meson test -v -C _build
+
   debian-meson:
     runs-on: ubuntu-latest
     container:
