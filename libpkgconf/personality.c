@@ -291,7 +291,7 @@ load_personality_with_path(const char *path, const char *triplet, bool datadir)
 	if (triplet != NULL)
 		p->name = strdup(triplet);
 
-	f = fopen(pkgconf_buffer_str(&pathbuf), "r");
+	f = fopen(pkgconf_buffer_str(&pathbuf), "rb");
 	if (f == NULL)
 	{
 		pkgconf_buffer_finalize(&pathbuf);
