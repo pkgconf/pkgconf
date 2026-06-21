@@ -23,6 +23,10 @@
 #include <langinfo.h>
 #endif
 
+#ifdef __APPLE__
+#include <xlocale.h>
+#endif
+
 /*
  * !doc
  *
