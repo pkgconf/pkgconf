@@ -133,6 +133,26 @@ jobs:
         run: |
           meson test -v -C _build
 
+  macOS:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Update system and add dependencies
+        run: |
+          brew update
+          brew install meson
+
+      - name: Build
+        run: |
+          meson _build -Dwerror=true
+          meson compile -C _build
+
+      - name: Run tests
+        run: |
+          meson test -v -C _build
+
   debian-meson:
     runs-on: ubuntu-latest
     container:
