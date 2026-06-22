@@ -148,8 +148,8 @@ libpkgconf = library('pkgconf',
   'libpkgconf/version.c',
   c_args: ['-DLIBPKGCONF_EXPORT', build_static],
   install : true,
-  version : '7.0.0',
-  soversion : '7',
+  version : '8.0.0',
+  soversion : '8',
 )
 
 # For other projects using libpkgconfig as a subproject

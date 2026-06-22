@@ -108,7 +108,7 @@ Changes from 2.5.0 to 3.0.0:
     validated.  Patches by Tuukka Pasanen.
 
 * The libpkgconf API and ABI were substantially reworked, breaking ABI
-  compatibility:
+  compatibility.  The libpkgconf soversion is now 8.
   - An abstract pkgconf_buffer_t type is now used throughout libpkgconf in place
     of fixed-size stack buffers, removing a class of truncation bugs.
   - A new pkgconf_output API abstracts all output, allowing the output stream to

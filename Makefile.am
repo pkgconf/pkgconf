@@ -452,7 +452,7 @@ libpkgconf_la_SOURCES  =	\
 		libpkgconf/tuple.c		\
 		libpkgconf/variable.c		\
 		libpkgconf/version.c
-libpkgconf_la_LDFLAGS = -no-undefined -version-info 7:0:0 -export-symbols-regex '^pkgconf_'
+libpkgconf_la_LDFLAGS = -no-undefined -version-info 8:0:0 -export-symbols-regex '^pkgconf_'
 
 dist_man_MANS    = 		\
 	man/bomtool.1		\
