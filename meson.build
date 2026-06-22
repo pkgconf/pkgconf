@@ -297,6 +297,7 @@ install_man('man/spdxtool.1')
 install_data('pkg.m4', install_dir: 'share/aclocal')
 install_data('AUTHORS', install_dir: 'share/doc/pkgconf')
 install_data('README.md', install_dir: 'share/doc/pkgconf')
+install_data('COPYING', install_dir: 'share/doc/pkgconf')
 
 if host_machine.system() == 'windows'
   conf_data = configuration_data()

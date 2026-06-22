@@ -566,7 +566,7 @@ test_api_variable_LDADD = $(api_test_ldadd)
 test_api_variable_SOURCES = tests/api/test-variable.c
 test_api_variable_CPPFLAGS = $(api_test_cppflags)
 
-dist_doc_DATA = CONTRIBUTING.md DCO README.md AUTHORS
+dist_doc_DATA = CONTRIBUTING.md DCO README.md AUTHORS COPYING
 
 m4datadir              = $(datadir)/aclocal
 m4data_DATA            = pkg.m4
