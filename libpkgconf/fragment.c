@@ -15,6 +15,7 @@
  * from the use of this software.
  */
 
+#include <libpkgconf/config.h>
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
@@ -674,7 +675,7 @@ pkgconf_is_locale_utf8(void)
 {
 #ifdef _WIN32
 	return GetACP() == CP_UTF8;
-#else
+#elif HAVE_DECL_NL_LANGINFO_L
 	static int cached = -1;
 
 	if (cached < 0)
@@ -689,6 +690,24 @@ pkgconf_is_locale_utf8(void)
 		}
 		else
 			cached = 0;
+	}
+
+	return cached;
+#else
+	static int cached = -1;
+
+	if (cached < 0)
+	{
+		const char *prev_locale = setlocale(LC_CTYPE, NULL);
+		char *saved_locale = prev_locale != NULL ? strdup(prev_locale) : NULL;
+
+		setlocale(LC_CTYPE, "");
+
+		const char *codeset = nl_langinfo(CODESET);
+		cached = codeset != NULL && (!strcasecmp(codeset, "UTF-8") || !strcasecmp(codeset, "UTF8"));
+
+		setlocale(LC_CTYPE, saved_locale != NULL ? saved_locale : "C");
+		free(saved_locale);
 	}
 
 	return cached;

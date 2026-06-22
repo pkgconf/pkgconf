@@ -25,6 +25,12 @@ AC_CHECK_DECLS([strndup], [], [], [[#include <string.h>]])
 AC_CHECK_DECLS([pledge, unveil], [], [], [[#include <unistd.h>]])
 AC_CHECK_DECLS([readlinkat], [], [], [[#include <unistd.h>]])
 AC_CHECK_DECLS([reallocarray], [], [], [[#include <stdlib.h>]])
+AC_CHECK_DECLS([nl_langinfo_l], [], [], [[
+#ifdef __APPLE__
+#include <xlocale.h>
+#endif
+#include <locale.h>
+#include <langinfo.h>]])
 AC_CHECK_HEADERS([sys/stat.h])
 AM_INIT_AUTOMAKE([foreign dist-xz subdir-objects])
 AM_SILENT_RULES([yes])
