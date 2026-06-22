@@ -32,6 +32,22 @@ to build software that uses the libraries given by the
 .Ar module
 arguments.
 .Pp
+When printing compiler and linker flags,
+.Nm
+escapes shell metacharacters
+.Pq such as quotes, whitespace, brackets, braces and glob characters
+in each fragment with a backslash.
+The output is intended to be re-tokenised by the consumer using POSIX shell
+word-splitting rules, as build systems generally do; under those rules the
+protective backslashes are removed and the original values are recovered.
+Note that pasting the output directly into an unquoted command substitution,
+for example
+.Ql cc $(pkgconf \-\-libs foo) ,
+performs word-splitting and pathname expansion but does
+.Em not
+remove the backslashes, so a value containing such characters may reach the
+toolchain with the escaping still present.
+.Pp
 The
 .Xr pc 5
 files are searched for along a path constructed from the
