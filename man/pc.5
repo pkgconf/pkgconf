@@ -74,6 +74,29 @@ ver-op       = "<" / "<=" / "=" / "!=" / ">=" / ">"
 The property will be set to a list of fragments parsed from the text.
 The input text must be in a format that is suitable for passing to a POSIX
 shell without any shell expansions after variable substitution has been done.
+.Pp
+The text is tokenised using POSIX shell word-splitting rules: unquoted
+whitespace separates fragments, single and double quotes group text, and a
+backslash escapes the following character.
+A quote that is not itself escaped is consumed as a quoting delimiter and does
+not appear in the resulting fragment.
+To include a shell metacharacter \(em such as a quote, whitespace, a bracket,
+a brace, or a glob character \(em literally in a fragment, escape it with a
+backslash so that it survives tokenisation.
+.Pp
+For example, to make the toolchain receive the argument
+.Bd -literal -offset indent
+\-sFUNCS=["fnA","fnB"]
+.Ed
+escape the double quotes so they are not consumed as quoting:
+.Bd -literal -offset indent
+Libs: \-sFUNCS=[\e"fnA\e",\e"fnB\e"]
+.Ed
+.Pp
+On output, such metacharacters are re-escaped so that the original fragment is
+recovered when the consumer tokenises the output using the same shell
+word-splitting rules; see the note on output escaping in
+.Xr pkgconf 1 .
 .\"
 .El
 .Ss PROPERTY KEYWORDS
