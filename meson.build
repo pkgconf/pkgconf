@@ -85,6 +85,14 @@ foreach f : check_functions
   endif
 endforeach
 
+# nl_langinfo_l() needs locale.h for locale_t in addition to langinfo.h (on macOS, it also need xlocale.h),
+# so it can't share the single-header check_functions loop above.
+if cc.has_function('nl_langinfo_l', prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#ifdef __APPLE__\n#include <xlocale.h>\n#endif\n#include <locale.h>\n#include <langinfo.h>') and cc.has_header_symbol('langinfo.h', 'nl_langinfo_l', prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#ifdef __APPLE__\n#include <xlocale.h>\n#endif\n#include <locale.h>')
+  cdata.set('HAVE_DECL_NL_LANGINFO_L', 1)
+else
+  cdata.set('HAVE_DECL_NL_LANGINFO_L', 0)
+endif
+
 default_path = []
 foreach f : ['libdir', 'datadir']
   default_path += [join_paths(get_option('prefix'), get_option(f), 'pkgconfig')]
