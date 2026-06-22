@@ -156,7 +156,19 @@ It’s possible to assign multiple license tags in pc-file, which are
 then merged together with an 'AND' when rendering output.
 (optional; literal; pkgconf extension; introduced in pkgconf 1.9.0)
 .It License.file
-License file location for whole license text.
+A local filesystem path to the installed file containing the full license
+text for this package.
+The path should refer to the license file as installed on the system, so that
+it corresponds to the exact version and configuration described by this
+.Sy .pc
+file; pkgconf variable references such as
+.Sy ${prefix}
+or
+.Sy ${datadir}
+may be used.
+This must not be a URL: use
+.Sy Source
+to reference an upstream location.
 (optional; literal; pkgconf extension; introduced in pkgconf 3.0.0)
 .It Maintainer
 The preferred contact for the maintainer.  This should be in the format of a
