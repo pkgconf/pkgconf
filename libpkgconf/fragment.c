@@ -670,45 +670,44 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
  *
  *    :return: :code:`true` if text is expected to be UTF-8 encoded, :code:`false` otherwise.
  */
+#ifndef _WIN32
+static bool
+codeset_is_utf8(const char *codeset)
+{
+	return codeset != NULL && (!strcasecmp(codeset, "UTF-8") || !strcasecmp(codeset, "UTF8"));
+}
+#endif
+
 bool
 pkgconf_is_locale_utf8(void)
 {
 #ifdef _WIN32
 	return GetACP() == CP_UTF8;
-#elif HAVE_DECL_NL_LANGINFO_L
-	static int cached = -1;
-
-	if (cached < 0)
-	{
-		locale_t loc = newlocale(LC_CTYPE_MASK, "", (locale_t)0);
-
-		if (loc != (locale_t)0)
-		{
-			const char *codeset = nl_langinfo_l(CODESET, loc);
-			cached = codeset != NULL && (!strcasecmp(codeset, "UTF-8") || !strcasecmp(codeset, "UTF8"));
-			freelocale(loc);
-		}
-		else
-			cached = 0;
-	}
-
-	return cached;
 #else
 	static int cached = -1;
 
-	if (cached < 0)
+	if (cached >= 0)
+		return cached;
+
+#if HAVE_DECL_NL_LANGINFO_L
+	locale_t loc = newlocale(LC_CTYPE_MASK, "", (locale_t)0);
+
+	if (loc != (locale_t)0)
 	{
-		const char *prev_locale = setlocale(LC_CTYPE, NULL);
-		char *saved_locale = prev_locale != NULL ? strdup(prev_locale) : NULL;
-
-		setlocale(LC_CTYPE, "");
-
-		const char *codeset = nl_langinfo(CODESET);
-		cached = codeset != NULL && (!strcasecmp(codeset, "UTF-8") || !strcasecmp(codeset, "UTF8"));
-
-		setlocale(LC_CTYPE, saved_locale != NULL ? saved_locale : "C");
-		free(saved_locale);
+		cached = codeset_is_utf8(nl_langinfo_l(CODESET, loc));
+		freelocale(loc);
 	}
+	else
+		cached = 0;
+#else
+	const char *prev_locale = setlocale(LC_CTYPE, NULL);
+	char *saved_locale = prev_locale != NULL ? strdup(prev_locale) : NULL;
+
+	setlocale(LC_CTYPE, "");
+	cached = codeset_is_utf8(nl_langinfo(CODESET));
+	setlocale(LC_CTYPE, saved_locale != NULL ? saved_locale : "C");
+	free(saved_locale);
+#endif
 
 	return cached;
 #endif
