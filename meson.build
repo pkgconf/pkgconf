@@ -22,6 +22,7 @@ if cc.get_argument_syntax() != 'msvc'
     '-D_DARWIN_C_SOURCE',
     '-D_DEFAULT_SOURCE',
     '-D_POSIX_C_SOURCE=200809L',
+    '-D_XOPEN_SOURCE=700',
     cc.get_supported_arguments(
       '-Wdate-time',
       '-Wformat=2',
@@ -76,7 +77,7 @@ check_functions = [
 
 foreach f : check_functions
   name = f[0].to_upper().underscorify()
-  if cc.has_function(f[0], prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#include <@0@>'.format(f[1])) and cc.has_header_symbol(f[1], f[0], prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L')
+  if cc.has_function(f[0], prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#define _XOPEN_SOURCE 700\n#include <@0@>'.format(f[1])) and cc.has_header_symbol(f[1], f[0], prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#define _XOPEN_SOURCE 700')
     cdata.set('HAVE_@0@'.format(name), 1)
     cdata.set('HAVE_DECL_@0@'.format(name), 1)
   else
