@@ -926,44 +926,25 @@ path_list_to_buffer(const pkgconf_list_t *list, pkgconf_buffer_t *buffer, char d
 }
 
 static void
-unveil_handler(const pkgconf_client_t *client, const char *path, const char *permissions)
-{
-	(void) client;
-
-	if (pkgconf_unveil(path, permissions) == -1)
-	{
-		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-}
-
-static bool
 unveil_search_paths(pkgconf_client_t *client, const pkgconf_cross_personality_t *personality)
 {
 	pkgconf_node_t *n;
 
-	if (pkgconf_unveil("/dev/null", "rwc") == -1)
-		return false;
+	client->unveil_handler(client, "/dev/null", "rwc");
 
 	PKGCONF_FOREACH_LIST_ENTRY(client->dir_list.head, n)
 	{
 		pkgconf_path_t *pn = n->data;
 
-		if (pkgconf_unveil(pn->path, "r") == -1 && errno != ENOENT)
-			return false;
+		client->unveil_handler(client, pn->path, "r");
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(personality->dir_list.head, n)
 	{
 		pkgconf_path_t *pn = n->data;
 
-		if (pkgconf_unveil(pn->path, "r") == -1 && errno != ENOENT)
-			return false;
+		client->unveil_handler(client, pn->path, "r");
 	}
-
-	pkgconf_client_set_unveil_handler(client, unveil_handler);
-
-	return true;
 }
 
 /* SAFETY: pkgconf_client_t takes ownership of these package objects */
@@ -1213,11 +1194,7 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	pkgconf_client_dir_list_build(&state->pkg_client, state->pkg_client.personality);
 
 	/* unveil the entire search path now that we have loaded the personality data and built the dir list. */
-	if (!unveil_search_paths(&state->pkg_client, state->pkg_client.personality))
-	{
-		fprintf(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
-		return EXIT_FAILURE;
-	}
+	unveil_search_paths(&state->pkg_client, state->pkg_client.personality);
 
 	/* register built-in packages */
 	register_builtins(&state->pkg_client, state->pkg_client.personality);
@@ -1320,11 +1297,7 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	}
 
 	/* we shouldn't need to unveil any more filesystem accesses from this point, so lock it down */
-	if (pkgconf_unveil(NULL, NULL) == -1)
-	{
-		fprintf(stderr, "pkgconf: unveil lockdown failed: %s\n", strerror(errno));
-		return EXIT_FAILURE;
-	}
+	state->pkg_client.unveil_handler(&state->pkg_client, NULL, NULL);
 
 #ifndef PKGCONF_LITE
 	if ((state->want_flags & PKG_SIMULATE) == PKG_SIMULATE)

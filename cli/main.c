@@ -43,6 +43,18 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 }
 
 static void
+unveil_handler(const pkgconf_client_t *client, const char *path, const char *permissions)
+{
+	(void) client;
+
+	if (pkgconf_unveil(path, permissions) == -1 && errno != ENOENT)
+	{
+		pkgconf_output_file_fmt(stderr, "pkgconf: unveil failed: %s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
+
+static void
 relocate_path(const char *path)
 {
 	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
@@ -425,6 +437,7 @@ main(int argc, char *argv[])
 
 	/* now, bring up the client.  settings are preserved since the client is prealloced */
 	pkgconf_client_init(&state.pkg_client, error_handler, &state, personality, &state, environ_lookup_handler);
+	pkgconf_client_set_unveil_handler(&state.pkg_client, unveil_handler);
 
 #ifndef PKGCONF_LITE
 	if (getenv("PKG_CONFIG_MSVC_SYNTAX") != NULL)
