@@ -60,6 +60,14 @@ Changes from 2.5.1 to 3.0.0:
   The clang-cl support, MSI installers and UTF-8 console handling are by
   moi15moi.
 
+* Portability:
+  - pkgconf is now built and tested in continuous integration on NetBSD,
+    FreeBSD, OpenBSD, Haiku, OmniOS, macOS and Cygwin in addition to Linux and
+    Windows.
+  - pkgconf now falls back to readlink(2) on systems which lack readlinkat(2).
+  - A fallback is provided for platforms without nl_langinfo_l, and xlocale.h is
+    included where needed to build on macOS.
+
 * Security hardening:
   - Variable substitution is now guarded against denial-of-service inputs,
     including billion-laughs style expansion and excessively complex bytecode
@@ -80,6 +88,11 @@ Changes from 2.5.1 to 3.0.0:
     environment variables.  This was formally specified but never implemented
     in pkgconf.
   - PKG_CONFIG_LOG is now appended to rather than overwritten.
+
+* pkg.m4 changes:
+  - PKG_WITH_MODULES now properly quotes its action arguments (serial 16).
+    Patch by Antonin Décimo.
+  - The macros no longer direct users to the freedesktop pkg-config project.
 
 * Correctness fixes:
   - The built-in pkg-config and pkgconf packages are now constructed from the
@@ -102,6 +115,9 @@ Changes from 2.5.1 to 3.0.0:
   - Newline folding behavior when parsing multi-line fields has been adjusted.
   - Bare variable expansions inside fragment lists are now re-parsed so that any
     flags they expand to are tokenized correctly.
+  - ${pc_sysrootdir} is now only injected when it matches a complete path
+    boundary, and obviously bogus sysroot_dir definitions are ignored, fixing
+    incorrect sysroot injection.
   - Arguments are now combined when a flag is expected to carry a separate
     value, such as -I dir or -framework name.
   - SPDX license expressions in the License field are now properly parsed and
