@@ -1,7 +1,7 @@
 Changes from previous version of pkgconf
 ========================================
 
-Changes from 2.5.0 to 3.0.0:
+Changes from 2.5.1 to 3.0.0:
 ----------------------------
 
 * DEPRECATION: The autotools build system will be dropped after the 3.0 release.
