@@ -67,6 +67,8 @@ Changes from 2.5.1 to 3.0.0:
   - pkgconf now falls back to readlink(2) on systems which lack readlinkat(2).
   - A fallback is provided for platforms without nl_langinfo_l, and xlocale.h is
     included where needed to build on macOS.
+  The expanded platform CI and the nl_langinfo_l/xlocale.h fallbacks are by
+  moi15moi.
 
 * Security hardening:
   - Variable substitution is now guarded against denial-of-service inputs,
@@ -88,6 +90,9 @@ Changes from 2.5.1 to 3.0.0:
     environment variables.  This was formally specified but never implemented
     in pkgconf.
   - PKG_CONFIG_LOG is now appended to rather than overwritten.
+  - --dump-personality output is now consistent with the
+    pkgconf-personality(5) format and additionally reports WantDefaultPure and
+    WantDefaultStatic.
 
 * pkg.m4 changes:
   - PKG_WITH_MODULES now properly quotes its action arguments (serial 16).
