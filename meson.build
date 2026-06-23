@@ -75,9 +75,29 @@ check_functions = [
   ['readlinkat', 'unistd.h'],
 ]
 
+# Feature-test macros mirroring those defined globally by the build, so that
+# the function probes below see the same declarations as the actual sources.
+feature_macros = {
+  '_BSD_SOURCE': '',
+  '_DARWIN_C_SOURCE': '',
+  '_DEFAULT_SOURCE': '',
+  '_POSIX_C_SOURCE': '200809L',
+  '_XOPEN_SOURCE': '700',
+}
+
+feature_define_lines = []
+foreach macro, value : feature_macros
+  if value == ''
+    feature_define_lines += '#define @0@'.format(macro)
+  else
+    feature_define_lines += '#define @0@ @1@'.format(macro, value)
+  endif
+endforeach
+feature_defines = '\n'.join(feature_define_lines)
+
 foreach f : check_functions
   name = f[0].to_upper().underscorify()
-  if cc.has_function(f[0], prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#define _XOPEN_SOURCE 700\n#include <@0@>'.format(f[1])) and cc.has_header_symbol(f[1], f[0], prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#define _XOPEN_SOURCE 700')
+  if cc.has_function(f[0], prefix : feature_defines + '\n#include <@0@>'.format(f[1])) and cc.has_header_symbol(f[1], f[0], prefix : feature_defines)
     cdata.set('HAVE_@0@'.format(name), 1)
     cdata.set('HAVE_DECL_@0@'.format(name), 1)
   else
@@ -85,9 +105,11 @@ foreach f : check_functions
   endif
 endforeach
 
-# nl_langinfo_l() needs locale.h for locale_t in addition to langinfo.h (on macOS, it also need xlocale.h),
-# so it can't share the single-header check_functions loop above.
-if cc.has_function('nl_langinfo_l', prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#ifdef __APPLE__\n#include <xlocale.h>\n#endif\n#include <locale.h>\n#include <langinfo.h>') and cc.has_header_symbol('langinfo.h', 'nl_langinfo_l', prefix : '#define _BSD_SOURCE\n#define _DARWIN_C_SOURCE\n#define _DEFAULT_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#ifdef __APPLE__\n#include <xlocale.h>\n#endif\n#include <locale.h>')
+# nl_langinfo_l() needs locale.h for locale_t in addition to langinfo.h (on
+# macOS it also needs xlocale.h), so it can't share the single-header
+# check_functions loop above.
+langinfo_prefix = feature_defines + '\n#ifdef __APPLE__\n#include <xlocale.h>\n#endif\n#include <locale.h>'
+if cc.has_function('nl_langinfo_l', prefix : langinfo_prefix + '\n#include <langinfo.h>') and cc.has_header_symbol('langinfo.h', 'nl_langinfo_l', prefix : langinfo_prefix)
   cdata.set('HAVE_DECL_NL_LANGINFO_L', 1)
 else
   cdata.set('HAVE_DECL_NL_LANGINFO_L', 0)
