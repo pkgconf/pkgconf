@@ -198,7 +198,7 @@ jobs:
               sudo pkg -o ASSUME_ALWAYS_YES=yes install meson
               ;;
             openbsd)
-              sudo pkg_add meson
+              sudo pkg_add https://cdn.openbsd.org/%m/meson
               ;;
             haiku)
               pkgman install -y meson
