@@ -153,6 +153,33 @@ jobs:
         run: |
           meson test -v -C _build
 
+  cygwin:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Cygwin
+        uses: cygwin/cygwin-install-action@v6
+        with:
+          packages: |
+            meson
+            ninja
+            gcc-core
+
+      - name: Build
+        shell: D:\cygwin\bin\bash.exe -o igncr '{0}'
+        run: |
+          export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
+          meson _build
+          meson compile -C _build
+
+      - name: Run tests
+        shell: D:\cygwin\bin\bash.exe -o igncr '{0}'
+        run: |
+          export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
+          meson test -v -C _build
+
   QEMU_VMs:
     runs-on: ubuntu-latest
     defaults:
