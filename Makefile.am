@@ -249,6 +249,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/spdxtool/help.test \
 		t/spdxtool/meta-package.test \
 		t/spdxtool/meta-package-with-colon-spdx-base-id.test \
+		t/spdxtool/multi-copyright.test \
 		t/spdxtool/multiple-packages.test \
 		t/spdxtool/no-license.test \
 		t/spdxtool/output-file.test \
@@ -334,6 +335,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/api/test-fragment.c \
 		tests/api/test-license.c \
 		tests/api/test-path-utils.c \
+		tests/api/test-serialize.c \
 		tests/api/test-tuple.c \
 		tests/api/test-variable.c \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
@@ -464,6 +466,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom/test4.pc \
 		tests/lib-sbom/test5.pc \
 		tests/lib-sbom/test6.pc \
+		tests/lib-sbom/multi-copyright.pc \
 		tests/lib-sbom/nolicense.pc \
 		tests/lib-sbom/special.pc \
 		tests/lib-sbom/variable-test1.pc \
@@ -478,6 +481,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom-files/define_variable_with_dependency.json \
 		tests/lib-sbom-files/meta_package.json \
 		tests/lib-sbom-files/meta_package-use-uri-spdx-base-id.json \
+		tests/lib-sbom-files/multi_copyright.json \
 		tests/lib-sbom-files/multiple_packages.json \
 		tests/lib-sbom-files/nolicense.json \
 		tests/lib-sbom-files/special.json \
@@ -584,6 +588,7 @@ API_TEST_PROGS =		\
 	test-api-fragment	\
 	test-api-license	\
 	test-api-path-utils	\
+	test-api-serialize	\
 	test-api-tuple		\
 	test-api-variable
 
@@ -636,6 +641,16 @@ test_api_path_utils_LDADD = $(api_test_ldadd)
 test_api_path_utils_SOURCES = tests/api/test-path-utils.c
 test_api_path_utils_CPPFLAGS = $(api_test_cppflags)
 
+test_api_serialize_LDADD = $(api_test_ldadd)
+test_api_serialize_SOURCES = \
+	tests/api/test-serialize.c \
+	cli/spdxtool/core.c \
+	cli/spdxtool/software.c \
+	cli/spdxtool/serialize.c \
+	cli/spdxtool/simplelicensing.c \
+	cli/spdxtool/util.c
+test_api_serialize_CPPFLAGS = $(api_test_cppflags) -I$(top_srcdir)/cli/spdxtool
+
 test_api_tuple_LDADD = $(api_test_ldadd)
 test_api_tuple_SOURCES = tests/api/test-tuple.c
 test_api_tuple_CPPFLAGS = $(api_test_cppflags)
@@ -661,6 +676,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-api-fragment$(EXEEXT)
 	$(builddir)/test-api-license$(EXEEXT)
 	$(builddir)/test-api-path-utils$(EXEEXT)
+	$(builddir)/test-api-serialize$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic

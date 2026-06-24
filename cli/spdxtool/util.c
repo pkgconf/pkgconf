@@ -163,24 +163,6 @@ spdxtool_util_set_spdx_license(pkgconf_client_t *client, const char *spdx_licens
 /*
  * !doc
  *
- * .. c:function:: const char *spdxtool_util_get_spdx_license(pkgconf_client_t *client)
- *
- *    Get license which SBOM is release in
- *
- *    :param pkgconf_client_t* client: The pkgconf client being accessed.
- *    :return: SPDX license
- */
-const char *
-spdxtool_util_get_spdx_license(pkgconf_client_t *client)
-{
-	return pkgconf_tuple_find_global(client, "spdx_license");
-}
-
-static size_t last_id = 0;
-
-/*
- * !doc
- *
  * .. c:function:: char *spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, char *part)
  *
  *    Get spdxId with current URI.
@@ -193,6 +175,7 @@ static size_t last_id = 0;
 char *
 spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, const char *part)
 {
+	static size_t last_id = 0;
 	const char *global_xsd_any_uri = spdxtool_util_get_uri_root(client);
 	char sep = spdxtool_util_get_uri_separator(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
