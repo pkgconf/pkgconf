@@ -414,6 +414,9 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom-files/basic.json \
 		tests/lib-sbom-files/meta_package.json \
 		tests/lib-sbom-files/with_dependency.json \
+		tests/lib-sbom-files/bomtool-basic.txt \
+		tests/lib-sbom-files/bomtool-meta_package.txt \
+		tests/lib-sbom-files/bomtool-with_dependency.txt \
 		tests/personality-data/i386-linux-gnu.personality \
 		doc/conf.py \
 		doc/extract.py \
