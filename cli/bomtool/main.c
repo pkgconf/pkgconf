@@ -150,8 +150,8 @@ write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
 
 	free(docname);
 
-	OUTPUT_OR_RET_FALSE(client, sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool-%s\n", PACKAGE_VERSION);
-	OUTPUT_OR_RET_FALSE(client, sbom_out, "Creator: Tool: bomtool %s\n", PACKAGE_VERSION);
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "DocumentNamespace: https://spdx.org/spdxdocs/bomtool\n");
+	OUTPUT_OR_RET_FALSE(client, sbom_out, "Creator: Tool: bomtool\n");
 
 	if (creation_time != NULL)
 	{
