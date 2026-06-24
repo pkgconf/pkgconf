@@ -206,8 +206,25 @@ EXTRA_DIST =	pkg.m4 \
 		t/bomtool/basic.test \
 		t/bomtool/meta-package.test \
 		t/bomtool/with-dependency.test \
+		t/spdxtool/about.test \
+		t/spdxtool/agent-name.test \
+		t/spdxtool/bad-output.test \
 		t/spdxtool/basic.test \
+		t/spdxtool/basic-with-colon.test \
+		t/spdxtool/basic-with-spdx-base-id.test \
+		t/spdxtool/creation-id.test \
+		t/spdxtool/define-variable.test \
+		t/spdxtool/define-variable-with-dependency.test \
+		t/spdxtool/help.test \
 		t/spdxtool/meta-package.test \
+		t/spdxtool/meta-package-with-colon-spdx-base-id.test \
+		t/spdxtool/multiple-packages.test \
+		t/spdxtool/no-license.test \
+		t/spdxtool/special-chars.test \
+		t/spdxtool/unknown-option.test \
+		t/spdxtool/unknown-package.test \
+		t/spdxtool/version.test \
+		t/spdxtool/version-operator.test \
 		t/spdxtool/with-dependency.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
@@ -414,8 +431,22 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom/test4.pc \
 		tests/lib-sbom/test5.pc \
 		tests/lib-sbom/test6.pc \
+		tests/lib-sbom/nolicense.pc \
+		tests/lib-sbom/special.pc \
+		tests/lib-sbom/variable-test1.pc \
+		tests/lib-sbom/variable-test2.pc \
+		tests/lib-sbom-files/agent_name.json \
 		tests/lib-sbom-files/basic.json \
+		tests/lib-sbom-files/basic-spdx-base-id.json \
+		tests/lib-sbom-files/basic-use-uri.json \
+		tests/lib-sbom-files/creation_id.json \
+		tests/lib-sbom-files/define_variable.json \
+		tests/lib-sbom-files/define_variable_with_dependency.json \
 		tests/lib-sbom-files/meta_package.json \
+		tests/lib-sbom-files/meta_package-use-uri-spdx-base-id.json \
+		tests/lib-sbom-files/multiple_packages.json \
+		tests/lib-sbom-files/nolicense.json \
+		tests/lib-sbom-files/special.json \
 		tests/lib-sbom-files/with_dependency.json \
 		tests/lib-sbom-files/bomtool-basic.txt \
 		tests/lib-sbom-files/bomtool-meta_package.txt \
