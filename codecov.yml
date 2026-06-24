@@ -6,3 +6,6 @@ coverage:
     patch:
       default:
         informational: true
+parsers:
+  cobertura:
+    partials_as_hits: true
