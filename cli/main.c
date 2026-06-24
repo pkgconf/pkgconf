@@ -54,19 +54,6 @@ unveil_handler(const pkgconf_client_t *client, const char *path, const char *per
 	}
 }
 
-static void
-relocate_path(const char *path)
-{
-	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
-
-	pkgconf_buffer_append(&pathbuf, path);
-	pkgconf_path_relocate(&pathbuf);
-
-	printf("%s\n", pkgconf_buffer_str(&pathbuf));
-
-	pkgconf_buffer_finalize(&pathbuf);
-}
-
 #ifndef PKGCONF_LITE
 static pkgconf_cross_personality_t *
 deduce_personality(char *argv[])
@@ -163,7 +150,6 @@ usage(void)
 	printf("  --dont-define-prefix              do not override the prefix variable under any circumstances\n");
 	printf("  --prefix-variable=varname         sets the name of the variable that pkgconf considers\n");
 	printf("                                    to be the package prefix\n");
-	printf("  --relocate=path                   relocates a path and exits (mostly for testsuite)\n");
 	printf("  --dont-relocate-paths             disables path relocation support\n");
 
 #ifndef PKGCONF_LITE
@@ -332,7 +318,6 @@ main(int argc, char *argv[])
 		{ "with-path", required_argument, NULL, 42 },
 		{ "prefix-variable", required_argument, NULL, 43 },
 		{ "define-prefix", no_argument, &state.want_flags, PKG_DEFINE_PREFIX },
-		{ "relocate", required_argument, NULL, 45 },
 		{ "dont-define-prefix", no_argument, &state.want_flags, PKG_DONT_DEFINE_PREFIX },
 		{ "dont-relocate-paths", no_argument, &state.want_flags, PKG_DONT_RELOCATE_PATHS },
 		{ "env", required_argument, NULL, 48 },
@@ -401,9 +386,6 @@ main(int argc, char *argv[])
 		case 43:
 			pkgconf_client_set_prefix_varname(&state.pkg_client, pkg_optarg);
 			break;
-		case 45:
-			relocate_path(pkg_optarg);
-			return EXIT_SUCCESS;
 		case 48:
 			state.want_env_prefix = pkg_optarg;
 			break;
