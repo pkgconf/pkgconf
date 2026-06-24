@@ -13,9 +13,5 @@ ignore:
   # we are not going to write tests for getopt_long().
   - "cli/getopt_long.c"
 
-  # there are presently no tests for the CLI application itself, these are handled by a
-  # different test harness which drives the CLI programmatically.  see tests/test-runner.c
-  - "cli/main.c"
-
   # these are portability stubs and not expected to be notable in coverage testing
   - "libpkgconf/bsdstubs.c"
