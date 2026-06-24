@@ -203,8 +203,23 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/requires-private-debounce.test \
 		t/solver/requires-private-missing.test \
 		t/solver/requires-static-cflags.test \
+		t/bomtool/about.test \
+		t/bomtool/bad-output.test \
 		t/bomtool/basic.test \
+		t/bomtool/default-time.test \
+		t/bomtool/define-variable.test \
+		t/bomtool/define-variable-with-dependency.test \
+		t/bomtool/help.test \
 		t/bomtool/meta-package.test \
+		t/bomtool/multiple-packages.test \
+		t/bomtool/no-license.test \
+		t/bomtool/output-file.test \
+		t/bomtool/package-whitespace.test \
+		t/bomtool/special-chars.test \
+		t/bomtool/unknown-option.test \
+		t/bomtool/unknown-package.test \
+		t/bomtool/version.test \
+		t/bomtool/version-operator.test \
 		t/bomtool/with-dependency.test \
 		t/spdxtool/about.test \
 		t/spdxtool/agent-name.test \
@@ -454,7 +469,12 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom-files/special.json \
 		tests/lib-sbom-files/with_dependency.json \
 		tests/lib-sbom-files/bomtool-basic.txt \
+		tests/lib-sbom-files/bomtool-define_variable.txt \
+		tests/lib-sbom-files/bomtool-define_variable_with_dependency.txt \
 		tests/lib-sbom-files/bomtool-meta_package.txt \
+		tests/lib-sbom-files/bomtool-multiple_packages.txt \
+		tests/lib-sbom-files/bomtool-nolicense.txt \
+		tests/lib-sbom-files/bomtool-special.txt \
 		tests/lib-sbom-files/bomtool-with_dependency.txt \
 		tests/personality-data/i386-linux-gnu.personality \
 		doc/conf.py \
