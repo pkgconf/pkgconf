@@ -20,6 +20,9 @@
 #include <libpkgconf/stdinc.h>
 #include <tests/win-shim.h>
 #include <sys/types.h>
+#ifndef _WIN32
+#	include <sys/wait.h>
+#endif
 #include <cli/core.h>
 #include <cli/getopt_long.h>
 #include <limits.h>
