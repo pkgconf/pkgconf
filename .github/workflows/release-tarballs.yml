@@ -139,7 +139,7 @@ jobs:
           (echo "$DISTFILES_HOST_KEYS" | base64 -d) > $HOME/.ssh/known_hosts
 
           # Upload the tarballs.
-          scp -i "$HOME/.ssh/id_ed25519" -o "UserKnownHostsFile=$HOME/.ssh/known_hosts" dist/* kaniini@distfiles.ariadne.space:distfiles/pkgconf/
+          scp -i "$HOME/.ssh/id_ed25519" -o "UserKnownHostsFile=$HOME/.ssh/known_hosts" dist/* distfiles@distfiles.ariadne.space:/srv/distfiles/data/pkgconf/
 
           # Delete the key material.
           rm -rf $HOME/.ssh
