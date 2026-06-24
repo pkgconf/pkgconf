@@ -26,8 +26,14 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/about.test \
 		t/cli/atleast-pkgconfig-version-fail.test \
 		t/cli/atleast-pkgconfig-version-pass.test \
+		t/cli/cflags-libs.test \
 		t/cli/dump-personality.test \
+		t/cli/exists-missing.test \
+		t/cli/exists-valid.test \
 		t/cli/help.test \
+		t/cli/missing-package.test \
+		t/cli/missing-package-error.test \
+		t/cli/modversion.test \
 		t/cli/no-arguments.test \
 		t/cli/unknown-option.test \
 		t/cli/version.test \
