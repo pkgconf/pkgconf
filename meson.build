@@ -309,6 +309,7 @@ test_suites = [
   'sbom',
   'sysroot',
   'tuple',
+  'bomtool',
   'spdxtool',
   'symlink'
 ]
@@ -316,7 +317,7 @@ test_suites = [
 foreach t : test_suites
   test(t, test_runner_exe,
     args : ['--test-fixtures', fixtures_dir, '--tool-dir', tool_dir, join_paths(meson.current_source_dir(), 't', t)],
-    depends : [spdxtool_exe])
+    depends : [spdxtool_exe, bomtool_exe])
 endforeach
 
 install_man('man/bomtool.1')

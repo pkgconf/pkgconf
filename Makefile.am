@@ -203,6 +203,9 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/requires-private-debounce.test \
 		t/solver/requires-private-missing.test \
 		t/solver/requires-static-cflags.test \
+		t/bomtool/basic.test \
+		t/bomtool/meta-package.test \
+		t/bomtool/with-dependency.test \
 		t/spdxtool/basic.test \
 		t/spdxtool/meta-package.test \
 		t/spdxtool/with-dependency.test \
@@ -597,6 +600,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/personality
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/solver
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/sbom
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/bomtool
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/spdxtool
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/symlink
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/sysroot
