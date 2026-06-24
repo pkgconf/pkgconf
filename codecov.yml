@@ -9,3 +9,10 @@ coverage:
 parsers:
   cobertura:
     partials_as_hits: true
+ignore:
+  # there are presently no tests for the CLI application itself, these are handled by a
+  # different test harness which drives the CLI programmatically.  see tests/test-runner.c
+  - "cli/main.c"
+
+  # these are portability stubs and not expected to be notable in coverage testing
+  - "libpkgconf/bsdstubs.c"
