@@ -23,6 +23,14 @@ EXTRA_DIST =	pkg.m4 \
 		libpkgconf/meson.build \
 		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
+		t/cli/about.test \
+		t/cli/atleast-pkgconfig-version-fail.test \
+		t/cli/atleast-pkgconfig-version-pass.test \
+		t/cli/dump-personality.test \
+		t/cli/help.test \
+		t/cli/no-arguments.test \
+		t/cli/unknown-option.test \
+		t/cli/version.test \
 		t/basic/arbitrary-path.test \
 		t/basic/builtin-pkg-config-exists.test \
 		t/basic/builtin-pkg-config-pc_path-variable.test \
@@ -650,6 +658,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-api-tuple$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/cli
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/link-abi
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/ordering
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/parser

@@ -301,6 +301,7 @@ tool_dir = meson.current_build_dir()
 
 test_suites = [
   'basic',
+  'cli',
   'link-abi',
   'ordering',
   'parser',
@@ -317,7 +318,7 @@ test_suites = [
 foreach t : test_suites
   test(t, test_runner_exe,
     args : ['--test-fixtures', fixtures_dir, '--tool-dir', tool_dir, join_paths(meson.current_source_dir(), 't', t)],
-    depends : [spdxtool_exe, bomtool_exe])
+    depends : [pkgconf_exe, spdxtool_exe, bomtool_exe])
 endforeach
 
 install_man('man/bomtool.1')
