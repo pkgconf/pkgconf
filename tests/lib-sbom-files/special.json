@@ -45,7 +45,7 @@
             "originatedBy": [
                 "https://github.com/pkgconf/pkgconf/Agent/default"
             ],
-            "software_copyrightText": "Quote \" and backslash \\ in copyright",
+            "software_copyrightText": "Quote \" backslash \\ and\ttab",
             "software_homePage": "https://example.com/special",
             "software_downloadLocation": "",
             "software_packageVersion": "1.0.0"
