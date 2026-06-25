@@ -229,6 +229,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/bomtool/no-license.test \
 		t/bomtool/output-file.test \
 		t/bomtool/package-whitespace.test \
+		t/bomtool/source-date-epoch.test \
+		t/bomtool/source-date-epoch-precedence.test \
 		t/bomtool/special-chars.test \
 		t/bomtool/unknown-option.test \
 		t/bomtool/unknown-package.test \
