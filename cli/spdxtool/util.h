@@ -77,6 +77,7 @@ typedef struct spdxtool_core_relationship_
 	char *from;
 	pkgconf_list_t *to;
 	char *relationship_type;
+	char *scope;
 } spdxtool_core_relationship_t;
 
 void

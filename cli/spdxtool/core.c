@@ -718,6 +718,40 @@ err:
 /*
  * !doc
  *
+ * .. c:function:: bool spdxtool_core_relationship_set_scope(pkgconf_client_t *client, spdxtool_core_relationship_t *relationship, const char *scope)
+ *
+ *    Promote a relationship to a /Core/LifecycleScopedRelationship by attaching a lifecycle
+ *    scope (for example, ``development`` for a private build dependency).  This is the SPDX 3.0
+ *    representation of SPDX 2.x's ``*_DEPENDENCY_OF`` relationship variants.
+ *
+ *    :param pkgconf_client_t *client: The pkgconf client being accessed.
+ *    :param spdxtool_core_relationship_t *relationship: Relationship struct to scope.
+ *    :param const char *scope: LifecycleScopeType value, e.g. "development".
+ *    :return: true on success, false on failure
+ */
+bool
+spdxtool_core_relationship_set_scope(pkgconf_client_t *client, spdxtool_core_relationship_t *relationship, const char *scope)
+{
+	if (!relationship || !scope)
+		return false;
+
+	char *scope_copy = strdup(scope);
+	if (!scope_copy)
+	{
+		pkgconf_error(client, "spdxtool_core_relationship_set_scope: out of memory");
+		return false;
+	}
+
+	free(relationship->scope);
+	relationship->scope = scope_copy;
+	relationship->type = "LifecycleScopedRelationship";
+
+	return true;
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship)
  *
  *    Free /Core/Relationship struct
@@ -737,6 +771,7 @@ spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship)
 	pkgconf_license_free(relationship->to);
 	free(relationship->to);
 	free(relationship->relationship_type);
+	free(relationship->scope);
 
 	free(relationship);
 }
@@ -781,6 +816,12 @@ spdxtool_core_relationship_to_object(pkgconf_client_t *client, const spdxtool_co
 		spdxtool_serialize_object_add_string(object_list, "from", relationship->from) &&
 		spdxtool_serialize_object_add_array(object_list, "to", to) &&
 		spdxtool_serialize_object_add_string(object_list, "relationshipType", relationship->relationship_type)))
+	{
+		goto err;
+	}
+
+	if (relationship->scope != NULL &&
+		!spdxtool_serialize_object_add_string(object_list, "scope", relationship->scope))
 	{
 		goto err;
 	}
