@@ -285,6 +285,7 @@ api_tests = [
   'queue',
   'tuple',
   'variable',
+  'version',
 ]
 
 foreach t : api_tests

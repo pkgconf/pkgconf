@@ -584,7 +584,8 @@ API_TEST_PROGS =		\
 	test-api-queue		\
 	test-api-serialize	\
 	test-api-tuple		\
-	test-api-variable
+	test-api-variable	\
+	test-api-version
 
 noinst_PROGRAMS = test-runner $(API_TEST_PROGS)
 
@@ -661,6 +662,10 @@ test_api_variable_LDADD = $(api_test_ldadd)
 test_api_variable_SOURCES = tests/api/test-variable.c
 test_api_variable_CPPFLAGS = $(api_test_cppflags)
 
+test_api_version_LDADD = $(api_test_ldadd)
+test_api_version_SOURCES = tests/api/test-version.c
+test_api_version_CPPFLAGS = $(api_test_cppflags)
+
 dist_doc_DATA = CONTRIBUTING.md DCO README.md AUTHORS COPYING
 
 m4datadir              = $(datadir)/aclocal
@@ -683,6 +688,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-api-serialize$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
+	$(builddir)/test-api-version$(EXEEXT)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/cli
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/link-abi
