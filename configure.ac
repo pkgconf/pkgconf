@@ -13,6 +13,12 @@ dnl from the use of this software.
 
 AC_PREREQ([2.71])
 AC_INIT([pkgconf],[2.9.91],[https://github.com/pkgconf/pkgconf/issues/new])
+AC_MSG_WARN([
+===================================================================
+Autotools support is deprecated and will be removed in pkgconf 3.1.
+Please migrate to meson.
+===================================================================
+])
 AC_CONFIG_SRCDIR([cli/main.c])
 AC_CONFIG_MACRO_DIR([m4])
 AX_CHECK_COMPILE_FLAG([-Wall], [CFLAGS="$CFLAGS -Wall"])
@@ -80,6 +86,14 @@ AC_CONFIG_FILES([Makefile libpkgconf.pc])
 AC_OUTPUT
 
 cat << EOF
+
+===================================================================
+*** WARNING ***
+Autotools support is deprecated and will be removed in pkgconf 3.1.
+Please migrate to Meson.
+See README.md for instructions on building with Meson.
+===================================================================
+
 Build configuration:
 
 	Default personality search paths:	${PERSONALITY_PATH}

@@ -696,3 +696,15 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/symlink
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/sysroot
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/tuple
+
+pkgconf-final-stamp:
+	@echo
+	@echo "============================================================================"
+	@echo "WARNING: Autotools support is deprecated and will be removed in pkgconf 3.1."
+	@echo "Please migrate to Meson."
+	@echo "See README.md for instructions on building with Meson."
+	@echo "============================================================================"
+	@echo
+
+all: pkgconf-final-stamp
+install-exec-hook: pkgconf-final-stamp
