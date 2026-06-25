@@ -16,7 +16,7 @@ AC_INIT([pkgconf],[2.9.91],[https://github.com/pkgconf/pkgconf/issues/new])
 AC_MSG_WARN([
 ===================================================================
 Autotools support is deprecated and will be removed in pkgconf 3.1.
-Please migrate to meson.
+Please migrate to Meson or Muon.
 ===================================================================
 ])
 AC_CONFIG_SRCDIR([cli/main.c])
