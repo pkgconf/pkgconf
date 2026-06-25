@@ -28,6 +28,12 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/atleast-pkgconfig-version-pass.test \
 		t/cli/cflags-libs.test \
 		t/cli/dump-personality.test \
+		t/cli/env-allow-system-cflags-default.test \
+		t/cli/env-allow-system-cflags.test \
+		t/cli/env-allow-system-libs-default.test \
+		t/cli/env-allow-system-libs.test \
+		t/cli/env-early-trace.test \
+		t/cli/env-log.test \
 		t/cli/exists-missing.test \
 		t/cli/exists-valid.test \
 		t/cli/help.test \
