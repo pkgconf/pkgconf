@@ -50,6 +50,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/help.test \
 		t/cli/keep-system-cflags-flag.test \
 		t/cli/keep-system-libs-flag.test \
+		t/cli/list-package-names.test \
 		t/cli/log-file.test \
 		t/cli/max-version-fail.test \
 		t/cli/max-version-pass.test \
@@ -58,6 +59,9 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/missing-package-error.test \
 		t/cli/modversion.test \
 		t/cli/no-arguments.test \
+		t/cli/no-cache.test \
+		t/cli/no-provides.test \
+		t/cli/no-uninstalled.test \
 		t/cli/path.test \
 		t/cli/personality.test \
 		t/cli/prefix-variable.test \
@@ -65,6 +69,10 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/print-requires-private.test \
 		t/cli/print-requires.test \
 		t/cli/print-variables.test \
+		t/cli/short-errors.test \
+		t/cli/silence-errors.test \
+		t/cli/simulate.test \
+		t/cli/solution.test \
 		t/cli/unknown-option.test \
 		t/cli/validate-warning.test \
 		t/cli/validate.test \
