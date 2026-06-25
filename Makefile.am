@@ -26,6 +26,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/about.test \
 		t/cli/atleast-pkgconfig-version-fail.test \
 		t/cli/atleast-pkgconfig-version-pass.test \
+		t/cli/atleast-version-fail.test \
+		t/cli/atleast-version-pass.test \
 		t/cli/cflags-libs.test \
 		t/cli/debug.test \
 		t/cli/dump-personality.test \
@@ -38,9 +40,17 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/env-log.test \
 		t/cli/env-maximum-traverse-depth.test \
 		t/cli/env-msvc-syntax.test \
+		t/cli/exact-version-fail.test \
+		t/cli/exact-version-pass.test \
 		t/cli/exists-missing.test \
 		t/cli/exists-valid.test \
 		t/cli/help.test \
+		t/cli/keep-system-cflags-flag.test \
+		t/cli/keep-system-libs-flag.test \
+		t/cli/log-file.test \
+		t/cli/max-version-fail.test \
+		t/cli/max-version-pass.test \
+		t/cli/maximum-traverse-depth.test \
 		t/cli/missing-package.test \
 		t/cli/missing-package-error.test \
 		t/cli/modversion.test \
