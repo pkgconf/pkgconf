@@ -52,6 +52,9 @@ as the value of the
 .Ic Created
 field in the generated SBOM instead of the current time.
 SPDX recommends using an ISO 8601-formatted time, which is: YYYY-MM-DDThh:mm:ssZ.
+This takes precedence over the
+.Ev SOURCE_DATE_EPOCH
+environment variable.
 .It Fl -output Ar file
 Write the generated SBOM to
 .Ar file
@@ -100,6 +103,13 @@ files which are loaded before any other pkg-config files.
 These packages are given highest priority over any other
 .Xr pc 5
 files that would otherwise provide a given package.
+.It Ev SOURCE_DATE_EPOCH
+If set, and the
+.Fl -creation-time
+option is not given, the
+.Ic Created
+field in the generated SBOM is derived from this UNIX timestamp instead of the
+current time, allowing for reproducible SBOM generation.
 .El
 .Sh EXIT STATUS
 .Ex -std
