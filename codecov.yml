@@ -19,5 +19,8 @@ ignore:
   # the test runner itself should not count as part of coverage testing
   - "tests/test-runner.c"
 
+  # the API tests should not count as part of coverage testing
+  - "tests/api/*.c"
+
   # the fuzzing harnesses and their corpus-replay driver are test scaffolding
   - "fuzzer/*.c"
