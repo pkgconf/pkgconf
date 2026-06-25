@@ -282,6 +282,7 @@ api_tests = [
   'license',
   'path-utils',
   'personality',
+  'queue',
   'tuple',
   'variable',
 ]

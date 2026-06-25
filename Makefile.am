@@ -593,6 +593,7 @@ API_TEST_PROGS =		\
 	test-api-license	\
 	test-api-path-utils	\
 	test-api-personality	\
+	test-api-queue		\
 	test-api-serialize	\
 	test-api-tuple		\
 	test-api-variable
@@ -650,6 +651,10 @@ test_api_personality_LDADD = $(api_test_ldadd)
 test_api_personality_SOURCES = tests/api/test-personality.c
 test_api_personality_CPPFLAGS = $(api_test_cppflags)
 
+test_api_queue_LDADD = $(api_test_ldadd)
+test_api_queue_SOURCES = tests/api/test-queue.c
+test_api_queue_CPPFLAGS = $(api_test_cppflags)
+
 test_api_serialize_LDADD = $(api_test_ldadd)
 test_api_serialize_SOURCES = \
 	tests/api/test-serialize.c \
@@ -686,6 +691,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-api-license$(EXEEXT)
 	$(builddir)/test-api-path-utils$(EXEEXT)
 	$(builddir)/test-api-personality$(EXEEXT)
+	$(builddir)/test-api-queue$(EXEEXT)
 	$(builddir)/test-api-serialize$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
