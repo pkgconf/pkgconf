@@ -27,6 +27,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/atleast-pkgconfig-version-fail.test \
 		t/cli/atleast-pkgconfig-version-pass.test \
 		t/cli/atleast-version-fail.test \
+		t/cli/atleast-version-inline-constraint.test \
+		t/cli/atleast-version-inline-overrides.test \
 		t/cli/atleast-version-pass.test \
 		t/cli/cflags-libs.test \
 		t/cli/debug.test \
@@ -47,6 +49,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/env-top-build-dir.test \
 		t/cli/env.test \
 		t/cli/exact-version-fail.test \
+		t/cli/exact-version-inline-constraint.test \
+		t/cli/exact-version-inline-overrides.test \
 		t/cli/exact-version-pass.test \
 		t/cli/exists-missing.test \
 		t/cli/exists-valid.test \
@@ -58,6 +62,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/list-package-names.test \
 		t/cli/log-file.test \
 		t/cli/max-version-fail.test \
+		t/cli/max-version-inline-constraint.test \
+		t/cli/max-version-inline-overrides.test \
 		t/cli/max-version-pass.test \
 		t/cli/maximum-traverse-depth.test \
 		t/cli/missing-package.test \
