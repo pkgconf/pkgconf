@@ -701,7 +701,7 @@ pkgconf-final-stamp:
 	@echo
 	@echo "============================================================================"
 	@echo "WARNING: Autotools support is deprecated and will be removed in pkgconf 3.1."
-	@echo "Please migrate to Meson."
+	@echo "Please migrate to Meson or Muon."
 	@echo "See README.md for instructions on building with Meson."
 	@echo "============================================================================"
 	@echo

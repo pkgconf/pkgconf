@@ -90,8 +90,8 @@ cat << EOF
 ===================================================================
 *** WARNING ***
 Autotools support is deprecated and will be removed in pkgconf 3.1.
-Please migrate to Meson.
-See README.md for instructions on building with Meson.
+Please migrate to Meson or Muon.
+See README.md for instructions on building with Meson or Muon.
 ===================================================================
 
 Build configuration:
