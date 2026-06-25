@@ -23,6 +23,9 @@ Changes from 2.5.1 to 3.0.0:
     SBOM creation timestamp (in ISO 8601 format) instead of using the current
     time, and no longer embeds the pkgconf version in its output.  Both changes
     allow for reproducible SBOM generation.
+  - bomtool now honors the SOURCE_DATE_EPOCH environment variable, deriving the
+    SBOM creation timestamp from it when --creation-time is not given, for
+    reproducible builds.
   - bomtool: improved SPDX conformance.  Mandatory PackageCopyrightText and
     PackageLicenseConcluded fields are emitted as NOASSERTION when unavailable,
     a Created timestamp is included, invalid PackageVerificationCode output was
