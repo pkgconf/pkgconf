@@ -351,6 +351,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/sysroot/no-pc_sysrootdir-rewriting-variable.test \
 		t/sysroot/path-segment-awareness.test \
 		t/sysroot/skip-rewriting-when-sysroot-dir-is-root-dir.test \
+		t/sysroot/sysroot-differs-from-destdir-injects.test \
+		t/sysroot/sysroot-equals-destdir-fdo-rules.test \
 		t/sysroot/undefined-pc_sysrootdir-should-be-empty.test \
 		t/sysroot/uninstalled-rewriting-fdo-rules-with-pc_sysrootdir.test \
 		t/sysroot/uninstalled-rewriting-fdo-rules.test \
