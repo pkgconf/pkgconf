@@ -159,7 +159,13 @@ write_sbom_header(pkgconf_client_t *client, pkgconf_pkg_t *world)
 	}
 	else
 	{
-		t = time(NULL);
+		const char *source_date_epoch = getenv("SOURCE_DATE_EPOCH");
+
+		if (source_date_epoch != NULL && *source_date_epoch != '\0')
+			t = (time_t) strtoll(source_date_epoch, NULL, 10);
+		else
+			t = time(NULL);
+
 		tm = gmtime(&t);
 		strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", tm);
 		OUTPUT_OR_RET_FALSE(client, sbom_out, "Created: %s\n", buf);
