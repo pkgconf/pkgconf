@@ -284,6 +284,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/bomtool/no-license.test \
 		t/bomtool/output-file.test \
 		t/bomtool/package-whitespace.test \
+		t/bomtool/private-dependency.test \
 		t/bomtool/source-date-epoch.test \
 		t/bomtool/source-date-epoch-precedence.test \
 		t/bomtool/special-chars.test \
@@ -311,6 +312,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/spdxtool/no-license.test \
 		t/spdxtool/output-file.test \
 		t/spdxtool/package-whitespace.test \
+		t/spdxtool/private-dependency.test \
 		t/spdxtool/source-date-epoch.test \
 		t/spdxtool/source-date-epoch-precedence.test \
 		t/spdxtool/special-chars.test \
@@ -521,6 +523,8 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom/special.pc \
 		tests/lib-sbom/variable-test1.pc \
 		tests/lib-sbom/variable-test2.pc \
+		tests/lib-sbom/priv-parent.pc \
+		tests/lib-sbom/priv-child.pc \
 		tests/lib-sbom-files/agent_name.json \
 		tests/lib-sbom-files/agent_name_space.json \
 		tests/lib-sbom-files/basic.json \
@@ -536,6 +540,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom-files/nolicense.json \
 		tests/lib-sbom-files/special.json \
 		tests/lib-sbom-files/with_dependency.json \
+		tests/lib-sbom-files/private_dependency.json \
 		tests/lib-sbom-files/bomtool-basic.txt \
 		tests/lib-sbom-files/bomtool-define_variable.txt \
 		tests/lib-sbom-files/bomtool-define_variable_with_dependency.txt \
@@ -544,6 +549,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom-files/bomtool-nolicense.txt \
 		tests/lib-sbom-files/bomtool-special.txt \
 		tests/lib-sbom-files/bomtool-with_dependency.txt \
+		tests/lib-sbom-files/bomtool-private_dependency.txt \
 		tests/personality-data/i386-linux-gnu.personality \
 		tests/personality-data/sysrooted.personality \
 		doc/conf.py \
