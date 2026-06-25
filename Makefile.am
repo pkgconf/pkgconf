@@ -41,6 +41,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/env-log.test \
 		t/cli/env-maximum-traverse-depth.test \
 		t/cli/env-msvc-syntax.test \
+		t/cli/env-top-build-dir.test \
 		t/cli/env.test \
 		t/cli/exact-version-fail.test \
 		t/cli/exact-version-pass.test \
@@ -420,6 +421,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/circular-3.pc \
 		tests/lib1/no-trailing-newline.pc \
 		tests/lib1/tilde.pc \
+		tests/lib1/top-builddir.pc \
 		tests/lib1/comments-in-fields.pc \
 		tests/lib1/nocflag.pc \
 		tests/lib1/typelibdir.pc \
