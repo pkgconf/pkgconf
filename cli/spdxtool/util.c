@@ -243,7 +243,7 @@ spdxtool_util_get_iso8601_time(time_t *wanted_time)
  *
  * .. c:function:: char *spdxtool_util_get_current_iso8601_time(void)
  *
- *    Get ISO8601 current timestamp
+ *    Get ISO8601 current timestamp, honouring SOURCE_DATE_EPOCH when set
  *
  *    :return: Time string in ISO8601 format
  */
@@ -251,7 +251,13 @@ char *
 spdxtool_util_get_current_iso8601_time(void)
 {
 	time_t now;
-	time(&now);
+	const char *source_date_epoch = getenv("SOURCE_DATE_EPOCH");
+
+	if (source_date_epoch != NULL && *source_date_epoch != '\0')
+		now = (time_t) strtoll(source_date_epoch, NULL, 10);
+	else
+		time(&now);
+
 	return spdxtool_util_get_iso8601_time(&now);
 }
 
