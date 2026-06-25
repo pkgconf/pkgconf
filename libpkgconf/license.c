@@ -228,15 +228,15 @@ pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *license_l
 					}
 					pkgconf_license_insert(client, license_list, PKGCONF_LICENSE_BRACKET_CLOSE, ")");
 				}
-				else if (!strncasecmp(cur_word, "and", 3))
+				else if (!strcasecmp(cur_word, "and"))
 				{
 					pkgconf_license_insert(client, license_list, PKGCONF_LICENSE_AND, "AND");
 				}
-				else if (!strncasecmp(cur_word, "or", 2))
+				else if (!strcasecmp(cur_word, "or"))
 				{
 					pkgconf_license_insert(client, license_list, PKGCONF_LICENSE_OR, "OR");
 				}
-				else if (!strncasecmp(cur_word, "with", 2))
+				else if (!strcasecmp(cur_word, "with"))
 				{
 					pkgconf_license_insert(client, license_list, PKGCONF_LICENSE_WITH, "WITH");
 				}
