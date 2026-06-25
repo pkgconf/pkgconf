@@ -256,6 +256,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/spdxtool/no-license.test \
 		t/spdxtool/output-file.test \
 		t/spdxtool/package-whitespace.test \
+		t/spdxtool/source-date-epoch.test \
+		t/spdxtool/source-date-epoch-precedence.test \
 		t/spdxtool/special-chars.test \
 		t/spdxtool/unknown-option.test \
 		t/spdxtool/unknown-package.test \
