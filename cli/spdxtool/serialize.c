@@ -169,7 +169,8 @@ spdxtool_serialize_object_add_take(spdxtool_serialize_object_list_t *object_list
 	{
 		free(node);
 		free(keycopy);
-		spdxtool_serialize_object_free(object);
+		/* object->key/value are not assigned yet; free the struct itself */
+		free(object);
 		spdxtool_serialize_value_free(value);
 		return NULL;
 	}
