@@ -15,3 +15,6 @@ ignore:
 
   # these are portability stubs and not expected to be notable in coverage testing
   - "libpkgconf/bsdstubs.c"
+
+  # the test runner itself should not count as part of coverage testing
+  - "tests/test-runner.c"
