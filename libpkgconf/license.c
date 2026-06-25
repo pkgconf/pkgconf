@@ -316,7 +316,7 @@ pkgconf_license_render(pkgconf_client_t *client, const pkgconf_list_t *list, pkg
 		frag_string = PKGCONF_BUFFER_FROM_STR(license->data);
 		pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(frag_string));
 
-		if (license->type == PKGCONF_LICENSE_BRACKET_OPEN || (node->next != NULL && ((const pkgconf_license_t *)node->next)->type == PKGCONF_LICENSE_BRACKET_CLOSE))
+		if (license->type == PKGCONF_LICENSE_BRACKET_OPEN || (node->next != NULL && ((const pkgconf_license_t *)node->next->data)->type == PKGCONF_LICENSE_BRACKET_CLOSE))
 		{
 			is_delim = false;
 		}
