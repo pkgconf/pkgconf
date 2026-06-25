@@ -211,6 +211,48 @@ test_path_prepend_list(void)
 	pkgconf_path_free(&dst);
 }
 
+static bool
+plausible(const char *text)
+{
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+	bool result;
+
+	pkgconf_buffer_append(&buf, text);
+	result = pkgconf_path_is_plausible(&buf);
+	pkgconf_buffer_finalize(&buf);
+
+	return result;
+}
+
+static void
+test_path_is_plausible(void)
+{
+	pkgconf_buffer_t empty = PKGCONF_BUFFER_INITIALIZER;
+
+	TEST_ASSERT_FALSE(pkgconf_path_is_plausible(NULL));
+	TEST_ASSERT_FALSE(pkgconf_path_is_plausible(&empty));
+	pkgconf_buffer_finalize(&empty);
+
+	TEST_ASSERT_FALSE(plausible(""));
+	TEST_ASSERT_FALSE(plausible("   "));
+	TEST_ASSERT_FALSE(plausible("libfoo"));
+	TEST_ASSERT_FALSE(plausible("foo bar"));
+	TEST_ASSERT_FALSE(plausible("."));
+	TEST_ASSERT_FALSE(plausible(".."));
+
+	TEST_ASSERT_TRUE(plausible("/usr/lib/pkgconfig"));
+	TEST_ASSERT_TRUE(plausible("  /usr/lib"));
+	TEST_ASSERT_TRUE(plausible("./foo"));
+	TEST_ASSERT_TRUE(plausible("../foo"));
+	TEST_ASSERT_TRUE(plausible(".\\foo"));
+	TEST_ASSERT_TRUE(plausible("..\\foo"));
+	TEST_ASSERT_TRUE(plausible("C:/foo"));
+	TEST_ASSERT_TRUE(plausible("C:\\foo"));
+	TEST_ASSERT_TRUE(plausible("relative/path"));
+	TEST_ASSERT_TRUE(plausible("relative\\path"));
+	TEST_ASSERT_TRUE(plausible("Program Files/MySDK"));
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -223,6 +265,7 @@ main(int argc, char *argv[])
 	TEST_RUN(basename, test_path_prepend);
 	TEST_RUN(basename, test_path_prepend_filter);
 	TEST_RUN(basename, test_path_prepend_list);
+	TEST_RUN(basename, test_path_is_plausible);
 
 	return EXIT_SUCCESS;
 }
