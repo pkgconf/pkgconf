@@ -22,6 +22,8 @@
 
 #include <direct.h>
 #include <io.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 // Shims shared by both MSVC and MSYS2
 #define mkdir(p, m) _mkdir(p)
