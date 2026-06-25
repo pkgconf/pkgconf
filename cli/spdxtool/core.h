@@ -55,6 +55,9 @@ spdxtool_core_spdx_document_add_package(pkgconf_client_t *client, spdxtool_core_
 bool
 spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *element);
 
+const char *
+spdxtool_core_spdx_document_add_maintainer(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *name);
+
 void
 spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx);
 

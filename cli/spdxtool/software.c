@@ -275,9 +275,11 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	spdxtool_serialize_value_t *ret = NULL;
 	spdxtool_serialize_object_list_t *object_list = NULL;
 	spdxtool_serialize_array_t *originated_by = NULL;
+	spdxtool_serialize_array_t *supplied_by = NULL;
 	char *creation_info = NULL;
 	char *spdx_id = NULL;
 	char *agent = NULL;
+	char *supplier = NULL;
 	char *spdx_id_license = NULL;
 	pkgconf_list_t relations = PKGCONF_LIST_INITIALIZER;
 	pkgconf_list_t *cpy_relations = NULL;
@@ -313,6 +315,21 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	if (!spdxtool_serialize_object_add_array(object_list, "originatedBy", originated_by))
 		goto err;
 	originated_by = NULL;
+
+	supplier = spdxtool_util_tuple_lookup(client, &pkg->vars, "suppliedBy");
+	if (supplier)
+	{
+		supplied_by = spdxtool_serialize_array_new();
+		if (!supplied_by)
+			goto err;
+
+		if (!spdxtool_serialize_array_add_string(supplied_by, supplier))
+			goto err;
+
+		if (!spdxtool_serialize_object_add_array(object_list, "suppliedBy", supplied_by))
+			goto err;
+		supplied_by = NULL;
+	}
 
 	if (!serialize_copyright_lines_to_object(object_list, &pkg->copyright))
 		goto err;
@@ -440,8 +457,10 @@ err:
 	free(creation_info);
 	free(spdx_id);
 	free(agent);
+	free(supplier);
 	free(spdx_id_license);
 	spdxtool_serialize_object_list_free(object_list);
 	spdxtool_serialize_array_free(originated_by);
+	spdxtool_serialize_array_free(supplied_by);
 	return ret;
 }

@@ -336,6 +336,13 @@ spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx)
 		free(iter);
 	}
 
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(spdx->maintainers.head, iter_next, iter)
+	{
+		spdxtool_core_agent_t *maintainer = iter->data;
+		spdxtool_core_agent_free(maintainer);
+		free(iter);
+	}
+
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(spdx->packages.head, iter_next, iter)
 	{
 		free(iter);
@@ -549,6 +556,60 @@ spdxtool_core_spdx_document_add_element(pkgconf_client_t *client, spdxtool_core_
 
 	pkgconf_node_insert_tail(node, nelement, &spdx->element);
 	return true;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: const char *spdxtool_core_spdx_document_add_maintainer(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *name)
+ *
+ *    Register a package maintainer as an Agent and add it to the SpdxDocument so that
+ *    packages may reference it via their ``suppliedBy`` field.  Maintainers are
+ *    deduplicated by their spdxId, so a maintainer shared between packages is only
+ *    emitted once.  The first time a maintainer is seen, its spdxId is also added to
+ *    the document element list.
+ *
+ *    :param pkgconf_client_t *client: The pkgconf client being accessed.
+ *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument struct being used.
+ *    :param const char *name: Maintainer name as declared in the package.
+ *    :return: the maintainer Agent spdxId (owned by the document) on success, NULL on failure
+ */
+const char *
+spdxtool_core_spdx_document_add_maintainer(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx, const char *name)
+{
+	pkgconf_node_t *iter = NULL;
+
+	if (!client || !spdx || !name)
+		return NULL;
+
+	spdxtool_core_agent_t *agent = spdxtool_core_agent_new(client, spdx->creation_info, name);
+	if (!agent)
+		return NULL;
+
+	PKGCONF_FOREACH_LIST_ENTRY(spdx->maintainers.head, iter)
+	{
+		spdxtool_core_agent_t *existing = iter->data;
+		if (!strcmp(existing->spdx_id, agent->spdx_id))
+		{
+			spdxtool_core_agent_free(agent);
+			return existing->spdx_id;
+		}
+	}
+
+	pkgconf_node_t *node = calloc(1, sizeof(pkgconf_node_t));
+	if (!node)
+	{
+		pkgconf_error(client, "spdxtool_core_spdx_document_add_maintainer: out of memory");
+		spdxtool_core_agent_free(agent);
+		return NULL;
+	}
+
+	pkgconf_node_insert_tail(node, agent, &spdx->maintainers);
+
+	if (!spdxtool_core_spdx_document_add_element(client, spdx, agent->spdx_id))
+		return NULL;
+
+	return agent->spdx_id;
 }
 
 /*

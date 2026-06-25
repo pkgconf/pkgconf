@@ -94,6 +94,15 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
 	pkgconf_tuple_add(client, &pkg->vars, "creationInfo", document->creation_info, false, 0);
 	pkgconf_tuple_add(client, &pkg->vars, "agent", document->agent, false, 0);
 
+	if (pkg->maintainer != NULL)
+	{
+		const char *supplier = spdxtool_core_spdx_document_add_maintainer(client, document, pkg->maintainer);
+		if (!supplier)
+			goto err;
+
+		pkgconf_tuple_add(client, &pkg->vars, "suppliedBy", supplier, false, 0);
+	}
+
 	if (pkg->license.head != NULL)
 	{
 		pkgconf_buffer_t spdx_id_buf = PKGCONF_BUFFER_INITIALIZER;
