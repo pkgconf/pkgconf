@@ -6,3 +6,4 @@ SetupMkdir: out
 ExpectedStdout: foo [1.2.3]
 MatchStdout: partial
 ExpectedExitCode: 0
+SkipPlatforms: windows
