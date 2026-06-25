@@ -31,6 +31,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/cflags-libs.test \
 		t/cli/debug.test \
 		t/cli/define-variable.test \
+		t/cli/dont-define-prefix.test \
+		t/cli/dump-personality-loaded.test \
 		t/cli/dump-personality.test \
 		t/cli/env-allow-system-cflags-default.test \
 		t/cli/env-allow-system-cflags.test \
@@ -41,6 +43,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/env-log.test \
 		t/cli/env-maximum-traverse-depth.test \
 		t/cli/env-msvc-syntax.test \
+		t/cli/env-only.test \
 		t/cli/env-top-build-dir.test \
 		t/cli/env.test \
 		t/cli/exact-version-fail.test \
@@ -49,6 +52,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/exists-valid.test \
 		t/cli/fragment-filter.test \
 		t/cli/help.test \
+		t/cli/internal-cflags.test \
 		t/cli/keep-system-cflags-flag.test \
 		t/cli/keep-system-libs-flag.test \
 		t/cli/list-package-names.test \
@@ -70,6 +74,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/print-requires-private.test \
 		t/cli/print-requires.test \
 		t/cli/print-variables.test \
+		t/cli/shared.test \
 		t/cli/short-errors.test \
 		t/cli/silence-errors.test \
 		t/cli/simulate.test \
@@ -534,6 +539,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib-sbom-files/bomtool-special.txt \
 		tests/lib-sbom-files/bomtool-with_dependency.txt \
 		tests/personality-data/i386-linux-gnu.personality \
+		tests/personality-data/sysrooted.personality \
 		doc/conf.py \
 		doc/extract.py \
 		doc/index.rst \
