@@ -137,6 +137,10 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		pkgconf_pkg_t *match = dep->match;
 		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 
+		/* an unresolved (but tolerated) dependency has no match */
+		if (match == NULL)
+			continue;
+
 		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", sbom->rootElement->id, sep, sep, match->id);
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
 		if (!relationship_str)
@@ -167,6 +171,10 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
 		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
+
+		/* an unresolved (but tolerated) dependency has no match */
+		if (match == NULL)
+			continue;
 
 		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", sbom->rootElement->id, sep, sep, match->id);
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
@@ -442,6 +450,10 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		pkgconf_pkg_t *match = dep->match;
 		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 
+		/* an unresolved (but tolerated) dependency has no match */
+		if (match == NULL)
+			continue;
+
 		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", pkg->id, sep, sep, match->id);
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
 		if (!relationship_str)
@@ -483,6 +495,10 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
 		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
+
+		/* an unresolved (but tolerated) dependency has no match */
+		if (match == NULL)
+			continue;
 
 		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", pkg->id, sep, sep, match->id);
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
