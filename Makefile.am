@@ -30,6 +30,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/atleast-version-pass.test \
 		t/cli/cflags-libs.test \
 		t/cli/debug.test \
+		t/cli/define-variable.test \
 		t/cli/dump-personality.test \
 		t/cli/env-allow-system-cflags-default.test \
 		t/cli/env-allow-system-cflags.test \
@@ -40,10 +41,12 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/env-log.test \
 		t/cli/env-maximum-traverse-depth.test \
 		t/cli/env-msvc-syntax.test \
+		t/cli/env.test \
 		t/cli/exact-version-fail.test \
 		t/cli/exact-version-pass.test \
 		t/cli/exists-missing.test \
 		t/cli/exists-valid.test \
+		t/cli/fragment-filter.test \
 		t/cli/help.test \
 		t/cli/keep-system-cflags-flag.test \
 		t/cli/keep-system-libs-flag.test \
@@ -55,10 +58,20 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/missing-package-error.test \
 		t/cli/modversion.test \
 		t/cli/no-arguments.test \
+		t/cli/path.test \
+		t/cli/personality.test \
+		t/cli/prefix-variable.test \
+		t/cli/print-provides.test \
+		t/cli/print-requires-private.test \
+		t/cli/print-requires.test \
+		t/cli/print-variables.test \
 		t/cli/unknown-option.test \
 		t/cli/validate-warning.test \
 		t/cli/validate.test \
+		t/cli/variable.test \
+		t/cli/verbose.test \
 		t/cli/version.test \
+		t/cli/with-path.test \
 		t/basic/arbitrary-path.test \
 		t/basic/builtin-pkg-config-exists.test \
 		t/basic/builtin-pkg-config-pc_path-variable.test \
