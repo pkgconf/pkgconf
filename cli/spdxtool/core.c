@@ -222,8 +222,15 @@ spdxtool_core_creation_info_to_object(pkgconf_client_t *client, const spdxtool_c
 
 	if (!(spdxtool_serialize_object_add_string(object_list, "type", creation->type) &&
 		spdxtool_serialize_object_add_string(object_list, "@id", creation->id) &&
-		spdxtool_serialize_object_add_string(object_list, "created", creation->created) &&
-		spdxtool_serialize_object_add_array(object_list, "createdBy", created_by) &&
+		spdxtool_serialize_object_add_string(object_list, "created", creation->created)))
+	{
+		/* created_by has not been handed to the object list yet */
+		spdxtool_serialize_array_free(created_by);
+		goto err;
+	}
+
+	/* object_add_array takes ownership of created_by, freeing it on failure */
+	if (!(spdxtool_serialize_object_add_array(object_list, "createdBy", created_by) &&
 		spdxtool_serialize_object_add_string(object_list, "specVersion", creation->spec_version)))
 	{
 		goto err;
