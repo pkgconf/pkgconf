@@ -11,6 +11,11 @@ Changes from 2.5.1 to 3.0.0:
   Continuous integration now exercises both the muon and pkgconf-lite builds.
   See https://github.com/pkgconf/pkgconf/issues/481 for rationale and discussion.
 
+* DEPRECATION: Support for setting `PKG_CONFIG_PATH` from the Windows registry
+  is slated for removal in 3.1.  It is recommended `PKG_CONFIG_PATH` be set from
+  the environment on Windows.
+  See https://github.com/pkgconf/pkgconf/issues/546 for rationale and discussion.
+
 * SPDX Software Bill of Materials (SBOM) generation:
   - New spdxtool(1) utility which generates SPDX Lite 3.0.1 SBOM files.  Initial
     implementation by Tuukka Pasanen, sponsored by The FreeBSD Foundation, and

@@ -569,7 +569,7 @@ PKGCONF_API void pkgconf_path_prepend(const char *text, pkgconf_list_t *dirlist,
 PKGCONF_API size_t pkgconf_path_split(const char *text, pkgconf_list_t *dirlist, bool filter);
 PKGCONF_API size_t pkgconf_path_build_from_environ(const pkgconf_client_t *client, const char *envvarname, const char *fallback, pkgconf_list_t *dirlist, bool filter);
 #ifdef _WIN32
-PKGCONF_API size_t pkgconf_path_build_from_registry(/* HKEY -> HANDLE -> PVOID */ void *hKey, pkgconf_list_t *dirlist, bool filter);
+PKGCONF_API size_t pkgconf_path_build_from_registry(pkgconf_client_t *client, /* HKEY -> HANDLE -> PVOID */ void *hKey, pkgconf_list_t *dirlist, bool filter);
 #endif
 PKGCONF_API bool pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist);
 PKGCONF_API void pkgconf_path_free(pkgconf_list_t *dirlist);
