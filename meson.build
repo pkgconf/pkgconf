@@ -281,6 +281,7 @@ api_tests = [
   'fragment',
   'license',
   'path-utils',
+  'personality',
   'tuple',
   'variable',
 ]

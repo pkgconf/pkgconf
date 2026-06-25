@@ -51,6 +51,14 @@ mkdtemp(char *tmpl)
 		return NULL;
 	return tmpl;
 }
+
+static inline int
+mkstemp(char *tmpl)
+{
+	if (_mktemp_s(tmpl, strlen(tmpl) + 1) != 0)
+		return -1;
+	return _open(tmpl, _O_CREAT | _O_EXCL | _O_RDWR | _O_BINARY, _S_IREAD | _S_IWRITE);
+}
 #endif // _MSC_VER
 
 #endif // _WIN32
