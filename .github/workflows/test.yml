@@ -52,7 +52,7 @@ jobs:
 
       - name: Build
         run: |
-          meson _build --vsenv
+          meson setup _build --vsenv -Dwerror=true
           meson compile -C _build msi
 
       - name: Run tests
@@ -88,7 +88,7 @@ jobs:
 
       - name: Build
         run: |
-          meson _build --vsenv
+          meson setup _build --vsenv -Dwerror=true
           meson compile -C _build
         env:
           CC: clang-cl
@@ -125,7 +125,7 @@ jobs:
           # the code assumes msvc style printf atm
           export CFLAGS=-D__USE_MINGW_ANSI_STDIO=0
 
-          meson _build
+          meson setup _build -Dwerror=true
           meson compile -C _build
 
       - name: Run tests
@@ -146,7 +146,7 @@ jobs:
 
       - name: Build
         run: |
-          meson _build -Dwerror=true
+          meson setup _build -Dwerror=true
           meson compile -C _build
 
       - name: Run tests
@@ -171,7 +171,7 @@ jobs:
         shell: D:\cygwin\bin\bash.exe -o igncr '{0}'
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
-          meson _build
+          meson setup _build -Dwerror=true
           meson compile -C _build
 
       - name: Run tests
@@ -243,7 +243,7 @@ jobs:
           if [[ "${{ matrix.os_image }}" == "omnios" ]]; then
             export PATH=/usr/lib/python3.13/bin:$PATH
           fi
-          meson _build -Dwerror=true
+          meson setup _build -Dwerror=true
           meson compile -C _build
 
       - name: Run tests
@@ -268,7 +268,7 @@ jobs:
 
       - name: Build
         run: |
-          meson _build -Dwerror=true
+          meson setup _build -Dwerror=true
           meson compile -C _build
 
       - name: Run tests
@@ -290,7 +290,7 @@ jobs:
 
       - name: Build
         run: |
-          meson _build -Db_sanitize=address
+          meson setup _build -Db_sanitize=address -Dwerror=true
           meson compile -C _build
 
       - name: Run tests
@@ -337,7 +337,7 @@ jobs:
 
       - name: Build
         run: |
-          meson _build -Dwerror=true -Db_coverage=true
+          meson setup _build -Dwerror=true -Db_coverage=true
           meson compile -C _build
 
       - name: Run tests
@@ -434,7 +434,7 @@ jobs:
 
       - name: Build
         run: |
-          CC=clang meson _build -Dwerror=true -Db_sanitize=address,undefined -Db_lundef=false
+          CC=clang meson setup _build -Dwerror=true -Db_sanitize=address,undefined -Db_lundef=false
           meson compile -C _build
 
       - name: Run tests
