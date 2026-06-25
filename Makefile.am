@@ -330,18 +330,6 @@ EXTRA_DIST =	pkg.m4 \
 		t/link-abi/multi-dedup.test \
 		tests/win-shim.h \
 		tests/api/test-api.h \
-		tests/api/test-audit.c \
-		tests/api/test-buffer.c \
-		tests/api/test-bytecode.c \
-		tests/api/test-client.c \
-		tests/api/test-dependency.c \
-		tests/api/test-fileio.c \
-		tests/api/test-fragment.c \
-		tests/api/test-license.c \
-		tests/api/test-path-utils.c \
-		tests/api/test-serialize.c \
-		tests/api/test-tuple.c \
-		tests/api/test-variable.c \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
