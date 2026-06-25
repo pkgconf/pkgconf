@@ -27,13 +27,17 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/atleast-pkgconfig-version-fail.test \
 		t/cli/atleast-pkgconfig-version-pass.test \
 		t/cli/cflags-libs.test \
+		t/cli/debug.test \
 		t/cli/dump-personality.test \
 		t/cli/env-allow-system-cflags-default.test \
 		t/cli/env-allow-system-cflags.test \
 		t/cli/env-allow-system-libs-default.test \
 		t/cli/env-allow-system-libs.test \
+		t/cli/env-dont-relocate-paths.test \
 		t/cli/env-early-trace.test \
 		t/cli/env-log.test \
+		t/cli/env-maximum-traverse-depth.test \
+		t/cli/env-msvc-syntax.test \
 		t/cli/exists-missing.test \
 		t/cli/exists-valid.test \
 		t/cli/help.test \
@@ -42,6 +46,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/modversion.test \
 		t/cli/no-arguments.test \
 		t/cli/unknown-option.test \
+		t/cli/validate-warning.test \
+		t/cli/validate.test \
 		t/cli/version.test \
 		t/basic/arbitrary-path.test \
 		t/basic/builtin-pkg-config-exists.test \
