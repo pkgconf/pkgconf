@@ -899,6 +899,12 @@ run_tool(const pkgconf_test_case_t *testcase, pkgconf_buffer_t *o_stdout, pkgcon
 	FILE *pipe = popen(pkgconf_buffer_str(&cmdbuf), "r");
 	pkgconf_buffer_finalize(&cmdbuf);
 
+	PKGCONF_FOREACH_LIST_ENTRY(testcase->env_vars.head, iter)
+	{
+		pkgconf_test_environ_t *env = iter->data;
+		unsetenv(env->key);
+	}
+
 	if (pipe == NULL)
 	{
 		fprintf(stderr, "popen failed for tool '%s': %s\n",
