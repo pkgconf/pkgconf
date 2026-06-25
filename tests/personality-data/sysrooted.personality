@@ -3,3 +3,5 @@ SysrootDir: /custom/sysroot
 DefaultSearchPaths: /usr/lib/i386-linux-gnu/pkgconfig:/usr/share/pkgconfig
 SystemIncludePaths: /usr/lib/i386-linux-gnu/include
 SystemLibraryPaths: /usr/lib/i386-linux-gnu/lib
+WantDefaultPure: true
+WantDefaultStatic: true
