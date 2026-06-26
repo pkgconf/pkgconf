@@ -130,6 +130,8 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 {
 	const char *agent_name_string = agent_name ? agent_name : "Default";
 	const char *creation_id_string = creation_id ? creation_id : "_:creationinfo_1";
+	const char *tool_short_name_string = "spdxtool";
+	const char *tool_name_string = "spdxtool";
 
 	spdxtool_core_agent_t *agent = spdxtool_core_agent_new(client, creation_id_string, agent_name_string);
 	if (!agent)
@@ -138,10 +140,19 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 		return false;
 	}
 
-	spdxtool_core_creation_info_t *creation = spdxtool_core_creation_info_new(client, agent->spdx_id, creation_id_string, creation_time);
+	spdxtool_core_tool_t *tool = spdxtool_core_tool_new(client, creation_id_string, tool_short_name_string, tool_name_string);
+	if (!tool)
+	{
+		pkgconf_error(client, "Could not create tool struct");
+		spdxtool_core_agent_free(agent);
+		return false;
+	}
+
+	spdxtool_core_creation_info_t *creation = spdxtool_core_creation_info_new(client, agent->spdx_id, tool->spdx_id, creation_id_string, creation_time);
 	if (!creation)
 	{
 		pkgconf_error(client, "Could not create creation info struct");
+		spdxtool_core_tool_free(tool);
 		spdxtool_core_agent_free(agent);
 		return false;
 	}
@@ -166,7 +177,7 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 		return false;
 	}
 
-	spdxtool_serialize_value_t *root = spdxtool_serialize_sbom(client, agent, creation, document);
+	spdxtool_serialize_value_t *root = spdxtool_serialize_sbom(client, agent, tool, creation, document);
 	if (!root)
 	{
 		spdxtool_core_spdx_document_free(document);
@@ -184,6 +195,7 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 
 	spdxtool_core_spdx_document_free(document);
 	spdxtool_core_creation_info_free(creation);
+	spdxtool_core_tool_free(tool);
 	spdxtool_core_agent_free(agent);
 
 	if (!ret)
