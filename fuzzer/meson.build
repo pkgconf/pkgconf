@@ -39,6 +39,7 @@ spdxtool_fuzzer_exe = executable(
   '../cli/spdxtool/serialize.c',
   '../cli/spdxtool/simplelicensing.c',
   '../cli/spdxtool/util.c',
+  '../cli/spdxtool/generate.c',
   dependencies: dep_libpkgconf,
   include_directories: include_directories('..', '../cli/spdxtool'),
   install: false,
