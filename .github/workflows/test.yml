@@ -480,6 +480,9 @@ jobs:
           - fuzzer: solver
             corpus: _fuzz/solver-corpus
             seed: fuzzer/solver-corpus
+          - fuzzer: spdxtool
+            corpus: _fuzz/spdxtool-corpus
+            seed: fuzzer/solver-corpus
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
