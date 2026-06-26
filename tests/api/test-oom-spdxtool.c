@@ -54,11 +54,19 @@ test_oom_agent_new(void)
 }
 
 static void
+test_oom_tool_new(void)
+{
+	spdxtool_core_tool_t *a;
+	OOM_TEST_PTR(a, spdxtool_core_tool_new(g_client, "_:c1", "Tool Name", "Tool long Name"), spdxtool_core_tool_free(a));
+}
+
+
+static void
 test_oom_creation_info_new(void)
 {
 	spdxtool_core_creation_info_t *c;
 	// NULL time exercises the get_current_iso8601_time() strdup path too
-	OOM_TEST_PTR(c, spdxtool_core_creation_info_new(g_client, "agentid", "_:c1", NULL),
+	OOM_TEST_PTR(c, spdxtool_core_creation_info_new(g_client, "agentid", "toolid", "_:c1", NULL),
 		spdxtool_core_creation_info_free(c));
 }
 
@@ -125,7 +133,7 @@ test_oom_to_object(void)
 	spdxtool_core_agent_free(agent);
 
 	spdxtool_core_creation_info_t *ci =
-		spdxtool_core_creation_info_new(g_client, "agentid", "_:c1", "2020-01-01T00:00:00Z");
+		spdxtool_core_creation_info_new(g_client, "agentid", "toolid", "_:c1", "2020-01-01T00:00:00Z");
 	TEST_ASSERT_NONNULL(ci);
 	OOM_TEST_PTR(v, spdxtool_core_creation_info_to_object(g_client, ci),
 		spdxtool_serialize_value_free(v));
@@ -148,6 +156,7 @@ main(int argc, const char **argv)
 	oom_setup();
 
 	TEST_RUN(basename, test_oom_agent_new);
+	TEST_RUN(basename, test_oom_tool_new);
 	TEST_RUN(basename, test_oom_creation_info_new);
 	TEST_RUN(basename, test_oom_spdx_document_new);
 	TEST_RUN(basename, test_oom_sbom_new);
