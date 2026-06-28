@@ -128,10 +128,14 @@ else
   cdata.set('HAVE_DECL_NL_LANGINFO_L', 0)
 endif
 
-default_path = []
-foreach f : ['libdir', 'datadir']
-  default_path += [join_paths(get_option('prefix'), get_option(f), 'pkgconfig')]
-endforeach
+PKG_DEFAULT_PATH = get_option('with-pkg-config-dir')
+if PKG_DEFAULT_PATH == ''
+  default_path = []
+  foreach f : ['libdir', 'datadir']
+    default_path += [join_paths(get_option('prefix'), get_option(f), 'pkgconfig')]
+  endforeach
+  PKG_DEFAULT_PATH = ':'.join(default_path)
+endif
 
 personality_path = []
 foreach f : ['libdir', 'datadir']
@@ -150,7 +154,7 @@ if SYSTEM_INCLUDEDIR != ''
 else
   cdata.set_quoted('SYSTEM_INCLUDEDIR', join_paths(get_option('prefix'), get_option('includedir')))
 endif
-cdata.set_quoted('PKG_DEFAULT_PATH', ':'.join(default_path))
+cdata.set_quoted('PKG_DEFAULT_PATH', PKG_DEFAULT_PATH)
 cdata.set_quoted('PERSONALITY_PATH', ':'.join(personality_path))
 cdata.set_quoted('PACKAGE_NAME', meson.project_name())
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
