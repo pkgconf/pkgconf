@@ -149,7 +149,9 @@ pkgconf_client_init_with_options(pkgconf_client_t *client, const pkgconf_client_
 		pkgconf_client_set_trace_handler(client, NULL, NULL);
 #endif
 
-	if (client->unveil_handler == NULL)
+	if (options->unveil_handler != NULL)
+		pkgconf_client_set_unveil_handler(client, options->unveil_handler);
+	else if (client->unveil_handler == NULL)
 		pkgconf_client_set_unveil_handler(client, NULL);
 
 	pkgconf_client_set_error_handler(client, options->error_handler, options->error_handler_data);

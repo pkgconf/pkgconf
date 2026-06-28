@@ -268,6 +268,7 @@ typedef struct pkgconf_client_options_ {
 	const pkgconf_cross_personality_t *personality;
 	void *client_data;
 	pkgconf_environ_lookup_handler_func_t environ_lookup_handler;
+	pkgconf_unveil_handler_func_t unveil_handler;
 } pkgconf_client_options_t;
 
 struct pkgconf_client_ {

@@ -423,9 +423,9 @@ main(int argc, char *argv[])
 		.personality = personality,
 		.client_data = &state,
 		.environ_lookup_handler = environ_lookup_handler,
+		.unveil_handler = unveil_handler,
 	};
 	pkgconf_client_init_with_options(&state.pkg_client, &client_options);
-	pkgconf_client_set_unveil_handler(&state.pkg_client, unveil_handler);
 
 #ifndef PKGCONF_LITE
 	if (getenv("PKG_CONFIG_MSVC_SYNTAX") != NULL)
