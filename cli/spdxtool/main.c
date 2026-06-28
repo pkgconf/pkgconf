@@ -177,7 +177,12 @@ main(int argc, char *argv[])
 		}
 	}
 
-	pkgconf_client_init(&pkg_client, error_handler, NULL, personality, NULL, environ_lookup_handler);
+	pkgconf_client_options_t client_options = {
+		.error_handler = error_handler,
+		.personality = personality,
+		.environ_lookup_handler = environ_lookup_handler,
+	};
+	pkgconf_client_init_with_options(&pkg_client, &client_options);
 
 	/* we have determined what features we want most likely.  in some cases, we override later. */
 	pkgconf_client_set_flags(&pkg_client, want_client_flags);

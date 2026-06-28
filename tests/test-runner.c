@@ -1258,7 +1258,13 @@ run_test_case(const pkgconf_test_case_t *testcase)
 			.testcase = testcase,
 		};
 
-		pkgconf_client_init(&state.cli_state.pkg_client, error_handler, NULL, personality, &state, environ_lookup_handler);
+		pkgconf_client_options_t client_options = {
+			.error_handler = error_handler,
+			.personality = personality,
+			.client_data = &state,
+			.environ_lookup_handler = environ_lookup_handler,
+		};
+		pkgconf_client_init_with_options(&state.cli_state.pkg_client, &client_options);
 		pkgconf_client_set_output(&state.cli_state.pkg_client, &out->output);
 
 		pkgconf_node_t *iter;

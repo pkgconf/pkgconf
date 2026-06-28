@@ -417,7 +417,14 @@ main(int argc, char *argv[])
 	}
 
 	/* now, bring up the client.  settings are preserved since the client is prealloced */
-	pkgconf_client_init(&state.pkg_client, error_handler, &state, personality, &state, environ_lookup_handler);
+	pkgconf_client_options_t client_options = {
+		.error_handler = error_handler,
+		.error_handler_data = &state,
+		.personality = personality,
+		.client_data = &state,
+		.environ_lookup_handler = environ_lookup_handler,
+	};
+	pkgconf_client_init_with_options(&state.pkg_client, &client_options);
 	pkgconf_client_set_unveil_handler(&state.pkg_client, unveil_handler);
 
 #ifndef PKGCONF_LITE
