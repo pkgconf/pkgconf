@@ -111,6 +111,10 @@ Changes from 2.5.1 to 3.0.0:
   - The vestigial --relocate=path option, which existed only for the old test
     suite, has been removed.
 
+* Build system changes:
+  - The meson build gained a with-pkg-config-dir option to override the default
+    package search path, matching the autotools --with-pkg-config-dir option.
+
 * pkg.m4 changes:
   - PKG_WITH_MODULES now properly quotes its action arguments (serial 16).
     Patch by Antonin Décimo.
@@ -145,8 +149,9 @@ Changes from 2.5.1 to 3.0.0:
   - SPDX license expressions in the License field are now properly parsed and
     validated.  Patches by Tuukka Pasanen.
 
-* The libpkgconf API and ABI were substantially reworked, breaking ABI
-  compatibility.  The libpkgconf soversion is now 8.
+* The libpkgconf API and ABI were substantially reworked, breaking both API and
+  ABI compatibility.  Consumers will need source changes as well as a rebuild.
+  The libpkgconf soversion is now 8.
   - An abstract pkgconf_buffer_t type is now used throughout libpkgconf in place
     of fixed-size stack buffers, removing a class of truncation bugs.
   - A new pkgconf_output API abstracts all output, allowing the output stream to
@@ -158,6 +163,12 @@ Changes from 2.5.1 to 3.0.0:
     pkgconf_fragment_render API has been removed.
   - The package copyright field was migrated to a bufferset.
   - Environment variable lookups can now be mocked via pkgconf_client_getenv.
+  - Client construction gained an options-based API: pkgconf_client_init_with_options
+    and pkgconf_client_new_with_options accept a pkgconf_client_options_t struct, with
+    the original pkgconf_client_init and pkgconf_client_new retained as wrappers.  The
+    unveil handler may now be supplied directly as a client option.
+  - New pkgconf_variable_eval_name API, which evaluates a named variable and
+    applies sysroot fixups to the result.
 
 Changes from 2.5.0 to 2.5.1:
 ----------------------------
