@@ -262,6 +262,14 @@ typedef bool (*pkgconf_error_handler_func_t)(const char *msg, const pkgconf_clie
 typedef void (*pkgconf_unveil_handler_func_t)(const pkgconf_client_t *client, const char *path, const char *permissions);
 typedef const char *(*pkgconf_environ_lookup_handler_func_t)(const pkgconf_client_t *client, const char *variable);
 
+typedef struct pkgconf_client_options_ {
+	pkgconf_error_handler_func_t error_handler;
+	void *error_handler_data;
+	const pkgconf_cross_personality_t *personality;
+	void *client_data;
+	pkgconf_environ_lookup_handler_func_t environ_lookup_handler;
+} pkgconf_client_options_t;
+
 struct pkgconf_client_ {
 	pkgconf_list_t dir_list;
 
@@ -365,7 +373,9 @@ PKGCONF_API char *pkgconf_variable_eval_str(pkgconf_client_t *client, const pkgc
 
 /* client.c */
 PKGCONF_API void pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);
+PKGCONF_API void pkgconf_client_init_with_options(pkgconf_client_t *client, const pkgconf_client_options_t *options);
 PKGCONF_API pkgconf_client_t * pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler);
+PKGCONF_API pkgconf_client_t * pkgconf_client_new_with_options(const pkgconf_client_options_t *options);
 PKGCONF_API void pkgconf_client_deinit(pkgconf_client_t *client);
 PKGCONF_API void pkgconf_client_free(pkgconf_client_t *client);
 PKGCONF_API const char *pkgconf_client_get_sysroot_dir(const pkgconf_client_t *client);

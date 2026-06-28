@@ -108,11 +108,38 @@ pkgconf_client_dir_list_build(pkgconf_client_t *client, const pkgconf_cross_pers
 void
 pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler)
 {
+	pkgconf_client_options_t options = {
+		.error_handler = error_handler,
+		.error_handler_data = error_handler_data,
+		.personality = personality,
+		.client_data = client_data,
+		.environ_lookup_handler = environ_lookup_handler,
+	};
+
+	pkgconf_client_init_with_options(client, &options);
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_client_init_with_options(pkgconf_client_t *client, const pkgconf_client_options_t *options)
+ *
+ *    Initialise a pkgconf client object using an options structure.
+ *
+ *    :param pkgconf_client_t* client: The client to initialise.
+ *    :param pkgconf_client_options_t* options: The options used to configure the client.
+ *    :return: nothing
+ */
+void
+pkgconf_client_init_with_options(pkgconf_client_t *client, const pkgconf_client_options_t *options)
+{
+	const pkgconf_cross_personality_t *personality = options->personality;
+
 	client->personality = personality;
-	client->client_data = client_data;
-	client->environ_lookup_handler = environ_lookup_handler;
-	client->error_handler_data = error_handler_data;
-	client->error_handler = error_handler;
+	client->client_data = options->client_data;
+	client->environ_lookup_handler = options->environ_lookup_handler;
+	client->error_handler_data = options->error_handler_data;
+	client->error_handler = options->error_handler;
 	client->auditf = NULL;
 	client->cache_table = NULL;
 	client->cache_count = 0;
@@ -125,7 +152,7 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 	if (client->unveil_handler == NULL)
 		pkgconf_client_set_unveil_handler(client, NULL);
 
-	pkgconf_client_set_error_handler(client, error_handler, error_handler_data);
+	pkgconf_client_set_error_handler(client, options->error_handler, options->error_handler_data);
 	pkgconf_client_set_warn_handler(client, NULL, NULL);
 
 	pkgconf_client_set_sysroot_dir(client, personality->sysroot_dir);
@@ -184,11 +211,36 @@ pkgconf_client_init(pkgconf_client_t *client, pkgconf_error_handler_func_t error
 pkgconf_client_t *
 pkgconf_client_new(pkgconf_error_handler_func_t error_handler, void *error_handler_data, const pkgconf_cross_personality_t *personality, void *client_data, pkgconf_environ_lookup_handler_func_t environ_lookup_handler)
 {
+	pkgconf_client_options_t options = {
+		.error_handler = error_handler,
+		.error_handler_data = error_handler_data,
+		.personality = personality,
+		.client_data = client_data,
+		.environ_lookup_handler = environ_lookup_handler,
+	};
+
+	return pkgconf_client_new_with_options(&options);
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconf_client_t* pkgconf_client_new_with_options(const pkgconf_client_options_t *options)
+ *
+ *    Allocate and initialise a pkgconf client object using an options structure.
+ *
+ *    :param pkgconf_client_options_t* options: The options used to configure the client.
+ *    :return: A pkgconf client object.
+ *    :rtype: pkgconf_client_t*
+ */
+pkgconf_client_t *
+pkgconf_client_new_with_options(const pkgconf_client_options_t *options)
+{
 	pkgconf_client_t *out = calloc(1, sizeof(pkgconf_client_t));
 	if (out == NULL)
 		return NULL;
 
-	pkgconf_client_init(out, error_handler, error_handler_data, personality, client_data, environ_lookup_handler);
+	pkgconf_client_init_with_options(out, options);
 	return out;
 }
 
