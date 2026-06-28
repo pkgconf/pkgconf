@@ -790,6 +790,8 @@ pkgconf_client_set_unveil_handler(pkgconf_client_t *client, pkgconf_unveil_handl
 		PKGCONF_TRACE(client, "installing default unveil handler");
 		client->unveil_handler = default_unveil_handler;
 	}
+	else
+		PKGCONF_TRACE(client, "installing custom unveil handler");
 }
 
 #ifndef PKGCONF_LITE
