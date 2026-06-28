@@ -372,32 +372,6 @@ apply_path(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int max
 	return true;
 }
 
-static char *
-variable_eval(pkgconf_client_t *client, const pkgconf_list_t *vars, const char *varname)
-{
-	pkgconf_buffer_t varbuf = PKGCONF_BUFFER_INITIALIZER;
-	const pkgconf_buffer_t *sysroot_dir = PKGCONF_BUFFER_FROM_STR(client->sysroot_dir);
-	bool saw_sysroot = false;
-	pkgconf_variable_t *v;
-
-	pkgconf_bytecode_eval_ctx_t ctx = {
-		.client = client,
-		.vars = vars,
-	};
-
-	v = pkgconf_bytecode_eval_lookup_var(&ctx, varname, strlen(varname));
-	(void) pkgconf_variable_eval(client, vars, v, &varbuf, &saw_sysroot);
-
-	if (!saw_sysroot && pkgconf_path_is_plausible(&varbuf))
-	{
-		/* if sysroot is set, and value does not already begin with sysroot */
-		if (!pkgconf_buffer_has_prefix(&varbuf, sysroot_dir))
-			pkgconf_buffer_prepend(&varbuf, pkgconf_buffer_str_or_empty(sysroot_dir));
-	}
-
-	return pkgconf_buffer_freeze(&varbuf);
-}
-
 static bool
 apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, const void *variable, int maxdepth)
 {
@@ -413,7 +387,7 @@ apply_variable(pkgconf_client_t *client, pkgconf_pkg_t *world, const void *varia
 		if (pkg == NULL)
 			continue;
 
-		result = variable_eval(client, &pkg->vars, variable);
+		result = pkgconf_variable_eval_name(client, &pkg->vars, variable);
 
 		if (result != NULL)
 		{
