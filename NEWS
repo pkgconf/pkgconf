@@ -38,6 +38,14 @@ Changes from 2.5.1 to 3.0.0:
     PackageDownloadLocation is derived from the Source tag, and SPDX 2.3 package
     names are used.  Patches by Stéphane Rochoy and Tuukka Pasanen.
 
+* New pccritic(1) utility which scores the quality of pc(5) files.  Each module
+  or .pc file is graded from A to F based on findings across several categories:
+  required and recommended metadata, version sanity, relocatability of libdir
+  and includedir, Cflags and Libs hygiene, the Requires relationship, the NTIA
+  SBOM minimum elements, and file-formatting style.  Supports --quiet for a
+  one-line score per target, --min-score for use as a CI gate, and colorized
+  output.
+
 * New test and I/O framework.
   - kyua is no longer required to run tests.
   - Declarative configuration for integration tests, C unit tests for functional tests.
