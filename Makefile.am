@@ -12,7 +12,7 @@ nodist_pkgconfig_DATA  = libpkgconf.pc
 ACLOCAL_AMFLAGS = -I m4
 AM_CFLAGS = -DPERSONALITY_PATH=\"$(personality_dir)\" -DPKG_DEFAULT_PATH=\"$(pkg_default_dir)\" -DSYSTEM_INCLUDEDIR=\"$(system_includedir)\" -DSYSTEM_LIBDIR=\"$(system_libdir)\"
 
-bin_PROGRAMS = pkgconf bomtool spdxtool
+bin_PROGRAMS = pkgconf bomtool spdxtool pccritic
 lib_LTLIBRARIES = libpkgconf.la
 
 EXTRA_DIST =	pkg.m4 \
@@ -321,6 +321,15 @@ EXTRA_DIST =	pkg.m4 \
 		t/spdxtool/version.test \
 		t/spdxtool/version-operator.test \
 		t/spdxtool/with-dependency.test \
+		t/pccritic/about.test \
+		t/pccritic/help.test \
+		t/pccritic/min-score.test \
+		t/pccritic/missing-field.test \
+		t/pccritic/no-arguments.test \
+		t/pccritic/perfect.test \
+		t/pccritic/polluted.test \
+		t/pccritic/unknown-package.test \
+		t/pccritic/version.test \
 		t/sbom/license-file-bar.test \
 		t/sbom/license-file-foo.test \
 		t/sbom/license-isc.test \
@@ -511,6 +520,9 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/duplicate-tuple.pc \
 		tests/lib1/flag-whitespace.pc \
 		tests/lib1/flag-whitespace-2.pc \
+		tests/lib-pccritic/perfect.pc \
+		tests/lib-pccritic/polluted.pc \
+		tests/lib-pccritic/nodesc.pc \
 		tests/lib-sbom/meta_package.pc \
 		tests/lib-sbom/test1.pc \
 		tests/lib-sbom/test2.pc \
@@ -598,7 +610,8 @@ dist_man_MANS    = 		\
 	man/pkg.m4.7		\
 	man/pc.5		\
 	man/pkgconf-personality.5	\
-	man/spdxtool.1
+	man/spdxtool.1		\
+	man/pccritic.1
 
 pkgconf_LDADD    = libpkgconf.la
 pkgconf_SOURCES  = \
@@ -617,7 +630,8 @@ noinst_HEADERS   = \
 	cli/spdxtool/serialize.h			\
 	cli/spdxtool/simplelicensing.h		\
 	cli/spdxtool/software.h				\
-	cli/spdxtool/util.h
+	cli/spdxtool/util.h					\
+	cli/pccritic/critic.h
 
 bomtool_LDADD    = libpkgconf.la
 bomtool_SOURCES  = \
@@ -636,6 +650,13 @@ spdxtool_SOURCES  = \
 	cli/spdxtool/generate.c		\
 	cli/getopt_long.c
 spdxtool_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/spdxtool
+
+pccritic_LDADD    = libpkgconf.la
+pccritic_SOURCES  = \
+	cli/pccritic/main.c		\
+	cli/pccritic/critic.c		\
+	cli/getopt_long.c
+pccritic_CPPFLAGS = -I$(top_srcdir)/libpkgconf -I$(top_srcdir)/cli -I$(top_srcdir)/cli/pccritic
 
 API_TEST_PROGS =		\
 	test-api-audit		\
@@ -766,6 +787,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/sbom
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/bomtool
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/spdxtool
+	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/pccritic
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/symlink
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/sysroot
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/tuple

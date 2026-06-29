@@ -282,6 +282,16 @@ spdxtool_exe = executable('spdxtool',
   include_directories : include_directories('cli', 'cli/spdxtool'),
   install : true)
 
+pccritic_exe = executable('pccritic',
+  'cli/pccritic/main.c',
+  'cli/pccritic/critic.c',
+  'cli/getopt_long.c',
+  windows_manifest,
+  link_with : libpkgconf,
+  c_args : build_static,
+  include_directories : include_directories('cli', 'cli/pccritic'),
+  install : true)
+
 test_runner_exe = executable('test-runner',
   'cli/core.c',
   'cli/getopt_long.c',
@@ -420,13 +430,14 @@ test_suites = [
   'tuple',
   'bomtool',
   'spdxtool',
+  'pccritic',
   'symlink'
 ]
 
 foreach t : test_suites
   test(t, test_runner_exe,
     args : ['--test-fixtures', fixtures_dir, '--tool-dir', tool_dir, join_paths(meson.current_source_dir(), 't', t)],
-    depends : [pkgconf_exe, spdxtool_exe, bomtool_exe])
+    depends : [pkgconf_exe, spdxtool_exe, bomtool_exe, pccritic_exe])
 endforeach
 
 install_man('man/bomtool.1')
@@ -435,6 +446,7 @@ install_man('man/pkg.m4.7')
 install_man('man/pc.5')
 install_man('man/pkgconf-personality.5')
 install_man('man/spdxtool.1')
+install_man('man/pccritic.1')
 install_data('pkg.m4', install_dir: 'share/aclocal')
 install_data('AUTHORS', install_dir: 'share/doc/pkgconf')
 install_data('README.md', install_dir: 'share/doc/pkgconf')
