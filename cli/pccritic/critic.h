@@ -58,24 +58,24 @@ typedef struct {
 	char grade;	/* 'A'..'F' */
 } pccritic_report_t;
 
-PKGCONF_API pccritic_report_t *pccritic_report_new(void);
-PKGCONF_API void pccritic_report_free(pccritic_report_t *report);
+pccritic_report_t *pccritic_report_new(void);
+void pccritic_report_free(pccritic_report_t *report);
 
 /*
  * Analyze a parsed package, appending findings to the report and computing
  * its score and letter grade.  The package must already have been loaded via
  * pkgconf_pkg_new_from_path() or pkgconf_pkg_find().
  */
-PKGCONF_API void pccritic_analyze(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pccritic_report_t *report);
+void pccritic_analyze(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pccritic_report_t *report);
 
 /*
  * Analyze a .pc file that libpkgconf refused to load (typically because it is
  * missing one of the required Name/Description/Version fields).  The raw file
  * is scanned directly so that the most broken files can still be scored.
  */
-PKGCONF_API void pccritic_analyze_unparsable(pccritic_report_t *report, const char *path);
+void pccritic_analyze_unparsable(pccritic_report_t *report, const char *path);
 
-PKGCONF_API const char *pccritic_severity_name(pccritic_severity_t severity);
-PKGCONF_API const char *pccritic_category_name(pccritic_category_t category);
+const char *pccritic_severity_name(pccritic_severity_t severity);
+const char *pccritic_category_name(pccritic_category_t category);
 
 #endif /* PCCRITIC_CRITIC_H */
