@@ -41,10 +41,12 @@ core
 
 # programs
 /bomtool
+/pccritic
 /pkgconf
 /pkgconf-gcov
 /pkgconf-profile
 /spdxtool
+/test-*
 
 # libtool
 /libtool
