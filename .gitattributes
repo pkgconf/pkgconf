@@ -1,3 +1,4 @@
 tests/lib1/dos-lineendings.pc eol=crlf
 tests/lib-sbom-files/*.json eol=lf
 tests/lib-sbom-files/*.txt eol=lf
+tests/lib-pccritic/*.pc eol=lf
