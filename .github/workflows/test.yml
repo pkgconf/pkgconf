@@ -436,9 +436,8 @@ jobs:
 
           # Build muon
           cd /home/muon
-          # To know why "-lrt" is needed, see: https://github.com/muon-build/muon/issues/268
-          LDFLAGS="-lrt" ./bootstrap.sh build
-          LDFLAGS="-lrt" build/muon-bootstrap setup -Dmeson-docs=disabled build
+          ./bootstrap.sh build
+          build/muon-bootstrap setup -Dmeson-docs=disabled build
           build/muon-bootstrap -C build samu
           build/muon -C build install
 
