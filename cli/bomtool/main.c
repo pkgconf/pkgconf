@@ -209,8 +209,10 @@ write_copyright_lines(pkgconf_client_t *client, const pkgconf_list_t *copyright_
 }
 
 static void
-write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
+write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	pkgconf_buffer_t license_buf = PKGCONF_BUFFER_INITIALIZER;
 	(void) client;
 	(void) unused;
@@ -269,8 +271,10 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
 }
 
 static void
-write_sbom_relationships(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
+write_sbom_relationships(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	(void) client;
 	(void) unused;
 

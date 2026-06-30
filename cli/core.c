@@ -170,8 +170,10 @@ apply_provides(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unused, int
 
 #ifndef PKGCONF_LITE
 static void
-print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+print_digraph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	pkgconf_node_t *node;
 	pkgconf_pkg_t **last_seen = data;
 
@@ -272,8 +274,10 @@ apply_digraph(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int ma
 }
 
 static void
-print_solution_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused)
+print_solution_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	(void) unused;
 
 	pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s (%llu)%s\n",
@@ -645,8 +649,10 @@ apply_requires_private(pkgconf_client_t *client, pkgconf_pkg_t *world, void *unu
 }
 
 static void
-check_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+check_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	int *retval = data;
 	(void) client;
 
@@ -669,8 +675,10 @@ apply_uninstalled(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, in
 
 #ifndef PKGCONF_LITE
 static void
-print_graph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+print_graph_node(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	pkgconf_node_t *n;
 
 	(void) data;
@@ -762,8 +770,10 @@ apply_fragment_tree(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, 
 }
 
 static void
-print_license(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+print_license(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	pkgconf_buffer_t render_buf = PKGCONF_BUFFER_INITIALIZER;
 	(void) data;
 
@@ -832,8 +842,10 @@ apply_link_abi(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int m
 }
 
 static void
-print_license_file(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+print_license_file(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	(void) data;
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
@@ -858,8 +870,10 @@ apply_license_file(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, i
 }
 
 static void
-print_source(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+print_source(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	(void) data;
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)

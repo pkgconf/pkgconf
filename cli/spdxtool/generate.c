@@ -19,8 +19,10 @@
 
 // NOTE: this function is passed to pkgconf_pkg_traverse
 static void
-generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr)
+generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, unsigned int iter_flags)
 {
+	(void) iter_flags;
+
 	spdxtool_core_spdx_document_t *document = (spdxtool_core_spdx_document_t *)ptr;
 	pkgconf_node_t *node = NULL;
 	spdxtool_software_sbom_t *sbom = NULL;
