@@ -38,7 +38,8 @@ pkgconf_pkg_traverse_main(pkgconf_client_t *client,
 	pkgconf_pkg_traverse_func_t func,
 	void *data,
 	int maxdepth,
-	unsigned int skip_flags);
+	unsigned int skip_flags,
+	unsigned int iter_flags);
 
 static inline bool
 str_has_suffix(const char *str, const char *suffix)
@@ -1523,7 +1524,8 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 	pkgconf_pkg_traverse_func_t func,
 	void *data,
 	int depth,
-	unsigned int skip_flags)
+	unsigned int skip_flags,
+	unsigned int iter_flags)
 {
 	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
 	pkgconf_node_t *node, *next;
@@ -1582,7 +1584,7 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 
 		pkgconf_audit_log_dependency(client, pkgdep, depnode);
 
-		eflags |= pkgconf_pkg_traverse_main(client, pkgdep, func, data, depth - 1, skip_flags);
+		eflags |= pkgconf_pkg_traverse_main(client, pkgdep, func, data, depth - 1, skip_flags, iter_flags);
 next:
 		pkgconf_pkg_unref(client, pkgdep);
 	}
@@ -1661,7 +1663,8 @@ pkgconf_pkg_traverse_main(pkgconf_client_t *client,
 	pkgconf_pkg_traverse_func_t func,
 	void *data,
 	int maxdepth,
-	unsigned int skip_flags)
+	unsigned int skip_flags,
+	unsigned int iter_flags)
 {
 	unsigned int eflags = PKGCONF_PKG_ERRF_OK;
 
@@ -1683,7 +1686,7 @@ pkgconf_pkg_traverse_main(pkgconf_client_t *client,
 	if ((root->flags & PKGCONF_PKG_PROPF_VIRTUAL) != PKGCONF_PKG_PROPF_VIRTUAL || (client->flags & PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL) != PKGCONF_PKG_PKGF_SKIP_ROOT_VIRTUAL)
 	{
 		if (func != NULL)
-			func(client, root, data);
+			func(client, root, data, iter_flags);
 	}
 
 	if (!(client->flags & PKGCONF_PKG_PKGF_SKIP_CONFLICTS) && root->conflicts.head != NULL)
@@ -1696,7 +1699,7 @@ pkgconf_pkg_traverse_main(pkgconf_client_t *client,
 	}
 
 	PKGCONF_TRACE(client, "%s: walking 'Requires' list", root->id);
-	eflags = pkgconf_pkg_walk_list(client, root, &root->required, func, data, maxdepth, skip_flags);
+	eflags = pkgconf_pkg_walk_list(client, root, &root->required, func, data, maxdepth, skip_flags, iter_flags);
 	if (eflags != PKGCONF_PKG_ERRF_OK)
 		return eflags;
 
@@ -1704,18 +1707,14 @@ pkgconf_pkg_traverse_main(pkgconf_client_t *client,
 	{
 		PKGCONF_TRACE(client, "%s: walking 'Requires.shared' list", root->id);
 
-		eflags = pkgconf_pkg_walk_list(client, root, &root->requires_shared, func, data, maxdepth, skip_flags);
+		eflags = pkgconf_pkg_walk_list(client, root, &root->requires_shared, func, data, maxdepth, skip_flags, iter_flags);
 		if (eflags != PKGCONF_PKG_ERRF_OK)
 			return eflags;
 	}
 
 	PKGCONF_TRACE(client, "%s: walking 'Requires.private' list", root->id);
 
-	/* XXX: ugly */
-	client->flags |= PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
-	eflags = pkgconf_pkg_walk_list(client, root, &root->requires_private, func, data, maxdepth, skip_flags);
-	client->flags &= ~PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE;
-
+	eflags = pkgconf_pkg_walk_list(client, root, &root->requires_private, func, data, maxdepth, skip_flags, iter_flags | PKGCONF_PKG_ITERF_PRIVATE);
 	if (eflags != PKGCONF_PKG_ERRF_OK)
 		return eflags;
 
@@ -1742,14 +1741,16 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 		// Skip shared deps in static mode
 		skip_flags |= PKGCONF_PKG_DEPF_SHARED;
 
-	return pkgconf_pkg_traverse_main(client, root, func, data, maxdepth, skip_flags);
+	return pkgconf_pkg_traverse_main(client, root, func, data, maxdepth, skip_flags, PKGCONF_PKG_ITERF_NONE);
 }
 
 static void
-pkgconf_pkg_cflags_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+pkgconf_pkg_cflags_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
 	pkgconf_list_t *list = data;
 	pkgconf_node_t *node;
+
+	(void) iter_flags;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags.head, node)
 	{
@@ -1759,10 +1760,12 @@ pkgconf_pkg_cflags_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *d
 }
 
 static void
-pkgconf_pkg_cflags_private_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+pkgconf_pkg_cflags_private_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
 	pkgconf_list_t *list = data;
 	pkgconf_node_t *node;
+
+	(void) iter_flags;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags_private.head, node)
 	{
@@ -1772,10 +1775,12 @@ pkgconf_pkg_cflags_private_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg,
 }
 
 static void
-pkgconf_pkg_cflags_shared_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+pkgconf_pkg_cflags_shared_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
 	pkgconf_list_t *list = data;
 	pkgconf_node_t *node;
+
+	(void) iter_flags;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags_shared.head, node)
 	{
@@ -1832,7 +1837,7 @@ pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t
 }
 
 static void
-pkgconf_pkg_libs_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+pkgconf_pkg_libs_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
 	pkgconf_list_t *list = data;
 	pkgconf_node_t *node;
@@ -1843,7 +1848,7 @@ pkgconf_pkg_libs_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *dat
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->libs.head, node)
 	{
 		pkgconf_fragment_t *frag = node->data;
-		pkgconf_fragment_copy(client, list, frag, (client->flags & PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE) != 0);
+		pkgconf_fragment_copy(client, list, frag, (iter_flags & PKGCONF_PKG_ITERF_PRIVATE) != 0);
 	}
 
 	if (client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
@@ -1895,10 +1900,12 @@ pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *
 }
 
 static void
-pkgconf_pkg_link_abi_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data)
+pkgconf_pkg_link_abi_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
 	pkgconf_list_t *list = data;
 	pkgconf_node_t *node;
+
+	(void) iter_flags;
 
 	if (!(client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE) && pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE)
 		return;

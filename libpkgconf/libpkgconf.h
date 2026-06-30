@@ -256,7 +256,12 @@ struct pkgconf_pkg_ {
 };
 
 typedef bool (*pkgconf_pkg_iteration_func_t)(const pkgconf_pkg_t *pkg, void *data);
-typedef void (*pkgconf_pkg_traverse_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data);
+
+/* iteration state threaded through pkgconf_pkg_traverse() to its callback */
+#define PKGCONF_PKG_ITERF_NONE				0x0
+#define PKGCONF_PKG_ITERF_PRIVATE			0x1
+
+typedef void (*pkgconf_pkg_traverse_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags);
 typedef bool (*pkgconf_queue_apply_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int maxdepth);
 typedef bool (*pkgconf_error_handler_func_t)(const char *msg, const pkgconf_client_t *client, void *data);
 typedef void (*pkgconf_unveil_handler_func_t)(const pkgconf_client_t *client, const char *path, const char *permissions);
@@ -420,7 +425,7 @@ PKGCONF_API void pkgconf_cross_personality_deinit(pkgconf_cross_personality_t *p
 #define PKGCONF_PKG_PKGF_SKIP_CONFLICTS			0x0020
 #define PKGCONF_PKG_PKGF_NO_CACHE			0x0040
 #define PKGCONF_PKG_PKGF_SKIP_ERRORS			0x0080
-#define PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE		0x0100
+/* 0x0100 reserved (was PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE; now threaded as a traversal parameter) */
 #define PKGCONF_PKG_PKGF_SKIP_PROVIDES			0x0200
 #define PKGCONF_PKG_PKGF_REDEFINE_PREFIX		0x0400
 #define PKGCONF_PKG_PKGF_DONT_RELOCATE_PATHS		0x0800
