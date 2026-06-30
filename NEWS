@@ -177,6 +177,9 @@ Changes from 2.5.1 to 3.0.0:
     unveil handler may now be supplied directly as a client option.
   - New pkgconf_variable_eval_name API, which evaluates a named variable and
     applies sysroot fixups to the result.
+  - The pkgconf_pkg_traverse_func_t callback gained a trailing iter_flags
+    argument carrying per-traversal state (PKGCONF_PKG_ITERF_*), replacing the
+    removed PKGCONF_PKG_PKGF_ITER_PKG_IS_PRIVATE client flag.
 
 Changes from 2.5.0 to 2.5.1:
 ----------------------------
