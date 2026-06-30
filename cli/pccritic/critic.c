@@ -54,7 +54,7 @@ static const char *category_names[PCCRITIC_CAT_COUNT] = {
 const char *
 pccritic_severity_name(pccritic_severity_t severity)
 {
-	if (severity < 0 || severity >= PCCRITIC_SEV_COUNT)
+	if (severity >= PCCRITIC_SEV_COUNT)
 		return "unknown";
 
 	return severity_names[severity];
@@ -63,7 +63,7 @@ pccritic_severity_name(pccritic_severity_t severity)
 const char *
 pccritic_category_name(pccritic_category_t category)
 {
-	if (category < 0 || category >= PCCRITIC_CAT_COUNT)
+	if (category >= PCCRITIC_CAT_COUNT)
 		return "unknown";
 
 	return category_names[category];
