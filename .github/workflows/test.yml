@@ -443,6 +443,7 @@ jobs:
 
           # Build pkgconf + run tests
           cd /home/pkgconf
+          export CFLAGS="${CFLAGS} -Wno-type-limits -Wno-missing-field-initializers -Wno-missing-braces"
           muon build builddir
           muon -C builddir test -v -v
           EOF
