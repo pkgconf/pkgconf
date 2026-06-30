@@ -220,6 +220,13 @@ main(int argc, char *argv[])
 
 	pkgconf_buffer_finalize(&queryparams);
 
+	if (pkgq.head == NULL)
+	{
+		pkgconf_output_file_fmt(stderr, "Please specify at least one package name on the command line.\n");
+		ret = EXIT_FAILURE;
+		goto out;
+	}
+
 	if (!pkgconf_queue_solve(&pkg_client, &pkgq, &world, maximum_traverse_depth))
 	{
 		ret = EXIT_FAILURE;
