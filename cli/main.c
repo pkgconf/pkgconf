@@ -182,7 +182,7 @@ usage(void)
 	printf("  --uninstalled                     check whether or not an uninstalled module will be used\n");
 	printf("  --no-uninstalled                  never use uninstalled modules when satisfying dependencies\n");
 	printf("  --no-provides                     do not use 'provides' rules to resolve dependencies\n");
-	printf("  --maximum-traverse-depth          maximum allowed depth for dependency graph\n");
+	printf("  --maximum-traverse-depth          maximum allowed depth for dependency graph (-1 for unlimited)\n");
 	printf("  --static                          be more aggressive when computing dependency graph\n");
 	printf("                                    (for static linking)\n");
 	printf("  --shared                          use a simplified dependency graph (usually default)\n");
@@ -256,6 +256,7 @@ main(int argc, char *argv[])
 	int ret;
 	pkgconf_cli_state_t state = {
 		.want_flags = 0,
+		.maximum_traverse_depth = 256,
 	};
 	pkgconf_list_t dir_list = PKGCONF_LIST_INITIALIZER;
 	char *env_traverse_depth;
