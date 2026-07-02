@@ -21,6 +21,22 @@
 #include "getopt_long.h"
 #include "core.h"
 
+static bool
+parse_maximum_traverse_depth(const char *value, int *depth)
+{
+	char *end;
+	long parsed;
+
+	errno = 0;
+	parsed = strtol(value, &end, 10);
+
+	if (value == end || *end != '\0' || errno == ERANGE || parsed < -1 || parsed > INT_MAX)
+		return false;
+
+	*depth = (int) parsed;
+	return true;
+}
+
 static const char *
 environ_lookup_handler(const pkgconf_client_t *client, const char *key)
 {
@@ -365,7 +381,12 @@ main(int argc, char *argv[])
 			state.want_variable = pkg_optarg;
 			break;
 		case 11:
-			state.maximum_traverse_depth = atoi(pkg_optarg);
+			if (!parse_maximum_traverse_depth(pkg_optarg, &state.maximum_traverse_depth))
+			{
+				pkgconf_output_file_fmt(stderr, "pkgconf: invalid maximum traverse depth: %s\n", pkg_optarg);
+				ret = EXIT_FAILURE;
+				goto out;
+			}
 			break;
 		case 27:
 			pkgconf_tuple_define_global(&state.pkg_client, pkg_optarg);
@@ -432,8 +453,13 @@ main(int argc, char *argv[])
 		state.want_flags |= PKG_MSVC_SYNTAX;
 #endif
 
-	if ((env_traverse_depth = getenv("PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH")) != NULL)
-		state.maximum_traverse_depth = atoi(env_traverse_depth);
+	if ((env_traverse_depth = getenv("PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH")) != NULL &&
+		!parse_maximum_traverse_depth(env_traverse_depth, &state.maximum_traverse_depth))
+	{
+		pkgconf_output_file_fmt(stderr, "pkgconf: invalid maximum traverse depth: %s\n", env_traverse_depth);
+		ret = EXIT_FAILURE;
+		goto out;
+	}
 
 	if ((state.want_flags & PKG_PRINT_ERRORS) != PKG_PRINT_ERRORS)
 		state.want_flags |= (PKG_SILENCE_ERRORS);
