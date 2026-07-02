@@ -115,6 +115,40 @@ test_oom_serialize_constructors(void)
 	OOM_TEST_PTR(v, spdxtool_serialize_value_null(), spdxtool_serialize_value_free(v));
 }
 
+static void
+test_oom_serialize_to_buffer(void)
+{
+	spdxtool_serialize_object_list_t *object = spdxtool_serialize_object_list_new();
+	TEST_ASSERT_NONNULL(object);
+	TEST_ASSERT_NONNULL(spdxtool_serialize_object_add_string(object, "\"key", "value"));
+
+	spdxtool_serialize_value_t root = {
+		.type = SPDXTOOL_SERIALIZE_TYPE_OBJECT,
+		.value = { .o = object },
+	};
+
+	for (unsigned long n = 1; ; n++)
+	{
+		pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
+
+		alloc_inject_arm(n);
+		bool ok = spdxtool_serialize_value_to_buf(&buffer, &root, 0);
+		bool fired = alloc_inject_fired();
+		alloc_inject_disarm();
+		pkgconf_buffer_finalize(&buffer);
+
+		if (!fired)
+		{
+			TEST_ASSERT_TRUE(ok);
+			break;
+		}
+
+		TEST_ASSERT_FALSE(ok);
+	}
+
+	spdxtool_serialize_object_list_free(object);
+}
+
 /*
  * ============================================================
  * *_to_object serializers that depend only on their own struct
@@ -162,6 +196,7 @@ main(int argc, const char **argv)
 	TEST_RUN(basename, test_oom_sbom_new);
 	TEST_RUN(basename, test_oom_license_expression_new);
 	TEST_RUN(basename, test_oom_serialize_constructors);
+	TEST_RUN(basename, test_oom_serialize_to_buffer);
 	TEST_RUN(basename, test_oom_to_object);
 
 	pkgconf_client_free(g_client);

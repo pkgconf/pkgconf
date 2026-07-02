@@ -187,10 +187,18 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 	}
 
 	pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
-	spdxtool_serialize_value_to_buf(&buffer, root, 0);
+	bool ret = spdxtool_serialize_value_to_buf(&buffer, root, 0);
 	spdxtool_serialize_value_free(root);
 
-	bool ret = pkgconf_output_file_fmt(out, "%s\n", pkgconf_buffer_str(&buffer));
+	if (ret)
+	{
+		ret = pkgconf_output_file_fmt(out, "%s\n", pkgconf_buffer_str(&buffer));
+		if (!ret)
+			pkgconf_error(client, "spdxtool: Could not output to file: %s", strerror(errno));
+	}
+	else
+		pkgconf_error(client, "spdxtool: Could not serialize SPDX document");
+
 	pkgconf_buffer_finalize(&buffer);
 
 	spdxtool_core_spdx_document_free(document);
@@ -198,7 +206,5 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 	spdxtool_core_tool_free(tool);
 	spdxtool_core_agent_free(agent);
 
-	if (!ret)
-		pkgconf_error(client, "spdxtool: Could not output to file: %s", strerror(errno));
 	return ret;
 }
