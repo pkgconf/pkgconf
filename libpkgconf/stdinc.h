@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <errno.h>
+#include <limits.h>
 
 #ifdef _WIN32
 # define WIN32_LEAN_AND_MEAN
@@ -89,7 +90,6 @@
 # endif
 # include <dirent.h>
 # include <unistd.h>
-# include <limits.h>
 # include <strings.h>
 # include <fcntl.h>    // open
 # include <libgen.h>   // basename/dirname
