@@ -28,10 +28,16 @@
  * dynamically-allocated buffers.
  */
 
-static inline size_t
-target_allocation_size(size_t target_size)
+static inline bool
+target_allocation_size(size_t target_size, size_t *allocation_size)
 {
-	return 128 + (128 * (target_size / 128));
+	size_t growth = 128 - (target_size % 128);
+
+	if (target_size > SIZE_MAX - growth)
+		return false;
+
+	*allocation_size = target_size + growth;
+	return true;
 }
 
 #if 0
@@ -61,14 +67,26 @@ buffer_debug(pkgconf_buffer_t *buffer)
 bool
 pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 {
-	size_t needed = strlen(text) + 1;
-	size_t newsize = pkgconf_buffer_len(buffer) + needed;
+	size_t allocation_size;
+	size_t len = pkgconf_buffer_len(buffer);
+	size_t text_len = strlen(text);
 
-	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
+	if (text_len == SIZE_MAX)
+		return false;
+
+	size_t needed = text_len + 1;
+	if (len > SIZE_MAX - needed)
+		return false;
+
+	size_t newsize = len + needed;
+	if (!target_allocation_size(newsize, &allocation_size))
+		return false;
+
+	char *newbase = realloc(buffer->base, allocation_size);
 	if (newbase == NULL)
 		return false;
 
-	char *newend = newbase + pkgconf_buffer_len(buffer);
+	char *newend = newbase + len;
 	memcpy(newend, text, needed);
 
 	buffer->base = newbase;
@@ -123,11 +141,16 @@ pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list sr
 	va_list va;
 	char *buf;
 	size_t needed;
+	int formatted_len;
 
 	va_copy(va, src_va);
-	needed = vsnprintf(NULL, 0, fmt, va) + 1;
+	formatted_len = vsnprintf(NULL, 0, fmt, va);
 	va_end(va);
 
+	if (formatted_len < 0)
+		return false;
+
+	needed = (size_t) formatted_len + 1;
 	buf = malloc(needed);
 	if (buf == NULL)
 		return false;
@@ -214,8 +237,17 @@ pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text)
 bool
 pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 {
-	size_t newsize = pkgconf_buffer_len(buffer) + 1;
-	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
+	size_t allocation_size;
+	size_t len = pkgconf_buffer_len(buffer);
+
+	if (len == SIZE_MAX)
+		return false;
+
+	size_t newsize = len + 1;
+	if (!target_allocation_size(newsize, &allocation_size))
+		return false;
+
+	char *newbase = realloc(buffer->base, allocation_size);
 	if (newbase == NULL)
 		return false;
 
@@ -242,12 +274,16 @@ pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 bool
 pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer)
 {
+	size_t allocation_size;
 	size_t len = pkgconf_buffer_len(buffer);
 	if (len == 0)
 		return false;
 
 	size_t newsize = len - 1;
-	char *newbase = realloc(buffer->base, target_allocation_size(newsize));
+	if (!target_allocation_size(newsize, &allocation_size))
+		return false;
+
+	char *newbase = realloc(buffer->base, allocation_size);
 
 	if (newbase == NULL)
 		return false;
