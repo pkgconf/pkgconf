@@ -301,7 +301,7 @@ void
 pkgconf_bytecode_from_buffer(pkgconf_bytecode_t *bc, const pkgconf_buffer_t *buf)
 {
 	bc->base = (const uint8_t *)buf->base;
-	bc->len = (size_t)(buf->end - buf->base);
+	bc->len = buf->base != NULL ? (size_t)(buf->end - buf->base) : 0;
 }
 
 bool

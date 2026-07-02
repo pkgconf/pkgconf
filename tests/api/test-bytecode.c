@@ -523,7 +523,13 @@ test_eval_empty_input(void)
 {
 	pkgconf_client_t *client = test_client_new();
 	pkgconf_list_t vars = PKGCONF_LIST_INITIALIZER;
+	pkgconf_buffer_t bcbuf = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_bytecode_t bc;
 	bool saw_sysroot = false;
+
+	pkgconf_bytecode_from_buffer(&bc, &bcbuf);
+	TEST_ASSERT_NULL(bc.base);
+	TEST_ASSERT_EQ(bc.len, 0);
 
 	char *out = pkgconf_bytecode_eval_str(client, &vars, "", &saw_sysroot);
 
