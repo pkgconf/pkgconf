@@ -7,7 +7,7 @@
 .\" This software is provided 'as is' and without any warranty, express or
 .\" implied.  In no event shall the authors be liable for any damages arising
 .\" from the use of this software.
-.Dd June 23, 2026
+.Dd July 2, 2026
 .Dt PKGCONF 1
 .Os
 .Sh NAME
@@ -384,6 +384,12 @@ is greater than the requested
 number.
 .It Fl -maximum-traverse-depth Ns = Ns Ar depth
 Impose a limit on the allowed depth in the dependency graph.
+The default
+.Ar depth
+is 256.
+Set
+.Ar depth
+to \-1 to allow unlimited traversal.
 For example, a
 .Ar depth
 of 2 restricts the resolver from acting on child
@@ -693,6 +699,7 @@ For more details, see the
 command line option, which overrides this variable.
 .It Ev PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH
 Impose a limit on the allowed depth in the dependency graph.
+Set this variable to \-1 to allow unlimited traversal.
 This variable overrides the
 .Fl -maximum-traverse-depth
 option, but is overridden by the other options mentioned there.
