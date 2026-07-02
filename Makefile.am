@@ -65,6 +65,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/max-version-inline-constraint.test \
 		t/cli/max-version-inline-overrides.test \
 		t/cli/max-version-pass.test \
+		t/cli/maximum-traverse-depth-invalid-env.test \
+		t/cli/maximum-traverse-depth-invalid.test \
 		t/cli/maximum-traverse-depth.test \
 		t/cli/missing-package.test \
 		t/cli/missing-package-error.test \
