@@ -174,6 +174,26 @@ test_buffer_copy(void)
 }
 
 static void
+test_buffer_rejects_aliasing(void)
+{
+	static const pkgconf_span_t spans[] = {
+		{ 'a', 'z' },
+	};
+	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+
+	TEST_ASSERT_TRUE(pkgconf_buffer_append(&buf, "abc"));
+	TEST_ASSERT_FALSE(pkgconf_buffer_append(&buf, pkgconf_buffer_str(&buf)));
+	TEST_ASSERT_FALSE(pkgconf_buffer_append_slice(&buf, pkgconf_buffer_str(&buf), 1));
+	TEST_ASSERT_FALSE(pkgconf_buffer_prepend(&buf, pkgconf_buffer_str(&buf)));
+	TEST_ASSERT_FALSE(pkgconf_buffer_copy(&buf, &buf));
+	TEST_ASSERT_FALSE(pkgconf_buffer_subst(&buf, &buf, "a", "x"));
+	TEST_ASSERT_FALSE(pkgconf_buffer_escape(&buf, &buf, spans, PKGCONF_ARRAY_SIZE(spans)));
+	TEST_ASSERT_STRCMP_EQ(pkgconf_buffer_str(&buf), "abc");
+
+	pkgconf_buffer_finalize(&buf);
+}
+
+static void
 test_buffer_join(void)
 {
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
@@ -401,6 +421,7 @@ main(int argc, const char **argv)
 	TEST_RUN(basename, test_buffer_reset);
 	TEST_RUN(basename, test_buffer_freeze);
 	TEST_RUN(basename, test_buffer_copy);
+	TEST_RUN(basename, test_buffer_rejects_aliasing);
 	TEST_RUN(basename, test_buffer_join);
 	TEST_RUN(basename, test_buffer_contains);
 	TEST_RUN(basename, test_buffer_match);

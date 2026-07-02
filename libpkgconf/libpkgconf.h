@@ -669,6 +669,9 @@ static inline const char *pkgconf_buffer_str_or_empty(const pkgconf_buffer_t *bu
  */
 static inline size_t pkgconf_buffer_len(const pkgconf_buffer_t *buffer)
 {
+	if (buffer->base == NULL)
+		return 0;
+
 	return (size_t)(ptrdiff_t)(buffer->end - buffer->base);
 }
 
@@ -737,6 +740,7 @@ static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer)
  * .. c:function:: static inline bool pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_t *newptr)
  *
  *    Copy the contents of one buffer to another, erasing the contents of the buffer in :code:`newptr`.
+ *    The source and destination buffers must not overlap.
  *
  *    :param pkgconf_buffer_t *buffer: The buffer to copy from.
  *    :param pkgconf_buffer_t *buffer: The buffer to copy to.
@@ -744,6 +748,9 @@ static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer)
  */
 static inline bool pkgconf_buffer_copy(pkgconf_buffer_t *buffer, pkgconf_buffer_t *newptr)
 {
+	if (buffer == newptr || (buffer->base != NULL && buffer->base == newptr->base))
+		return false;
+
 	pkgconf_buffer_reset(newptr);
 	return pkgconf_buffer_append_slice(newptr, pkgconf_buffer_str(buffer), pkgconf_buffer_len(buffer));
 }

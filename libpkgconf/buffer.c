@@ -40,6 +40,26 @@ target_allocation_size(size_t target_size, size_t *allocation_size)
 	return true;
 }
 
+static bool
+buffer_storage_overlaps(const pkgconf_buffer_t *buffer, const void *source, size_t source_size)
+{
+	if (buffer->base == NULL || source == NULL || source_size == 0)
+		return false;
+
+	size_t buffer_size = pkgconf_buffer_len(buffer) + 1;
+	uintptr_t buffer_start = (uintptr_t) buffer->base;
+	uintptr_t source_start = (uintptr_t) source;
+
+	if (buffer_start > UINTPTR_MAX - (buffer_size - 1) ||
+		source_start > UINTPTR_MAX - (source_size - 1))
+		return true;
+
+	uintptr_t buffer_end = buffer_start + buffer_size - 1;
+	uintptr_t source_end = source_start + source_size - 1;
+
+	return buffer_start <= source_end && source_start <= buffer_end;
+}
+
 #if 0
 static void
 buffer_debug(pkgconf_buffer_t *buffer)
@@ -59,6 +79,7 @@ buffer_debug(pkgconf_buffer_t *buffer)
  * .. c:function:: bool pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
  *
  *    Append a null-terminated string to the buffer, reallocating as necessary.
+ *    The storage occupied by *text* must not overlap the buffer.
  *
  *    :param pkgconf_buffer_t *buffer: The buffer to append to.
  *    :param char *text: The null-terminated string to append.
@@ -75,6 +96,9 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 		return false;
 
 	size_t needed = text_len + 1;
+	if (buffer_storage_overlaps(buffer, text, needed))
+		return false;
+
 	if (len > SIZE_MAX - needed)
 		return false;
 
@@ -102,6 +126,7 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
  * .. c:function:: bool pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
  *
  *    Append a slice of *n* bytes to the buffer. Does nothing if *n* is zero.
+ *    The source slice must not overlap the buffer.
  *
  *    :param pkgconf_buffer_t *buf: The buffer to append to.
  *    :param char *p: Pointer to the byte sequence to append.
@@ -113,6 +138,9 @@ pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
 {
 	if (n == 0)
 		return true;
+
+	if (buffer_storage_overlaps(buf, p, n))
+		return false;
 
 	for (size_t i = 0; i < n; i++)
 	{
@@ -196,6 +224,7 @@ pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...)
  *
  *    Prepend a null-terminated string to the beginning of the buffer.
  *    If *text* is NULL, the buffer contents are unchanged.
+ *    The storage occupied by *text* must not overlap the buffer.
  *
  *    :param pkgconf_buffer_t *buffer: The buffer to prepend to.
  *    :param char *text: The null-terminated string to prepend, or NULL.
@@ -205,6 +234,16 @@ bool
 pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text)
 {
 	pkgconf_buffer_t tmpbuf = PKGCONF_BUFFER_INITIALIZER;
+	bool ret = true;
+
+	if (text != NULL)
+	{
+		size_t text_len = strlen(text);
+
+		if (text_len == SIZE_MAX ||
+			buffer_storage_overlaps(buffer, text, text_len + 1))
+			return false;
+	}
 
 	if (text != NULL && !pkgconf_buffer_append(&tmpbuf, text))
 		return false;
@@ -216,11 +255,11 @@ pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text)
 	}
 
 	if (pkgconf_buffer_len(&tmpbuf))
-		pkgconf_buffer_copy(&tmpbuf, buffer);
+		ret = pkgconf_buffer_copy(&tmpbuf, buffer);
 
 	pkgconf_buffer_finalize(&tmpbuf);
 
-	return true;
+	return ret;
 }
 
 /*
@@ -497,6 +536,7 @@ pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *n
  *
  *    Copy *src* into *dest*, replacing all occurrences of *pattern* with *value*.
  *    If *pattern* is empty, *src* is appended to *dest* unmodified.
+ *    Neither *src*, *pattern* nor *value* may overlap *dest*.
  *
  *    :param pkgconf_buffer_t *dest: The destination buffer.
  *    :param pkgconf_buffer_t *src: The source buffer.
@@ -509,6 +549,10 @@ pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const 
 {
 	const char *iter = src->base;
 
+	if (dest == src ||
+		buffer_storage_overlaps(dest, src->base, pkgconf_buffer_len(src) + 1))
+		return false;
+
 	if (pattern == NULL)
 		pattern = "";
 
@@ -516,6 +560,9 @@ pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const 
 		value = "";
 
 	size_t pattern_len = strlen(pattern);
+	if (buffer_storage_overlaps(dest, pattern, pattern_len + 1) ||
+		buffer_storage_overlaps(dest, value, strlen(value) + 1))
+		return false;
 
 	if (!pkgconf_buffer_len(src))
 		return true;
@@ -549,6 +596,7 @@ pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const 
  *
  *    Copy *src* into *dest*, inserting a backslash before any byte that falls
  *    within the provided character spans.
+ *    The source and destination buffers must not overlap.
  *
  *    :param pkgconf_buffer_t *dest: The destination buffer.
  *    :param pkgconf_buffer_t *src: The source buffer.
@@ -560,6 +608,10 @@ bool
 pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans)
 {
 	const char *p = pkgconf_buffer_str(src);
+
+	if (dest == src ||
+		buffer_storage_overlaps(dest, src->base, pkgconf_buffer_len(src) + 1))
+		return false;
 
 	if (!pkgconf_buffer_len(src))
 		return true;
