@@ -216,7 +216,15 @@ pkgconf_fragment_insert(pkgconf_client_t *client, pkgconf_list_t *list, char typ
 		return;
 
 	frag->type = type;
-	frag->data = strdup(data);
+	if (data != NULL)
+	{
+		frag->data = strdup(data);
+		if (frag->data == NULL)
+		{
+			free(frag);
+			return;
+		}
+	}
 
 	if (tail)
 	{
@@ -335,6 +343,7 @@ void
 pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
 {
 	pkgconf_list_t *target = list;
+	pkgconf_fragment_t *terminate_parent = NULL;
 	pkgconf_fragment_t *frag;
 	pkgconf_buffer_t evalbuf = PKGCONF_BUFFER_INITIALIZER;
 	bool saw_sysroot = false;
@@ -371,7 +380,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 				target = &parent->children;
 
 			if (pkgconf_fragment_is_terminus(parent->data, string))
-				parent->flags |= PKGCONF_PKG_FRAGF_TERMINATED;
+				terminate_parent = parent;
 
 			PKGCONF_TRACE(client, "adding fragment as child to list @%p", target);
 		}
@@ -406,8 +415,6 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 		}
 		else
 			frag->data = strdup(string + 2);
-
-		PKGCONF_TRACE(client, "added fragment {%c, '%s'} to list @%p", frag->type, frag->data, list);
 	}
 	else
 	{
@@ -440,8 +447,6 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 
 		frag->type = 0;
 		frag->data = strdup(string);
-
-		PKGCONF_TRACE(client, "created special fragment {'%s'} in list @%p", frag->data, target);
 	}
 
 	if (frag->data == NULL)
@@ -451,7 +456,15 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 		return;
 	}
 
+	if (frag->type)
+		PKGCONF_TRACE(client, "added fragment {%c, '%s'} to list @%p", frag->type, frag->data, list);
+	else
+		PKGCONF_TRACE(client, "created special fragment {'%s'} in list @%p", frag->data, target);
+
 	pkgconf_node_insert_tail(&frag->iter, frag, target);
+	if (terminate_parent != NULL)
+		terminate_parent->flags |= PKGCONF_PKG_FRAGF_TERMINATED;
+
 	free(string);
 }
 
@@ -592,6 +605,69 @@ pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fr
 	return pkgconf_path_match_list(frag->data, check_paths);
 }
 
+static bool
+pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private);
+
+static bool
+pkgconf_fragment_copy_list_node(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base)
+{
+	pkgconf_node_t *node;
+
+	PKGCONF_FOREACH_LIST_ENTRY(base->head, node)
+	{
+		pkgconf_fragment_t *frag = node->data;
+
+		if (!pkgconf_fragment_copy_node(client, list, frag, true))
+			return false;
+	}
+
+	return true;
+}
+
+static bool
+pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private)
+{
+	pkgconf_fragment_t *old_frag = NULL;
+	pkgconf_fragment_t *frag;
+
+	if ((old_frag = pkgconf_fragment_exists(list, base, client->flags, is_private)) != NULL)
+	{
+		if (!pkgconf_fragment_should_merge(old_frag))
+			old_frag = NULL;
+	}
+	else if (!is_private && !pkgconf_fragment_can_merge_back(base, client->flags, is_private) && (pkgconf_fragment_lookup(list, base) != NULL))
+		return true;
+
+	frag = calloc(1, sizeof(pkgconf_fragment_t));
+	if (frag == NULL)
+		return false;
+
+	frag->type = base->type;
+	if (!pkgconf_fragment_copy_list_node(client, &frag->children, &base->children))
+	{
+		pkgconf_fragment_free(&frag->children);
+		free(frag);
+		return false;
+	}
+
+	if (base->data != NULL)
+	{
+		frag->data = strdup(base->data);
+		if (frag->data == NULL)
+		{
+			pkgconf_fragment_free(&frag->children);
+			free(frag);
+			return false;
+		}
+	}
+
+	if (old_frag != NULL)
+		pkgconf_fragment_delete(list, old_frag);
+
+	pkgconf_node_insert_tail(&frag->iter, frag, list);
+	return true;
+}
+
 /*
  * !doc
  *
@@ -609,26 +685,7 @@ pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fr
 void
 pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private)
 {
-	pkgconf_fragment_t *frag;
-
-	if ((frag = pkgconf_fragment_exists(list, base, client->flags, is_private)) != NULL)
-	{
-		if (pkgconf_fragment_should_merge(frag))
-			pkgconf_fragment_delete(list, frag);
-	}
-	else if (!is_private && !pkgconf_fragment_can_merge_back(base, client->flags, is_private) && (pkgconf_fragment_lookup(list, base) != NULL))
-		return;
-
-	frag = calloc(1, sizeof(pkgconf_fragment_t));
-	if (frag == NULL)
-		return;
-
-	frag->type = base->type;
-	pkgconf_fragment_copy_list(client, &frag->children, &base->children);
-	if (base->data != NULL)
-		frag->data = strdup(base->data);
-
-	pkgconf_node_insert_tail(&frag->iter, frag, list);
+	(void) pkgconf_fragment_copy_node(client, list, base, is_private);
 }
 
 /*
@@ -647,14 +704,7 @@ pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, cons
 void
 pkgconf_fragment_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base)
 {
-	pkgconf_node_t *node;
-
-	PKGCONF_FOREACH_LIST_ENTRY(base->head, node)
-	{
-		pkgconf_fragment_t *frag = node->data;
-
-		pkgconf_fragment_copy(client, list, frag, true);
-	}
+	(void) pkgconf_fragment_copy_list_node(client, list, base);
 }
 
 /*
@@ -681,7 +731,7 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 		pkgconf_fragment_t *frag = node->data;
 
 		if (filter_func(client, frag, data))
-			pkgconf_fragment_copy(client, dest, frag, true);
+			(void) pkgconf_fragment_copy_node(client, dest, frag, true);
 	}
 }
 
@@ -785,7 +835,7 @@ fragment_render(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment
 	pkgconf_buffer_t quoted = PKGCONF_BUFFER_INITIALIZER;
 
 	if (!fragment_quote(&quoted, frag))
-		return false;
+		goto fail;
 
 	if (frag->type && !pkgconf_buffer_append_fmt(buf, "-%c", frag->type))
 		goto fail;
@@ -869,6 +919,7 @@ pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node)
 {
 	pkgconf_node_delete(&node->iter, list);
 
+	pkgconf_fragment_free(&node->children);
 	free(node->data);
 	free(node);
 }
