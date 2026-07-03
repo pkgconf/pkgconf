@@ -43,10 +43,12 @@ static inline const char *
 dependency_to_buf(const pkgconf_dependency_t *dep, pkgconf_buffer_t *buf)
 {
 	pkgconf_buffer_reset(buf);
-	pkgconf_buffer_append(buf, dep->package);
+	if (!pkgconf_buffer_append(buf, dep->package))
+		return NULL;
 
-	if (dep->version != NULL)
-		pkgconf_buffer_append_fmt(buf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
+	if (dep->version != NULL &&
+		!pkgconf_buffer_append_fmt(buf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version))
+		return NULL;
 
 	return pkgconf_buffer_str(buf);
 }
@@ -77,12 +79,16 @@ add_or_replace_dependency_node(pkgconf_client_t *client, pkgconf_dependency_t *d
 	pkgconf_buffer_t depbuf = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_dependency_t *dep2 = find_colliding_dependency(dep, list);
 	const char *depstr = dependency_to_buf(dep, &depbuf);
+	if (depstr == NULL)
+		depstr = dep->package;
 
 	/* there is already a node in the graph which describes this dependency */
 	if (dep2 != NULL)
 	{
 		pkgconf_buffer_t depbuf2 = PKGCONF_BUFFER_INITIALIZER;
 		const char *depstr2 = dependency_to_buf(dep2, &depbuf2);
+		if (depstr2 == NULL)
+			depstr2 = dep2->package;
 
 		PKGCONF_TRACE(client, "dependency collision: [%s/%x] -- [%s/%x]",
 			depstr, dep->flags, depstr2, dep2->flags);
@@ -414,7 +420,9 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 				break;
 
 			pkgconf_buffer_reset(&cmpname);
-			pkgconf_buffer_append_slice(&cmpname, opstart, ptr - opstart);
+			if (!pkgconf_buffer_append_slice(&cmpname, opstart, ptr - opstart))
+				goto out;
+
 			compare = pkgconf_pkg_comparator_lookup_by_name(pkgconf_buffer_str(&cmpname));
 			state = AFTER_OPERATOR;
 			// fallthrough
