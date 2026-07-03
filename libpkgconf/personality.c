@@ -275,11 +275,20 @@ load_personality_with_path(const char *path, const char *triplet, bool datadir)
 
 	/* if triplet is null, assume that path is a direct path to the personality file */
 	if (triplet == NULL)
-		pkgconf_buffer_append(&pathbuf, path);
+	{
+		if (!pkgconf_buffer_append(&pathbuf, path))
+			return NULL;
+	}
 	else if (datadir)
-		pkgconf_buffer_append_fmt(&pathbuf, "%s/pkgconfig/personality.d/%s.personality", path, triplet);
+	{
+		if (!pkgconf_buffer_append_fmt(&pathbuf, "%s/pkgconfig/personality.d/%s.personality", path, triplet))
+			return NULL;
+	}
 	else
-		pkgconf_buffer_append_fmt(&pathbuf, "%s/%s.personality", path, triplet);
+	{
+		if (!pkgconf_buffer_append_fmt(&pathbuf, "%s/%s.personality", path, triplet))
+			return NULL;
+	}
 
 	p = calloc(1, sizeof(pkgconf_cross_personality_t));
 	if (p == NULL)
