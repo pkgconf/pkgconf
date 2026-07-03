@@ -1798,8 +1798,7 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 	int maxdepth,
 	unsigned int skip_flags)
 {
-	if (root->flags & PKGCONF_PKG_PROPF_VIRTUAL)
-		client->serial++;
+	client->serial++;
 
 	if ((client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE) == 0)
 	{
