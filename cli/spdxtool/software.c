@@ -16,6 +16,25 @@
 #include "software.h"
 #include "core.h"
 
+static char *
+relationship_spdx_id(pkgconf_client_t *client, const char *from, const char *to, char sep)
+{
+	pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
+	char *spdx_id = NULL;
+
+	if (!pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", from, sep, sep, to))
+		goto out;
+
+	if (pkgconf_buffer_len(&relationship_buf) == 0)
+		goto out;
+
+	spdx_id = spdxtool_util_get_spdx_id_string(client, "Relationship", pkgconf_buffer_str(&relationship_buf));
+
+out:
+	pkgconf_buffer_finalize(&relationship_buf);
+	return spdx_id;
+}
+
 /*
  * !doc
  *
@@ -135,21 +154,12 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
-		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 
 		/* an unresolved (but tolerated) dependency has no match */
 		if (match == NULL)
 			continue;
 
-		if (!pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", sbom->rootElement->id, sep, sep, match->id))
-			goto err;
-
-		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
-		if (!relationship_str)
-			goto err;
-
-		char *spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
-		free(relationship_str);
+		char *spdx_id_relation = relationship_spdx_id(client, sbom->rootElement->id, match->id, sep);
 		if (!spdx_id_relation)
 			goto err;
 
@@ -172,21 +182,12 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
-		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 
 		/* an unresolved (but tolerated) dependency has no match */
 		if (match == NULL)
 			continue;
 
-		if (!pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", sbom->rootElement->id, sep, sep, match->id))
-			goto err;
-
-		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
-		if (!relationship_str)
-			goto err;
-
-		char *spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
-		free(relationship_str);
+		char *spdx_id_relation = relationship_spdx_id(client, sbom->rootElement->id, match->id, sep);
 		if (!spdx_id_relation)
 			goto err;
 
@@ -484,21 +485,12 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
-		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 
 		/* an unresolved (but tolerated) dependency has no match */
 		if (match == NULL)
 			continue;
 
-		if (!pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", pkg->id, sep, sep, match->id))
-			goto err;
-
-		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
-		if (!relationship_str)
-			goto err;
-
-		char *spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
-		free(relationship_str);
+		char *spdx_id_relation = relationship_spdx_id(client, pkg->id, match->id, sep);
 		if (!spdx_id_relation)
 			goto err;
 
@@ -540,21 +532,12 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	{
 		pkgconf_dependency_t *dep = node->data;
 		pkgconf_pkg_t *match = dep->match;
-		pkgconf_buffer_t relationship_buf = PKGCONF_BUFFER_INITIALIZER;
 
 		/* an unresolved (but tolerated) dependency has no match */
 		if (match == NULL)
 			continue;
 
-		if (!pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", pkg->id, sep, sep, match->id))
-			goto err;
-
-		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
-		if (!relationship_str)
-			goto err;
-
-		char *spdx_id_relation = spdxtool_util_get_spdx_id_string(client, "Relationship", relationship_str);
-		free(relationship_str);
+		char *spdx_id_relation = relationship_spdx_id(client, pkg->id, match->id, sep);
 		if (!spdx_id_relation)
 			goto err;
 
