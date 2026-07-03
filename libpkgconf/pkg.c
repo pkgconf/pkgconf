@@ -955,7 +955,7 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 	for (dirent = readdir(dir); dirent != NULL; dirent = readdir(dir))
 	{
 		pkgconf_buffer_t filebuf = PKGCONF_BUFFER_INITIALIZER;
-		pkgconf_pkg_t *pkg;
+		pkgconf_pkg_t *pkg = NULL;
 
 		if (!pkgconf_buffer_join(&filebuf, '/', path, dirent->d_name, NULL))
 		{
@@ -969,13 +969,34 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 			continue;
 		}
 
+		if (!(client->flags & PKGCONF_PKG_PKGF_NO_CACHE))
+		{
+			pkgconf_buffer_t idbuf = PKGCONF_BUFFER_INITIALIZER;
+
+			if (pkgconf_buffer_append(&idbuf, pkgconf_path_find_basename(pkgconf_buffer_str(&filebuf))))
+			{
+				char *idptr = strrchr(pkgconf_buffer_str(&idbuf), '.');
+
+				if (idptr != NULL)
+					*idptr = '\0';
+
+				pkg = pkgconf_cache_lookup(client, pkgconf_buffer_str(&idbuf));
+			}
+
+			pkgconf_buffer_finalize(&idbuf);
+		}
+
 		PKGCONF_TRACE(client, "trying file [%s]", pkgconf_buffer_str(&filebuf));
 
-		pkg = pkgconf_pkg_new_from_path(client, pkgconf_buffer_str(&filebuf), 0);
+		if (pkg == NULL)
+			pkg = pkgconf_pkg_new_from_path(client, pkgconf_buffer_str(&filebuf), 0);
 		pkgconf_buffer_finalize(&filebuf);
 
 		if (pkg != NULL)
 		{
+			if (!(pkg->flags & PKGCONF_PKG_PROPF_CACHED) && !(client->flags & PKGCONF_PKG_PKGF_NO_CACHE))
+				pkgconf_cache_add(client, pkg);
+
 			if (func(pkg, data))
 			{
 				outpkg = pkg;
