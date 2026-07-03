@@ -456,6 +456,9 @@ if host_machine.system() == 'windows'
   conf_data = configuration_data()
   conf_data.set('VERSION', meson.project_version())
   conf_data.set('EXE', pkgconf_exe.full_path())
+  conf_data.set('BOMTOOL_EXE', bomtool_exe.full_path())
+  conf_data.set('SPDXTOOL_EXE', spdxtool_exe.full_path())
+  conf_data.set('PCCRITIC_EXE', pccritic_exe.full_path())
   conf_data.set('DLL', libpkgconf.full_path())
   conf_data.set('BUILD_TYPE', libtype)
 
@@ -486,7 +489,7 @@ if host_machine.system() == 'windows'
   if wix.found()
     msi = custom_target(
       msi_filename,
-      input: [wxsfile, licensefile, pkgconf_exe],
+      input: [wxsfile, licensefile, pkgconf_exe, bomtool_exe, spdxtool_exe, pccritic_exe],
       output: msi_filename,
       command: [wix, 'build', wxsfile, '-arch', wix_arch, '-ext', 'WixToolset.UI.wixext', '-o', msi_filename],
     )

@@ -41,6 +41,21 @@
                     Source="@EXE@"
                     KeyPath="yes" />
           </Component>
+          <Component Id="BomtoolExe" Guid="*">
+              <File Id="BomtoolExeFile"
+                    Source="@BOMTOOL_EXE@"
+                    KeyPath="yes" />
+          </Component>
+          <Component Id="SpdxtoolExe" Guid="*">
+              <File Id="SpdxtoolExeFile"
+                    Source="@SPDXTOOL_EXE@"
+                    KeyPath="yes" />
+          </Component>
+          <Component Id="PccriticExe" Guid="*">
+              <File Id="PccriticExeFile"
+                    Source="@PCCRITIC_EXE@"
+                    KeyPath="yes" />
+          </Component>
           <?if "@BUILD_TYPE@" = "shared" ?>
             <Component Id="PkgconfDll" Guid="*">
                 <File Id="PkgconfDllFile"
