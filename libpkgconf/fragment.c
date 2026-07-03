@@ -329,7 +329,7 @@ fragment_is_unquoted_var(const char *value)
 /*
  * !doc
  *
- * .. c:function:: void pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
+ * .. c:function:: bool pkgconf_fragment_add(const pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
  *
  *    Adds a `fragment` of text to a `fragment list`, possibly modifying the fragment if a sysroot is set.
  *
@@ -337,9 +337,9 @@ fragment_is_unquoted_var(const char *value)
  *    :param pkgconf_list_t* list: The fragment list.
  *    :param char* string: The string of text to add as a fragment to the fragment list.
  *    :param uint flags: Parsing-related flags for the package.
- *    :return: nothing
+ *    :return: true on success, false on parse error or allocation failure
  */
-void
+bool
 pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
 {
 	pkgconf_list_t *target = list;
@@ -352,18 +352,24 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 	if (!pkgconf_bytecode_eval_str_to_buf(client, vars, value, &saw_sysroot, &evalbuf))
 	{
 		pkgconf_buffer_finalize(&evalbuf);
-		return;
+		return false;
+	}
+
+	if (pkgconf_buffer_len(&evalbuf) == 0)
+	{
+		pkgconf_buffer_finalize(&evalbuf);
+		return true;
 	}
 
 	string = pkgconf_buffer_freeze(&evalbuf);
 	if (string == NULL)
-		return;
+		return false;
 
 	if (fragment_is_unquoted_var(value))
 	{
-		pkgconf_fragment_parse(client, list, vars, string, flags);
+		bool ret = pkgconf_fragment_parse(client, list, vars, string, flags);
 		free(string);
-		return;
+		return ret;
 	}
 
 	if (list->tail != NULL && list->tail->data != NULL &&
@@ -391,7 +397,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 	{
 		PKGCONF_TRACE(client, "failed to add new fragment due to allocation failure to list @%p", target);
 		free(string);
-		return;
+		return false;
 	}
 
 	if (strlen(string) > 1 && !pkgconf_fragment_is_special(string))
@@ -408,7 +414,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 				pkgconf_buffer_finalize(&sysroot_buf);
 				free(frag);
 				free(string);
-				return;
+				return false;
 			}
 
 			frag->data = pkgconf_buffer_freeze(&sysroot_buf);
@@ -432,7 +438,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 					pkgconf_buffer_finalize(&sysroot_buf);
 					free(frag);
 					free(string);
-					return;
+					return false;
 				}
 
 				free(string);
@@ -440,7 +446,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 				if (string == NULL)
 				{
 					free(frag);
-					return;
+					return false;
 				}
 			}
 		}
@@ -453,7 +459,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 	{
 		free(frag);
 		free(string);
-		return;
+		return false;
 	}
 
 	if (frag->type)
@@ -466,6 +472,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 		terminate_parent->flags |= PKGCONF_PKG_FRAGF_TERMINATED;
 
 	free(string);
+	return true;
 }
 
 static inline pkgconf_fragment_t *
@@ -1003,14 +1010,22 @@ pkgconf_fragment_parse(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_l
 				return false;
 			}
 
-			pkgconf_fragment_add(client, list, vars, pkgconf_buffer_str(&greedybuf), flags);
+			bool added = pkgconf_fragment_add(client, list, vars, pkgconf_buffer_str(&greedybuf), flags);
 			pkgconf_buffer_finalize(&greedybuf);
+			if (!added)
+			{
+				pkgconf_argv_free(argv);
+				return false;
+			}
 
 			/* skip over next arg as we combined them */
 			i++;
 		}
-		else
-			pkgconf_fragment_add(client, list, vars, argv[i], flags);
+		else if (!pkgconf_fragment_add(client, list, vars, argv[i], flags))
+		{
+			pkgconf_argv_free(argv);
+			return false;
+		}
 	}
 
 	pkgconf_argv_free(argv);
