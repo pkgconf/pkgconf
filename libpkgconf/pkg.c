@@ -62,7 +62,8 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_append(&buf, pkg->filename);
+	if (!pkgconf_buffer_append(&buf, pkg->filename))
+		return NULL;
 
 #ifndef _WIN32
 	struct stat path_stat;
@@ -75,7 +76,8 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 		char *targetfilename, *targetdir;
 
 		pkgconf_buffer_reset(&pathbuf);
-		pkgconf_buffer_append(&pathbuf, buf.base);
+		if (!pkgconf_buffer_append(&pathbuf, buf.base))
+			goto fail;
 
 		targetfilename = strrchr(pathbuf.base, '/');
 		if (targetfilename != NULL)
@@ -120,9 +122,13 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 		 *   ../bar (relative)  |  /foo/link (absolute)  |  /foo/../bar (relative)
 		 */
 		if ((sourcebuf[0] != '/') && strcmp(targetdir, "."))
-			pkgconf_buffer_append_fmt(&buf, "%s/", targetdir);
+		{
+			if (!pkgconf_buffer_append_fmt(&buf, "%s/", targetdir))
+				goto fail;
+		}
 
-		pkgconf_buffer_append(&buf, sourcebuf);
+		if (!pkgconf_buffer_append(&buf, sourcebuf))
+			goto fail;
 	}
 #endif
 
@@ -132,6 +138,11 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 		pkgconf_path_trim_basename(&buf);
 
 	return pkgconf_buffer_freeze(&buf);
+
+fail:
+	pkgconf_buffer_finalize(&pathbuf);
+	pkgconf_buffer_finalize(&buf);
+	return NULL;
 }
 
 typedef void (*pkgconf_pkg_parser_keyword_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value);
@@ -170,8 +181,9 @@ pkgconf_pkg_parser_bufferset_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_bytecode_eval_str_to_buf(client, &pkg->vars, value, NULL, &buf);
-	pkgconf_bufferset_extend(dest, &buf);
+	if (pkgconf_bytecode_eval_str_to_buf(client, &pkg->vars, value, NULL, &buf))
+		pkgconf_bufferset_extend(dest, &buf);
+
 	pkgconf_buffer_finalize(&buf);
 }
 
@@ -196,7 +208,14 @@ pkgconf_pkg_parser_link_abi_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, c
 			p++;
 
 		while (*p != '\0' && *p != ',' && !isspace((unsigned char) *p))
-			pkgconf_buffer_push_byte(&tag, (char) tolower((unsigned char) *p++));
+		{
+			if (!pkgconf_buffer_push_byte(&tag, (char) tolower((unsigned char) *p++)))
+			{
+				pkgconf_buffer_finalize(&tag);
+				free(expanded);
+				return;
+			}
+		}
 
 		if (pkgconf_buffer_len(&tag))
 			pkgconf_bufferset_extend(dest, &tag);
@@ -362,7 +381,9 @@ pkgconf_pkg_parser_keyword_set(void *opaque, const char *warnprefix, const char 
 static bool
 determine_prefix(const pkgconf_pkg_t *pkg, pkgconf_buffer_t *pathbuf)
 {
-	pkgconf_buffer_append(pathbuf, pkg->filename);
+	if (!pkgconf_buffer_append(pathbuf, pkg->filename))
+		return false;
+
 	pkgconf_path_relocate(pathbuf);
 
 	pkgconf_path_trim_basename(pathbuf);
@@ -398,17 +419,25 @@ convert_path_to_value(const char *path)
 	for (i = path; *i != '\0'; i++)
 	{
 		if (*i == PKG_DIR_SEP_S)
-			pkgconf_buffer_push_byte(&buf, '/');
+		{
+			if (!pkgconf_buffer_push_byte(&buf, '/'))
+				goto fail;
+		}
 		else if (*i == ' ')
 		{
-			pkgconf_buffer_push_byte(&buf, '\\');
-			pkgconf_buffer_push_byte(&buf, ' ');
+			if (!pkgconf_buffer_push_byte(&buf, '\\') ||
+				!pkgconf_buffer_push_byte(&buf, ' '))
+				goto fail;
 		}
-		else
-			pkgconf_buffer_push_byte(&buf, *i);
+		else if (!pkgconf_buffer_push_byte(&buf, *i))
+			goto fail;
 	}
 
 	return pkgconf_buffer_freeze(&buf);
+
+fail:
+	pkgconf_buffer_finalize(&buf);
+	return NULL;
 }
 
 static void
@@ -509,8 +538,12 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 			{
 				pkgconf_buffer_t newvalue = PKGCONF_BUFFER_INITIALIZER;
 
-				pkgconf_buffer_append(&newvalue, pkgconf_buffer_str_or_empty(&pkg->calculated_prefix));
-				pkgconf_buffer_append(&newvalue, pkgconf_buffer_str(&canonicalized_value) + oplen);
+				if (!pkgconf_buffer_append(&newvalue, pkgconf_buffer_str_or_empty(&pkg->calculated_prefix)) ||
+					!pkgconf_buffer_append(&newvalue, pkgconf_buffer_str(&canonicalized_value) + oplen))
+				{
+					pkgconf_buffer_finalize(&newvalue);
+					goto out;
+				}
 
 				pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, pkgconf_buffer_str(&newvalue), false, pkg->flags);
 				pkgconf_buffer_finalize(&newvalue);
@@ -530,8 +563,14 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 			const char *relvalue = pkgconf_buffer_str(&pathbuf);
 			char *prefix_value = convert_path_to_value(relvalue);
 
-			pkgconf_buffer_append(&pkg->orig_prefix, pkgconf_buffer_str(&canonicalized_value));
-			pkgconf_buffer_append(&pkg->calculated_prefix, prefix_value);
+			if (prefix_value == NULL ||
+				!pkgconf_buffer_append(&pkg->orig_prefix, pkgconf_buffer_str(&canonicalized_value)) ||
+				!pkgconf_buffer_append(&pkg->calculated_prefix, prefix_value))
+			{
+				free(prefix_value);
+				pkgconf_buffer_finalize(&pathbuf);
+				goto out;
+			}
 
 			pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, prefix_value, false, pkg->flags);
 			free(prefix_value);
@@ -771,7 +810,12 @@ pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsign
 	{
 		pkgconf_buffer_t abibuf = PKGCONF_BUFFER_INITIALIZER;
 
-		pkgconf_buffer_append(&abibuf, "c");
+		if (!pkgconf_buffer_append(&abibuf, "c"))
+		{
+			pkgconf_pkg_free(client, pkg);
+			return NULL;
+		}
+
 		pkgconf_bufferset_extend(&pkg->link_abi, &abibuf);
 		pkgconf_buffer_finalize(&abibuf);
 	}
@@ -913,7 +957,11 @@ pkgconf_pkg_scan_dir(pkgconf_client_t *client, const char *path, void *data, pkg
 		pkgconf_buffer_t filebuf = PKGCONF_BUFFER_INITIALIZER;
 		pkgconf_pkg_t *pkg;
 
-		pkgconf_buffer_join(&filebuf, '/', path, dirent->d_name, NULL);
+		if (!pkgconf_buffer_join(&filebuf, '/', path, dirent->d_name, NULL))
+		{
+			closedir(dir);
+			return NULL;
+		}
 
 		if (!str_has_suffix(pkgconf_buffer_str(&filebuf), PKG_CONFIG_EXT))
 		{
