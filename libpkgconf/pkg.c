@@ -63,7 +63,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 
 	if (!pkgconf_buffer_append(&buf, pkg->filename))
-		return NULL;
+		goto fail;
 
 #ifndef _WIN32
 	struct stat path_stat;
