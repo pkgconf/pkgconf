@@ -91,6 +91,12 @@ pkgconf_queue_push(pkgconf_list_t *list, const char *package)
 		return;
 
 	pkgq->package = strdup(package);
+	if (pkgq->package == NULL)
+	{
+		free(pkgq);
+		return;
+	}
+
 	pkgconf_node_insert_tail(&pkgq->iter, pkgq, list);
 }
 
@@ -318,6 +324,13 @@ pkgconf_queue_collect_conflicts(pkgconf_client_t *client,
 			}
 
 			flattened_conflict->why = strdup(pkg->id);
+			if (flattened_conflict->why == NULL)
+			{
+				eflags |= PKGCONF_PKG_ERRF_DEPGRAPH_BREAK;
+				pkgconf_dependency_unref(client, flattened_conflict);
+				continue;
+			}
+
 			pkgconf_node_insert(&flattened_conflict->iter, flattened_conflict, &world->conflicts);
 		}
 	}
