@@ -325,7 +325,10 @@ spdxtool_util_tuple_lookup(pkgconf_client_t *client, pkgconf_list_t *vars, const
 		return NULL;
 
 	if (!pkgconf_variable_eval(client, vars, v, &buf, NULL))
+	{
+		pkgconf_buffer_finalize(&buf);
 		return NULL;
+	}
 
 	return pkgconf_buffer_freeze(&buf);
 }

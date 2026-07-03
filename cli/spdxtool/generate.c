@@ -17,13 +17,19 @@
 #include "simplelicensing.h"
 #include "generate.h"
 
+typedef struct {
+	spdxtool_core_spdx_document_t *document;
+	bool failed;
+} generate_spdx_ctx_t;
+
 // NOTE: this function is passed to pkgconf_pkg_traverse
 static void
 generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, unsigned int iter_flags)
 {
 	(void) iter_flags;
 
-	spdxtool_core_spdx_document_t *document = (spdxtool_core_spdx_document_t *)ptr;
+	generate_spdx_ctx_t *ctx = ptr;
+	spdxtool_core_spdx_document_t *document = ctx->document;
 	pkgconf_node_t *node = NULL;
 	spdxtool_software_sbom_t *sbom = NULL;
 	char *package_spdx = NULL;
@@ -33,6 +39,9 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 	char sep = spdxtool_util_get_uri_separator(client);
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
+		return;
+
+	if (ctx->failed)
 		return;
 
 	spdx_id_string = spdxtool_util_get_spdx_id_string(client, "software_Sbom", pkg->id);
@@ -52,12 +61,16 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 	if (!package_spdx)
 		goto err;
 
-	pkgconf_tuple_add(client, &pkg->vars, "spdxId", package_spdx, false, 0);
+	if (pkgconf_tuple_add(client, &pkg->vars, "spdxId", package_spdx, false, 0) == NULL)
+		goto err;
 	free(package_spdx);
 	package_spdx = NULL;
 
-	pkgconf_tuple_add(client, &pkg->vars, "creationInfo", document->creation_info, false, 0);
-	pkgconf_tuple_add(client, &pkg->vars, "agent", document->agent, false, 0);
+	if (pkgconf_tuple_add(client, &pkg->vars, "creationInfo", document->creation_info, false, 0) == NULL ||
+		pkgconf_tuple_add(client, &pkg->vars, "agent", document->agent, false, 0) == NULL)
+	{
+		goto err;
+	}
 
 	if (pkg->maintainer != NULL)
 	{
@@ -65,7 +78,8 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 		if (!supplier)
 			goto err;
 
-		pkgconf_tuple_add(client, &pkg->vars, "suppliedBy", supplier, false, 0);
+		if (pkgconf_tuple_add(client, &pkg->vars, "suppliedBy", supplier, false, 0) == NULL)
+			goto err;
 	}
 
 	if (pkg->license.head != NULL)
@@ -82,7 +96,8 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 		if (!package_spdx)
 			goto err;
 
-		pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0);
+		if (pkgconf_tuple_add(client, &pkg->vars, "hasDeclaredLicense", package_spdx, false, 0) == NULL)
+			goto err;
 		free(package_spdx);
 		package_spdx = NULL;
 
@@ -98,7 +113,8 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 		if (!package_spdx)
 			goto err;
 
-		pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0);
+		if (pkgconf_tuple_add(client, &pkg->vars, "hasConcludedLicense", package_spdx, false, 0) == NULL)
+			goto err;
 		free(package_spdx);
 		package_spdx = NULL;
 
@@ -121,6 +137,7 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 	return;
 
 err:
+	ctx->failed = true;
 	pkgconf_error(client, "generate_spdx_package: failed for %s", pkg->id);
 	free(package_spdx);
 	free(spdx_id_string);
@@ -173,8 +190,11 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 		return false;
 	}
 
-	int eflag = pkgconf_pkg_traverse(client, world, generate_spdx_package, document, maxdepth, 0);
-	if (eflag != PKGCONF_PKG_ERRF_OK)
+	generate_spdx_ctx_t ctx = {
+		.document = document,
+	};
+	int eflag = pkgconf_pkg_traverse(client, world, generate_spdx_package, &ctx, maxdepth, 0);
+	if (eflag != PKGCONF_PKG_ERRF_OK || ctx.failed)
 	{
 		spdxtool_core_spdx_document_free(document);
 		spdxtool_core_creation_info_free(creation);
