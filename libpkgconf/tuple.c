@@ -213,6 +213,7 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 
 	if (!pkgconf_bytecode_compile(&rhs_bcbuf, dequote_value))
 	{
+		pkgconf_buffer_finalize(&rhs_bcbuf);
 		free(dequote_value);
 		return NULL;
 	}
@@ -228,6 +229,7 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 		/* preserve the old bytecode */
 		if (!pkgconf_buffer_copy(&v->bcbuf, &old_bcbuf))
 		{
+			pkgconf_buffer_finalize(&old_bcbuf);
 			pkgconf_buffer_finalize(&rhs_bcbuf);
 			return NULL;
 		}
