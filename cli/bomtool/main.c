@@ -242,7 +242,13 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, u
 
 	if (pkg->license.head != NULL)
 	{
-		pkgconf_license_render(client, &pkg->license, &license_buf);
+		if (!pkgconf_license_render(client, &pkg->license, &license_buf))
+		{
+			pkgconf_buffer_finalize(&license_buf);
+			pkgconf_error(client, "bomtool: could not render package license");
+			return;
+		}
+
 		bool ret = pkgconf_output_file_fmt(sbom_out, "PackageLicenseDeclared: %s\n", pkgconf_buffer_str_or_empty(&license_buf));
 		int errno_save = errno;
 		pkgconf_buffer_finalize(&license_buf);
@@ -467,10 +473,15 @@ main(int argc, char *argv[])
 
 	while (pkg_optind < argc && argv[pkg_optind] != NULL)
 	{
-		if (pkgconf_buffer_len(&queryparams) > 0)
-			pkgconf_buffer_push_byte(&queryparams, ' ');
+		if ((pkgconf_buffer_len(&queryparams) > 0 &&
+			 !pkgconf_buffer_push_byte(&queryparams, ' ')) ||
+			!pkgconf_buffer_append(&queryparams, argv[pkg_optind]))
+		{
+			pkgconf_buffer_finalize(&queryparams);
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 
-		pkgconf_buffer_append(&queryparams, argv[pkg_optind]);
 		pkg_optind++;
 	}
 
