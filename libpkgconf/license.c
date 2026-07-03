@@ -97,6 +97,8 @@ pkgconf_license_free(pkgconf_list_t *list)
 		free(license->data);
 		free(license);
 	}
+
+	pkgconf_list_zero(list);
 }
 
 /*

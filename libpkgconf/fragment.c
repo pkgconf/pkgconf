@@ -896,6 +896,8 @@ pkgconf_fragment_free(pkgconf_list_t *list)
 		free(frag->data);
 		free(frag);
 	}
+
+	pkgconf_list_zero(list);
 }
 
 /*
