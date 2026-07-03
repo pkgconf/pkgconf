@@ -155,7 +155,14 @@ pkgconf_dependency_addraw(pkgconf_client_t *client, pkgconf_list_t *list, const 
 	}
 
 	if (version_sz != 0)
+	{
 		dep->version = pkgconf_strndup(version, version_sz);
+		if (dep->version == NULL)
+		{
+			pkgconf_dependency_free_one(dep);
+			return NULL;
+		}
+	}
 
 	dep->compare = compare;
 	dep->flags = flags;
@@ -516,7 +523,14 @@ pkgconf_dependency_copy(pkgconf_client_t *client, const pkgconf_dependency_t *de
 	}
 
 	if (dep->version != NULL)
+	{
 		new_dep->version = strdup(dep->version);
+		if (new_dep->version == NULL)
+		{
+			pkgconf_dependency_free_one(new_dep);
+			return NULL;
+		}
+	}
 
 	new_dep->compare = dep->compare;
 	new_dep->flags = dep->flags;
