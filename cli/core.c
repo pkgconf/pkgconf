@@ -1276,6 +1276,12 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 
 			dep->compare = compare;
 			dep->version = strdup(target_version);
+			if (dep->version == NULL)
+			{
+				pkgconf_dependency_free(&deplist);
+				ret = EXIT_FAILURE;
+				goto out;
+			}
 		}
 	}
 
