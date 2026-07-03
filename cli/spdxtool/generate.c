@@ -22,6 +22,20 @@ typedef struct {
 	bool failed;
 } generate_spdx_ctx_t;
 
+static bool
+generate_spdx_document_add_sbom(pkgconf_client_t *client, spdxtool_core_spdx_document_t *document, spdxtool_software_sbom_t *sbom)
+{
+	pkgconf_node_t *node = calloc(1, sizeof(pkgconf_node_t));
+	if (!node)
+	{
+		pkgconf_error(client, "generate_spdx_document_add_sbom: out of memory");
+		return false;
+	}
+
+	pkgconf_node_insert_tail(node, sbom, &document->rootElement);
+	return true;
+}
+
 // NOTE: this function is passed to pkgconf_pkg_traverse
 static void
 generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, unsigned int iter_flags)
@@ -30,7 +44,7 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 
 	generate_spdx_ctx_t *ctx = ptr;
 	spdxtool_core_spdx_document_t *document = ctx->document;
-	pkgconf_node_t *node = NULL;
+	pkgconf_node_t *iter = NULL;
 	spdxtool_software_sbom_t *sbom = NULL;
 	char *package_spdx = NULL;
 	char *spdx_id_string = NULL;
@@ -118,9 +132,9 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 		free(package_spdx);
 		package_spdx = NULL;
 
-		PKGCONF_FOREACH_LIST_ENTRY(pkg->license.head, node)
+		PKGCONF_FOREACH_LIST_ENTRY(pkg->license.head, iter)
 		{
-			const pkgconf_license_t *license = node->data;
+			const pkgconf_license_t *license = iter->data;
 			if (license->type == PKGCONF_LICENSE_EXPRESSION)
 			{
 				if (!spdxtool_core_spdx_document_add_license(client, document, license->data))
@@ -129,11 +143,10 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 		}
 	}
 
-	node = calloc(1, sizeof(pkgconf_node_t));
-	if (!node)
+	if (!generate_spdx_document_add_sbom(client, document, sbom))
 		goto err;
 
-	pkgconf_node_insert_tail(node, sbom, &document->rootElement);
+	sbom = NULL;
 	return;
 
 err:
