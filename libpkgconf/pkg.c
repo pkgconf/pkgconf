@@ -332,9 +332,10 @@ static void
 pkgconf_pkg_evaluate_license_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
-	(void)keyword;
-	(void)warnprefix;
-	pkgconf_license_evaluate(client, pkg, dest, value, 0);
+
+	if (!pkgconf_license_evaluate(client, pkg, dest, value, 0))
+		pkgconf_warn(client, "%s: warning: license field '%s' could not be fully evaluated\n",
+			warnprefix, keyword);
 }
 
 /* keep this in alphabetical order */

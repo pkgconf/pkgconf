@@ -542,11 +542,11 @@ PKGCONF_API bool pkgconf_fragment_has_system_dir(const pkgconf_client_t *client,
 PKGCONF_API bool pkgconf_is_locale_utf8(void);
 
 /* license.c */
-PKGCONF_API void pkgconf_license_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base);
-PKGCONF_API void pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *expression, unsigned int flags);
-PKGCONF_API void pkgconf_license_evaluate(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist, const char *depends, unsigned int flags);
+PKGCONF_API bool pkgconf_license_copy_list(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base);
+PKGCONF_API bool pkgconf_license_evaluate_str(pkgconf_client_t *client, pkgconf_list_t *deplist_head, const char *expression, unsigned int flags);
+PKGCONF_API bool pkgconf_license_evaluate(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_list_t *deplist, const char *depends, unsigned int flags);
 PKGCONF_API void pkgconf_license_free(pkgconf_list_t *list);
-PKGCONF_API void pkgconf_license_insert(pkgconf_client_t *client, pkgconf_list_t *list, unsigned char type, const char *data);
+PKGCONF_API bool pkgconf_license_insert(pkgconf_client_t *client, pkgconf_list_t *list, unsigned char type, const char *data);
 PKGCONF_API bool pkgconf_license_render(pkgconf_client_t *client, const pkgconf_list_t *list, pkgconf_buffer_t *buf);
 
 /* tuple.c */
