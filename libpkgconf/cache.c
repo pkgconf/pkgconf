@@ -127,6 +127,13 @@ pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 	if (pkg == NULL)
 		return;
 
+	pkgconf_pkg_t *cached_pkg = pkgconf_cache_lookup(client, pkg->id);
+	if (cached_pkg != NULL)
+	{
+		pkgconf_pkg_unref(client, cached_pkg);
+		return;
+	}
+
 	pkgconf_pkg_ref(client, pkg);
 
 	pkgconf_pkg_t **new_table;
