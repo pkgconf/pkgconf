@@ -51,8 +51,8 @@ Changes from 2.5.1 to 3.0.0:
   - Declarative configuration for integration tests, C unit tests for functional tests.
   - Tests now run on Windows.
   - .pc and personality files are now opened in binary mode, and the line reader
-    was reworked to correctly handle CRLF line endings and to avoid getc/ungetc
-    for better performance.  Binary-mode handling by moi15moi.
+    was reworked to correctly handle LF, CRLF and lone-CR line endings, including
+    on non-seekable streams.  Binary-mode handling by moi15moi.
   Major contributions by Elizabeth Ashford.
 
 * New pc(5) features:
@@ -97,8 +97,17 @@ Changes from 2.5.1 to 3.0.0:
   - Variable substitution is now guarded against denial-of-service inputs,
     including billion-laughs style expansion and excessively complex bytecode
     programs.
+  - Dependency traversal is now limited to 256 levels by default to prevent
+    stack exhaustion from excessively deep graphs.  A depth of -1 explicitly
+    enables unlimited traversal.
+  - Bytecode validation now uses overflow-safe bounds checks and rejects
+    truncated, oversized and otherwise malformed programs.
+  - Dynamic buffers now reject overlapping source and destination storage and
+    guard allocation-size arithmetic against overflow.
   - LLVM libFuzzer targets were added for the pc(5) parser and the solver, and
     the numerous out-of-memory and crash paths they surfaced were hardened.
+  - Allocation failures are now propagated through parsing, rendering, output
+    and SBOM generation instead of silently producing partial results.
   - Dropped use of strlcpy, strlcat and other silently truncating string
     functions.
 
@@ -118,6 +127,7 @@ Changes from 2.5.1 to 3.0.0:
     WantDefaultStatic.
   - The vestigial --relocate=path option, which existed only for the old test
     suite, has been removed.
+  - pccritic --min-score now strictly accepts integer values from 0 through 100.
 
 * Build system changes:
   - The meson build gained a with-pkg-config-dir option to override the default
@@ -168,7 +178,11 @@ Changes from 2.5.1 to 3.0.0:
   - The pkgconf_tuple_parse API has been removed; variables are now evaluated
     via pkgconf_variable_eval (backed by the new bytecode engine).
   - The fragment rendering API was reworked around pkgconf_buffer_t, and the old
-    pkgconf_fragment_render API has been removed.
+    pkgconf_fragment_render API has been removed.  Fragment renderer callbacks
+    and pkgconf_fragment_render_buf now return bool so allocation and rendering
+    failures can be reported.
+  - pkgconf_license_render now returns bool so allocation failures can be
+    reported.
   - The package copyright field was migrated to a bufferset.
   - Environment variable lookups can now be mocked via pkgconf_client_getenv.
   - Client construction gained an options-based API: pkgconf_client_init_with_options
