@@ -195,33 +195,31 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 		return NULL;
 	}
 
-	v->flags = flags;
-
 	if (!parse)
 	{
-		pkgconf_buffer_reset(&v->bcbuf);
-		if (!pkgconf_bytecode_emit_text(&v->bcbuf, dequote_value, strlen(dequote_value)))
+		if (!pkgconf_bytecode_emit_text(&rhs_bcbuf, dequote_value, strlen(dequote_value)))
 		{
+			pkgconf_buffer_finalize(&rhs_bcbuf);
 			free(dequote_value);
 			return NULL;
 		}
 
-		pkgconf_bytecode_from_buffer(&v->bc, &v->bcbuf);
 		free(dequote_value);
-		return (pkgconf_tuple_t *) v;
 	}
-
-	if (!pkgconf_bytecode_compile(&rhs_bcbuf, dequote_value))
+	else
 	{
-		pkgconf_buffer_finalize(&rhs_bcbuf);
-		free(dequote_value);
-		return NULL;
-	}
+		if (!pkgconf_bytecode_compile(&rhs_bcbuf, dequote_value))
+		{
+			pkgconf_buffer_finalize(&rhs_bcbuf);
+			free(dequote_value);
+			return NULL;
+		}
 
-	free(dequote_value);
+		free(dequote_value);
+	}
 
 	/* ugh, we are doing var=${var}/foo stuff */
-	if (pkgconf_bytecode_references_var(&rhs_bcbuf, key))
+	if (parse && pkgconf_bytecode_references_var(&rhs_bcbuf, key))
 	{
 		pkgconf_buffer_t old_bcbuf = PKGCONF_BUFFER_INITIALIZER;
 		pkgconf_buffer_t new_bcbuf = PKGCONF_BUFFER_INITIALIZER;
@@ -257,14 +255,10 @@ pkgconf_tuple_add(const pkgconf_client_t *client, pkgconf_list_t *list, const ch
 		pkgconf_buffer_finalize(&new_bcbuf);
 	}
 
-	if (!pkgconf_buffer_copy(&rhs_bcbuf, &v->bcbuf))
-	{
-		pkgconf_buffer_finalize(&rhs_bcbuf);
-		return NULL;
-	}
-
+	pkgconf_buffer_finalize(&v->bcbuf);
+	v->bcbuf = rhs_bcbuf;
+	v->flags = flags;
 	pkgconf_bytecode_from_buffer(&v->bc, &v->bcbuf);
-	pkgconf_buffer_finalize(&rhs_bcbuf);
 
 	return (pkgconf_tuple_t *) v;
 }
