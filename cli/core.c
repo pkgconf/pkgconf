@@ -417,6 +417,7 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 	pkgconf_list_t filtered_list = PKGCONF_LIST_INITIALIZER;
 	pkgconf_buffer_t render_buf = PKGCONF_BUFFER_INITIALIZER;
 	unsigned int eflag;
+	bool ret = true;
 
 	eflag = collect_fn(client, world, &unfiltered_list, maxdepth);
 	if (eflag != PKGCONF_PKG_ERRF_OK)
@@ -430,16 +431,22 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 	if (filtered_list.head == NULL)
 		goto out;
 
-	pkgconf_fragment_render_buf(&filtered_list, &render_buf, true, state->want_render_ops, (state->want_flags & PKG_NEWLINES) ? '\n' : ' ');
-	pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s='%s'\n",
+	if (!pkgconf_fragment_render_buf(&filtered_list, &render_buf, true, state->want_render_ops,
+		(state->want_flags & PKG_NEWLINES) ? '\n' : ' '))
+	{
+		ret = false;
+		goto out;
+	}
+
+	ret = pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s='%s'\n",
 		prefix, pkgconf_buffer_str_or_empty(&render_buf));
-	pkgconf_buffer_finalize(&render_buf);
 
 out:
+	pkgconf_buffer_finalize(&render_buf);
 	pkgconf_fragment_free(&unfiltered_list);
 	pkgconf_fragment_free(&filtered_list);
 
-	return true;
+	return ret;
 }
 
 static void
@@ -775,7 +782,7 @@ print_license(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned
 	(void) iter_flags;
 
 	pkgconf_buffer_t render_buf = PKGCONF_BUFFER_INITIALIZER;
-	(void) data;
+	int *retval = data;
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
 		return;
@@ -788,9 +795,11 @@ print_license(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned
 	else
 	{
 		/* NOASSERTION is the default when the license is unknown, per SPDX spec § 3.15 */
-		pkgconf_license_render(client, &pkg->license, &render_buf);
-		pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s: ", pkg->id);
-		pkgconf_output_putbuf(client->output, PKGCONF_OUTPUT_STDOUT, &render_buf, true);
+		if (!pkgconf_license_render(client, &pkg->license, &render_buf) ||
+			!pkgconf_output_fmt(client->output, PKGCONF_OUTPUT_STDOUT, "%s: ", pkg->id) ||
+			!pkgconf_output_putbuf(client->output, PKGCONF_OUTPUT_STDOUT, &render_buf, true))
+			*retval = EXIT_FAILURE;
+
 		pkgconf_buffer_finalize(&render_buf);
 	}
 }
@@ -827,10 +836,15 @@ apply_link_abi(pkgconf_client_t *client, pkgconf_pkg_t *world, void *data, int m
 	{
 		pkgconf_bufferset_t *tag = node->data;
 
-		if (pkgconf_buffer_len(&render_buf))
-			pkgconf_buffer_push_byte(&render_buf, ' ');
-
-		pkgconf_buffer_append(&render_buf, pkgconf_buffer_str(&tag->buffer));
+		if ((pkgconf_buffer_len(&render_buf) &&
+			 !pkgconf_buffer_push_byte(&render_buf, ' ')) ||
+			!pkgconf_buffer_append(&render_buf, pkgconf_buffer_str(&tag->buffer)))
+		{
+			pkgconf_buffer_finalize(&render_buf);
+			pkgconf_bufferset_free(&abis);
+			*retval = EXIT_FAILURE;
+			return false;
+		}
 	}
 
 	pkgconf_output_putbuf(client->output, PKGCONF_OUTPUT_STDOUT, &render_buf, true);
@@ -1216,10 +1230,15 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 
 	while (last_argc < argc && argv[last_argc])
 	{
-		if (pkgconf_buffer_len(&queryparams) > 0)
-			pkgconf_buffer_push_byte(&queryparams, ' ');
+		if ((pkgconf_buffer_len(&queryparams) > 0 &&
+			 !pkgconf_buffer_push_byte(&queryparams, ' ')) ||
+			!pkgconf_buffer_append(&queryparams, argv[last_argc]))
+		{
+			pkgconf_buffer_finalize(&queryparams);
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 
-		pkgconf_buffer_append(&queryparams, argv[last_argc]);
 		last_argc++;
 	}
 
@@ -1424,8 +1443,10 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		if ((state->want_flags & PKG_LIBS))
 			apply_libs(&state->pkg_client, &world, &target_list, 2);
 
-		pkgconf_fragment_render_buf(&target_list, &render_buf, true, state->want_render_ops, (state->want_flags & PKG_NEWLINES) ? '\n' : ' ');
-		pkgconf_output_putbuf(state->pkg_client.output, PKGCONF_OUTPUT_STDOUT, &render_buf, true);
+		if (!pkgconf_fragment_render_buf(&target_list, &render_buf, true, state->want_render_ops,
+			(state->want_flags & PKG_NEWLINES) ? '\n' : ' ') ||
+			!pkgconf_output_putbuf(state->pkg_client.output, PKGCONF_OUTPUT_STDOUT, &render_buf, true))
+			ret = EXIT_FAILURE;
 		pkgconf_buffer_finalize(&render_buf);
 
 		pkgconf_fragment_free(&target_list);
