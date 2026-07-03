@@ -300,7 +300,7 @@ pkgconf_license_evaluate(pkgconf_client_t *client, pkgconf_pkg_t *pkg, pkgconf_l
  * :param uint flags: Any flags to attach to the dependency nodes.
  * :return: nothing
  */
-void
+bool
 pkgconf_license_render(pkgconf_client_t *client, const pkgconf_list_t *list, pkgconf_buffer_t *buf)
 {
 	const pkgconf_buffer_t *frag_string = NULL;
@@ -314,7 +314,8 @@ pkgconf_license_render(pkgconf_client_t *client, const pkgconf_list_t *list, pkg
 		pkgconf_license_t *license = node->data;
 		is_delim = true;
 		frag_string = PKGCONF_BUFFER_FROM_STR(license->data);
-		pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(frag_string));
+		if (!pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(frag_string)))
+			return false;
 
 		if (license->type == PKGCONF_LICENSE_BRACKET_OPEN || (node->next != NULL && ((const pkgconf_license_t *)node->next->data)->type == PKGCONF_LICENSE_BRACKET_CLOSE))
 		{
@@ -323,7 +324,10 @@ pkgconf_license_render(pkgconf_client_t *client, const pkgconf_list_t *list, pkg
 
 		if (node->next != NULL && is_delim)
 		{
-			pkgconf_buffer_push_byte(buf, ' ');
+			if (!pkgconf_buffer_push_byte(buf, ' '))
+				return false;
 		}
 	}
+
+	return true;
 }
