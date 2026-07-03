@@ -48,6 +48,22 @@ static bool color_on = false;
 static FILE *out = NULL;
 static FILE *error_msgout = NULL;
 
+static bool
+parse_min_score(const char *value, int *score)
+{
+	char *end;
+	long parsed;
+
+	errno = 0;
+	parsed = strtol(value, &end, 10);
+
+	if (value == end || *end != '\0' || errno == ERANGE || parsed < 0 || parsed > 100)
+		return false;
+
+	*score = (int) parsed;
+	return true;
+}
+
 static void
 resolve_color(void)
 {
@@ -288,7 +304,13 @@ main(int argc, char *argv[])
 			opt_quiet = true;
 			break;
 		case PKG_MIN_SCORE:
-			opt_min_score = atoi(pkg_optarg);
+			if (!parse_min_score(pkg_optarg, &opt_min_score))
+			{
+				pkgconf_output_file_fmt(error_msgout,
+					"pccritic: invalid --min-score value '%s' (use 0 through 100)\n",
+					pkg_optarg);
+				return EXIT_FAILURE;
+			}
 			break;
 		case PKG_COLOR:
 			if (pkg_optarg == NULL || !strcmp(pkg_optarg, "always"))

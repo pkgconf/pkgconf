@@ -326,6 +326,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/spdxtool/with-dependency.test \
 		t/pccritic/about.test \
 		t/pccritic/help.test \
+		t/pccritic/min-score-invalid.test \
+		t/pccritic/min-score-out-of-range.test \
 		t/pccritic/min-score.test \
 		t/pccritic/missing-field.test \
 		t/pccritic/no-arguments.test \
