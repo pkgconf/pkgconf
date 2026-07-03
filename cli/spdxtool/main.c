@@ -208,10 +208,15 @@ main(int argc, char *argv[])
 
 	while (pkg_optind < argc && argv[pkg_optind] != NULL)
 	{
-		if (pkgconf_buffer_len(&queryparams) > 0)
-			pkgconf_buffer_push_byte(&queryparams, ' ');
+		if ((pkgconf_buffer_len(&queryparams) > 0 &&
+			 !pkgconf_buffer_push_byte(&queryparams, ' ')) ||
+			!pkgconf_buffer_append(&queryparams, argv[pkg_optind]))
+		{
+			pkgconf_buffer_finalize(&queryparams);
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 
-		pkgconf_buffer_append(&queryparams, argv[pkg_optind]);
 		pkg_optind++;
 	}
 

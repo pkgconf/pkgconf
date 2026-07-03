@@ -141,7 +141,9 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		if (match == NULL)
 			continue;
 
-		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", sbom->rootElement->id, sep, sep, match->id);
+		if (!pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", sbom->rootElement->id, sep, sep, match->id))
+			goto err;
+
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
 		if (!relationship_str)
 			goto err;
@@ -176,7 +178,9 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		if (match == NULL)
 			continue;
 
-		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", sbom->rootElement->id, sep, sep, match->id);
+		if (!pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", sbom->rootElement->id, sep, sep, match->id))
+			goto err;
+
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
 		if (!relationship_str)
 			goto err;
@@ -293,7 +297,11 @@ serialize_copyright_lines_to_object(spdxtool_serialize_object_list_t *object_lis
 	PKGCONF_FOREACH_LIST_ENTRY(copyright_lines->head, node)
 	{
 		const pkgconf_bufferset_t *set = node->data;
-		pkgconf_buffer_join(&copyright_buf, '\n', pkgconf_buffer_str_or_empty(&set->buffer), NULL);
+		if (!pkgconf_buffer_join(&copyright_buf, '\n', pkgconf_buffer_str_or_empty(&set->buffer), NULL))
+		{
+			pkgconf_buffer_finalize(&copyright_buf);
+			return false;
+		}
 	}
 
 	bool ok = spdxtool_serialize_object_add_string(object_list, "software_copyrightText", pkgconf_buffer_str_or_empty(&copyright_buf)) != NULL;
@@ -467,7 +475,9 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		if (match == NULL)
 			continue;
 
-		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", pkg->id, sep, sep, match->id);
+		if (!pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", pkg->id, sep, sep, match->id))
+			goto err;
+
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
 		if (!relationship_str)
 			goto err;
@@ -513,7 +523,9 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		if (match == NULL)
 			continue;
 
-		pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", pkg->id, sep, sep, match->id);
+		if (!pkgconf_buffer_append_fmt(&relationship_buf, "%s%cdependsOn%c%s", pkg->id, sep, sep, match->id))
+			goto err;
+
 		char *relationship_str = pkgconf_buffer_freeze(&relationship_buf);
 		if (!relationship_str)
 			goto err;

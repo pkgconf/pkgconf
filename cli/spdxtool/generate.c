@@ -70,7 +70,9 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 	{
 		pkgconf_buffer_t spdx_id_buf = PKGCONF_BUFFER_INITIALIZER;
 
-		pkgconf_buffer_append_fmt(&spdx_id_buf, "%s%chasDeclaredLicense", pkg->id, sep);
+		if (!pkgconf_buffer_append_fmt(&spdx_id_buf, "%s%chasDeclaredLicense", pkg->id, sep))
+			goto err;
+
 		char *spdx_id_name = pkgconf_buffer_freeze(&spdx_id_buf);
 		if (!spdx_id_name)
 			goto err;
@@ -85,7 +87,9 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 		package_spdx = NULL;
 
 		pkgconf_buffer_t concluded_buf = PKGCONF_BUFFER_INITIALIZER;
-		pkgconf_buffer_append_fmt(&concluded_buf, "%s%chasConcludedLicense", pkg->id, sep);
+		if (!pkgconf_buffer_append_fmt(&concluded_buf, "%s%chasConcludedLicense", pkg->id, sep))
+			goto err;
+
 		spdx_id_name = pkgconf_buffer_freeze(&concluded_buf);
 		if (!spdx_id_name)
 			goto err;

@@ -180,8 +180,15 @@ spdxtool_util_get_spdx_id_int(pkgconf_client_t *client, const char *part)
 	char sep = spdxtool_util_get_uri_separator(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, NULL);
-	pkgconf_buffer_append_fmt(&current_uri, "%c" SIZE_FMT_SPECIFIER, sep, ++last_id);
+	if (last_id == SIZE_MAX ||
+		!pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, NULL) ||
+		!pkgconf_buffer_append_fmt(&current_uri, "%c" SIZE_FMT_SPECIFIER, sep, last_id + 1))
+	{
+		pkgconf_buffer_finalize(&current_uri);
+		return NULL;
+	}
+
+	last_id++;
 
 	return pkgconf_buffer_freeze(&current_uri);
 }
@@ -206,7 +213,11 @@ spdxtool_util_get_spdx_id_string(pkgconf_client_t *client, const char *part, con
 	char sep = spdxtool_util_get_uri_separator(client);
 	pkgconf_buffer_t current_uri = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, string_id, NULL);
+	if (!pkgconf_buffer_join(&current_uri, sep, global_xsd_any_uri, part, string_id, NULL))
+	{
+		pkgconf_buffer_finalize(&current_uri);
+		return NULL;
+	}
 
 	return pkgconf_buffer_freeze(&current_uri);
 }
