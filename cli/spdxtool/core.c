@@ -657,10 +657,14 @@ spdxtool_core_spdx_document_add_license(pkgconf_client_t *client, spdxtool_core_
 		return false;
 	}
 
-	pkgconf_node_insert_tail(node, expression, &spdx->licenses);
 	if (!spdxtool_core_spdx_document_add_element(client, spdx, expression->spdx_id))
+	{
+		spdxtool_simplelicensing_licenseExpression_free(expression);
+		free(node);
 		return false;
+	}
 
+	pkgconf_node_insert_tail(node, expression, &spdx->licenses);
 	return true;
 }
 
@@ -747,11 +751,14 @@ spdxtool_core_spdx_document_add_maintainer(pkgconf_client_t *client, spdxtool_co
 		return NULL;
 	}
 
-	pkgconf_node_insert_tail(node, agent, &spdx->maintainers);
-
 	if (!spdxtool_core_spdx_document_add_element(client, spdx, agent->spdx_id))
+	{
+		free(node);
+		spdxtool_core_agent_free(agent);
 		return NULL;
+	}
 
+	pkgconf_node_insert_tail(node, agent, &spdx->maintainers);
 	return agent->spdx_id;
 }
 

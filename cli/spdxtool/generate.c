@@ -28,6 +28,8 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 	spdxtool_software_sbom_t *sbom = NULL;
 	char *package_spdx = NULL;
 	char *spdx_id_string = NULL;
+	pkgconf_buffer_t spdx_id_buf = PKGCONF_BUFFER_INITIALIZER;
+	pkgconf_buffer_t concluded_buf = PKGCONF_BUFFER_INITIALIZER;
 	char sep = spdxtool_util_get_uri_separator(client);
 
 	if (pkg->flags & PKGCONF_PKG_PROPF_VIRTUAL)
@@ -68,8 +70,6 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 
 	if (pkg->license.head != NULL)
 	{
-		pkgconf_buffer_t spdx_id_buf = PKGCONF_BUFFER_INITIALIZER;
-
 		if (!pkgconf_buffer_append_fmt(&spdx_id_buf, "%s%chasDeclaredLicense", pkg->id, sep))
 			goto err;
 
@@ -86,7 +86,6 @@ generate_spdx_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *ptr, u
 		free(package_spdx);
 		package_spdx = NULL;
 
-		pkgconf_buffer_t concluded_buf = PKGCONF_BUFFER_INITIALIZER;
 		if (!pkgconf_buffer_append_fmt(&concluded_buf, "%s%chasConcludedLicense", pkg->id, sep))
 			goto err;
 
@@ -125,6 +124,8 @@ err:
 	pkgconf_error(client, "generate_spdx_package: failed for %s", pkg->id);
 	free(package_spdx);
 	free(spdx_id_string);
+	pkgconf_buffer_finalize(&spdx_id_buf);
+	pkgconf_buffer_finalize(&concluded_buf);
 	spdxtool_software_sbom_free(sbom);
 }
 
