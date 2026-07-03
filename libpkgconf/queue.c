@@ -52,11 +52,22 @@ pkgconf_queue_push_dependency(pkgconf_list_t *list, const pkgconf_dependency_t *
 	if (pkgq == NULL)
 		return;
 
-	pkgconf_buffer_append(&depbuf, dep->package);
-	if (dep->version != NULL)
-		pkgconf_buffer_append_fmt(&depbuf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version);
+	if (!pkgconf_buffer_append(&depbuf, dep->package) ||
+		(dep->version != NULL &&
+		 !pkgconf_buffer_append_fmt(&depbuf, " %s %s", pkgconf_pkg_get_comparator(dep), dep->version)))
+	{
+		pkgconf_buffer_finalize(&depbuf);
+		free(pkgq);
+		return;
+	}
 
 	pkgq->package = pkgconf_buffer_freeze(&depbuf);
+	if (pkgq->package == NULL)
+	{
+		free(pkgq);
+		return;
+	}
+
 	pkgconf_node_insert_tail(&pkgq->iter, pkgq, list);
 }
 
