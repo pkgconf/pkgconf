@@ -418,7 +418,8 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 			if (!spdx_id_license)
 				goto err;
 
-			pkgconf_license_insert(client, &relations, PKGCONF_LICENSE_UNKNOWN, spdx_id_license);
+			if (!pkgconf_license_insert(client, &relations, PKGCONF_LICENSE_UNKNOWN, spdx_id_license))
+				goto err;
 			free(spdx_id_license);
 			spdx_id_license = NULL;
 		}
@@ -434,14 +435,21 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 			goto err;
 		}
 
-		pkgconf_license_copy_list(client, cpy_relations, &relations);
+		if (!pkgconf_license_copy_list(client, cpy_relations, &relations))
+		{
+			free(tuple_license);
+			goto err;
+		}
 		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, cpy_relations, "hasDeclaredLicense");
 		free(tuple_license);
 		if (!relationship)
 			goto err;
-		if (!spdxtool_core_spdx_document_add_relationship(client, spdx, relationship))
-			goto err;
 		cpy_relations = NULL;
+		if (!spdxtool_core_spdx_document_add_relationship(client, spdx, relationship))
+		{
+			spdxtool_core_relationship_free(relationship);
+			goto err;
+		}
 	}
 
 	tuple_license = spdxtool_util_tuple_lookup(client, &pkg->vars, "hasConcludedLicense");
@@ -454,14 +462,21 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 			goto err;
 		}
 
-		pkgconf_license_copy_list(client, cpy_relations, &relations);
+		if (!pkgconf_license_copy_list(client, cpy_relations, &relations))
+		{
+			free(tuple_license);
+			goto err;
+		}
 		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, tuple_license, spdx_id, cpy_relations, "hasConcludedLicense");
 		free(tuple_license);
 		if (!relationship)
 			goto err;
-		if (!spdxtool_core_spdx_document_add_relationship(client, spdx, relationship))
-			goto err;
 		cpy_relations = NULL;
+		if (!spdxtool_core_spdx_document_add_relationship(client, spdx, relationship))
+		{
+			spdxtool_core_relationship_free(relationship);
+			goto err;
+		}
 	}
 	pkgconf_license_free(&relations);
 
@@ -502,15 +517,23 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 			goto err;
 		}
 
-		pkgconf_license_insert(client, cpy_relations, PKGCONF_LICENSE_UNKNOWN, spdx_id_package);
+		if (!pkgconf_license_insert(client, cpy_relations, PKGCONF_LICENSE_UNKNOWN, spdx_id_package))
+		{
+			free(spdx_id_relation);
+			free(spdx_id_package);
+			goto err;
+		}
 		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, spdx_id_relation, spdx_id, cpy_relations, "dependsOn");
 		free(spdx_id_relation);
 		free(spdx_id_package);
 		if (!relationship)
 			goto err;
-		if (!spdxtool_core_spdx_document_add_relationship(client, spdx, relationship))
-			goto err;
 		cpy_relations = NULL;
+		if (!spdxtool_core_spdx_document_add_relationship(client, spdx, relationship))
+		{
+			spdxtool_core_relationship_free(relationship);
+			goto err;
+		}
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->requires_private.head, node)
@@ -550,7 +573,12 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 			goto err;
 		}
 
-		pkgconf_license_insert(client, cpy_relations, PKGCONF_LICENSE_UNKNOWN, spdx_id_package);
+		if (!pkgconf_license_insert(client, cpy_relations, PKGCONF_LICENSE_UNKNOWN, spdx_id_package))
+		{
+			free(spdx_id_relation);
+			free(spdx_id_package);
+			goto err;
+		}
 		spdxtool_core_relationship_t *relationship = spdxtool_core_relationship_new(client, creation_info, spdx_id_relation, spdx_id, cpy_relations, "dependsOn");
 		free(spdx_id_relation);
 		free(spdx_id_package);
@@ -581,6 +609,12 @@ err:
 	free(agent);
 	free(supplier);
 	free(spdx_id_license);
+	pkgconf_license_free(&relations);
+	if (cpy_relations != NULL)
+	{
+		pkgconf_license_free(cpy_relations);
+		free(cpy_relations);
+	}
 	spdxtool_serialize_object_list_free(object_list);
 	spdxtool_serialize_array_free(originated_by);
 	spdxtool_serialize_array_free(supplied_by);

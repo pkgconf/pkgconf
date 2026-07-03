@@ -844,12 +844,12 @@ spdxtool_core_relationship_new(pkgconf_client_t *client, const char *creation_in
 	relationship->creation_info = strdup(creation_info_id);
 	relationship->spdx_id = strdup(spdx_id);
 	relationship->from = strdup(from);
-	relationship->to = to;
 	relationship->relationship_type = strdup(relationship_type);
 
 	if (!relationship->creation_info || !relationship->spdx_id || !relationship->from || !relationship->relationship_type)
 		goto err;
 
+	relationship->to = to;
 	return relationship;
 
 err:
