@@ -881,7 +881,10 @@ pkgconf_client_preload_path(pkgconf_client_t *client, const char *path)
 	if (pkg == NULL)
 		return false;
 
-	return pkgconf_client_preload_one(client, pkg);
+	bool ret = pkgconf_client_preload_one(client, pkg);
+	pkgconf_pkg_unref(client, pkg);
+
+	return ret;
 }
 
 /*
