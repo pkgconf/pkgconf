@@ -67,8 +67,14 @@ prepare_path_node(const char *text, pkgconf_list_t *dirlist, bool filter)
 	pkgconf_path_t *node;
 	pkgconf_buffer_t pathbuf = PKGCONF_BUFFER_INITIALIZER;
 
-	pkgconf_buffer_append(&pathbuf, text);
-	pkgconf_path_relocate(&pathbuf);
+	if (!pkgconf_buffer_append(&pathbuf, text))
+		return NULL;
+
+	if (!pkgconf_path_relocate(&pathbuf))
+	{
+		pkgconf_buffer_finalize(&pathbuf);
+		return NULL;
+	}
 
 #ifdef PKGCONF_CACHE_INODES
 	struct stat st;
@@ -267,7 +273,9 @@ pkgconf_path_match_list(const char *path, const pkgconf_list_t *dirlist)
 	if (path == NULL)
 		return false;
 
-	pkgconf_buffer_append(&relocated, path);
+	if (!pkgconf_buffer_append(&relocated, path))
+		return false;
+
 	cpath = pkgconf_buffer_str(&relocated);
 
 	if (pkgconf_path_relocate(&relocated))
@@ -447,8 +455,9 @@ pkgconf_path_relocate(pkgconf_buffer_t *buf)
 	if ((tmpbuf = normpath(buf)) != NULL)
 	{
 		pkgconf_buffer_reset(buf);
-		pkgconf_buffer_append(buf, tmpbuf);
+		bool ret = pkgconf_buffer_append(buf, tmpbuf);
 		free(tmpbuf);
+		return ret;
 	}
 
 	return true;
