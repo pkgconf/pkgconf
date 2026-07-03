@@ -83,7 +83,7 @@ jobs:
 
       - name: Build
         run: |
-          meson _build --vsenv --buildtype=release --default-library=static -Db_vscrt=static_from_buildtype
+          meson setup _build --vsenv --buildtype=release --default-library=static -Db_vscrt=static_from_buildtype
           meson compile -C _build msi
 
       - name: Upload artifact
