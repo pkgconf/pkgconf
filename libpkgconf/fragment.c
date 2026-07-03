@@ -393,8 +393,14 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 		{
 			pkgconf_buffer_t sysroot_buf = PKGCONF_BUFFER_INITIALIZER;
 
-			pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir);
-			pkgconf_buffer_append(&sysroot_buf, string + 2);
+			if (!pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir) ||
+				!pkgconf_buffer_append(&sysroot_buf, string + 2))
+			{
+				pkgconf_buffer_finalize(&sysroot_buf);
+				free(frag);
+				free(string);
+				return;
+			}
 
 			frag->data = pkgconf_buffer_freeze(&sysroot_buf);
 		}
@@ -413,11 +419,22 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 			{
 				pkgconf_buffer_t sysroot_buf = PKGCONF_BUFFER_INITIALIZER;
 
-				pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir);
-				pkgconf_buffer_append(&sysroot_buf, string);
+				if (!pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir) ||
+					!pkgconf_buffer_append(&sysroot_buf, string))
+				{
+					pkgconf_buffer_finalize(&sysroot_buf);
+					free(frag);
+					free(string);
+					return;
+				}
 
 				free(string);
 				string = pkgconf_buffer_freeze(&sysroot_buf);
+				if (string == NULL)
+				{
+					free(frag);
+					return;
+				}
 			}
 		}
 
@@ -425,6 +442,13 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 		frag->data = strdup(string);
 
 		PKGCONF_TRACE(client, "created special fragment {'%s'} in list @%p", frag->data, target);
+	}
+
+	if (frag->data == NULL)
+	{
+		free(frag);
+		free(string);
+		return;
 	}
 
 	pkgconf_node_insert_tail(&frag->iter, frag, target);
@@ -713,11 +737,11 @@ pkgconf_is_locale_utf8(void)
 #endif
 }
 
-static void
+static bool
 fragment_quote(pkgconf_buffer_t *out, const pkgconf_fragment_t *frag)
 {
 	if (frag->data == NULL)
-		return;
+		return true;
 
 	const pkgconf_buffer_t *src = PKGCONF_BUFFER_FROM_STR(frag->data);
 	const pkgconf_span_t quote_spans[] = {
@@ -749,32 +773,42 @@ fragment_quote(pkgconf_buffer_t *out, const pkgconf_fragment_t *frag)
 	};
 
 	if (pkgconf_is_locale_utf8())
-		pkgconf_buffer_escape(out, src, quote_spans_utf8, PKGCONF_ARRAY_SIZE(quote_spans_utf8));
-	else
-		pkgconf_buffer_escape(out, src, quote_spans, PKGCONF_ARRAY_SIZE(quote_spans));
+		return pkgconf_buffer_escape(out, src, quote_spans_utf8, PKGCONF_ARRAY_SIZE(quote_spans_utf8));
+
+	return pkgconf_buffer_escape(out, src, quote_spans, PKGCONF_ARRAY_SIZE(quote_spans));
 }
 
-static void
+static bool
 fragment_render(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf)
 {
 	const pkgconf_node_t *iter;
 	pkgconf_buffer_t quoted = PKGCONF_BUFFER_INITIALIZER;
 
-	fragment_quote(&quoted, frag);
+	if (!fragment_quote(&quoted, frag))
+		return false;
 
-	if (frag->type)
-		pkgconf_buffer_append_fmt(buf, "-%c", frag->type);
+	if (frag->type && !pkgconf_buffer_append_fmt(buf, "-%c", frag->type))
+		goto fail;
 
-	pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(&quoted));
+	if (!pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(&quoted)))
+		goto fail;
+
 	pkgconf_buffer_finalize(&quoted);
 
 	PKGCONF_FOREACH_LIST_ENTRY(frag->children.head, iter)
 	{
 		const pkgconf_fragment_t *child_frag = iter->data;
 
-		pkgconf_buffer_push_byte(buf, ctx->delim);
-		fragment_render(ctx, child_frag, buf);
+		if (!pkgconf_buffer_push_byte(buf, ctx->delim) ||
+			!fragment_render(ctx, child_frag, buf))
+			return false;
 	}
+
+	return true;
+
+fail:
+	pkgconf_buffer_finalize(&quoted);
+	return false;
 }
 
 static const pkgconf_fragment_render_ops_t default_render_ops = {
@@ -795,7 +829,7 @@ static const pkgconf_fragment_render_ops_t default_render_ops = {
  *    :param char delim: The delimiter to use between fragments.
  *    :return: nothing
  */
-void
+bool
 pkgconf_fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, bool escape, const pkgconf_fragment_render_ops_t *ops, char delim)
 {
 	pkgconf_node_t *node;
@@ -809,11 +843,14 @@ pkgconf_fragment_render_buf(const pkgconf_list_t *list, pkgconf_buffer_t *buf, b
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
 	{
 		const pkgconf_fragment_t *frag = node->data;
-		ops->render(&ctx, frag, buf);
+		if (!ops->render(&ctx, frag, buf))
+			return false;
 
-		if (node->next != NULL)
-			pkgconf_buffer_push_byte(buf, ctx.delim);
+		if (node->next != NULL && !pkgconf_buffer_push_byte(buf, ctx.delim))
+			return false;
 	}
+
+	return true;
 }
 
 /*
@@ -905,8 +942,14 @@ pkgconf_fragment_parse(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_l
 		{
 			pkgconf_buffer_t greedybuf = PKGCONF_BUFFER_INITIALIZER;
 
-			pkgconf_buffer_append(&greedybuf, argv[i]);
-			pkgconf_buffer_append(&greedybuf, argv[i + 1]);
+			if (!pkgconf_buffer_append(&greedybuf, argv[i]) ||
+				!pkgconf_buffer_append(&greedybuf, argv[i + 1]))
+			{
+				pkgconf_buffer_finalize(&greedybuf);
+				pkgconf_argv_free(argv);
+				return false;
+			}
+
 			pkgconf_fragment_add(client, list, vars, pkgconf_buffer_str(&greedybuf), flags);
 			pkgconf_buffer_finalize(&greedybuf);
 
