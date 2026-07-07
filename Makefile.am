@@ -23,6 +23,16 @@ EXTRA_DIST =	pkg.m4 \
 		libpkgconf/meson.build \
 		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
+		fuzzer/meson.build \
+		fuzzer/alloc-inject.c \
+		fuzzer/alloc-inject.h \
+		fuzzer/parser-fuzzer.c \
+		fuzzer/replay.c \
+		fuzzer/solver-fuzzer.c \
+		fuzzer/spdxtool-fuzzer.c \
+		fuzzer/solver-corpus/chain \
+		fuzzer/solver-corpus/constraints \
+		fuzzer/solver-corpus/cycle \
 		t/cli/about.test \
 		t/cli/atleast-pkgconfig-version-fail.test \
 		t/cli/atleast-pkgconfig-version-pass.test \
@@ -403,6 +413,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/link-abi/multi-dedup.test \
 		tests/win-shim.h \
 		tests/api/test-api.h \
+		tests/api/oom.h \
+		tests/api/test-oom-spdxtool.c \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
