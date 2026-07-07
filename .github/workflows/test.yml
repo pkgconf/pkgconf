@@ -322,6 +322,33 @@ jobs:
         run: |
           make distcheck
 
+  dist-meson:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:testing
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Update system and add dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential autoconf libtool meson
+
+      - name: Build tarball
+        run: |
+          ./autogen.sh
+          ./configure
+          make dist
+
+      - name: Build and test tarball with Meson
+        run: |
+          tar xf pkgconf-*.tar.xz
+          cd pkgconf-*/
+          meson setup _build -Dwerror=true
+          meson compile -C _build
+          meson test -v -C _build
+
   alpine-meson:
     runs-on: ubuntu-latest
     container:
