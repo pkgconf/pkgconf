@@ -214,11 +214,9 @@ if fuzzing
   subdir('fuzzer')
 endif
 
-# If we have a new enough meson override the dependency so that only
-# `dependency('libpkgconf')` is required from the consumer
-if meson.version().version_compare('>= 0.54.0')
-  meson.override_dependency('libpkgconf', dep_libpkgconf)
-endif
+# override the dependency so that only `dependency('libpkgconf')` is
+# required from the consumer
+meson.override_dependency('libpkgconf', dep_libpkgconf)
 
 pkg = import('pkgconfig')
 pkg.generate(libpkgconf,
