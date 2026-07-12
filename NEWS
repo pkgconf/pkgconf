@@ -1,6 +1,12 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.0 to 3.0.1:
+----------------------------
+
+* Various Meson-related fixes and improvements.
+  Patches by Benjamin Gilbert.
+
 Changes from 2.5.1 to 3.0.0:
 ----------------------------
 
