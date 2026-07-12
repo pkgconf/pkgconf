@@ -301,7 +301,8 @@ test_runner_exe = executable('test-runner',
   link_with : libpkgconf,
   c_args : build_static,
   include_directories : cli_include,
-  install : false)
+  install : false,
+  build_by_default : false)
 
 api_tests = [
   'audit',
@@ -327,7 +328,8 @@ foreach t : api_tests
     link_with : libpkgconf,
     c_args : build_static,
     include_directories : [include_directories('.'), include_directories('tests/api')],
-    install : false)
+    install : false,
+    build_by_default : false)
   test('api-' + t, exe)
 endforeach
 
@@ -344,7 +346,8 @@ test_api_serialize_exe = executable('test-api-serialize',
   link_with : libpkgconf,
   c_args : build_static,
   include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/spdxtool')],
-  install : false)
+  install : false,
+  build_by_default : false)
 test('api-serialize', test_api_serialize_exe)
 
 # Allocation-failure (OOM) tests.  These drive the shared fuzzer/alloc-inject
@@ -382,7 +385,8 @@ if build_oom_tests
     c_args : build_static,
     link_args : oom_wrap_args,
     include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/spdxtool'), include_directories('fuzzer')],
-    install : false)
+    install : false,
+    build_by_default : false)
   test('api-oom-spdxtool', test_api_oom_spdxtool_exe)
 
   # Replay the existing parser/solver fuzz targets over their seed corpus,
@@ -408,7 +412,8 @@ if build_oom_tests
       c_args : build_static,
       link_args : oom_wrap_args,
       include_directories : [include_directories('.'), include_directories('fuzzer')],
-      install : false)
+      install : false,
+      build_by_default : false)
     # The exhaustive per-input injection loop is slow under ASAN; give it room.
     test('fuzz-replay-' + r[0], replay_exe, args : [r[1]], timeout : 120)
   endforeach
