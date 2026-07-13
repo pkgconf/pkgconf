@@ -102,9 +102,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: [
-          { msystem: MINGW64, arch: x86_64},
-        ]
+        include: [{ msystem: MINGW64, arch: x86_64 }]
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -190,19 +188,19 @@ jobs:
       matrix:
         include:
           - os_image: netbsd
-            version: '10.1'
+            version: "10.1"
 
           - os_image: freebsd
-            version: '15.1'
+            version: "15.1"
 
           - os_image: openbsd
-            version: '7.9'
+            version: "7.9"
 
           - os_image: haiku
-            version: 'r1beta5'
+            version: "r1beta5"
 
           - os_image: omnios
-            version: 'r151056'
+            version: "r151056"
 
     steps:
       - name: Checkout code
@@ -540,6 +538,100 @@ jobs:
           export CC=clang
           export CFLAGS="-std=c99 -O2 -Wall -Wextra -ggdb3 -fsanitize=address,undefined"
           make -f Makefile.lite PKG_DEFAULT_PATH="/usr/lib/pkgconfig:/usr/share/pkgconfig" SYSTEM_LIBDIR="/usr/lib" SYSTEM_INCLUDEDIR="/usr/include" -j $(nproc) check
+
+  cmake-macros:
+    name: cmake-macros (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-static
+            runs_on: ubuntu-latest
+            default_library: static
+
+          - name: linux-shared
+            runs_on: ubuntu-latest
+            default_library: shared
+
+          - name: macos-static
+            runs_on: macos-latest
+            default_library: static
+    runs-on: ${{ matrix.runs_on }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install build tools (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential meson ninja-build cmake
+
+      - name: Install build tools (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install meson ninja cmake
+
+      - name: Build and install pkgconf
+        run: |
+          # Point with-system-libdir at a path that can't match the install
+          # prefix, so pkgconf keeps -L for its own libdir in --libs-only-L
+          # output. It otherwise drops -L when a module's libdir equals the
+          # compiled-in "system" libdir, which defaults to the install prefix's
+          # libdir.
+          meson setup _build_cmake_verify \
+            --prefix="${{ github.workspace }}/_install_cmake_verify" \
+            -Ddefault_library=${{ matrix.default_library }} \
+            -Dwith-system-libdir=/nonexistent-pkgconf-cmake-test-marker
+          meson compile -C _build_cmake_verify
+          meson install -C _build_cmake_verify
+
+      - name: Configure environment for the installed (possibly shared) library
+        run: |
+          prefix="${{ github.workspace }}/_install_cmake_verify"
+          # meson may install under lib/, lib64/ or a multiarch dir such as
+          # lib/x86_64-linux-gnu, so locate the shared library by name instead
+          # of guessing the directory. Empty on the static legs, which don't
+          # need it.
+          libdirs="$(find "$prefix" -type f \( -name 'libpkgconf*.so*' -o -name 'libpkgconf*.dylib' \) -exec dirname {} \; | sort -u | tr '\n' ':')"
+          echo "LD_LIBRARY_PATH=${libdirs}${LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
+          echo "DYLD_LIBRARY_PATH=${libdirs}${DYLD_LIBRARY_PATH}" >> "$GITHUB_ENV"
+          echo "CMAKE_PREFIX_PATH=${prefix}" >> "$GITHUB_ENV"
+
+      - name: Install a real pkg-config package (zlib)
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get install -y zlib1g-dev
+          else
+            brew install zlib
+          fi
+          # The pkgconf we built has its own compiled-in search path under the
+          # test prefix, so tell it where the OS actually dropped zlib.pc.
+          zlibpc="$(find /usr /opt/homebrew /usr/local -name zlib.pc 2>/dev/null | head -n1)"
+          if [ -z "$zlibpc" ]; then
+            echo "could not locate an installed zlib.pc" >&2
+            exit 1
+          fi
+          echo "PKG_CONFIG_PATH=$(dirname "$zlibpc"):${PKG_CONFIG_PATH}" >> "$GITHUB_ENV"
+
+      - name: pkgconf_check_modules() / pkgconf_search_module() / query macros
+        run: |
+          cmake -S cmake/tests/basic -B _build_cmake_test
+          cmake --build _build_cmake_test
+          _build_cmake_test/consumer
+
+      - name: REQUIRED module must fail configure when not found
+        run: |
+          if cmake -S cmake/tests/required-fail -B _build_cmake_required_fail; then
+            echo "expected cmake configure to fail for a REQUIRED module that does not exist" >&2
+            exit 1
+          fi
+
+      - name: Consume a real package (zlib) through the imported target
+        run: |
+          cmake -S cmake/tests/zlib -B _build_cmake_zlib
+          cmake --build _build_cmake_zlib
+          _build_cmake_zlib/zlib-consumer
 
   fuzz:
     runs-on: ubuntu-latest

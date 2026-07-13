@@ -1,0 +1,63 @@
+# Tests pkgconf-config.cmake against pkgconf's own installed libpkgconf.pc, so
+# it doesn't depend on any third-party .pc file being present.
+#
+# CI configures pkgconf with -Dwith-system-libdir=/some-marker-that-cannot-exist
+# so libpkgconf's own libdir stays in --libs-only-L output. pkgconf otherwise
+# drops -L for dirs matching its compiled-in SYSTEM_LIBDIR, which defaults to
+# the install prefix's libdir -- where this test installs libpkgconf.
+
+cmake_minimum_required(VERSION 3.13)
+project(pkgconf_cmake_macros_test C)
+
+find_package(pkgconf REQUIRED CONFIG)
+message(STATUS "pkgconf_VERSION = ${pkgconf_VERSION}")
+if(NOT pkgconf_VERSION)
+  message(FATAL_ERROR "pkgconf_VERSION was not set by find_package(pkgconf CONFIG)")
+endif()
+
+pkgconf_check_modules(LIBPKGCONF REQUIRED IMPORTED_TARGET libpkgconf)
+if(NOT LIBPKGCONF_FOUND)
+  message(FATAL_ERROR "pkgconf_check_modules() failed to find libpkgconf")
+endif()
+if(NOT LIBPKGCONF_INCLUDE_DIRS)
+  message(FATAL_ERROR "LIBPKGCONF_INCLUDE_DIRS was not populated")
+endif()
+if(NOT LIBPKGCONF_LIBRARIES)
+  message(FATAL_ERROR "LIBPKGCONF_LIBRARIES was not populated")
+endif()
+
+add_executable(consumer consumer.c)
+target_link_libraries(consumer PRIVATE PkgConf::LIBPKGCONF)
+
+# pkgconf_search_module() should skip the nonexistent alternative and pick the real one.
+pkgconf_search_module(LIBPKGCONF2 REQUIRED this-module-does-not-exist-xyz libpkgconf)
+if(NOT LIBPKGCONF2_MODULE_NAME STREQUAL "libpkgconf")
+  message(FATAL_ERROR "pkgconf_search_module() picked the wrong module: \"${LIBPKGCONF2_MODULE_NAME}\"")
+endif()
+
+# Without REQUIRED, a missing module should not fail configure.
+pkgconf_check_modules(MISSING QUIET this-module-does-not-exist-xyz)
+if(MISSING_FOUND)
+  message(FATAL_ERROR "pkgconf_check_modules() reported FOUND for a module that does not exist")
+endif()
+
+pkgconf_get_variable(LIBPKGCONF_PCFILEDIR libpkgconf pcfiledir)
+if(NOT LIBPKGCONF_PCFILEDIR)
+  message(FATAL_ERROR "pkgconf_get_variable() returned an empty value")
+endif()
+
+pkgconf_check_version(LIBPKGCONF_ATLEAST_0 libpkgconf ATLEAST 0)
+if(NOT LIBPKGCONF_ATLEAST_0)
+  message(FATAL_ERROR "pkgconf_check_version(ATLEAST 0) should be TRUE")
+endif()
+
+pkgconf_check_version(LIBPKGCONF_ATLEAST_999 libpkgconf ATLEAST 999.0)
+if(LIBPKGCONF_ATLEAST_999)
+  message(FATAL_ERROR "pkgconf_check_version(ATLEAST 999.0) should be FALSE")
+endif()
+
+pkgconf_variable_names(LIBPKGCONF_VARNAMES libpkgconf)
+list(FIND LIBPKGCONF_VARNAMES "includedir" _libpkgconf_varnames_idx)
+if(_libpkgconf_varnames_idx EQUAL -1)
+  message(FATAL_ERROR "pkgconf_variable_names() did not include \"includedir\"")
+endif()

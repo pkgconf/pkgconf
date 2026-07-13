@@ -1,0 +1,400 @@
+# pkgconf-config.cmake
+#
+# CMake package config for the pkgconf(1) implementation of pkg-config.
+# Enables find_package(pkgconf CONFIG). See pkgconf(1) for the flag semantics.
+#
+# Defines:
+#
+#   PKGCONF_EXECUTABLE  - path to the pkgconf executable
+#   PkgConf::pkgconf    - imported executable target for pkgconf
+#
+# Module-set macros, modelled on CMake's FindPkgConfig.cmake
+# (pkg_check_modules()/pkg_search_module()), but always using this pkgconf
+# executable instead of whatever pkg-config is first on PATH:
+#
+#   pkgconf_check_modules(<prefix> [REQUIRED] [QUIET] [IMPORTED_TARGET]
+#                         [STATIC] [SHARED] [ENV_ONLY] [NO_UNINSTALLED]
+#                         [NO_PROVIDES] [IGNORE_CONFLICTS]
+#                         [MAXIMUM_TRAVERSE_DEPTH <depth>]
+#                         [DEFINE_VARIABLE <name=value>...]
+#                         [WITH_PATH <dir>...]
+#                         <modulespec>...)
+#     Queries pkgconf for all of the given module(s) (ANDed together, as with
+#     `pkgconf --exists <modulespec>...`), and on success sets:
+#       <prefix>_FOUND, <prefix>_VERSION, <prefix>_INCLUDE_DIRS, <prefix>_CFLAGS,
+#       <prefix>_CFLAGS_OTHER, <prefix>_LIBRARIES, <prefix>_LIBRARY_DIRS,
+#       <prefix>_LDFLAGS, <prefix>_LDFLAGS_OTHER
+#     IMPORTED_TARGET additionally defines an INTERFACE IMPORTED target
+#     PkgConf::<prefix>. The remaining keyword options map to the matching
+#     pkgconf(1) flags (--static/--shared, --env-only, --no-uninstalled,
+#     --no-provides, --ignore-conflicts, --maximum-traverse-depth,
+#     --define-variable, --with-path) and are passed to every pkgconf call
+#     this macro makes.
+#
+#   pkgconf_search_module(<prefix> ... <modulespec>...)
+#     Same options as pkgconf_check_modules(), but tries each <modulespec>
+#     individually and stops at the first one that is found, recording it in
+#     <prefix>_MODULE_NAME.
+#
+# Single-module query functions, wrapping the pkgconf(1) options that report
+# on one module at a time:
+#
+#   pkgconf_get_variable(<out-var> <module> <varname>)       --variable
+#   pkgconf_variable_names(<out-var> <module>)                --print-variables
+#   pkgconf_get_path(<out-var> <module>)                       --path
+#   pkgconf_check_version(<out-var> <module> <mode> <version>)
+#       mode is one of ATLEAST, EXACT, MAX, mapping to --atleast-version,
+#       --exact-version, --max-version; <out-var> is set to TRUE or FALSE.
+#   pkgconf_print_provides(<out-var> <module>)                 --print-provides
+#   pkgconf_print_requires(<out-var> <module> [PRIVATE])       --print-requires[-private]
+#   pkgconf_link_abi(<out-var> <module> [STATIC])               --link-abi
+#   pkgconf_list_all(<out-var>)                                 --list-all
+#
+# The diagnostic-only pkgconf options (--simulate, --digraph, --solution,
+# --fragment-tree, --dump-personality, --validate, --debug) aren't wrapped
+# here; they're for interactive troubleshooting, not for use inside a build.
+
+cmake_minimum_required(VERSION 3.13)
+
+find_program(PKGCONF_EXECUTABLE
+  NAMES pkgconf
+  HINTS "@PKGCONF_BINDIR@"
+  DOC "Path to the pkgconf executable"
+)
+mark_as_advanced(PKGCONF_EXECUTABLE)
+
+if(NOT PKGCONF_EXECUTABLE)
+  set(pkgconf_FOUND FALSE)
+  if(pkgconf_FIND_REQUIRED)
+    message(FATAL_ERROR "pkgconf: could not find the pkgconf executable")
+  endif()
+  return()
+endif()
+
+execute_process(
+  COMMAND "${PKGCONF_EXECUTABLE}" --version
+  OUTPUT_VARIABLE pkgconf_VERSION
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+set(pkgconf_FOUND TRUE)
+
+if(NOT TARGET PkgConf::pkgconf)
+  add_executable(PkgConf::pkgconf IMPORTED)
+  set_target_properties(PkgConf::pkgconf PROPERTIES IMPORTED_LOCATION "${PKGCONF_EXECUTABLE}")
+endif()
+
+# Build the list of global pkgconf flags shared by pkgconf_check_modules()
+# and pkgconf_search_module(), out of the variables that
+# cmake_parse_arguments(${_arg_prefix} ...) left in the caller's scope.
+function(_pkgconf_common_args _out_var _arg_prefix)
+  set(_args "")
+  if(${_arg_prefix}_STATIC)
+    list(APPEND _args "--static")
+  endif()
+  if(${_arg_prefix}_SHARED)
+    list(APPEND _args "--shared")
+  endif()
+  if(${_arg_prefix}_ENV_ONLY)
+    list(APPEND _args "--env-only")
+  endif()
+  if(${_arg_prefix}_NO_UNINSTALLED)
+    list(APPEND _args "--no-uninstalled")
+  endif()
+  if(${_arg_prefix}_NO_PROVIDES)
+    list(APPEND _args "--no-provides")
+  endif()
+  if(${_arg_prefix}_IGNORE_CONFLICTS)
+    list(APPEND _args "--ignore-conflicts")
+  endif()
+  if(DEFINED ${_arg_prefix}_MAXIMUM_TRAVERSE_DEPTH)
+    list(APPEND _args "--maximum-traverse-depth=${${_arg_prefix}_MAXIMUM_TRAVERSE_DEPTH}")
+  endif()
+  foreach(_def ${${_arg_prefix}_DEFINE_VARIABLE})
+    list(APPEND _args "--define-variable=${_def}")
+  endforeach()
+  foreach(_path ${${_arg_prefix}_WITH_PATH})
+    list(APPEND _args "--with-path=${_path}")
+  endforeach()
+  set(${_out_var} "${_args}" PARENT_SCOPE)
+endfunction()
+
+# _pkgconf_invoke(<prefix> <quiet> <modules-for-messages> <flags-and-modules>...)
+# Run the module-set queries and set <prefix>_FOUND/_VERSION/etc. in the
+# caller's scope. <flags-and-modules> is the full pkgconf argument list
+# (global flags from _pkgconf_common_args() plus the modules) used for every
+# call; <modules-for-messages> is the module list on its own, for diagnostics.
+function(_pkgconf_invoke _prefix _quiet _modules_for_msg)
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --exists --print-errors ${ARGN}
+    RESULT_VARIABLE _pkgconf_result
+    ERROR_VARIABLE _pkgconf_error
+    OUTPUT_QUIET
+  )
+
+  if(NOT _pkgconf_result EQUAL 0)
+    set(${_prefix}_FOUND FALSE PARENT_SCOPE)
+    if(NOT _quiet)
+      message(STATUS "pkgconf: could not find module(s) \"${_modules_for_msg}\":\n${_pkgconf_error}")
+    endif()
+    return()
+  endif()
+
+  set(${_prefix}_FOUND TRUE PARENT_SCOPE)
+
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --modversion ${ARGN}
+    OUTPUT_VARIABLE _pkgconf_version
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(${_prefix}_VERSION "${_pkgconf_version}" PARENT_SCOPE)
+
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --cflags-only-I ${ARGN}
+    OUTPUT_VARIABLE _pkgconf_cflags_I
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  separate_arguments(_pkgconf_cflags_I_list UNIX_COMMAND "${_pkgconf_cflags_I}")
+  set(_pkgconf_include_dirs "")
+  foreach(_flag ${_pkgconf_cflags_I_list})
+    string(REGEX REPLACE "^-I" "" _dir "${_flag}")
+    list(APPEND _pkgconf_include_dirs "${_dir}")
+  endforeach()
+  set(${_prefix}_INCLUDE_DIRS "${_pkgconf_include_dirs}" PARENT_SCOPE)
+
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --cflags-only-other ${ARGN}
+    OUTPUT_VARIABLE _pkgconf_cflags_other
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  separate_arguments(_pkgconf_cflags_other UNIX_COMMAND "${_pkgconf_cflags_other}")
+  set(${_prefix}_CFLAGS_OTHER "${_pkgconf_cflags_other}" PARENT_SCOPE)
+
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --cflags ${ARGN}
+    OUTPUT_VARIABLE _pkgconf_cflags
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  separate_arguments(_pkgconf_cflags UNIX_COMMAND "${_pkgconf_cflags}")
+  set(${_prefix}_CFLAGS "${_pkgconf_cflags}" PARENT_SCOPE)
+
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --libs-only-L ${ARGN}
+    OUTPUT_VARIABLE _pkgconf_libs_L
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  separate_arguments(_pkgconf_libs_L_list UNIX_COMMAND "${_pkgconf_libs_L}")
+  set(_pkgconf_library_dirs "")
+  foreach(_flag ${_pkgconf_libs_L_list})
+    string(REGEX REPLACE "^-L" "" _dir "${_flag}")
+    list(APPEND _pkgconf_library_dirs "${_dir}")
+  endforeach()
+  set(${_prefix}_LIBRARY_DIRS "${_pkgconf_library_dirs}" PARENT_SCOPE)
+
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --libs-only-l ${ARGN}
+    OUTPUT_VARIABLE _pkgconf_libs_l
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  separate_arguments(_pkgconf_libs_l_list UNIX_COMMAND "${_pkgconf_libs_l}")
+  set(_pkgconf_libraries "")
+  foreach(_flag ${_pkgconf_libs_l_list})
+    string(REGEX REPLACE "^-l" "" _lib "${_flag}")
+    list(APPEND _pkgconf_libraries "${_lib}")
+  endforeach()
+  set(${_prefix}_LIBRARIES "${_pkgconf_libraries}" PARENT_SCOPE)
+
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --libs-only-other ${ARGN}
+    OUTPUT_VARIABLE _pkgconf_ldflags_other
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  separate_arguments(_pkgconf_ldflags_other UNIX_COMMAND "${_pkgconf_ldflags_other}")
+  set(${_prefix}_LDFLAGS_OTHER "${_pkgconf_ldflags_other}" PARENT_SCOPE)
+
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --libs ${ARGN}
+    OUTPUT_VARIABLE _pkgconf_ldflags
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  separate_arguments(_pkgconf_ldflags UNIX_COMMAND "${_pkgconf_ldflags}")
+  set(${_prefix}_LDFLAGS "${_pkgconf_ldflags}" PARENT_SCOPE)
+endfunction()
+
+function(_pkgconf_define_imported_target _prefix)
+  if(NOT TARGET PkgConf::${_prefix})
+    add_library(PkgConf::${_prefix} INTERFACE IMPORTED)
+    set_target_properties(PkgConf::${_prefix} PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${${_prefix}_INCLUDE_DIRS}"
+      INTERFACE_COMPILE_OPTIONS "${${_prefix}_CFLAGS_OTHER}"
+      INTERFACE_LINK_DIRECTORIES "${${_prefix}_LIBRARY_DIRS}"
+      INTERFACE_LINK_LIBRARIES "${${_prefix}_LIBRARIES}"
+      INTERFACE_LINK_OPTIONS "${${_prefix}_LDFLAGS_OTHER}")
+  endif()
+endfunction()
+
+set(_pkgconf_module_set_options
+  REQUIRED QUIET IMPORTED_TARGET
+  STATIC SHARED ENV_ONLY NO_UNINSTALLED NO_PROVIDES IGNORE_CONFLICTS)
+set(_pkgconf_module_set_one_value_args MAXIMUM_TRAVERSE_DEPTH)
+set(_pkgconf_module_set_multi_value_args DEFINE_VARIABLE WITH_PATH)
+
+macro(pkgconf_check_modules _prefix)
+  cmake_parse_arguments("${_prefix}_ARG"
+    "${_pkgconf_module_set_options}"
+    "${_pkgconf_module_set_one_value_args}"
+    "${_pkgconf_module_set_multi_value_args}"
+    ${ARGN})
+
+  _pkgconf_common_args(_pkgconf_extra_args "${_prefix}_ARG")
+  _pkgconf_invoke("${_prefix}" "${${_prefix}_ARG_QUIET}" "${${_prefix}_ARG_UNPARSED_ARGUMENTS}"
+    ${_pkgconf_extra_args} ${${_prefix}_ARG_UNPARSED_ARGUMENTS})
+
+  if(NOT ${_prefix}_FOUND)
+    if(${_prefix}_ARG_REQUIRED)
+      message(FATAL_ERROR "pkgconf: required module(s) \"${${_prefix}_ARG_UNPARSED_ARGUMENTS}\" were not found")
+    endif()
+  elseif(${_prefix}_ARG_IMPORTED_TARGET)
+    _pkgconf_define_imported_target("${_prefix}")
+  endif()
+
+  unset(_pkgconf_extra_args)
+  foreach(_pkgconf_opt ${_pkgconf_module_set_options})
+    unset(${_prefix}_ARG_${_pkgconf_opt})
+  endforeach()
+  foreach(_pkgconf_opt ${_pkgconf_module_set_one_value_args} ${_pkgconf_module_set_multi_value_args})
+    unset(${_prefix}_ARG_${_pkgconf_opt})
+  endforeach()
+  unset(${_prefix}_ARG_UNPARSED_ARGUMENTS)
+  unset(_pkgconf_opt)
+endmacro()
+
+macro(pkgconf_search_module _prefix)
+  cmake_parse_arguments("${_prefix}_ARG"
+    "${_pkgconf_module_set_options}"
+    "${_pkgconf_module_set_one_value_args}"
+    "${_pkgconf_module_set_multi_value_args}"
+    ${ARGN})
+
+  _pkgconf_common_args(_pkgconf_extra_args "${_prefix}_ARG")
+
+  set(${_prefix}_FOUND FALSE)
+  set(${_prefix}_MODULE_NAME "")
+
+  foreach(_pkgconf_candidate ${${_prefix}_ARG_UNPARSED_ARGUMENTS})
+    if(NOT ${_prefix}_FOUND)
+      _pkgconf_invoke("${_prefix}" TRUE "${_pkgconf_candidate}" ${_pkgconf_extra_args} "${_pkgconf_candidate}")
+      if(${_prefix}_FOUND)
+        set(${_prefix}_MODULE_NAME "${_pkgconf_candidate}")
+      endif()
+    endif()
+  endforeach()
+  unset(_pkgconf_candidate)
+
+  if(NOT ${_prefix}_FOUND)
+    if(${_prefix}_ARG_REQUIRED)
+      message(FATAL_ERROR "pkgconf: none of the required module alternatives \"${${_prefix}_ARG_UNPARSED_ARGUMENTS}\" were found")
+    elseif(NOT ${_prefix}_ARG_QUIET)
+      message(STATUS "pkgconf: none of the module alternatives \"${${_prefix}_ARG_UNPARSED_ARGUMENTS}\" were found")
+    endif()
+  elseif(${_prefix}_ARG_IMPORTED_TARGET)
+    _pkgconf_define_imported_target("${_prefix}")
+  endif()
+
+  unset(_pkgconf_extra_args)
+  foreach(_pkgconf_opt ${_pkgconf_module_set_options})
+    unset(${_prefix}_ARG_${_pkgconf_opt})
+  endforeach()
+  foreach(_pkgconf_opt ${_pkgconf_module_set_one_value_args} ${_pkgconf_module_set_multi_value_args})
+    unset(${_prefix}_ARG_${_pkgconf_opt})
+  endforeach()
+  unset(${_prefix}_ARG_UNPARSED_ARGUMENTS)
+  unset(_pkgconf_opt)
+endmacro()
+
+function(pkgconf_get_variable _out_var _module _varname)
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" "--variable=${_varname}" "${_module}"
+    OUTPUT_VARIABLE _pkgconf_out
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(${_out_var} "${_pkgconf_out}" PARENT_SCOPE)
+endfunction()
+
+function(pkgconf_variable_names _out_var _module)
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --print-variables "${_module}"
+    OUTPUT_VARIABLE _pkgconf_out
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  string(REPLACE "\n" ";" _pkgconf_out "${_pkgconf_out}")
+  set(${_out_var} "${_pkgconf_out}" PARENT_SCOPE)
+endfunction()
+
+function(pkgconf_get_path _out_var _module)
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --path "${_module}"
+    OUTPUT_VARIABLE _pkgconf_out
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(${_out_var} "${_pkgconf_out}" PARENT_SCOPE)
+endfunction()
+
+function(pkgconf_check_version _out_var _module _mode _version)
+  if(_mode STREQUAL "ATLEAST")
+    set(_flag "--atleast-version=${_version}")
+  elseif(_mode STREQUAL "EXACT")
+    set(_flag "--exact-version=${_version}")
+  elseif(_mode STREQUAL "MAX")
+    set(_flag "--max-version=${_version}")
+  else()
+    message(FATAL_ERROR "pkgconf_check_version: mode must be one of ATLEAST, EXACT, MAX (got \"${_mode}\")")
+  endif()
+
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" "${_flag}" "${_module}"
+    RESULT_VARIABLE _pkgconf_result
+    OUTPUT_QUIET ERROR_QUIET)
+
+  if(_pkgconf_result EQUAL 0)
+    set(${_out_var} TRUE PARENT_SCOPE)
+  else()
+    set(${_out_var} FALSE PARENT_SCOPE)
+  endif()
+endfunction()
+
+function(pkgconf_print_provides _out_var _module)
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --print-provides "${_module}"
+    OUTPUT_VARIABLE _pkgconf_out
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  string(REPLACE "\n" ";" _pkgconf_out "${_pkgconf_out}")
+  set(${_out_var} "${_pkgconf_out}" PARENT_SCOPE)
+endfunction()
+
+function(pkgconf_print_requires _out_var _module)
+  cmake_parse_arguments(_pkgconf_req "PRIVATE" "" "" ${ARGN})
+  if(_pkgconf_req_PRIVATE)
+    set(_flag "--print-requires-private")
+  else()
+    set(_flag "--print-requires")
+  endif()
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" "${_flag}" "${_module}"
+    OUTPUT_VARIABLE _pkgconf_out
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  string(REPLACE "\n" ";" _pkgconf_out "${_pkgconf_out}")
+  set(${_out_var} "${_pkgconf_out}" PARENT_SCOPE)
+endfunction()
+
+function(pkgconf_link_abi _out_var _module)
+  cmake_parse_arguments(_pkgconf_abi "STATIC" "" "" ${ARGN})
+  set(_flag_args --link-abi)
+  if(_pkgconf_abi_STATIC)
+    list(APPEND _flag_args --static)
+  endif()
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" ${_flag_args} "${_module}"
+    OUTPUT_VARIABLE _pkgconf_out
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  string(REPLACE "\n" ";" _pkgconf_out "${_pkgconf_out}")
+  set(${_out_var} "${_pkgconf_out}" PARENT_SCOPE)
+endfunction()
+
+function(pkgconf_list_all _out_var)
+  execute_process(
+    COMMAND "${PKGCONF_EXECUTABLE}" --list-all
+    OUTPUT_VARIABLE _pkgconf_out
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  string(REPLACE "\n" ";" _pkgconf_out "${_pkgconf_out}")
+  set(${_out_var} "${_pkgconf_out}" PARENT_SCOPE)
+endfunction()
