@@ -633,6 +633,17 @@ jobs:
           cmake --build _build_cmake_zlib
           _build_cmake_zlib/zlib-consumer
 
+      - name: Generate pkg-config files for CMake targets
+        run: |
+          cmake -S cmake/tests/generate -B _build_cmake_generate
+
+      - name: Reject generated pc file without a version
+        run: |
+          if cmake -S cmake/tests/generate-fail -B _build_cmake_generate_fail; then
+            echo "pkgconf_generate_pc() accepted a target without a version" >&2
+            exit 1
+          fi
+
   fuzz:
     runs-on: ubuntu-latest
     container:

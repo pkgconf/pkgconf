@@ -22,10 +22,14 @@ EXTRA_DIST =	pkg.m4 \
 		pkgconf.rc.in \
 		pkgconf.wxs.in \
 		txt2rtf.py \
+		cmake/pkgconf-generate-pc.cmake \
 		cmake/pkgconf-config.cmake.in \
 		cmake/pkgconf-config-version.cmake.in \
 		cmake/tests/basic/CMakeLists.txt \
 		cmake/tests/basic/consumer.c \
+		cmake/tests/generate-fail/CMakeLists.txt \
+		cmake/tests/generate/CMakeLists.txt \
+		cmake/tests/generate/sample.c \
 		cmake/tests/required-fail/CMakeLists.txt \
 		cmake/tests/zlib/CMakeLists.txt \
 		cmake/tests/zlib/consumer.c \
