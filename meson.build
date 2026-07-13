@@ -457,7 +457,7 @@ pkgconf_cmake_config_version = configure_file(
   output : 'pkgconf-config-version.cmake',
   configuration : cmake_conf_data,
 )
-install_data(pkgconf_cmake_config, pkgconf_cmake_config_version,
+install_data(pkgconf_cmake_config, pkgconf_cmake_config_version, 'cmake/pkgconf-generate-pc.cmake',
   install_dir : join_paths(get_option('libdir'), 'cmake', 'pkgconf'))
 
 install_man('man/bomtool.1')
