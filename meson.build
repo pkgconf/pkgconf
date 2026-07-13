@@ -443,6 +443,23 @@ foreach t : test_suites
     depends : [pkgconf_exe, spdxtool_exe, bomtool_exe, pccritic_exe])
 endforeach
 
+cmake_conf_data = configuration_data()
+cmake_conf_data.set('PKGCONF_BINDIR', join_paths(get_option('prefix'), get_option('bindir')))
+cmake_conf_data.set('PKGCONF_VERSION', meson.project_version())
+
+pkgconf_cmake_config = configure_file(
+  input : 'cmake/pkgconf-config.cmake.in',
+  output : 'pkgconf-config.cmake',
+  configuration : cmake_conf_data,
+)
+pkgconf_cmake_config_version = configure_file(
+  input : 'cmake/pkgconf-config-version.cmake.in',
+  output : 'pkgconf-config-version.cmake',
+  configuration : cmake_conf_data,
+)
+install_data(pkgconf_cmake_config, pkgconf_cmake_config_version,
+  install_dir : join_paths(get_option('libdir'), 'cmake', 'pkgconf'))
+
 install_man('man/bomtool.1')
 install_man('man/pkgconf.1')
 install_man('man/pkg.m4.7')

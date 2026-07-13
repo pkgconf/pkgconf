@@ -22,6 +22,13 @@ EXTRA_DIST =	pkg.m4 \
 		pkgconf.rc.in \
 		pkgconf.wxs.in \
 		txt2rtf.py \
+		cmake/pkgconf-config.cmake.in \
+		cmake/pkgconf-config-version.cmake.in \
+		cmake/tests/basic/CMakeLists.txt \
+		cmake/tests/basic/consumer.c \
+		cmake/tests/required-fail/CMakeLists.txt \
+		cmake/tests/zlib/CMakeLists.txt \
+		cmake/tests/zlib/consumer.c \
 		libpkgconf/meson.build \
 		libpkgconf/config.h.meson \
 		libpkgconf/win-dirent.h \
