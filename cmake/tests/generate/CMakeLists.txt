@@ -3,18 +3,18 @@ project(pkgconf_cmake_generate_pc_test VERSION 1.2.3 DESCRIPTION "generated pc t
 
 find_package(pkgconf REQUIRED CONFIG)
 
-add_library(PkgConf::publicdep INTERFACE IMPORTED)
-set_target_properties(PkgConf::publicdep PROPERTIES PKGCONF_MODULES "publicdep >= 1")
+add_library(pkgconf::publicdep INTERFACE IMPORTED)
+set_target_properties(pkgconf::publicdep PROPERTIES PKGCONF_MODULES "publicdep >= 1")
 
-add_library(PkgConf::privatedep INTERFACE IMPORTED)
-set_target_properties(PkgConf::privatedep PROPERTIES PKGCONF_MODULES "privatedep")
+add_library(pkgconf::privatedep INTERFACE IMPORTED)
+set_target_properties(pkgconf::privatedep PROPERTIES PKGCONF_MODULES "privatedep")
 
 add_library(sample STATIC sample.c)
 set_target_properties(sample PROPERTIES
   OUTPUT_NAME sampleout
   VERSION 2.4.6
   DESCRIPTION "sample target")
-target_link_libraries(sample PUBLIC PkgConf::publicdep PRIVATE PkgConf::privatedep)
+target_link_libraries(sample PUBLIC pkgconf::publicdep PRIVATE pkgconf::privatedep)
 
 set(_generated_pc "${CMAKE_CURRENT_BINARY_DIR}/sample.pc")
 pkgconf_generate_pc(sample

@@ -46,7 +46,7 @@
 # RELOCATABLE expresses prefix relative to ${pcfiledir}. This requires the
 # pkg-config directory to have a fixed location relative to the install prefix.
 #
-# Linked PkgConf::<module> targets created by pkgconf-config.cmake are added to
+# Linked pkgconf::<module> targets created by pkgconf-config.cmake are added to
 # Requires or Requires.private. NO_INFER_REQUIRES disables this inference.
 #
 # OUTPUT defaults to ${CMAKE_CURRENT_BINARY_DIR}/<name>.pc. INSTALL installs the
@@ -71,7 +71,7 @@ function(_pkgconf_pc_join _out_var _list)
   set(${_out_var} "${_joined}" PARENT_SCOPE)
 endfunction()
 
-# Return the module specification attached to a PkgConf imported target.
+# Return the module specification attached to a pkgconf imported target.
 function(_pkgconf_pc_module_of _item _out_var)
   set(${_out_var} "" PARENT_SCOPE)
   if(TARGET ${_item})
@@ -82,7 +82,7 @@ function(_pkgconf_pc_module_of _item _out_var)
   endif()
 endfunction()
 
-# Collect PkgConf dependencies from a target's public and private link
+# Collect pkgconf dependencies from a target's public and private link
 # interfaces. CMake wraps private entries propagated for static linking in
 # $<LINK_ONLY:...>.
 function(_pkgconf_pc_collect_requires _target _public_var _private_var)

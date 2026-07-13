@@ -13,6 +13,9 @@ message(STATUS "pkgconf_VERSION = ${pkgconf_VERSION}")
 if(NOT pkgconf_VERSION)
   message(FATAL_ERROR "pkgconf_VERSION was not set by find_package(pkgconf CONFIG)")
 endif()
+if(NOT TARGET pkgconf::pkgconf)
+  message(FATAL_ERROR "find_package(pkgconf CONFIG) did not define pkgconf::pkgconf")
+endif()
 
 pkgconf_check_modules(LIBPKGCONF REQUIRED IMPORTED_TARGET libpkgconf)
 if(NOT LIBPKGCONF_FOUND)
@@ -26,7 +29,7 @@ if(NOT LIBPKGCONF_LIBRARIES)
 endif()
 
 add_executable(consumer consumer.c)
-target_link_libraries(consumer PRIVATE PkgConf::LIBPKGCONF)
+target_link_libraries(consumer PRIVATE pkgconf::LIBPKGCONF)
 
 # The search should skip the missing alternative.
 pkgconf_search_module(LIBPKGCONF2 REQUIRED this-module-does-not-exist-xyz libpkgconf)

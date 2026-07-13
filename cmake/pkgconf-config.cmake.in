@@ -6,7 +6,7 @@
 # Defines:
 #
 #   PKGCONF_EXECUTABLE  - path to the pkgconf executable
-#   PkgConf::pkgconf    - imported executable target for pkgconf
+#   pkgconf::pkgconf    - imported executable target for pkgconf
 #
 # Module-set macros modelled on pkg_check_modules() and pkg_search_module() from
 # CMake's FindPkgConfig module. These macros always use PKGCONF_EXECUTABLE:
@@ -24,7 +24,7 @@
 #       <prefix>_CFLAGS_OTHER, <prefix>_LIBRARIES, <prefix>_LIBRARY_DIRS,
 #       <prefix>_LDFLAGS, <prefix>_LDFLAGS_OTHER
 #     IMPORTED_TARGET also defines an INTERFACE IMPORTED target
-#     PkgConf::<prefix>. The remaining keyword options map to the matching
+#     pkgconf::<prefix>. The remaining keyword options map to the matching
 #     pkgconf(1) flags (--static/--shared, --env-only, --no-uninstalled,
 #     --no-provides, --ignore-conflicts, --maximum-traverse-depth,
 #     --define-variable, --with-path) and are passed to every pkgconf call
@@ -103,9 +103,9 @@ execute_process(
 
 set(pkgconf_FOUND TRUE)
 
-if(NOT TARGET PkgConf::pkgconf)
-  add_executable(PkgConf::pkgconf IMPORTED)
-  set_target_properties(PkgConf::pkgconf PROPERTIES IMPORTED_LOCATION "${PKGCONF_EXECUTABLE}")
+if(NOT TARGET pkgconf::pkgconf)
+  add_executable(pkgconf::pkgconf IMPORTED)
+  set_target_properties(pkgconf::pkgconf PROPERTIES IMPORTED_LOCATION "${PKGCONF_EXECUTABLE}")
 endif()
 
 # Convert common parsed options to pkgconf arguments.
@@ -235,9 +235,9 @@ endfunction()
 
 # Preserve the module specifications for pkgconf_generate_pc().
 function(_pkgconf_define_imported_target _prefix _modules)
-  if(NOT TARGET PkgConf::${_prefix})
-    add_library(PkgConf::${_prefix} INTERFACE IMPORTED)
-    set_target_properties(PkgConf::${_prefix} PROPERTIES
+  if(NOT TARGET pkgconf::${_prefix})
+    add_library(pkgconf::${_prefix} INTERFACE IMPORTED)
+    set_target_properties(pkgconf::${_prefix} PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES "${${_prefix}_INCLUDE_DIRS}"
       INTERFACE_COMPILE_OPTIONS "${${_prefix}_CFLAGS_OTHER}"
       INTERFACE_LINK_DIRECTORIES "${${_prefix}_LIBRARY_DIRS}"

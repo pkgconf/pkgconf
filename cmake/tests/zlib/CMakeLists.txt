@@ -16,4 +16,4 @@ message(STATUS "ZLIB_VERSION = ${ZLIB_VERSION}")
 
 # Use only the imported target to verify its usage requirements.
 add_executable(zlib-consumer consumer.c)
-target_link_libraries(zlib-consumer PRIVATE PkgConf::ZLIB)
+target_link_libraries(zlib-consumer PRIVATE pkgconf::ZLIB)
