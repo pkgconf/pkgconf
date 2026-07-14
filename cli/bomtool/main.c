@@ -226,7 +226,7 @@ write_sbom_package(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *unused, u
 	OUTPUT_OR_RET(client, sbom_out, "PackageVersion: %s\n", pkg->version);
 	OUTPUT_OR_RET(client, sbom_out, "PackageDownloadLocation: NOASSERTION\n");
 
-	/* NOASSERTION is not a valide value for PackageVerificationCode. It
+	/* NOASSERTION is not a valid value for PackageVerificationCode. It
 	 * expect 40 lowercase hexadecimal digits.
 	 */
 #if 0

@@ -1627,7 +1627,7 @@ pkgconf_pkg_walk_list(pkgconf_client_t *client,
 		if((pkgdep->flags & PKGCONF_PKG_PROPF_ANCESTOR) != 0)
 		{
 			/* In this case we have a circular reference.
-			 * We break that by deleteing the circular node from the
+			 * We break that by deleting the circular node from the
 			 * the list, so that we dont create a situation where
 			 * memory is leaked due to circular ownership.
 			 * i.e: A owns B owns A

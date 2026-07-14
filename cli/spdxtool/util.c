@@ -21,7 +21,7 @@
  *
  * .. c:function:: void spdxtool_util_set_key(pkgconf_client_t *client, const char *key, const char *key_value, const char *key_default)
  *
- *    Set key wit default value. Default value is used if key is NULL
+ *    Set key with default value. Default value is used if key is NULL
  *
  *    :param pkgconf_client_t* client: The pkgconf client being accessed.
  *    :param const char *key: Key to be preserved
