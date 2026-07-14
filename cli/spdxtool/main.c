@@ -249,8 +249,8 @@ usage(void)
 	printf("  --creation-time                   Use string as creation time (Should be in ISO8601 format) [default: current time]\n");
 	printf("  --creation-id                     Use string as creation id [default: '_:creationinfo_1']\n");
 	printf("  --help                            this message\n");
-	printf("  --about                           print bomtool version and license to stdout\n");
-	printf("  --version                         print bomtool version to stdout\n");
+	printf("  --about                           print spdxtool version and license to stdout\n");
+	printf("  --version                         print spdxtool version to stdout\n");
 	printf("  --output FILE                     output SBOM data to file\n");
 	printf("  --spdx-base-id URL                Uset string as base of SPDX ids [default: %s]\n", xsd_any_uri_default_base);
 	printf("  --use-uri                         Use URIs not URLs as SPDX id");
