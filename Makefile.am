@@ -380,6 +380,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/symlink/pcfiledir_symlink_relative_env12.test \
 		t/sysroot/cflags-rewriting.test \
 		t/sysroot/explicit-sysroot.test \
+		t/sysroot/fdo-sysroot-system-path-filtering.test \
+		t/sysroot/fdo-sysroot-variable-not-rewritten.test \
 		t/sysroot/idirafter-munge-sysroot.test \
 		t/sysroot/isystem-munge-sysroot.test \
 		t/sysroot/isystem-sysroot-prefixed.test \
