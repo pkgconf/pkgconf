@@ -954,7 +954,7 @@ pkgconf_client_set_output(pkgconf_client_t *client, pkgconf_output_t *output)
  *    Looks up an environmental variable which may be mocked, otherwise fetches
  *    from the main environment.
  *
- *    :param pkgconf_client_t* client: yhe client object to use for looking up environmental variables.
+ *    :param pkgconf_client_t* client: the client object to use for looking up environmental variables.
  *    :param char* key: the environmental variable to look up.
  *    :return: the environmental variable contents else NULL
  *    :rtype: const char*

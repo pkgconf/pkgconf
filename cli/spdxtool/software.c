@@ -45,7 +45,7 @@ out:
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param const char *spdx_id: spdxId for this SBOM element
  *    :param const char *creation_id: id for CreationInfo
- *    :param const char *sbom_type: Sbom types can be found SPDX documention
+ *    :param const char *sbom_type: Sbom types can be found SPDX documentation
  *    :return: NULL if some problem occurs and Sbom struct if not
  */
 spdxtool_software_sbom_t *
