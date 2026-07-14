@@ -18,6 +18,7 @@ if cc.get_argument_syntax() != 'msvc'
     )
   endif
   add_project_arguments(
+    '-D_ATFILE_SOURCE',
     '-D_BSD_SOURCE',
     '-D_DARWIN_C_SOURCE',
     '-D_DEFAULT_SOURCE',
@@ -78,6 +79,7 @@ check_functions = [
 # Feature-test macros mirroring those defined globally by the build, so that
 # the function probes below see the same declarations as the actual sources.
 feature_macros = {
+  '_ATFILE_SOURCE': '',
   '_BSD_SOURCE': '',
   '_DARWIN_C_SOURCE': '',
   '_DEFAULT_SOURCE': '',
