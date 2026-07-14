@@ -627,9 +627,15 @@ in the same way as
 .It Ev DESTDIR
 If set to the same value as
 .Ev PKG_CONFIG_SYSROOT_DIR ,
-behave in the same way as if
+follow
 .Ev PKG_CONFIG_FDO_SYSROOT_RULES
-is set.
+for variable lookups, but disable automatic sysroot injection into
+.Fl I
+and
+.Fl L
+fragments to avoid prefixing paths with
+.Ev DESTDIR
+twice.
 If
 .Ev PKG_CONFIG_SYSROOT_DIR
 is not set or set to a different value,
