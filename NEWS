@@ -1,6 +1,15 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.1 to 3.0.2:
+----------------------------
+
+* Fix build on systems where readlinkat(2) is missing, such as Illumos when
+  built without appropriate CFLAGS.
+
+* Fix detection of readlinkat(2) on systems where it is gated behind
+  _ATFILE_SOURCE, such as on certain builds of Illumos.
+
 Changes from 3.0.0 to 3.0.1:
 ----------------------------
 
