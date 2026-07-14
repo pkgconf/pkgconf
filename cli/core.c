@@ -1186,7 +1186,8 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 		if ((destdir = pkgconf_client_getenv(&state->pkg_client, "DESTDIR")) != NULL)
 		{
 			if (!strcmp(destdir, sysroot_dir))
-				want_client_flags |= PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES;
+				want_client_flags |= PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES |
+					PKGCONF_PKG_PKGF_NO_SYSROOT_INJECTION;
 		}
 	}
 
