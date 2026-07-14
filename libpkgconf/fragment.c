@@ -238,8 +238,7 @@ pkgconf_fragment_insert(pkgconf_client_t *client, pkgconf_list_t *list, char typ
 static bool
 should_inject_sysroot(const pkgconf_client_t *client, const char *string, bool saw_sysroot, unsigned int flags)
 {
-	/* emulating original pkg-config: we never inject sysroot */
-	if (client->flags & PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES)
+	if (client->flags & PKGCONF_PKG_PKGF_NO_SYSROOT_INJECTION)
 		return false;
 
 	/* we never automatically inject sysroot on -uninstalled packages */
@@ -271,8 +270,7 @@ should_inject_sysroot(const pkgconf_client_t *client, const char *string, bool s
 static bool
 should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragment_t *last, const char *string, bool saw_sysroot, unsigned int flags)
 {
-	/* emulating original pkg-config: we never inject sysroot */
-	if (client->flags & PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES)
+	if (client->flags & PKGCONF_PKG_PKGF_NO_SYSROOT_INJECTION)
 		return false;
 
 	/* we never automatically inject sysroot on -uninstalled packages */
