@@ -297,55 +297,40 @@ jobs:
         env:
           ASAN_OPTIONS: "exitcode=7"
 
-  debian-autotools:
-    runs-on: ubuntu-latest
-    container:
-      image: debian:testing
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Update system and add dependencies
-        run: |
-          apt-get update
-          apt-get install -y build-essential autoconf libtool
-
-      - name: Build
-        run: |
-          ./autogen.sh
-          ./configure
-          make -j9
-
-      - name: Run tests
-        run: |
-          make distcheck
-
   dist-meson:
     runs-on: ubuntu-latest
     container:
       image: debian:testing
     steps:
+      - name: Install git (required by actions/checkout and meson dist)
+        run: |
+          apt-get update
+          apt-get install -y git
+          # Container-mounted checkouts are owned by a different uid than
+          # the one git operates as here, which trips git's dubious-
+          # ownership check (CVE-2022-24765 mitigation) and breaks both
+          # actions/checkout and meson dist's internal git invocations.
+          git config --global --add safe.directory "*"
+
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Update system and add dependencies
         run: |
-          apt-get update
-          apt-get install -y build-essential autoconf libtool meson
+          apt-get install -y build-essential meson
 
-      - name: Build tarball
+      - name: Build dist tarball
         run: |
-          ./autogen.sh
-          ./configure
-          make dist
+          meson setup _build -Dwerror=true
+          meson dist -C _build
 
       - name: Build and test tarball with Meson
         run: |
-          tar xf pkgconf-*.tar.xz
+          tar xf _build/meson-dist/pkgconf-*.tar.xz
           cd pkgconf-*/
-          meson setup _build -Dwerror=true
-          meson compile -C _build
-          meson test -v -C _build
+          meson setup _build2 -Dwerror=true
+          meson compile -C _build2
+          meson test -v -C _build2
 
   alpine-meson:
     runs-on: ubuntu-latest
@@ -402,29 +387,6 @@ jobs:
         run: |
           cd _build
           muon test -v -v
-
-  alpine-autotools:
-    runs-on: ubuntu-latest
-    container:
-      image: alpine
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Update system and add dependencies
-        run: |
-          apk update
-          apk add build-base autoconf automake libtool xz gzip tar
-
-      - name: Build
-        run: |
-          ./autogen.sh
-          ./configure
-          make -j9
-
-      - name: Run tests
-        run: |
-          make distcheck
 
   debian-7:
     runs-on: ubuntu-latest
