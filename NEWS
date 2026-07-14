@@ -1,6 +1,18 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.2 to 3.0.3:
+----------------------------
+
+* Restore correct handling of sysroots when emulating legacy pkg-config, and
+  add explicit regression tests for this case.
+
+* Fix references to bomtool in spdxtool --help.
+  Patch by Pierre Pronchery.
+
+* Fix various typos in the source code.
+  Patch by Christian Clauss.
+
 Changes from 3.0.1 to 3.0.2:
 ----------------------------
 
