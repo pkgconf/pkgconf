@@ -94,7 +94,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 			targetdir = ".";
 		}
 
-#ifdef HAVE_DECL_READLINKAT
+#if HAVE_DECL_READLINKAT
 		const int dirfd = open(targetdir, O_DIRECTORY);
 		if (dirfd == -1)
 			break;
