@@ -179,7 +179,8 @@ pkgconf_variable_eval_name(pkgconf_client_t *client,
 	v = pkgconf_bytecode_eval_lookup_var(&ctx, varname, strlen(varname));
 	(void) pkgconf_variable_eval(client, vars, v, &varbuf, &saw_sysroot);
 
-	if (!saw_sysroot && pkgconf_path_is_plausible(&varbuf))
+	if (!(client->flags & PKGCONF_PKG_PKGF_FDO_SYSROOT_RULES) &&
+		!saw_sysroot && pkgconf_path_is_plausible(&varbuf))
 	{
 		/* if sysroot is set, and value does not already begin with sysroot */
 		if (!pkgconf_buffer_has_prefix(&varbuf, sysroot_dir))
