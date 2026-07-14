@@ -11,6 +11,16 @@ jobs:
     container:
       image: alpine:latest
     steps:
+    - name: Install git (required by actions/checkout and meson dist)
+      run: |
+        apk update
+        apk add git
+        # Container-mounted checkouts are owned by a different uid than
+        # the one git operates as here, which trips git's dubious-
+        # ownership check (CVE-2022-24765 mitigation) and breaks both
+        # actions/checkout and meson dist's internal git invocations.
+        git config --global --add safe.directory "*"
+
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -18,17 +28,13 @@ jobs:
 
     - name: Update system and add dependencies
       run: |
-        apk update
-        apk add kyua atf build-base autoconf automake libtool xz gzip tar openssh-client
-
-    - name: Bootstrap autotools
-      run: |
-        sh autogen.sh
-        ./configure
+        apk add build-base meson xz gzip tar openssh-client
 
     - name: Run tests and generate dist tarballs
       run: |
-        make distcheck -j$(nproc)
+        meson setup _build -Dwerror=true
+        meson dist -C _build
+        cp _build/meson-dist/pkgconf-*.tar.* .
 
     - name: Upload artifact
       uses: actions/upload-artifact@v7

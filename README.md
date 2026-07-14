@@ -24,9 +24,6 @@ Release tarballs are available on [distfiles.ariadne.space][distfiles].
 
 pkgconf uses [Meson](https://mesonbuild.com) as its build system.
 
-> **Note:** The autotools build system is deprecated as of pkgconf 3.0 and will be
-> removed in pkgconf 3.1.  New build configurations should use Meson or Muon.
-
 If you would like to use the git sources directly, or a snapshot of the sources from
 GitHub, Meson can be used directly without any additional bootstrap step.
 
@@ -118,36 +115,6 @@ configuration is needed.  Both Meson and Muon are tested in CI.
     $ muon install -C build
 
 For non-bootstrap builds, Meson is recommended.
-
-## compiling `pkgconf` and `libpkgconf` with autotools (deprecated)
-
-> **Warning:** The autotools build system is deprecated as of pkgconf 3.0 and will be
-> removed in pkgconf 3.1.  Please migrate to Meson or Muon.
-
-If you would like to use the git sources directly, or a snapshot of the sources from
-GitHub, you will need to regenerate the autotools build system artifacts yourself, or
-use Meson instead (recoommended).  For example, on Alpine:
-
-    $ apk add autoconf automake libtool build-base
-    $ sh ./autogen.sh
-
-pkgconf is then compiled the same way as any other autotools-based project:
-
-    $ ./configure
-    $ make
-    $ sudo make install
-
-If you are installing pkgconf into a custom prefix, such as `/opt/pkgconf`, you will
-likely want to define the default system includedir and libdir for your toolchain.
-To do this, use the `--with-system-includedir` and `--with-system-libdir` configure
-flags like so:
-
-    $ ./configure \
-         --prefix=/opt/pkgconf \
-         --with-system-libdir=/lib:/usr/lib \
-         --with-system-includedir=/usr/include
-    $ make
-    $ sudo make install
 
 ## pkg-config symlink
 
