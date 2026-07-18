@@ -82,7 +82,7 @@ deduce_personality(char *argv[])
 	if (i != NULL)
 		argv0 = i + 1;
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN64) || defined(__OS2__)
 	i = strrchr(argv0, '\\');
 	if (i != NULL)
 		argv0 = i + 1;
