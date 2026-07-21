@@ -478,6 +478,16 @@ is_path_prefix_equal(const char *path1, const char *path2, size_t path2_len)
 #endif
 }
 
+static inline bool
+is_path_separator(char c)
+{
+#ifdef _WIN32
+	return c == '/' || c == '\\';
+#else
+	return c == '/';
+#endif
+}
+
 static inline const char *
 lookup_val_from_env(const pkgconf_client_t *client, const char *pkg_id, const char *keyword)
 {
