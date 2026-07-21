@@ -1290,6 +1290,13 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	PKGCONF_FOREACH_LIST_ENTRY(deplist.head, node)
 	{
 		pkgconf_dependency_t *dep = node->data;
+
+		/* check if there is a limit to the number of packages allowed to be included, if so and we have hit
+		 * the limit, stop adding packages to the queue.
+		 */
+		if (state->maximum_package_count > 0 && pkgq.length >= state->maximum_package_count)
+			break;
+
 		pkgconf_queue_push_dependency(&pkgq, dep);
 	}
 
