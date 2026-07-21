@@ -215,6 +215,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/multiline-folding-libs.test \
 		t/parser/no-trailing-newline.test \
 		t/parser/paren-quoting.test \
+		t/parser/self-referential-fragment.test \
 		t/parser/shell-quoted-output.test \
 		t/parser/tilde-quoting-1.test \
 		t/parser/tilde-quoting-2.test \
@@ -420,6 +421,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/api/oom.h \
 		tests/api/test-oom-spdxtool.c \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
+		tests/lib1/self-referential-fragment.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
 		tests/lib1/dollar-sign-escape.pc \
