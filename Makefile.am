@@ -199,6 +199,8 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/dos-lineendings.test \
 		t/parser/escaped-backslashes-in-output.test \
 		t/parser/fragment-comment.test \
+		t/parser/fragment-escaped-space-var-cflags.test \
+		t/parser/fragment-escaped-space-var-libs.test \
 		t/parser/fragment-escaping-1.test \
 		t/parser/fragment-escaping-2.test \
 		t/parser/fragment-escaping-3.test \
@@ -554,6 +556,12 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/duplicate-tuple.pc \
 		tests/lib1/flag-whitespace.pc \
 		tests/lib1/flag-whitespace-2.pc \
+		tests/lib1/fragment-escaped-space-var.pc \
+		tests/lib1/windows-sysroot-inject.pc \
+		tests/lib1/windows-sysroot-libdir.pc \
+		tests/lib1/windows-system-libdir.pc \
+		tests/lib1/windows-top-builddir.pc \
+		tests/lib1/spaces-in-paths.pc \
 		tests/lib-pccritic/perfect.pc \
 		tests/lib-pccritic/polluted.pc \
 		tests/lib-pccritic/nodesc.pc \
