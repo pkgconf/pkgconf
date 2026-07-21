@@ -146,7 +146,22 @@ dequote(const char *value)
 
 	for (i = value; *i != '\0'; i++)
 	{
-		if (*i == '\\' && quote && *(i + 1) == quote)
+		/* An escaped whitespace denotes a literal whitespace, e.g. a path
+		 * component containing a space produced by `printf %q`.  Store the
+		 * canonical (unescaped) text so it is not left escaped in memory:
+		 * otherwise it would be escaped a second time when rendered into a
+		 * fragment ("a\ dir" would come out as "a\\\ dir").  Other backslash
+		 * sequences are preserved verbatim so variable-expansion escapes such
+		 * as "\${var}" keep working.
+		 *
+		 * See <https://github.com/pkgconf/pkgconf/issues/575>.
+		 */
+		if (*i == '\\' && isspace((unsigned char) *(i + 1)))
+		{
+			i++;
+			*bptr++ = *i;
+		}
+		else if (*i == '\\' && quote && *(i + 1) == quote)
 		{
 			i++;
 			*bptr++ = *i;
