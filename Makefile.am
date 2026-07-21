@@ -99,6 +99,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/short-errors.test \
 		t/cli/silence-errors.test \
 		t/cli/simulate.test \
+		t/cli/single-package-limit.test \
 		t/cli/solution.test \
 		t/cli/unknown-option.test \
 		t/cli/validate-warning.test \
@@ -422,6 +423,8 @@ EXTRA_DIST =	pkg.m4 \
 		tests/api/test-oom-spdxtool.c \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
 		tests/lib1/self-referential-fragment.pc \
+		tests/lib1/maxpkg-first.pc \
+		tests/lib1/maxpkg-second.pc \
 		tests/lib1/argv-parse-2.pc \
 		tests/lib1/billion-laughs.pc \
 		tests/lib1/dollar-sign-escape.pc \

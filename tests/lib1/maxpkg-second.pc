@@ -1,0 +1,5 @@
+qux=second-value
+
+Name: maxpkg-second
+Description: test fixture
+Version: 1.0.0
