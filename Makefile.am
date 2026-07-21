@@ -44,6 +44,11 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/atleast-version-pass.test \
 		t/cli/cflags-libs.test \
 		t/cli/debug.test \
+		t/cli/define-prefix-boundary.test \
+		t/cli/define-prefix-boundary-sibling.test \
+		t/cli/define-prefix-plain.test \
+		t/cli/define-prefix-trailing-slash.test \
+		t/cli/define-prefix-trailing-slash-cflags.test \
 		t/cli/define-variable.test \
 		t/cli/dont-define-prefix.test \
 		t/cli/dump-personality-loaded.test \
@@ -422,6 +427,9 @@ EXTRA_DIST =	pkg.m4 \
 		tests/api/oom.h \
 		tests/api/test-oom-spdxtool.c \
 		tests/lib-relocatable/lib/pkgconfig/foo.pc \
+		tests/lib-relocatable/abs-boundary/lib/pkgconfig/boundary.pc \
+		tests/lib-relocatable/plain-prefix/lib/pkgconfig/plain.pc \
+		tests/lib-relocatable/trailing-prefix/lib/pkgconfig/trailing.pc \
 		tests/lib1/self-referential-fragment.pc \
 		tests/lib1/maxpkg-first.pc \
 		tests/lib1/maxpkg-second.pc \
