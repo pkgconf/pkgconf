@@ -543,14 +543,25 @@ pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *k
 		if (pkgconf_buffer_len(&pkg->orig_prefix) != 0)
 		{
 			const char *op = pkgconf_buffer_str_or_empty(&pkg->orig_prefix);
-			const size_t oplen = pkgconf_buffer_len(&pkg->orig_prefix);
+			const char *cv = pkgconf_buffer_str(&canonicalized_value);
+			size_t oplen = pkgconf_buffer_len(&pkg->orig_prefix);
 
-			if (is_path_prefix_equal(pkgconf_buffer_str(&canonicalized_value), op, oplen))
+			/* Match orig_prefix as a directory path: disregard any trailing
+			 * separator so oplen describes the directory itself, and require
+			 * the value to continue on a component boundary.  This leaves the
+			 * separator at cv[oplen] as the tail's leading character, which
+			 * joins it to calculated_prefix (which never has a trailing one).
+			 */
+			while (oplen > 1 && is_path_separator(op[oplen - 1]))
+				oplen--;
+
+			if (is_path_prefix_equal(cv, op, oplen) &&
+				(cv[oplen] == '\0' || is_path_separator(cv[oplen])))
 			{
 				pkgconf_buffer_t newvalue = PKGCONF_BUFFER_INITIALIZER;
 
 				if (!pkgconf_buffer_append(&newvalue, pkgconf_buffer_str_or_empty(&pkg->calculated_prefix)) ||
-					!pkgconf_buffer_append(&newvalue, pkgconf_buffer_str(&canonicalized_value) + oplen))
+					!pkgconf_buffer_append(&newvalue, cv + oplen))
 				{
 					pkgconf_buffer_finalize(&newvalue);
 					goto out;
