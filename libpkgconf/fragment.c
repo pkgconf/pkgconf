@@ -1095,7 +1095,8 @@ fragment_render(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment
 	if (!fragment_quote(&quoted, frag))
 		goto fail;
 
-	if (frag->type && !pkgconf_buffer_append_fmt(buf, "-%c", frag->type))
+	if (frag->type &&
+		(!pkgconf_buffer_push_byte(buf, '-') || !pkgconf_buffer_push_byte(buf, frag->type)))
 		goto fail;
 
 	if (!pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(&quoted)))
