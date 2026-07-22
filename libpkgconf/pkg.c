@@ -415,16 +415,17 @@ static char *
 convert_path_to_value(const char *path)
 {
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
+	char *normalized = strdup(path);
 	const char *i;
 
-	for (i = path; *i != '\0'; i++)
+	if (normalized == NULL)
+		return NULL;
+
+	pkgconf_path_normalize_separators(normalized);
+
+	for (i = normalized; *i != '\0'; i++)
 	{
-		if (*i == PKG_DIR_SEP_S)
-		{
-			if (!pkgconf_buffer_push_byte(&buf, '/'))
-				goto fail;
-		}
-		else if (*i == ' ')
+		if (*i == ' ')
 		{
 			if (!pkgconf_buffer_push_byte(&buf, '\\') ||
 				!pkgconf_buffer_push_byte(&buf, ' '))
@@ -434,9 +435,11 @@ convert_path_to_value(const char *path)
 			goto fail;
 	}
 
+	free(normalized);
 	return pkgconf_buffer_freeze(&buf);
 
 fail:
+	free(normalized);
 	pkgconf_buffer_finalize(&buf);
 	return NULL;
 }
@@ -781,6 +784,10 @@ pkgconf_pkg_new_from_path(pkgconf_client_t *client, const char *filename, unsign
 		pkg_free_object(pkg);
 		return NULL;
 	}
+
+	/* keep pc_filedir in canonical (forward-slash) form so it compares
+	 * consistently against sysroot_dir and the search-path entries below */
+	pkgconf_path_normalize_separators(pkg->pc_filedir);
 
 	char *pc_filedir_value = convert_path_to_value(pkg->pc_filedir);
 	pkgconf_tuple_add(client, &pkg->vars, "pcfiledir", pc_filedir_value, true, pkg->flags);

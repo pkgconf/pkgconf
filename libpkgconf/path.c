@@ -408,25 +408,56 @@ pkgconf_path_free(pkgconf_list_t *dirlist)
 	pkgconf_list_zero(dirlist);
 }
 
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_path_normalize_separators(char *path)
+ *
+ *    Rewrites a real OS path into pkgconf's canonical internal form, in which
+ *    the platform directory separator is always represented as ``/``.  On POSIX
+ *    this is a no-op (a backslash is an ordinary filename character); on Windows
+ *    it maps ``\`` to ``/``.  Runtime-injected paths (search paths, sysroot,
+ *    build root, prefix, pcfiledir) are normalized this way so that later path
+ *    comparisons -- sysroot injection and system-directory filtering -- are all
+ *    made on a consistent basis.
+ *
+ *    :param char* path: The path to normalize in place.
+ *    :return: nothing
+ */
+void
+pkgconf_path_normalize_separators(char *path)
+{
+#ifdef _WIN32
+	for (; *path != '\0'; path++)
+		if (*path == PKG_DIR_SEP_S)
+			*path = '/';
+#else
+	(void) path;
+#endif
+}
+
 static char *
 normpath(const pkgconf_buffer_t *pathbuf)
 {
 	if (!pathbuf || pkgconf_buffer_len(pathbuf) == 0)
 		return NULL;
 
-	const char *path = pkgconf_buffer_str(pathbuf);
-	char *copy = strdup(path);
+	char *copy = strdup(pkgconf_buffer_str(pathbuf));
 	if (NULL == copy)
 		return NULL;
-	char *ptr = copy;
 
+	/* fold the platform separator to '/' before collapsing runs, so that a
+	 * mix of '\' and '/' (as seen on Windows) is treated uniformly. */
+	pkgconf_path_normalize_separators(copy);
+
+	char *ptr = copy;
 	for (int ii = 0; copy[ii]; ii++)
 	{
-		*ptr++ = path[ii];
-		if ('/' == path[ii])
+		*ptr++ = copy[ii];
+		if ('/' == copy[ii])
 		{
 			ii++;
-			while ('/' == path[ii])
+			while ('/' == copy[ii])
 				ii++;
 			ii--;
 		}
