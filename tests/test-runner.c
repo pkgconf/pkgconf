@@ -131,7 +131,7 @@ typedef struct test_flag_pair_
 	uint64_t flag;
 } pkgconf_test_flag_pair_t;
 
-typedef void (*test_keyword_func_t)(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value);
+typedef void (*test_keyword_func_t)(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value);
 
 typedef struct test_keyword_pair_
 {
@@ -296,40 +296,40 @@ test_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-test_keyword_set_int(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+test_keyword_set_int(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	int *dest = (int *)((char *) testcase + offset);
 	*dest = atoi(value);
 }
 
 static void
-test_keyword_set_bool(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+test_keyword_set_bool(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	bool *dest = (bool *)((char *) testcase + offset);
 	*dest = !strcasecmp(value, "true");
 }
 
 static void
-test_keyword_set_buffer(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+test_keyword_set_buffer(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	pkgconf_buffer_t *dest = (pkgconf_buffer_t *)((char *) testcase + offset);
 	handle_substs(dest, PKGCONF_BUFFER_FROM_STR((char *) value), NULL);
 }
 
 static void
-test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+test_keyword_extend_bufferset(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) testcase + offset);
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
@@ -401,14 +401,14 @@ static const pkgconf_test_flag_pair_t test_flag_pairs[] =
 };
 
 static void
-test_keyword_set_wanted_flags(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+test_keyword_set_wanted_flags(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	int i;
 	int flagcount;
 	char **flags = NULL;
 
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 	(void) offset;
 
 	pkgconf_argv_split(value, &flagcount, &flags);
@@ -457,20 +457,20 @@ prefixed_path_split(const char *text, pkgconf_list_t *dirlist, const char *prefi
 }
 
 static void
-test_keyword_set_path_list(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+test_keyword_set_path_list(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) testcase + offset);
 	prefixed_path_split(value, dest, pkgconf_buffer_str(&test_fixtures_dir));
 }
 
 static void
-test_keyword_set_match_strategy(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+test_keyword_set_match_strategy(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	pkgconf_test_match_strategy_t *dest = (pkgconf_test_match_strategy_t *)((char *) testcase + offset);
 
@@ -482,7 +482,7 @@ test_keyword_set_match_strategy(pkgconf_test_case_t *testcase, const char *keywo
 }
 
 static void
-test_keyword_set_environment(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+test_keyword_set_environment(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	(void) offset;
@@ -490,7 +490,7 @@ test_keyword_set_environment(pkgconf_test_case_t *testcase, const char *keyword,
 	char *eq = strchr(value, '=');
 	if (eq == NULL)
 	{
-		fprintf(stderr, "%s: malformed Environment entry: %s\n", warnprefix, value);
+		fprintf(stderr, "%s:" SIZE_FMT_SPECIFIER ": malformed Environment entry: %s\n", loc->filename, loc->lineno, value);
 		return;
 	}
 
@@ -502,11 +502,11 @@ test_keyword_set_environment(pkgconf_test_case_t *testcase, const char *keyword,
 
 #ifdef _WIN32
 static void
-test_keyword_disabled(pkgconf_test_case_t *testcase, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+test_keyword_disabled(pkgconf_test_case_t *testcase, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) testcase;
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 	(void) offset;
 	(void) value;
 }
@@ -549,7 +549,7 @@ static const pkgconf_test_keyword_pair_t test_keyword_pairs[] =
 };
 
 static void
-test_keyword_set(void *data, const char *warnprefix, const char *keyword, const char *value)
+test_keyword_set(void *data, const pkgconf_parser_location_t *loc, const char *keyword, const char *value)
 {
 	pkgconf_test_case_t *testcase = data;
 	const pkgconf_test_keyword_pair_t *pair = bsearch(keyword,
@@ -559,12 +559,12 @@ test_keyword_set(void *data, const char *warnprefix, const char *keyword, const 
 	if (pair == NULL || pair->func == NULL)
 		return;
 
-	pair->func(testcase, warnprefix, keyword, pair->offset, value);
+	pair->func(testcase, keyword, loc, pair->offset, value);
 }
 
 static const pkgconf_parser_operand_func_t test_parser_ops[256] =
 {
-	[':'] = (pkgconf_parser_operand_func_t) test_keyword_set,
+	[':'] = test_keyword_set,
 };
 
 static void
