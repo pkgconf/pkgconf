@@ -53,11 +53,9 @@ build_default_search_path(pkgconf_list_t* dirlist)
 	 * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
 	 */
 	int sizepath = GetModuleFileName(NULL, namebuf, sizeof namebuf - 1);
-	char * winslash;
 	namebuf[sizepath] = '\0';
 
-	while ((winslash = strchr(namebuf, '\\')) != NULL)
-		*winslash = '/';
+	pkgconf_path_normalize_separators(namebuf);
 
 	p = strrchr(namebuf, '/');
 	if (p == NULL)
