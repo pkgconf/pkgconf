@@ -580,6 +580,99 @@ pkgconf_fragment_lookup(pkgconf_list_t *list, const pkgconf_fragment_t *base)
 	return NULL;
 }
 
+/* Order fragments by (type, data) so that the cursor index can be searched
+ * with bsearch().  NULL data sorts before any non-NULL data of the same type. */
+static int
+fragment_index_cmp(const void *a, const void *b)
+{
+	const pkgconf_fragment_t *fa = *(pkgconf_fragment_t * const *) a;
+	const pkgconf_fragment_t *fb = *(pkgconf_fragment_t * const *) b;
+
+	if (fa->type != fb->type)
+		return (unsigned char) fa->type < (unsigned char) fb->type ? -1 : 1;
+
+	if (fa->data == NULL || fb->data == NULL)
+	{
+		if (fa->data == fb->data)
+			return 0;
+
+		return fa->data == NULL ? -1 : 1;
+	}
+
+	return strcmp(fa->data, fb->data);
+}
+
+static pkgconf_fragment_t *
+fragment_index_lookup(const pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *base)
+{
+	pkgconf_fragment_t **found;
+
+	if (cursor->count == 0)
+		return NULL;
+
+	found = bsearch(&base, cursor->index, cursor->count, sizeof(void *), fragment_index_cmp);
+	return found != NULL ? *found : NULL;
+}
+
+static bool
+fragment_index_insert(pkgconf_fragment_cursor_t *cursor, pkgconf_fragment_t *frag)
+{
+	size_t lo = 0, hi = cursor->count;
+
+	if (cursor->count == cursor->alloc)
+	{
+		size_t newalloc = cursor->alloc != 0 ? cursor->alloc * 2 : 16;
+		pkgconf_fragment_t **newindex = pkgconf_reallocarray(cursor->index, newalloc, sizeof(void *));
+
+		if (newindex == NULL)
+			return false;
+
+		cursor->index = newindex;
+		cursor->alloc = newalloc;
+	}
+
+	while (lo < hi)
+	{
+		size_t mid = lo + (hi - lo) / 2;
+
+		if (fragment_index_cmp(&cursor->index[mid], &frag) < 0)
+			lo = mid + 1;
+		else
+			hi = mid;
+	}
+
+	memmove(&cursor->index[lo + 1], &cursor->index[lo], (cursor->count - lo) * sizeof(void *));
+	cursor->index[lo] = frag;
+	cursor->count++;
+
+	return true;
+}
+
+static void
+fragment_index_remove(pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *frag)
+{
+	pkgconf_fragment_t **found = bsearch(&frag, cursor->index, cursor->count, sizeof(void *), fragment_index_cmp);
+	size_t idx;
+
+	if (found == NULL)
+		return;
+
+	idx = (size_t) (found - cursor->index);
+	memmove(&cursor->index[idx], &cursor->index[idx + 1], (cursor->count - idx - 1) * sizeof(void *));
+	cursor->count--;
+}
+
+/* Look up an existing fragment matching `base`: via the cursor's sorted index
+ * when one is provided, otherwise a linear scan of the list. */
+static inline pkgconf_fragment_t *
+fragment_lookup(pkgconf_list_t *list, const pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *base)
+{
+	if (cursor != NULL)
+		return fragment_index_lookup(cursor, base);
+
+	return pkgconf_fragment_lookup(list, base);
+}
+
 static inline bool
 pkgconf_fragment_can_merge_back(const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
@@ -621,7 +714,7 @@ pkgconf_fragment_can_merge(const pkgconf_fragment_t *base, unsigned int flags, b
 }
 
 static inline pkgconf_fragment_t *
-pkgconf_fragment_exists(pkgconf_list_t *list, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
+pkgconf_fragment_exists(pkgconf_list_t *list, const pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *base, unsigned int flags, bool is_private)
 {
 	if (!pkgconf_fragment_can_merge_back(base, flags, is_private))
 		return NULL;
@@ -629,7 +722,7 @@ pkgconf_fragment_exists(pkgconf_list_t *list, const pkgconf_fragment_t *base, un
 	if (!pkgconf_fragment_can_merge(base, flags, is_private))
 		return NULL;
 
-	return pkgconf_fragment_lookup(list, base);
+	return fragment_lookup(list, cursor, base);
 }
 
 static inline bool
@@ -691,7 +784,7 @@ pkgconf_fragment_has_system_dir(const pkgconf_client_t *client, const pkgconf_fr
 }
 
 static bool
-pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private);
+pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *base, bool is_private);
 
 static bool
 pkgconf_fragment_copy_list_node(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_list_t *base)
@@ -702,7 +795,9 @@ pkgconf_fragment_copy_list_node(const pkgconf_client_t *client, pkgconf_list_t *
 	{
 		pkgconf_fragment_t *frag = node->data;
 
-		if (!pkgconf_fragment_copy_node(client, list, frag, true))
+		/* children are copied into their own (small) list, which is never
+		 * indexed, so no cursor is threaded down here. */
+		if (!pkgconf_fragment_copy_node(client, list, NULL, frag, true))
 			return false;
 	}
 
@@ -710,17 +805,17 @@ pkgconf_fragment_copy_list_node(const pkgconf_client_t *client, pkgconf_list_t *
 }
 
 static bool
-pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private)
+pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *base, bool is_private)
 {
 	pkgconf_fragment_t *old_frag = NULL;
 	pkgconf_fragment_t *frag;
 
-	if ((old_frag = pkgconf_fragment_exists(list, base, client->flags, is_private)) != NULL)
+	if ((old_frag = pkgconf_fragment_exists(list, cursor, base, client->flags, is_private)) != NULL)
 	{
 		if (!pkgconf_fragment_should_merge(old_frag))
 			old_frag = NULL;
 	}
-	else if (!is_private && !pkgconf_fragment_can_merge_back(base, client->flags, is_private) && (pkgconf_fragment_lookup(list, base) != NULL))
+	else if (!is_private && !pkgconf_fragment_can_merge_back(base, client->flags, is_private) && (fragment_lookup(list, cursor, base) != NULL))
 		return true;
 
 	frag = calloc(1, sizeof(pkgconf_fragment_t));
@@ -747,9 +842,18 @@ pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list,
 	}
 
 	if (old_frag != NULL)
+	{
+		if (cursor != NULL)
+			fragment_index_remove(cursor, old_frag);
+
 		pkgconf_fragment_delete(list, old_frag);
+	}
 
 	pkgconf_node_insert_tail(&frag->iter, frag, list);
+
+	if (cursor != NULL && !fragment_index_insert(cursor, frag))
+		return false;
+
 	return true;
 }
 
@@ -770,7 +874,76 @@ pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list,
 void
 pkgconf_fragment_copy(const pkgconf_client_t *client, pkgconf_list_t *list, const pkgconf_fragment_t *base, bool is_private)
 {
-	(void) pkgconf_fragment_copy_node(client, list, base, is_private);
+	(void) pkgconf_fragment_copy_node(client, list, NULL, base, is_private);
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_cursor_init(pkgconf_fragment_cursor_t *cursor, pkgconf_list_t *list)
+ *
+ *    Initialises a `fragment cursor` bound to a (typically empty) destination list.  While the
+ *    cursor is in use, fragments must be added to the list only via ``pkgconf_fragment_copy_cursor()``
+ *    so that the cursor's index stays in sync.
+ *
+ *    :param pkgconf_fragment_cursor_t* cursor: The cursor to initialise.
+ *    :param pkgconf_list_t* list: The destination fragment list.
+ *    :return: nothing
+ */
+void
+pkgconf_fragment_cursor_init(pkgconf_fragment_cursor_t *cursor, pkgconf_list_t *list)
+{
+	pkgconf_node_t *node;
+
+	cursor->list = list;
+	cursor->index = NULL;
+	cursor->count = 0;
+	cursor->alloc = 0;
+
+	/* seed the index with anything already present, so dedup against pre-existing
+	 * fragments behaves exactly as the linear scan would. */
+	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
+		(void) fragment_index_insert(cursor, node->data);
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_cursor_deinit(pkgconf_fragment_cursor_t *cursor)
+ *
+ *    Releases the index held by a `fragment cursor`.  The destination list and its fragments are
+ *    not affected.
+ *
+ *    :param pkgconf_fragment_cursor_t* cursor: The cursor to release.
+ *    :return: nothing
+ */
+void
+pkgconf_fragment_cursor_deinit(pkgconf_fragment_cursor_t *cursor)
+{
+	free(cursor->index);
+	cursor->index = NULL;
+	cursor->count = 0;
+	cursor->alloc = 0;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_fragment_copy_cursor(const pkgconf_client_t *client, pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *base, bool is_private)
+ *
+ *    Like ``pkgconf_fragment_copy()``, but uses the cursor's sorted index for the mergeback lookup,
+ *    turning what would be a linear scan of the destination list into a bsearch.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
+ *    :param pkgconf_fragment_cursor_t* cursor: The cursor bound to the destination list.
+ *    :param pkgconf_fragment_t* base: The fragment being copied.
+ *    :param bool is_private: Whether the fragment list is a `private` fragment list (static linking).
+ *    :return: nothing
+ */
+void
+pkgconf_fragment_copy_cursor(const pkgconf_client_t *client, pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *base, bool is_private)
+{
+	(void) pkgconf_fragment_copy_node(client, cursor->list, cursor, base, is_private);
 }
 
 /*
@@ -816,7 +989,7 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 		pkgconf_fragment_t *frag = node->data;
 
 		if (filter_func(client, frag, data))
-			(void) pkgconf_fragment_copy_node(client, dest, frag, true);
+			(void) pkgconf_fragment_copy_node(client, dest, NULL, frag, true);
 	}
 }
 
