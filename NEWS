@@ -1,6 +1,34 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.3 to 3.0.4:
+----------------------------
+
+* Fix a crash (stack overflow) triggered by a crafted .pc file containing a
+  self-referential fragment variable, such as `x=$${x}` referenced from Cflags.
+  Fragment variables are now evaluated only once while re-splitting.  Found
+  through fuzzing.
+
+* Fix over-escaping of variable values containing backslash-escaped whitespace,
+  such as paths quoted with `printf %q`.  Such a value was stored with its
+  escapes intact and then escaped a second time when rendered into a fragment,
+  producing output like `-L/a\\\ dir`.  This broke meson's test suite, which
+  uses paths with spaces to stay Windows-safe.
+
+* Fix mangled and duplicated -L/-I paths on Windows when PKG_CONFIG_SYSROOT_DIR
+  and PKG_CONFIG_LIBDIR are set.  Path separators are now normalized to forward
+  slashes for all runtime-injected paths (sysroot, build root, search paths and
+  pcfiledir), so that sysroot matching and injection operate on a consistent
+  basis.
+
+* Fix `--define-prefix` dropping a path separator when the redefined prefix ends
+  with a trailing slash, and only rewrite a package's directories when they match
+  the original prefix on a path component boundary.
+
+* Fix single-package queries returning results drawn from more than the requested
+  module, by restoring the package limit that was lost during a refactor of the
+  query builder.
+
 Changes from 3.0.2 to 3.0.3:
 ----------------------------
 
