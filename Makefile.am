@@ -225,6 +225,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/paren-quoting.test \
 		t/parser/self-referential-fragment.test \
 		t/parser/shell-quoted-output.test \
+		t/parser/spaces-in-paths.test \
 		t/parser/tilde-quoting-1.test \
 		t/parser/tilde-quoting-2.test \
 		t/parser/truncated-files-should-fail-to-parse.test \
@@ -410,6 +411,10 @@ EXTRA_DIST =	pkg.m4 \
 		t/sysroot/uninstalled-rewriting.test \
 		t/sysroot/variable-rewriting-1.test \
 		t/sysroot/variable-rewriting-2.test \
+		t/sysroot/windows-drive-path-no-inject.test \
+		t/sysroot/windows-sysroot-inject.test \
+		t/sysroot/windows-system-libdir-filter.test \
+		t/sysroot/windows-top-builddir.test \
 		t/tuple/billion-laughs.test \
 		t/tuple/case-sensitivity-1.test \
 		t/tuple/case-sensitivity-2.test \
