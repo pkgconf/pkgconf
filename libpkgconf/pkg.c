@@ -483,9 +483,7 @@ canonicalize_path(char *buf)
 static bool
 is_path_prefix_equal(const char *path1, const char *path2, size_t path2_len)
 {
-#ifdef _WIN32
-	return !_strnicmp(path1, path2, path2_len);
-#elif defined(__OS2__)
+#if defined(_WIN32) || defined(__OS2__)
 	return !strncasecmp(path1, path2, path2_len);
 #else
 	return !strncmp(path1, path2, path2_len);
