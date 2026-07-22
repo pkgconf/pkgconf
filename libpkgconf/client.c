@@ -836,12 +836,6 @@ pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler
 {
 	client->trace_handler = trace_handler;
 	client->trace_handler_data = trace_handler_data;
-
-	if (client->trace_handler == NULL)
-	{
-		client->trace_handler = pkgconf_default_error_handler;
-		PKGCONF_TRACE(client, "installing default trace handler");
-	}
 }
 #endif
 
