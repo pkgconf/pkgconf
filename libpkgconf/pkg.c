@@ -1844,7 +1844,7 @@ pkgconf_pkg_traverse(pkgconf_client_t *client,
 static void
 pkgconf_pkg_cflags_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
-	pkgconf_list_t *list = data;
+	pkgconf_fragment_cursor_t *cursor = data;
 	pkgconf_node_t *node;
 
 	(void) iter_flags;
@@ -1852,14 +1852,14 @@ pkgconf_pkg_cflags_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *d
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags.head, node)
 	{
 		pkgconf_fragment_t *frag = node->data;
-		pkgconf_fragment_copy(client, list, frag, false);
+		pkgconf_fragment_copy_cursor(client, cursor, frag, false);
 	}
 }
 
 static void
 pkgconf_pkg_cflags_private_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
-	pkgconf_list_t *list = data;
+	pkgconf_fragment_cursor_t *cursor = data;
 	pkgconf_node_t *node;
 
 	(void) iter_flags;
@@ -1867,14 +1867,14 @@ pkgconf_pkg_cflags_private_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg,
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags_private.head, node)
 	{
 		pkgconf_fragment_t *frag = node->data;
-		pkgconf_fragment_copy(client, list, frag, true);
+		pkgconf_fragment_copy_cursor(client, cursor, frag, true);
 	}
 }
 
 static void
 pkgconf_pkg_cflags_shared_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
-	pkgconf_list_t *list = data;
+	pkgconf_fragment_cursor_t *cursor = data;
 	pkgconf_node_t *node;
 
 	(void) iter_flags;
@@ -1882,7 +1882,7 @@ pkgconf_pkg_cflags_shared_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->cflags_shared.head, node)
 	{
 		pkgconf_fragment_t *frag = node->data;
-		pkgconf_fragment_copy(client, list, frag, true);
+		pkgconf_fragment_copy_cursor(client, cursor, frag, true);
 	}
 }
 
@@ -1906,20 +1906,25 @@ pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t
 	unsigned int eflag;
 	unsigned int skip_flags = (client->flags & PKGCONF_PKG_PKGF_DONT_FILTER_INTERNAL_CFLAGS) == 0 ? PKGCONF_PKG_DEPF_INTERNAL : 0;
 	pkgconf_list_t frags = PKGCONF_LIST_INITIALIZER;
+	pkgconf_fragment_cursor_t cursor;
 
-	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_collect, &frags, maxdepth, skip_flags);
+	pkgconf_fragment_cursor_init(&cursor, &frags);
+
+	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_collect, &cursor, maxdepth, skip_flags);
 
 	if (eflag == PKGCONF_PKG_ERRF_OK)
 	{
 		if (client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
 		{
-			eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_private_collect, &frags, maxdepth, skip_flags);
+			eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_private_collect, &cursor, maxdepth, skip_flags);
 		}
 		else
 		{
-			eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_shared_collect, &frags, maxdepth, skip_flags);
+			eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_cflags_shared_collect, &cursor, maxdepth, skip_flags);
 		}
 	}
+
+	pkgconf_fragment_cursor_deinit(&cursor);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 	{
@@ -1936,7 +1941,7 @@ pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t
 static void
 pkgconf_pkg_libs_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *data, unsigned int iter_flags)
 {
-	pkgconf_list_t *list = data;
+	pkgconf_fragment_cursor_t *cursor = data;
 	pkgconf_node_t *node;
 
 	if (!(client->flags & PKGCONF_PKG_PKGF_SEARCH_PRIVATE) && pkg->flags & PKGCONF_PKG_PROPF_VISITED_PRIVATE)
@@ -1945,7 +1950,7 @@ pkgconf_pkg_libs_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *dat
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->libs.head, node)
 	{
 		pkgconf_fragment_t *frag = node->data;
-		pkgconf_fragment_copy(client, list, frag, (iter_flags & PKGCONF_PKG_ITERF_PRIVATE) != 0);
+		pkgconf_fragment_copy_cursor(client, cursor, frag, (iter_flags & PKGCONF_PKG_ITERF_PRIVATE) != 0);
 	}
 
 	if (client->flags & PKGCONF_PKG_PKGF_MERGE_PRIVATE_FRAGMENTS)
@@ -1953,7 +1958,7 @@ pkgconf_pkg_libs_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *dat
 		PKGCONF_FOREACH_LIST_ENTRY(pkg->libs_private.head, node)
 		{
 			pkgconf_fragment_t *frag = node->data;
-			pkgconf_fragment_copy(client, list, frag, true);
+			pkgconf_fragment_copy_cursor(client, cursor, frag, true);
 		}
 	}
 	else
@@ -1961,7 +1966,7 @@ pkgconf_pkg_libs_collect(pkgconf_client_t *client, pkgconf_pkg_t *pkg, void *dat
 		PKGCONF_FOREACH_LIST_ENTRY(pkg->libs_shared.head, node)
 		{
 			pkgconf_fragment_t *frag = node->data;
-			pkgconf_fragment_copy(client, list, frag, true);
+			pkgconf_fragment_copy_cursor(client, cursor, frag, true);
 		}
 	}
 }
@@ -1984,8 +1989,11 @@ unsigned int
 pkgconf_pkg_libs(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t *list, int maxdepth)
 {
 	unsigned int eflag;
+	pkgconf_fragment_cursor_t cursor;
 
-	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_libs_collect, list, maxdepth, 0);
+	pkgconf_fragment_cursor_init(&cursor, list);
+	eflag = pkgconf_pkg_traverse(client, root, pkgconf_pkg_libs_collect, &cursor, maxdepth, 0);
+	pkgconf_fragment_cursor_deinit(&cursor);
 
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 	{
