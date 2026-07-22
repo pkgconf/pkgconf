@@ -800,10 +800,15 @@ PKGCONF_API void pkgconf_bufferset_free(pkgconf_list_t *list);
 PKGCONF_API bool pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream);
 
 /* parser.c */
-typedef void (*pkgconf_parser_operand_func_t)(void *data, const char *warnprefix, const char *key, const char *value);
+typedef struct pkgconf_parser_location_ {
+	const char *filename;
+	size_t lineno;
+} pkgconf_parser_location_t;
+
+typedef void (*pkgconf_parser_operand_func_t)(void *data, const pkgconf_parser_location_t *loc, const char *key, const char *value);
 typedef void (*pkgconf_parser_warn_func_t)(void *data, const char *fmt, ...);
 
-PKGCONF_API void pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, pkgconf_buffer_t *buffer, const char *warnprefix);
+PKGCONF_API void pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, pkgconf_buffer_t *buffer, const pkgconf_parser_location_t *loc);
 PKGCONF_API void pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, const char *filename);
 
 /* output.c */

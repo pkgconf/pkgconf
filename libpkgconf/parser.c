@@ -64,7 +64,7 @@ pkgconf_parser_canonicalize_line(pkgconf_buffer_t *buffer)
 }
 
 void
-pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, pkgconf_buffer_t *buffer, const char *warnprefix)
+pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops, const pkgconf_parser_warn_func_t warnfunc, pkgconf_buffer_t *buffer, const pkgconf_parser_location_t *loc)
 {
 	char op, *p, *key, *value;
 	size_t vallen;
@@ -78,8 +78,8 @@ pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops
 		p++;
 	if (*p && p != buffer->base)
 	{
-		warnfunc(data, "%s: warning: whitespace encountered while parsing key section\n",
-			warnprefix);
+		warnfunc(data, "%s:" SIZE_FMT_SPECIFIER ": warning: whitespace encountered while parsing key section\n",
+			loc->filename, loc->lineno);
 	}
 	key = p;
 	while (*p && (isalpha((unsigned char)*p) || isdigit((unsigned char)*p) || *p == '_' || *p == '.'))
@@ -90,8 +90,8 @@ pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops
 
 	while (*p && isspace((unsigned char)*p))
 	{
-		warnfunc(data, "%s: warning: whitespace encountered while parsing key section\n",
-			warnprefix);
+		warnfunc(data, "%s:" SIZE_FMT_SPECIFIER ": warning: whitespace encountered while parsing key section\n",
+			loc->filename, loc->lineno);
 
 		/* set to null to avoid trailing spaces in key */
 		*p = '\0';
@@ -117,8 +117,8 @@ pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops
 	{
 		if (op == '=')
 		{
-			warnfunc(data, "%s: warning: trailing whitespace encountered while parsing value section\n",
-				warnprefix);
+			warnfunc(data, "%s:" SIZE_FMT_SPECIFIER ": warning: trailing whitespace encountered while parsing value section\n",
+				loc->filename, loc->lineno);
 		}
 
 		*p = '\0';
@@ -126,7 +126,7 @@ pkgconf_parser_parse_buffer(void *data, const pkgconf_parser_operand_func_t *ops
 	}
 
 	if (ops[(unsigned char) op])
-		ops[(unsigned char) op](data, warnprefix, key, value);
+		ops[(unsigned char) op](data, loc, key, value);
 }
 
 void
@@ -138,13 +138,13 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 
 	while (continue_reading)
 	{
-		char warnprefix[PKGCONF_ITEM_SIZE];
+		pkgconf_parser_location_t loc = { filename, 0 };
 
 		continue_reading = pkgconf_fgetline(&readbuf, f);
 		lineno++;
+		loc.lineno = lineno;
 
-		snprintf(warnprefix, sizeof warnprefix, "%s:" SIZE_FMT_SPECIFIER, filename, lineno);
-		pkgconf_parser_parse_buffer(data, ops, warnfunc, &readbuf, warnprefix);
+		pkgconf_parser_parse_buffer(data, ops, warnfunc, &readbuf, &loc);
 		pkgconf_buffer_reset(&readbuf);
 	}
 

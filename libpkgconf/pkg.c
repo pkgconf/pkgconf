@@ -145,7 +145,7 @@ fail:
 	return NULL;
 }
 
-typedef void (*pkgconf_pkg_parser_keyword_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value);
+typedef void (*pkgconf_pkg_parser_keyword_func_t)(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value);
 typedef struct {
 	const char *keyword;
 	const pkgconf_pkg_parser_keyword_func_t func;
@@ -159,10 +159,10 @@ static int pkgconf_pkg_parser_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	char **dest = (char **)((char *) pkg + offset);
 
@@ -173,10 +173,10 @@ pkgconf_pkg_parser_tuple_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, cons
 }
 
 static void
-pkgconf_pkg_parser_bufferset_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_bufferset_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
@@ -189,10 +189,10 @@ pkgconf_pkg_parser_bufferset_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, 
 
 /* parses a comma-separated list of ABI tags, lowercasing each, into a bufferset */
 static void
-pkgconf_pkg_parser_link_abi_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_link_abi_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	char *expanded = pkgconf_bytecode_eval_str(client, &pkg->vars, value, NULL);
@@ -227,7 +227,7 @@ pkgconf_pkg_parser_link_abi_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, c
 }
 
 static void
-pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
 	char *p, *i;
@@ -245,8 +245,8 @@ pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, co
 		i = p + (ptrdiff_t) len;
 		*i = '\0';
 
-		pkgconf_warn(client, "%s: warning: malformed version field with whitespace, trimming to [%s]\n",
-			warnprefix, p);
+		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: malformed version field with whitespace, trimming to [%s]\n",
+			loc->filename, loc->lineno, p);
 	}
 
 	if (*dest != NULL)
@@ -256,27 +256,27 @@ pkgconf_pkg_parser_version_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, co
 }
 
 static void
-pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_fragment_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 	bool ret = pkgconf_fragment_parse(client, dest, &pkg->vars, value, pkg->flags);
 
 	if (!ret)
 	{
-		pkgconf_warn(client, "%s: warning: unable to parse field '%s' into an argument vector, value [%s]\n",
-			warnprefix, keyword, value);
+		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: unable to parse field '%s' into an argument vector, value [%s]\n",
+			loc->filename, loc->lineno, keyword, value);
 	}
 }
 
 static void
-pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 
 	if (dest->tail != NULL)
 	{
-		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
-			warnprefix, keyword);
+		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: merging duplicate field '%s' (undefined behavior)\n",
+			loc->filename, loc->lineno, keyword);
 	}
 
 	pkgconf_dependency_parse(client, pkg, dest, value, 0);
@@ -284,14 +284,14 @@ pkgconf_pkg_parser_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg,
 
 /* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as an "internal" dependency. */
 static void
-pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 
 	if (dest->tail != NULL)
 	{
-		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
-			warnprefix, keyword);
+		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: merging duplicate field '%s' (undefined behavior)\n",
+			loc->filename, loc->lineno, keyword);
 	}
 
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_INTERNAL);
@@ -299,14 +299,14 @@ pkgconf_pkg_parser_internal_dependency_func(pkgconf_client_t *client, pkgconf_pk
 
 /* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as a "private" dependency. */
 static void
-pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 
 	if (dest->tail != NULL)
 	{
-		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
-			warnprefix, keyword);
+		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: merging duplicate field '%s' (undefined behavior)\n",
+			loc->filename, loc->lineno, keyword);
 	}
 
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_PRIVATE);
@@ -314,14 +314,14 @@ pkgconf_pkg_parser_private_dependency_func(pkgconf_client_t *client, pkgconf_pkg
 
 /* a variant of pkgconf_pkg_parser_dependency_func which colors the dependency node as a "shared" dependency. */
 static void
-pkgconf_pkg_parser_shared_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_parser_shared_dependency_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 
 	if (dest->tail != NULL)
 	{
-		pkgconf_warn(client, "%s: warning: merging duplicate field '%s' (undefined behavior)\n",
-			warnprefix, keyword);
+		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: merging duplicate field '%s' (undefined behavior)\n",
+			loc->filename, loc->lineno, keyword);
 	}
 
 	pkgconf_dependency_parse(client, pkg, dest, value, PKGCONF_PKG_DEPF_SHARED);
@@ -329,13 +329,13 @@ pkgconf_pkg_parser_shared_dependency_func(pkgconf_client_t *client, pkgconf_pkg_
 
 /* Evaluates SPDX expression or parses comma separated list of licenses */
 static void
-pkgconf_pkg_evaluate_license_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+pkgconf_pkg_evaluate_license_func(pkgconf_client_t *client, pkgconf_pkg_t *pkg, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) pkg + offset);
 
 	if (!pkgconf_license_evaluate(client, pkg, dest, value, 0))
-		pkgconf_warn(client, "%s: warning: license field '%s' could not be fully evaluated\n",
-			warnprefix, keyword);
+		pkgconf_warn(client, "%s:" SIZE_FMT_SPECIFIER ": warning: license field '%s' could not be fully evaluated\n",
+			loc->filename, loc->lineno, keyword);
 }
 
 /* keep this in alphabetical order */
@@ -365,7 +365,7 @@ static const pkgconf_pkg_parser_keyword_pair_t pkgconf_pkg_parser_keyword_funcs[
 };
 
 static void
-pkgconf_pkg_parser_keyword_set(void *opaque, const char *warnprefix, const char *keyword, const char *value)
+pkgconf_pkg_parser_keyword_set(void *opaque, const pkgconf_parser_location_t *loc, const char *keyword, const char *value)
 {
 	pkgconf_pkg_t *pkg = opaque;
 
@@ -376,7 +376,7 @@ pkgconf_pkg_parser_keyword_set(void *opaque, const char *warnprefix, const char 
 	if (pair == NULL || pair->func == NULL)
 		return;
 
-	pair->func(pkg->owner, pkg, keyword, warnprefix, pair->offset, value);
+	pair->func(pkg->owner, pkg, keyword, loc, pair->offset, value);
 }
 
 static bool
@@ -511,13 +511,13 @@ lookup_val_from_env(const pkgconf_client_t *client, const char *pkg_id, const ch
 }
 
 static void
-pkgconf_pkg_parser_value_set(void *opaque, const char *warnprefix, const char *keyword, const char *value)
+pkgconf_pkg_parser_value_set(void *opaque, const pkgconf_parser_location_t *loc, const char *keyword, const char *value)
 {
 	pkgconf_buffer_t canonicalized_value = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_pkg_t *pkg = opaque;
 	const char *env_content;
 
-	(void) warnprefix;
+	(void) loc;
 
 	env_content = lookup_val_from_env(pkg->owner, pkg->id, keyword);
 	if (env_content != NULL)
