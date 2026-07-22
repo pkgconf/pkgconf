@@ -269,7 +269,7 @@ main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__OS2__)
 	/* When running regression tests in cygwin, and building native
 	 * executable, tests fail unless native executable outputs unix
 	 * line endings.  Come to think of it, this will probably help

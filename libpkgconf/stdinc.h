@@ -87,6 +87,8 @@
 #  define strcasecmp _stricmp
 #  define strncasecmp _strnicmp
 #  define realpath(N,R) _fullpath((R),(N),_MAX_PATH)
+# else
+#  define _setmode(h, m) if (!isatty((h))) setmode((h), (m))
 # endif
 #else
 # define PATH_DEV_NULL	"/dev/null"
