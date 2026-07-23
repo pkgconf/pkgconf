@@ -580,13 +580,14 @@ pkgconf_fragment_lookup(pkgconf_list_t *list, const pkgconf_fragment_t *base)
 	return NULL;
 }
 
-/* Order fragments by (type, data) so that the cursor index can be searched
- * with bsearch().  NULL data sorts before any non-NULL data of the same type. */
+/* Order fragments by (type, data).  Used both as the index's sort comparator
+ * and, since a fragment is looked up by another fragment, as the lookup key
+ * comparator.  NULL data sorts before any non-NULL data of the same type. */
 static int
 fragment_index_cmp(const void *a, const void *b)
 {
-	const pkgconf_fragment_t *fa = *(pkgconf_fragment_t * const *) a;
-	const pkgconf_fragment_t *fb = *(pkgconf_fragment_t * const *) b;
+	const pkgconf_fragment_t *fa = a;
+	const pkgconf_fragment_t *fb = b;
 
 	if (fa->type != fb->type)
 		return (unsigned char) fa->type < (unsigned char) fb->type ? -1 : 1;
@@ -602,73 +603,13 @@ fragment_index_cmp(const void *a, const void *b)
 	return strcmp(fa->data, fb->data);
 }
 
-static pkgconf_fragment_t *
-fragment_index_lookup(const pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *base)
-{
-	pkgconf_fragment_t **found;
-
-	if (cursor->count == 0)
-		return NULL;
-
-	found = bsearch(&base, cursor->index, cursor->count, sizeof(void *), fragment_index_cmp);
-	return found != NULL ? *found : NULL;
-}
-
-static bool
-fragment_index_insert(pkgconf_fragment_cursor_t *cursor, pkgconf_fragment_t *frag)
-{
-	size_t lo = 0, hi = cursor->count;
-
-	if (cursor->count == cursor->alloc)
-	{
-		size_t newalloc = cursor->alloc != 0 ? cursor->alloc * 2 : 16;
-		pkgconf_fragment_t **newindex = pkgconf_reallocarray(cursor->index, newalloc, sizeof(void *));
-
-		if (newindex == NULL)
-			return false;
-
-		cursor->index = newindex;
-		cursor->alloc = newalloc;
-	}
-
-	while (lo < hi)
-	{
-		size_t mid = lo + (hi - lo) / 2;
-
-		if (fragment_index_cmp(&cursor->index[mid], &frag) < 0)
-			lo = mid + 1;
-		else
-			hi = mid;
-	}
-
-	memmove(&cursor->index[lo + 1], &cursor->index[lo], (cursor->count - lo) * sizeof(void *));
-	cursor->index[lo] = frag;
-	cursor->count++;
-
-	return true;
-}
-
-static void
-fragment_index_remove(pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *frag)
-{
-	pkgconf_fragment_t **found = bsearch(&frag, cursor->index, cursor->count, sizeof(void *), fragment_index_cmp);
-	size_t idx;
-
-	if (found == NULL)
-		return;
-
-	idx = (size_t) (found - cursor->index);
-	memmove(&cursor->index[idx], &cursor->index[idx + 1], (cursor->count - idx - 1) * sizeof(void *));
-	cursor->count--;
-}
-
 /* Look up an existing fragment matching `base`: via the cursor's sorted index
  * when one is provided, otherwise a linear scan of the list. */
 static inline pkgconf_fragment_t *
 fragment_lookup(pkgconf_list_t *list, const pkgconf_fragment_cursor_t *cursor, const pkgconf_fragment_t *base)
 {
 	if (cursor != NULL)
-		return fragment_index_lookup(cursor, base);
+		return pkgconf_index_lookup(&cursor->index, base, fragment_index_cmp);
 
 	return pkgconf_fragment_lookup(list, base);
 }
@@ -844,14 +785,14 @@ pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list,
 	if (old_frag != NULL)
 	{
 		if (cursor != NULL)
-			fragment_index_remove(cursor, old_frag);
+			pkgconf_index_remove(&cursor->index, old_frag);
 
 		pkgconf_fragment_delete(list, old_frag);
 	}
 
 	pkgconf_node_insert_tail(&frag->iter, frag, list);
 
-	if (cursor != NULL && !fragment_index_insert(cursor, frag))
+	if (cursor != NULL && !pkgconf_index_insert(&cursor->index, frag))
 		return false;
 
 	return true;
@@ -896,14 +837,12 @@ pkgconf_fragment_cursor_init(pkgconf_fragment_cursor_t *cursor, pkgconf_list_t *
 	pkgconf_node_t *node;
 
 	cursor->list = list;
-	cursor->index = NULL;
-	cursor->count = 0;
-	cursor->alloc = 0;
+	cursor->index = (pkgconf_index_t){ .compare = fragment_index_cmp };
 
 	/* seed the index with anything already present, so dedup against pre-existing
 	 * fragments behaves exactly as the linear scan would. */
 	PKGCONF_FOREACH_LIST_ENTRY(list->head, node)
-		(void) fragment_index_insert(cursor, node->data);
+		(void) pkgconf_index_insert(&cursor->index, node->data);
 }
 
 /*
@@ -920,10 +859,8 @@ pkgconf_fragment_cursor_init(pkgconf_fragment_cursor_t *cursor, pkgconf_list_t *
 void
 pkgconf_fragment_cursor_deinit(pkgconf_fragment_cursor_t *cursor)
 {
-	free(cursor->index);
-	cursor->index = NULL;
-	cursor->count = 0;
-	cursor->alloc = 0;
+	free(cursor->index.entries);
+	cursor->index = (pkgconf_index_t){ 0 };
 }
 
 /*

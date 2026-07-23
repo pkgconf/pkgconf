@@ -531,6 +531,20 @@ typedef struct pkgconf_fragment_render_ops_ {
 
 typedef bool (*pkgconf_fragment_filter_func_t)(const pkgconf_client_t *client, const pkgconf_fragment_t *frag, void *data);
 
+/* index.c */
+typedef int (*pkgconf_index_cmp_func_t)(const void *a, const void *b);
+
+typedef struct pkgconf_index_ {
+	void **entries;
+	size_t count;
+	size_t alloc;
+	pkgconf_index_cmp_func_t compare;
+} pkgconf_index_t;
+
+PKGCONF_API bool pkgconf_index_insert(pkgconf_index_t *index, void *entry);
+PKGCONF_API void pkgconf_index_remove(pkgconf_index_t *index, void *entry);
+PKGCONF_API void *pkgconf_index_lookup(const pkgconf_index_t *index, const void *key, pkgconf_index_cmp_func_t keycmp);
+
 /* A cursor accelerates repeated pkgconf_fragment_copy() calls into the same
  * destination list by maintaining a sorted index of the fragments already
  * present, so that the deduplication lookup is a bsearch() rather than a linear
@@ -538,9 +552,7 @@ typedef bool (*pkgconf_fragment_filter_func_t)(const pkgconf_client_t *client, c
  */
 typedef struct pkgconf_fragment_cursor_ {
 	pkgconf_list_t *list;
-	pkgconf_fragment_t **index;
-	size_t count;
-	size_t alloc;
+	pkgconf_index_t index;
 } pkgconf_fragment_cursor_t;
 
 PKGCONF_API bool pkgconf_fragment_parse(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags);

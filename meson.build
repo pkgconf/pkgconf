@@ -186,6 +186,7 @@ libpkgconf_sources = [
   'libpkgconf/dependency.c',
   'libpkgconf/fileio.c',
   'libpkgconf/fragment.c',
+  'libpkgconf/index.c',
   'libpkgconf/license.c',
   'libpkgconf/output.c',
   'libpkgconf/parser.c',
