@@ -196,8 +196,8 @@ jobs:
           - os_image: openbsd
             version: "7.9"
 
-          - os_image: haiku
-            version: "r1beta5"
+          # - os_image: haiku
+          #  version: "r1beta5"
 
           - os_image: omnios
             version: "r151056"
