@@ -423,7 +423,7 @@ apply_env_var(const char *prefix, pkgconf_client_t *client, pkgconf_pkg_t *world
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_fn, NULL);
+	pkgconf_fragment_filter_splice(client, &filtered_list, &unfiltered_list, filter_fn, NULL);
 
 	if (postprocess_fn != NULL)
 		postprocess_fn(client, world, &filtered_list);
@@ -580,13 +580,13 @@ apply_cflags(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *tar
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_cflags, NULL);
+	pkgconf_fragment_filter_splice(client, &filtered_list, &unfiltered_list, filter_cflags, NULL);
 	maybe_add_module_definitions(client, world, &filtered_list);
 
 	if (filtered_list.head == NULL)
 		goto out;
 
-	pkgconf_fragment_copy_list(client, target_list, &filtered_list);
+	pkgconf_list_splice(target_list, &filtered_list);
 
 out:
 	pkgconf_fragment_free(&unfiltered_list);
@@ -606,12 +606,12 @@ apply_libs(pkgconf_client_t *client, pkgconf_pkg_t *world, pkgconf_list_t *targe
 	if (eflag != PKGCONF_PKG_ERRF_OK)
 		return false;
 
-	pkgconf_fragment_filter(client, &filtered_list, &unfiltered_list, filter_libs, NULL);
+	pkgconf_fragment_filter_splice(client, &filtered_list, &unfiltered_list, filter_libs, NULL);
 
 	if (filtered_list.head == NULL)
 		goto out;
 
-	pkgconf_fragment_copy_list(client, target_list, &filtered_list);
+	pkgconf_list_splice(target_list, &filtered_list);
 
 out:
 	pkgconf_fragment_free(&unfiltered_list);

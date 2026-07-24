@@ -921,6 +921,46 @@ pkgconf_fragment_filter(const pkgconf_client_t *client, pkgconf_list_t *dest, pk
 /*
  * !doc
  *
+ * .. c:function:: void pkgconf_fragment_filter_splice(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, void *data)
+ *
+ *    Like ``pkgconf_fragment_filter()``, but moves the matching `fragments` to `dest` instead of
+ *    copying them.  Fragments which do not match are left in `src` for the caller to release.
+ *
+ *    :param pkgconf_client_t* client: The pkgconf client being accessed.
+ *    :param pkgconf_list_t* dest: The destination list.
+ *    :param pkgconf_list_t* src: The source list.
+ *    :param pkgconf_fragment_filter_func_t filter_func: The filter function to use.
+ *    :param void* data: Optional data to pass to the filter function.
+ *    :return: nothing
+ */
+void
+pkgconf_fragment_filter_splice(const pkgconf_client_t *client, pkgconf_list_t *dest, pkgconf_list_t *src, pkgconf_fragment_filter_func_t filter_func, void *data)
+{
+	pkgconf_node_t *node, *next;
+
+	if (dest == src)
+		return;
+
+	PKGCONF_FOREACH_LIST_ENTRY_SAFE(src->head, next, node)
+	{
+		pkgconf_fragment_t *frag = node->data;
+
+		if (!filter_func(client, frag, data))
+			continue;
+
+		pkgconf_node_delete(node, src);
+
+		/* pkgconf_node_delete() leaves the node's links pointing into the
+		 * source list, and pkgconf_node_insert_tail() only overwrites prev. */
+		node->prev = node->next = NULL;
+
+		pkgconf_node_insert_tail(node, frag, dest);
+	}
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: bool pkgconf_is_locale_utf8(void)
  *
  *    Check whether text is expected to be UTF-8 encoded in the current environment.
