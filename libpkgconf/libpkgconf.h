@@ -475,11 +475,15 @@ PKGCONF_API bool pkgconf_default_error_handler(const char *msg, const pkgconf_cl
 #ifndef PKGCONF_LITE
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
 #define PKGCONF_TRACE(client, ...) do { \
-		pkgconf_trace(client, __FILE__, __LINE__, __PRETTY_FUNCTION__, __VA_ARGS__); \
+		const pkgconf_client_t *pkgconf_trace_client_ = (client); \
+		if (pkgconf_trace_client_ != NULL && pkgconf_trace_client_->trace_handler != NULL) \
+			pkgconf_trace(pkgconf_trace_client_, __FILE__, __LINE__, __PRETTY_FUNCTION__, __VA_ARGS__); \
 	} while (0)
 #else
 #define PKGCONF_TRACE(client, ...) do { \
-		pkgconf_trace(client, __FILE__, __LINE__, __func__, __VA_ARGS__); \
+		const pkgconf_client_t *pkgconf_trace_client_ = (client); \
+		if (pkgconf_trace_client_ != NULL && pkgconf_trace_client_->trace_handler != NULL) \
+			pkgconf_trace(pkgconf_trace_client_, __FILE__, __LINE__, __func__, __VA_ARGS__); \
 	} while (0)
 #endif
 #else
