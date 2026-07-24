@@ -190,6 +190,26 @@ pkgconf_fragment_is_special(const char *string)
 	return pkgconf_fragment_is_unmergeable(string);
 }
 
+static pkgconf_fragment_t *
+fragment_new(char type, const char *data)
+{
+	size_t datalen = data != NULL ? strlen(data) : 0;
+	pkgconf_fragment_t *frag = calloc(1, sizeof(*frag) + (data != NULL ? datalen + 1 : 0));
+
+	if (frag == NULL)
+		return NULL;
+
+	frag->type = type;
+
+	if (data != NULL)
+	{
+		frag->data = (char *)(frag + 1);
+		memcpy(frag->data, data, datalen + 1);
+	}
+
+	return frag;
+}
+
 /*
  * !doc
  *
@@ -211,20 +231,9 @@ pkgconf_fragment_insert(pkgconf_client_t *client, pkgconf_list_t *list, char typ
 
 	pkgconf_fragment_t *frag;
 
-	frag = calloc(1, sizeof(pkgconf_fragment_t));
+	frag = fragment_new(type, data);
 	if (frag == NULL)
 		return;
-
-	frag->type = type;
-	if (data != NULL)
-	{
-		frag->data = strdup(data);
-		if (frag->data == NULL)
-		{
-			free(frag);
-			return;
-		}
-	}
 
 	if (tail)
 	{
@@ -361,56 +370,49 @@ fragment_insert_evaluated(pkgconf_client_t *client, pkgconf_list_t *list, const 
 		}
 	}
 
-	frag = calloc(1, sizeof(pkgconf_fragment_t));
+	/* Compute the final data string first (borrowing sysroot_buf when we have to
+	 * prepend the sysroot), then hand it to fragment_new(), which copies it
+	 * inline.  data == NULL here means an allocation/append failure. */
+	{
+		char type = 0;
+		const char *data = NULL;
+		pkgconf_buffer_t sysroot_buf = PKGCONF_BUFFER_INITIALIZER;
+
+		if (strlen(string) > 1 && !pkgconf_fragment_is_special(string))
+		{
+			type = *(string + 1);
+
+			if (should_inject_sysroot(client, string, saw_sysroot, flags))
+			{
+				if (pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir) &&
+					pkgconf_buffer_append(&sysroot_buf, string + 2))
+					data = pkgconf_buffer_str(&sysroot_buf);
+			}
+			else
+				data = string + 2;
+		}
+		else
+		{
+			type = 0;
+
+			if (client->sysroot_dir != NULL && list->tail != NULL && list->tail->data != NULL &&
+				should_inject_sysroot_child(client, list->tail->data, string, saw_sysroot, flags))
+			{
+				if (pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir) &&
+					pkgconf_buffer_append(&sysroot_buf, string))
+					data = pkgconf_buffer_str(&sysroot_buf);
+			}
+			else
+				data = string;
+		}
+
+		frag = data != NULL ? fragment_new(type, data) : NULL;
+		pkgconf_buffer_finalize(&sysroot_buf);
+	}
+
 	if (frag == NULL)
 	{
 		PKGCONF_TRACE(client, "failed to add new fragment due to allocation failure to list @%p", target);
-		return false;
-	}
-
-	if (strlen(string) > 1 && !pkgconf_fragment_is_special(string))
-	{
-		frag->type = *(string + 1);
-
-		if (should_inject_sysroot(client, string, saw_sysroot, flags))
-		{
-			pkgconf_buffer_t sysroot_buf = PKGCONF_BUFFER_INITIALIZER;
-
-			if (!pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir) ||
-				!pkgconf_buffer_append(&sysroot_buf, string + 2))
-			{
-				pkgconf_buffer_finalize(&sysroot_buf);
-				free(frag);
-				return false;
-			}
-
-			frag->data = pkgconf_buffer_freeze(&sysroot_buf);
-		}
-		else
-			frag->data = strdup(string + 2);
-	}
-	else
-	{
-		frag->type = 0;
-
-		if (client->sysroot_dir != NULL && list->tail != NULL && list->tail->data != NULL &&
-			should_inject_sysroot_child(client, list->tail->data, string, saw_sysroot, flags))
-		{
-			pkgconf_buffer_t sysroot_buf = PKGCONF_BUFFER_INITIALIZER;
-
-			if (pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir) &&
-				pkgconf_buffer_append(&sysroot_buf, string))
-				frag->data = pkgconf_buffer_freeze(&sysroot_buf);
-			else
-				pkgconf_buffer_finalize(&sysroot_buf);
-		}
-		else
-			frag->data = strdup(string);
-	}
-
-	if (frag->data == NULL)
-	{
-		free(frag);
 		return false;
 	}
 
@@ -759,27 +761,15 @@ pkgconf_fragment_copy_node(const pkgconf_client_t *client, pkgconf_list_t *list,
 	else if (!is_private && !pkgconf_fragment_can_merge_back(base, client->flags, is_private) && (fragment_lookup(list, cursor, base) != NULL))
 		return true;
 
-	frag = calloc(1, sizeof(pkgconf_fragment_t));
+	frag = fragment_new(base->type, base->data);
 	if (frag == NULL)
 		return false;
 
-	frag->type = base->type;
 	if (!pkgconf_fragment_copy_list_node(client, &frag->children, &base->children))
 	{
 		pkgconf_fragment_free(&frag->children);
 		free(frag);
 		return false;
-	}
-
-	if (base->data != NULL)
-	{
-		frag->data = strdup(base->data);
-		if (frag->data == NULL)
-		{
-			pkgconf_fragment_free(&frag->children);
-			free(frag);
-			return false;
-		}
 	}
 
 	if (old_frag != NULL)
@@ -1116,7 +1106,6 @@ pkgconf_fragment_delete(pkgconf_list_t *list, pkgconf_fragment_t *node)
 	pkgconf_node_delete(&node->iter, list);
 
 	pkgconf_fragment_free(&node->children);
-	free(node->data);
 	free(node);
 }
 
@@ -1140,7 +1129,6 @@ pkgconf_fragment_free(pkgconf_list_t *list)
 		pkgconf_fragment_t *frag = node->data;
 
 		pkgconf_fragment_free(&frag->children);
-		free(frag->data);
 		free(frag);
 	}
 
