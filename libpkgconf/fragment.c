@@ -522,7 +522,6 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 {
 	pkgconf_buffer_t evalbuf = PKGCONF_BUFFER_INITIALIZER;
 	bool saw_sysroot = false;
-	char *string;
 	bool ret;
 
 	if (!pkgconf_bytecode_eval_str_to_buf(client, vars, value, &saw_sysroot, &evalbuf))
@@ -537,21 +536,20 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 		return true;
 	}
 
-	string = pkgconf_buffer_freeze(&evalbuf);
-	if (string == NULL)
-		return false;
-
-	/* A bare "${var}" may expand to several whitespace-separated fragments, so
+	/* The consumers below only read the expanded string, so hand them the
+	 * buffer contents directly rather than freezing (copying) it out.
+	 *
+	 * A bare "${var}" may expand to several whitespace-separated fragments, so
 	 * re-split the (already-expanded) result.  The split must not evaluate the
 	 * tokens again, otherwise a value that expands to a literal "${var}" would
 	 * recurse without bound.
 	 */
 	if (fragment_is_unquoted_var(value))
-		ret = fragment_split(client, list, vars, string, flags, false);
+		ret = fragment_split(client, list, vars, pkgconf_buffer_str(&evalbuf), flags, false);
 	else
-		ret = fragment_insert_evaluated(client, list, string, saw_sysroot, flags);
+		ret = fragment_insert_evaluated(client, list, pkgconf_buffer_str(&evalbuf), saw_sysroot, flags);
 
-	free(string);
+	pkgconf_buffer_finalize(&evalbuf);
 	return ret;
 }
 
