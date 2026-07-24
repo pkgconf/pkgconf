@@ -957,22 +957,35 @@ static inline pkgconf_pkg_t *
 pkgconf_pkg_try_specific_path(pkgconf_client_t *client, const char *path, const char *name)
 {
 	pkgconf_pkg_t *pkg = NULL;
-	char locbuf[PKGCONF_ITEM_SIZE];
-	char uninst_locbuf[PKGCONF_ITEM_SIZE];
+	pkgconf_buffer_t locbuf = PKGCONF_BUFFER_INITIALIZER;
 
 	PKGCONF_TRACE(client, "trying path: %s for %s", path, name);
 
-	snprintf(locbuf, sizeof locbuf, "%s%c%s" PKG_CONFIG_EXT, path, PKG_DIR_SEP_S, name);
-	snprintf(uninst_locbuf, sizeof uninst_locbuf, "%s%c%s-uninstalled" PKG_CONFIG_EXT, path, PKG_DIR_SEP_S, name);
-
 	if (!(client->flags & PKGCONF_PKG_PKGF_NO_UNINSTALLED))
-		pkg = pkgconf_pkg_new_from_path(client, uninst_locbuf, PKGCONF_PKG_PROPF_UNINSTALLED);
+	{
+		pkgconf_buffer_append(&locbuf, path);
+		pkgconf_buffer_push_byte(&locbuf, PKG_DIR_SEP_S);
+		pkgconf_buffer_append(&locbuf, name);
+		pkgconf_buffer_append(&locbuf, "-uninstalled" PKG_CONFIG_EXT);
+
+		pkg = pkgconf_pkg_new_from_path(client, pkgconf_buffer_str(&locbuf), PKGCONF_PKG_PROPF_UNINSTALLED);
+	}
 
 	if (pkg == NULL)
-		pkg = pkgconf_pkg_new_from_path(client, locbuf, 0);
+	{
+		pkgconf_buffer_rewind(&locbuf);
+		pkgconf_buffer_append(&locbuf, path);
+		pkgconf_buffer_push_byte(&locbuf, PKG_DIR_SEP_S);
+		pkgconf_buffer_append(&locbuf, name);
+		pkgconf_buffer_append(&locbuf, PKG_CONFIG_EXT);
+
+		pkg = pkgconf_pkg_new_from_path(client, pkgconf_buffer_str(&locbuf), 0);
+	}
 
 	if (pkg != NULL)
-		PKGCONF_TRACE(client, "found%s: %s", pkg->flags & PKGCONF_PKG_PROPF_UNINSTALLED ? " (uninstalled)" : "", uninst_locbuf);
+		PKGCONF_TRACE(client, "found%s: %s", pkg->flags & PKGCONF_PKG_PROPF_UNINSTALLED ? " (uninstalled)" : "", pkgconf_buffer_str(&locbuf));
+
+	pkgconf_buffer_finalize(&locbuf);
 
 	return pkg;
 }
