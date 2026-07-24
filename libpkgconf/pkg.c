@@ -1953,8 +1953,7 @@ pkgconf_pkg_cflags(pkgconf_client_t *client, pkgconf_pkg_t *root, pkgconf_list_t
 		return eflag;
 	}
 
-	pkgconf_fragment_copy_list(client, list, &frags);
-	pkgconf_fragment_free(&frags);
+	pkgconf_list_splice(list, &frags);
 
 	return eflag;
 }
