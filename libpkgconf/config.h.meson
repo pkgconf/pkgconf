@@ -12,6 +12,9 @@
 /* Define to 1 if you have the `reallocarray' function. */
 #mesondefine HAVE_REALLOCARRAY
 
+/* Define to 1 if you have the `getc_unlocked' function. */
+#mesondefine HAVE_GETC_UNLOCKED
+
 /* Define to 1 if you have the `strndup' function. */
 #mesondefine HAVE_DECL_STRNDUP
 

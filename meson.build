@@ -66,6 +66,7 @@ endif
 cdata = configuration_data()
 
 check_functions = [
+  ['getc_unlocked', 'stdio.h'],
   ['strndup', 'string.h'],
   ['strdup', 'string.h'],
   ['strncasecmp', 'strings.h'],

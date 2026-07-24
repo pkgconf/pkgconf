@@ -15,20 +15,26 @@
  * from the use of this software.
  */
 
+#include <libpkgconf/config.h>
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
-#define push_or_return_fail(buf, c) \
-	do { if (!pkgconf_buffer_push_byte((buf), (char) (c))) return false; } while (0)
+#ifdef HAVE_GETC_UNLOCKED
+# define pkgconf_getc(stream) getc_unlocked(stream)
+#else
+# define pkgconf_getc(stream) getc(stream)
+#endif
 
 bool
 pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 {
 	bool quoted = false;
 	bool got_data = false;
+	char run[256];
+	size_t runlen = 0;
 	int c;
 
-	while ((c = getc(stream)) != EOF)
+	while ((c = pkgconf_getc(stream)) != EOF)
 	{
 		got_data = true;
 
@@ -51,7 +57,7 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 
 		if (c == '\r')
 		{
-			int next = getc(stream);
+			int next = pkgconf_getc(stream);
 
 			if (next != '\n' && next != EOF && ungetc(next, stream) == EOF)
 				return false;
@@ -65,14 +71,25 @@ pkgconf_fgetline(pkgconf_buffer_t *buffer, FILE *stream)
 			break;
 		}
 
+		if (runlen > sizeof run - 2)
+		{
+			if (!pkgconf_buffer_append_slice(buffer, run, runlen))
+				return false;
+
+			runlen = 0;
+		}
+
 		if (quoted)
 		{
-			push_or_return_fail(buffer, '\\');
+			run[runlen++] = '\\';
 			quoted = false;
 		}
 
-		push_or_return_fail(buffer, c);
+		run[runlen++] = (char) c;
 	}
+
+	if (runlen != 0 && !pkgconf_buffer_append_slice(buffer, run, runlen))
+		return false;
 
 	return got_data && !ferror(stream);
 }
