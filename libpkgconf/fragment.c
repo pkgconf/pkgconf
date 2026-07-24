@@ -564,7 +564,6 @@ bool
 pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
 {
 	pkgconf_buffer_t evalbuf = PKGCONF_BUFFER_INITIALIZER;
-	char *string;
 	bool ret;
 
 	if (!pkgconf_bytecode_eval_str_to_buf(client, vars, value, NULL, &evalbuf))
@@ -579,17 +578,16 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 		return true;
 	}
 
-	string = pkgconf_buffer_freeze(&evalbuf);
-	if (string == NULL)
-		return false;
-
-	/* The expansion is split rather than taken whole: the quoting it carries is
+	/* fragment_split() only reads the expanded string, so hand it the buffer
+	 * contents directly rather than freezing (copying) them out.
+	 *
+	 * The expansion is split rather than taken whole: the quoting it carries is
 	 * consumed there, and a value may in any case expand to several
 	 * whitespace-separated fragments.
 	 */
-	ret = fragment_split(client, list, vars, string, flags, false);
+	ret = fragment_split(client, list, vars, pkgconf_buffer_str(&evalbuf), flags, false);
 
-	free(string);
+	pkgconf_buffer_finalize(&evalbuf);
 	return ret;
 }
 
