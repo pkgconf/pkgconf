@@ -148,17 +148,25 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 bool
 pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
 {
+	size_t len = pkgconf_buffer_len(buf);
+
 	if (n == 0)
 		return true;
 
 	if (buffer_storage_overlaps(buf, p, n))
 		return false;
 
-	for (size_t i = 0; i < n; i++)
-	{
-		if (!pkgconf_buffer_push_byte(buf, p[i]))
-			return false;
-	}
+	if (len > SIZE_MAX - n)
+		return false;
+
+	size_t new_len = len + n;
+	if (!buffer_reserve(buf, new_len))
+		return false;
+
+	memcpy(buf->base + len, p, n);
+
+	buf->end = buf->base + new_len;
+	*buf->end = '\0';
 
 	return true;
 }
