@@ -123,7 +123,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 		 */
 		if ((sourcebuf[0] != '/') && strcmp(targetdir, "."))
 		{
-			if (!pkgconf_buffer_append_fmt(&buf, "%s/", targetdir))
+			if (!pkgconf_buffer_append(&buf, targetdir) || !pkgconf_buffer_push_byte(&buf, '/'))
 				goto fail;
 		}
 
