@@ -746,6 +746,27 @@ static inline void pkgconf_buffer_reset(pkgconf_buffer_t *buffer)
 /*
  * !doc
  *
+ * .. c:function:: static inline void pkgconf_buffer_rewind(pkgconf_buffer_t *buffer)
+ *
+ *    Truncate the buffer to empty while retaining its allocation, so it can be
+ *    refilled without reallocating.  Unlike pkgconf_buffer_reset(), the backing
+ *    storage is kept.
+ *
+ *    :param pkgconf_buffer_t *buffer: The buffer to rewind.
+ *    :return: nothing
+ */
+static inline void pkgconf_buffer_rewind(pkgconf_buffer_t *buffer)
+{
+	if (buffer->base != NULL)
+	{
+		buffer->end = buffer->base;
+		*buffer->base = '\0';
+	}
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer)
  *
  *    Free the underlying buffer, copying the underlying string.
