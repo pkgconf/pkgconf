@@ -485,7 +485,7 @@ pkgconf_path_relocate(pkgconf_buffer_t *buf)
 
 	if ((tmpbuf = normpath(buf)) != NULL)
 	{
-		pkgconf_buffer_reset(buf);
+		pkgconf_buffer_rewind(buf);
 		bool ret = pkgconf_buffer_append(buf, tmpbuf);
 		free(tmpbuf);
 		return ret;
