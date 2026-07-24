@@ -145,7 +145,7 @@ pkgconf_parser_parse(FILE *f, void *data, const pkgconf_parser_operand_func_t *o
 		loc.lineno = lineno;
 
 		pkgconf_parser_parse_buffer(data, ops, warnfunc, &readbuf, &loc);
-		pkgconf_buffer_reset(&readbuf);
+		pkgconf_buffer_rewind(&readbuf);
 	}
 
 	pkgconf_buffer_finalize(&readbuf);
