@@ -73,22 +73,30 @@ find_colliding_dependency(const pkgconf_dependency_t *dep, const pkgconf_list_t 
 	return NULL;
 }
 
+static inline const char *
+dependency_trace_str(const pkgconf_client_t *client, const pkgconf_dependency_t *dep, pkgconf_buffer_t *buf)
+{
+	const char *str;
+
+	if (pkgconf_client_get_trace_handler(client) == NULL)
+		return dep->package;
+
+	str = dependency_to_buf(dep, buf);
+	return str != NULL ? str : dep->package;
+}
+
 static inline pkgconf_dependency_t *
 add_or_replace_dependency_node(pkgconf_client_t *client, pkgconf_dependency_t *dep, pkgconf_list_t *list)
 {
 	pkgconf_buffer_t depbuf = PKGCONF_BUFFER_INITIALIZER;
 	pkgconf_dependency_t *dep2 = find_colliding_dependency(dep, list);
-	const char *depstr = dependency_to_buf(dep, &depbuf);
-	if (depstr == NULL)
-		depstr = dep->package;
+	const char *depstr = dependency_trace_str(client, dep, &depbuf);
 
 	/* there is already a node in the graph which describes this dependency */
 	if (dep2 != NULL)
 	{
 		pkgconf_buffer_t depbuf2 = PKGCONF_BUFFER_INITIALIZER;
-		const char *depstr2 = dependency_to_buf(dep2, &depbuf2);
-		if (depstr2 == NULL)
-			depstr2 = dep2->package;
+		const char *depstr2 = dependency_trace_str(client, dep2, &depbuf2);
 
 		PKGCONF_TRACE(client, "dependency collision: [%s/%x] -- [%s/%x]",
 			depstr, dep->flags, depstr2, dep2->flags);
