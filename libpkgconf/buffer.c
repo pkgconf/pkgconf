@@ -199,32 +199,32 @@ pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
 bool
 pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list src_va)
 {
+	char stackbuf[256];
 	va_list va;
-	char *buf;
-	size_t needed;
 	int formatted_len;
 
 	va_copy(va, src_va);
-	formatted_len = vsnprintf(NULL, 0, fmt, va);
+	formatted_len = vsnprintf(stackbuf, sizeof stackbuf, fmt, va);
 	va_end(va);
 
 	if (formatted_len < 0)
 		return false;
 
-	needed = (size_t) formatted_len + 1;
-	buf = malloc(needed);
-	if (buf == NULL)
+	if ((size_t) formatted_len < sizeof stackbuf)
+		return pkgconf_buffer_append_slice(buffer, stackbuf, (size_t) formatted_len);
+
+	size_t len = pkgconf_buffer_len(buffer);
+
+	if (!buffer_reserve(buffer, len + (size_t) formatted_len))
 		return false;
 
 	va_copy(va, src_va);
-	vsnprintf(buf, needed, fmt, va);
+	vsnprintf(buffer->base + len, (size_t) formatted_len + 1, fmt, va);
 	va_end(va);
 
-	bool ret = pkgconf_buffer_append(buffer, buf);
+	buffer->end = buffer->base + len + (size_t) formatted_len;
 
-	free(buf);
-
-	return ret;
+	return true;
 }
 
 /*
