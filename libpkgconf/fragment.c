@@ -1111,45 +1111,65 @@ pkgconf_is_locale_utf8(void)
 #endif
 }
 
+static const pkgconf_span_t quote_spans[] = {
+	{ 0x00, 0x1f },
+	{ (unsigned char)' ', (unsigned char)'#' },
+	{ (unsigned char)'%', (unsigned char)'\'' },
+	{ (unsigned char)'*', (unsigned char)'*' },
+	{ (unsigned char)';', (unsigned char)'<' },
+	{ (unsigned char)'>', (unsigned char)'?' },
+	{ (unsigned char)'[', (unsigned char)']' },
+	{ (unsigned char)'`', (unsigned char)'`' },
+	{ (unsigned char)'{', (unsigned char)'}' },
+	{ 0x7f, 0xff },
+};
+
+/* If the locale is UTF-8 we must not split character over 0x7f because it would add "\" between each bytes.
+   So only DEL (0x7f) needs escaping */
+static const pkgconf_span_t quote_spans_utf8[] = {
+	{ 0x00, 0x1f },
+	{ (unsigned char)' ', (unsigned char)'#' },
+	{ (unsigned char)'%', (unsigned char)'\'' },
+	{ (unsigned char)'*', (unsigned char)'*' },
+	{ (unsigned char)';', (unsigned char)'<' },
+	{ (unsigned char)'>', (unsigned char)'?' },
+	{ (unsigned char)'[', (unsigned char)']' },
+	{ (unsigned char)'`', (unsigned char)'`' },
+	{ (unsigned char)'{', (unsigned char)'}' },
+	{ 0x7f, 0x7f },
+};
+
+/*
+ * The set of bytes needing a backslash is fixed for the life of the process
+ * (pkgconf_is_locale_utf8() is itself cached), so resolve the spans into a
+ * byte-set once instead of walking them for every byte of every fragment.
+ */
+static const pkgconf_charset_t *
+fragment_quote_charset(void)
+{
+	static pkgconf_charset_t charset;
+	static bool have_charset = false;
+
+	if (!have_charset)
+	{
+		if (pkgconf_is_locale_utf8())
+			pkgconf_charset_from_spans(&charset, quote_spans_utf8, PKGCONF_ARRAY_SIZE(quote_spans_utf8));
+		else
+			pkgconf_charset_from_spans(&charset, quote_spans, PKGCONF_ARRAY_SIZE(quote_spans));
+
+		have_charset = true;
+	}
+
+	return &charset;
+}
+
 static bool
 fragment_quote(pkgconf_buffer_t *out, const pkgconf_fragment_t *frag)
 {
 	if (frag->data == NULL)
 		return true;
 
-	const pkgconf_buffer_t *src = PKGCONF_BUFFER_FROM_STR(frag->data);
-	const pkgconf_span_t quote_spans[] = {
-		{ 0x00, 0x1f },
-		{ (unsigned char)' ', (unsigned char)'#' },
-		{ (unsigned char)'%', (unsigned char)'\'' },
-		{ (unsigned char)'*', (unsigned char)'*' },
-		{ (unsigned char)';', (unsigned char)'<' },
-		{ (unsigned char)'>', (unsigned char)'?' },
-		{ (unsigned char)'[', (unsigned char)']' },
-		{ (unsigned char)'`', (unsigned char)'`' },
-		{ (unsigned char)'{', (unsigned char)'}' },
-		{ 0x7f, 0xff },
-	};
-
-	/* If the local is UTF-8 we must not split character over 0x7f because it would add "\" between each bytes.
-	   So only DEL (0x7f) needs escaping */
-	const pkgconf_span_t quote_spans_utf8[] = {
-		{ 0x00, 0x1f },
-		{ (unsigned char)' ', (unsigned char)'#' },
-		{ (unsigned char)'%', (unsigned char)'\'' },
-		{ (unsigned char)'*', (unsigned char)'*' },
-		{ (unsigned char)';', (unsigned char)'<' },
-		{ (unsigned char)'>', (unsigned char)'?' },
-		{ (unsigned char)'[', (unsigned char)']' },
-		{ (unsigned char)'`', (unsigned char)'`' },
-		{ (unsigned char)'{', (unsigned char)'}' },
-		{ 0x7f, 0x7f },
-	};
-
-	if (pkgconf_is_locale_utf8())
-		return pkgconf_buffer_escape(out, src, quote_spans_utf8, PKGCONF_ARRAY_SIZE(quote_spans_utf8));
-
-	return pkgconf_buffer_escape(out, src, quote_spans, PKGCONF_ARRAY_SIZE(quote_spans));
+	return pkgconf_buffer_escape_charset(out, PKGCONF_BUFFER_FROM_STR(frag->data), fragment_quote_charset());
 }
 
 static bool
