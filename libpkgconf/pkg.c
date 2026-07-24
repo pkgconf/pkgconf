@@ -75,7 +75,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 		char sourcebuf[PKGCONF_ITEM_SIZE];
 		char *targetfilename, *targetdir;
 
-		pkgconf_buffer_reset(&pathbuf);
+		pkgconf_buffer_rewind(&pathbuf);
 		if (!pkgconf_buffer_append(&pathbuf, buf.base))
 			goto fail;
 
@@ -109,7 +109,7 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 			break;
 		sourcebuf[len] = '\0';
 
-		pkgconf_buffer_reset(&buf);
+		pkgconf_buffer_rewind(&buf);
 
 		/*
 		 * The logic here can be a bit tricky, so here's a table:

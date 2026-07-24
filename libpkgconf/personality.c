@@ -67,7 +67,7 @@ build_default_search_path(pkgconf_list_t* dirlist)
 
 	pkgconf_buffer_append_fmt(&pathbuf, "%s/../lib/pkgconfig", namebuf);
 	pkgconf_path_add(pkgconf_buffer_str(&pathbuf), dirlist, true);
-	pkgconf_buffer_reset(&pathbuf);
+	pkgconf_buffer_rewind(&pathbuf);
 
 	pkgconf_buffer_append_fmt(&pathbuf, "%s/../share/pkgconfig", namebuf);
 	pkgconf_path_add(pkgconf_buffer_str(&pathbuf), dirlist, true);

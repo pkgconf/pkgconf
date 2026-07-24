@@ -434,7 +434,7 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 			if (PKGCONF_IS_OPERATOR_CHAR(*ptr))
 				break;
 
-			pkgconf_buffer_reset(&cmpname);
+			pkgconf_buffer_rewind(&cmpname);
 			if (!pkgconf_buffer_append_slice(&cmpname, opstart, ptr - opstart))
 				goto out;
 
@@ -462,7 +462,7 @@ pkgconf_dependency_parse_str(pkgconf_client_t *client, pkgconf_list_t *deplist_h
 				compare = PKGCONF_CMP_ANY;
 				package_sz = 0;
 				opstart = NULL;
-				pkgconf_buffer_reset(&cmpname);
+				pkgconf_buffer_rewind(&cmpname);
 			}
 
 			if (state == OUTSIDE_MODULE)

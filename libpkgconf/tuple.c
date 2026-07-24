@@ -73,7 +73,7 @@ pkgconf_tuple_find_global(pkgconf_client_t *client, const char *key)
 
 	v = pkgconf_variable_find(&client->global_vars, key);
 
-	pkgconf_buffer_reset(&client->_scratch_buffer);
+	pkgconf_buffer_rewind(&client->_scratch_buffer);
 	(void) pkgconf_variable_eval(client, &client->global_vars, v, &client->_scratch_buffer, &saw_sysroot);
 
 	return pkgconf_buffer_str_or_empty(&client->_scratch_buffer);
@@ -303,7 +303,7 @@ pkgconf_tuple_find(pkgconf_client_t *client, pkgconf_list_t *list, const char *k
 	if (v == NULL)
 		v = pkgconf_variable_find(&client->global_vars, key);
 
-	pkgconf_buffer_reset(&client->_scratch_buffer);
+	pkgconf_buffer_rewind(&client->_scratch_buffer);
 
 	(void) pkgconf_variable_eval(client, list, v, &client->_scratch_buffer, NULL);
 
