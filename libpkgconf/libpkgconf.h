@@ -644,6 +644,21 @@ static inline bool pkgconf_span_contains(unsigned char c, const pkgconf_span_t *
 	return false;
 }
 
+/* A set of byte values as a 256-bit map, so that membership is a single test
+ * rather than a walk over a span list.  Build one with
+ * pkgconf_charset_from_spans() and keep it: the point is to hoist the span
+ * walk out of any per-byte loop. */
+typedef struct pkgconf_charset_ {
+	uint64_t words[4];
+} pkgconf_charset_t;
+
+static inline bool pkgconf_charset_contains(const pkgconf_charset_t *charset, unsigned char c)
+{
+	return (charset->words[c >> 6] >> (c & 63)) & 1;
+}
+
+PKGCONF_API void pkgconf_charset_from_spans(pkgconf_charset_t *charset, const pkgconf_span_t *spans, size_t nspans);
+
 PKGCONF_API bool pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text);
 PKGCONF_API bool pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n);
 PKGCONF_API bool pkgconf_buffer_append_fmt(pkgconf_buffer_t *buffer, const char *fmt, ...) PRINTFLIKE(2, 3);
@@ -661,6 +676,7 @@ PKGCONF_API bool pkgconf_buffer_contains_byte(const pkgconf_buffer_t *haystack, 
 PKGCONF_API bool pkgconf_buffer_match(const pkgconf_buffer_t *haystack, const pkgconf_buffer_t *needle);
 PKGCONF_API bool pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pattern, const char *value);
 PKGCONF_API bool pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans);
+PKGCONF_API bool pkgconf_buffer_escape_charset(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_charset_t *charset);
 
 /*
  * !doc

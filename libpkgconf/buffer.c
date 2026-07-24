@@ -626,6 +626,77 @@ pkgconf_buffer_subst(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const 
 bool
 pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans)
 {
+	pkgconf_charset_t charset;
+
+	pkgconf_charset_from_spans(&charset, spans, nspans);
+
+	return pkgconf_buffer_escape_charset(dest, src, &charset);
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: void pkgconf_charset_from_spans(pkgconf_charset_t *charset, const pkgconf_span_t *spans, size_t nspans)
+ *
+ *    Build a byte-set from a list of character spans, so that membership tests over it are a
+ *    single lookup.  Callers which test many bytes against the same spans should build the set
+ *    once and pass it to :c:func:`pkgconf_buffer_escape_charset`.
+ *
+ *    :param pkgconf_charset_t *charset: The byte-set to populate.
+ *    :param pkgconf_span_t *spans: Array of character spans to include.
+ *    :param size_t nspans: Number of entries in the *spans* array.
+ *    :return: nothing
+ */
+void
+pkgconf_charset_from_spans(pkgconf_charset_t *charset, const pkgconf_span_t *spans, size_t nspans)
+{
+	memset(charset, 0, sizeof(*charset));
+
+	for (size_t i = 0; i < nspans; i++)
+	{
+		unsigned int lo = spans[i].lo, hi = spans[i].hi;
+
+		if (lo > hi)
+			continue;
+
+		size_t wlo = lo >> 6, whi = hi >> 6;
+
+		/* bits at or above lo, and bits at or below hi, within their words */
+		uint64_t mlo = ~UINT64_C(0) << (lo & 63);
+		uint64_t mhi = (hi & 63) == 63 ? ~UINT64_C(0) : (UINT64_C(1) << ((hi & 63) + 1)) - 1;
+
+		if (wlo == whi)
+		{
+			charset->words[wlo] |= mlo & mhi;
+			continue;
+		}
+
+		charset->words[wlo] |= mlo;
+
+		for (size_t w = wlo + 1; w < whi; w++)
+			charset->words[w] = ~UINT64_C(0);
+
+		charset->words[whi] |= mhi;
+	}
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: bool pkgconf_buffer_escape_charset(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_charset_t *charset)
+ *
+ *    Copy *src* into *dest*, inserting a backslash before any byte which is a member of
+ *    *charset*.  Like :c:func:`pkgconf_buffer_escape`, but takes a prebuilt byte-set.
+ *    The source and destination buffers must not overlap.
+ *
+ *    :param pkgconf_buffer_t *dest: The destination buffer.
+ *    :param pkgconf_buffer_t *src: The source buffer.
+ *    :param pkgconf_charset_t *charset: The set of bytes to escape.
+ *    :return: :code:`true` on success, :code:`false` on allocation failure.
+ */
+bool
+pkgconf_buffer_escape_charset(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_charset_t *charset)
+{
 	const char *p = pkgconf_buffer_str(src);
 	const char *run = p;
 
@@ -638,7 +709,7 @@ pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const
 
 	for (; *p; p++)
 	{
-		if (!pkgconf_span_contains((unsigned char) *p, spans, nspans))
+		if (!pkgconf_charset_contains(charset, (unsigned char) *p))
 			continue;
 
 		if (p > run && !pkgconf_buffer_append_slice(dest, run, (size_t) (p - run)))
