@@ -76,6 +76,7 @@ find_colliding_dependency(const pkgconf_dependency_t *dep, const pkgconf_list_t 
 static inline const char *
 dependency_trace_str(const pkgconf_client_t *client, const pkgconf_dependency_t *dep, pkgconf_buffer_t *buf)
 {
+#ifndef PKGCONF_LITE
 	const char *str;
 
 	if (pkgconf_client_get_trace_handler(client) == NULL)
@@ -83,6 +84,9 @@ dependency_trace_str(const pkgconf_client_t *client, const pkgconf_dependency_t 
 
 	str = dependency_to_buf(dep, buf);
 	return str != NULL ? str : dep->package;
+#else
+	return dep->package;
+#endif
 }
 
 static inline pkgconf_dependency_t *
