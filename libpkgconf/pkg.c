@@ -415,31 +415,30 @@ static char *
 convert_path_to_value(const char *path)
 {
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
-	char *normalized = strdup(path);
 	const char *i;
 
-	if (normalized == NULL)
-		return NULL;
-
-	pkgconf_path_normalize_separators(normalized);
-
-	for (i = normalized; *i != '\0'; i++)
+	for (i = path; *i != '\0'; i++)
 	{
-		if (*i == ' ')
+		char c = *i;
+
+#ifdef _WIN32
+		if (c == PKG_DIR_SEP_S)
+			c = '/';
+#endif
+
+		if (c == ' ')
 		{
 			if (!pkgconf_buffer_push_byte(&buf, '\\') ||
 				!pkgconf_buffer_push_byte(&buf, ' '))
 				goto fail;
 		}
-		else if (!pkgconf_buffer_push_byte(&buf, *i))
+		else if (!pkgconf_buffer_push_byte(&buf, c))
 			goto fail;
 	}
 
-	free(normalized);
 	return pkgconf_buffer_freeze(&buf);
 
 fail:
-	free(normalized);
 	pkgconf_buffer_finalize(&buf);
 	return NULL;
 }
