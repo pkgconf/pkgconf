@@ -494,12 +494,17 @@ is_path_separator(char c)
 static inline const char *
 lookup_val_from_env(const pkgconf_client_t *client, const char *pkg_id, const char *keyword)
 {
-	char env_var[PKGCONF_ITEM_SIZE];
+	pkgconf_buffer_t env_var = PKGCONF_BUFFER_INITIALIZER;
+	const char *result;
 	char *c;
 
-	snprintf(env_var, sizeof env_var, "PKG_CONFIG_%s_%s", pkg_id, keyword);
+	if (!pkgconf_buffer_join(&env_var, '_', "PKG_CONFIG", pkg_id, keyword, NULL))
+	{
+		pkgconf_buffer_finalize(&env_var);
+		return NULL;
+	}
 
-	for (c = env_var; *c; c++)
+	for (c = env_var.base; *c != '\0'; c++)
 	{
 		*c = (char) toupper((unsigned char) *c);
 
@@ -507,7 +512,11 @@ lookup_val_from_env(const pkgconf_client_t *client, const char *pkg_id, const ch
 			*c = '_';
 	}
 
-	return pkgconf_client_getenv(client, env_var);
+	result = pkgconf_client_getenv(client, pkgconf_buffer_str(&env_var));
+
+	pkgconf_buffer_finalize(&env_var);
+
+	return result;
 }
 
 static void
