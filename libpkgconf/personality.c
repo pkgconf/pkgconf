@@ -53,11 +53,9 @@ build_default_search_path(pkgconf_list_t* dirlist)
 	 * https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea
 	 */
 	int sizepath = GetModuleFileName(NULL, namebuf, sizeof namebuf - 1);
-	char * winslash;
 	namebuf[sizepath] = '\0';
 
-	while ((winslash = strchr(namebuf, '\\')) != NULL)
-		*winslash = '/';
+	pkgconf_path_normalize_separators(namebuf);
 
 	p = strrchr(namebuf, '/');
 	if (p == NULL)
@@ -69,7 +67,7 @@ build_default_search_path(pkgconf_list_t* dirlist)
 
 	pkgconf_buffer_append_fmt(&pathbuf, "%s/../lib/pkgconfig", namebuf);
 	pkgconf_path_add(pkgconf_buffer_str(&pathbuf), dirlist, true);
-	pkgconf_buffer_reset(&pathbuf);
+	pkgconf_buffer_rewind(&pathbuf);
 
 	pkgconf_buffer_append_fmt(&pathbuf, "%s/../share/pkgconfig", namebuf);
 	pkgconf_path_add(pkgconf_buffer_str(&pathbuf), dirlist, true);
@@ -175,7 +173,7 @@ valid_triplet(const char *triplet)
 	return true;
 }
 
-typedef void (*personality_keyword_func_t)(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value);
+typedef void (*personality_keyword_func_t)(pkgconf_cross_personality_t *p, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value);
 typedef struct {
 	const char *keyword;
 	const personality_keyword_func_t func;
@@ -183,20 +181,20 @@ typedef struct {
 } personality_keyword_pair_t;
 
 static void
-personality_bool_func(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+personality_bool_func(pkgconf_cross_personality_t *p, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	bool *dest = (bool *)((char *) p + offset);
 	*dest = strcasecmp(value, "true") == 0 || strcasecmp(value, "yes") == 0 || strcasecmp(value, "1") == 0;
 }
 
 static void
-personality_copy_func(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+personality_copy_func(pkgconf_cross_personality_t *p, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	char **dest = (char **)((char *) p + offset);
 
@@ -207,10 +205,10 @@ personality_copy_func(pkgconf_cross_personality_t *p, const char *keyword, const
 }
 
 static void
-personality_fragment_func(pkgconf_cross_personality_t *p, const char *keyword, const char *warnprefix, const ptrdiff_t offset, const char *value)
+personality_fragment_func(pkgconf_cross_personality_t *p, const char *keyword, const pkgconf_parser_location_t *loc, const ptrdiff_t offset, const char *value)
 {
 	(void) keyword;
-	(void) warnprefix;
+	(void) loc;
 
 	pkgconf_list_t *dest = (pkgconf_list_t *)((char *) p + offset);
 	pkgconf_path_split(value, dest, false);
@@ -235,7 +233,7 @@ personality_keyword_pair_cmp(const void *key, const void *ptr)
 }
 
 static void
-personality_keyword_set(void *data, const char *warnprefix, const char *keyword, const char *value)
+personality_keyword_set(void *data, const pkgconf_parser_location_t *loc, const char *keyword, const char *value)
 {
 	pkgconf_cross_personality_t *p = data;
 	const personality_keyword_pair_t *pair = bsearch(keyword,
@@ -245,7 +243,7 @@ personality_keyword_set(void *data, const char *warnprefix, const char *keyword,
 	if (pair == NULL || pair->func == NULL)
 		return;
 
-	pair->func(p, keyword, warnprefix, pair->offset, value);
+	pair->func(p, keyword, loc, pair->offset, value);
 }
 
 static const pkgconf_parser_operand_func_t personality_parser_ops[256] = {

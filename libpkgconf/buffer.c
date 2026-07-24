@@ -28,15 +28,48 @@
  * dynamically-allocated buffers.
  */
 
+/* buffers below BUFFER_LINEAR_GROWTH_MAX increment by 128 bytes each time */
+#define BUFFER_LINEAR_GROWTH_MAX 4096
+
 static inline bool
 target_allocation_size(size_t target_size, size_t *allocation_size)
 {
-	size_t growth = 128 - (target_size % 128);
+	if (target_size < BUFFER_LINEAR_GROWTH_MAX)
+	{
+		*allocation_size = target_size + (128 - (target_size % 128));
+		return true;
+	}
 
-	if (target_size > SIZE_MAX - growth)
+	size_t cap = BUFFER_LINEAR_GROWTH_MAX;
+	while (cap <= target_size)
+	{
+		if (cap > SIZE_MAX / 2)
+			return false;
+
+		cap *= 2;
+	}
+
+	*allocation_size = cap;
+	return true;
+}
+
+static inline bool
+buffer_reserve(pkgconf_buffer_t *buffer, size_t content_len)
+{
+	size_t new_cap, old_cap;
+	char *newbase;
+
+	if (!target_allocation_size(content_len, &new_cap))
 		return false;
 
-	*allocation_size = target_size + growth;
+	if (buffer->base != NULL && target_allocation_size(pkgconf_buffer_len(buffer), &old_cap) && old_cap == new_cap)
+		return true;
+
+	newbase = realloc(buffer->base, new_cap);
+	if (newbase == NULL)
+		return false;
+
+	buffer->base = newbase;
 	return true;
 }
 
@@ -88,35 +121,27 @@ buffer_debug(pkgconf_buffer_t *buffer)
 bool
 pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 {
-	size_t allocation_size;
 	size_t len = pkgconf_buffer_len(buffer);
 	size_t text_len = strlen(text);
 
 	if (text_len == SIZE_MAX)
 		return false;
 
-	size_t needed = text_len + 1;
-	if (buffer_storage_overlaps(buffer, text, needed))
+	if (buffer_storage_overlaps(buffer, text, text_len + 1))
 		return false;
 
-	if (len > SIZE_MAX - needed)
+	if (len > SIZE_MAX - text_len)
 		return false;
 
-	size_t newsize = len + needed;
-	if (!target_allocation_size(newsize, &allocation_size))
+	size_t new_len = len + text_len;
+	if (!buffer_reserve(buffer, new_len))
 		return false;
 
-	char *newbase = realloc(buffer->base, allocation_size);
-	if (newbase == NULL)
-		return false;
+	memcpy(buffer->base + len, text, text_len);
 
-	char *newend = newbase + len;
-	memcpy(newend, text, needed);
-
-	buffer->base = newbase;
-	buffer->end = newend + (needed - 1);
-
+	buffer->end = buffer->base + new_len;
 	*buffer->end = '\0';
+
 	return true;
 }
 
@@ -136,17 +161,25 @@ pkgconf_buffer_append(pkgconf_buffer_t *buffer, const char *text)
 bool
 pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
 {
+	size_t len = pkgconf_buffer_len(buf);
+
 	if (n == 0)
 		return true;
 
 	if (buffer_storage_overlaps(buf, p, n))
 		return false;
 
-	for (size_t i = 0; i < n; i++)
-	{
-		if (!pkgconf_buffer_push_byte(buf, p[i]))
-			return false;
-	}
+	if (len > SIZE_MAX - n)
+		return false;
+
+	size_t new_len = len + n;
+	if (!buffer_reserve(buf, new_len))
+		return false;
+
+	memcpy(buf->base + len, p, n);
+
+	buf->end = buf->base + new_len;
+	*buf->end = '\0';
 
 	return true;
 }
@@ -166,32 +199,32 @@ pkgconf_buffer_append_slice(pkgconf_buffer_t *buf, const char *p, size_t n)
 bool
 pkgconf_buffer_append_vfmt(pkgconf_buffer_t *buffer, const char *fmt, va_list src_va)
 {
+	char stackbuf[256];
 	va_list va;
-	char *buf;
-	size_t needed;
 	int formatted_len;
 
 	va_copy(va, src_va);
-	formatted_len = vsnprintf(NULL, 0, fmt, va);
+	formatted_len = vsnprintf(stackbuf, sizeof stackbuf, fmt, va);
 	va_end(va);
 
 	if (formatted_len < 0)
 		return false;
 
-	needed = (size_t) formatted_len + 1;
-	buf = malloc(needed);
-	if (buf == NULL)
+	if ((size_t) formatted_len < sizeof stackbuf)
+		return pkgconf_buffer_append_slice(buffer, stackbuf, (size_t) formatted_len);
+
+	size_t len = pkgconf_buffer_len(buffer);
+
+	if (!buffer_reserve(buffer, len + (size_t) formatted_len))
 		return false;
 
 	va_copy(va, src_va);
-	vsnprintf(buf, needed, fmt, va);
+	vsnprintf(buffer->base + len, (size_t) formatted_len + 1, fmt, va);
 	va_end(va);
 
-	bool ret = pkgconf_buffer_append(buffer, buf);
+	buffer->end = buffer->base + len + (size_t) formatted_len;
 
-	free(buf);
-
-	return ret;
+	return true;
 }
 
 /*
@@ -276,26 +309,19 @@ pkgconf_buffer_prepend(pkgconf_buffer_t *buffer, const char *text)
 bool
 pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 {
-	size_t allocation_size;
 	size_t len = pkgconf_buffer_len(buffer);
 
 	if (len == SIZE_MAX)
 		return false;
 
-	size_t newsize = len + 1;
-	if (!target_allocation_size(newsize, &allocation_size))
+	size_t new_len = len + 1;
+	if (!buffer_reserve(buffer, new_len))
 		return false;
 
-	char *newbase = realloc(buffer->base, allocation_size);
-	if (newbase == NULL)
-		return false;
+	buffer->base[len] = byte;
 
-	char *newend = newbase + newsize;
-	*(newend - 1) = byte;
-	*newend = '\0';
-
-	buffer->base = newbase;
-	buffer->end = newend;
+	buffer->end = buffer->base + new_len;
+	*buffer->end = '\0';
 
 	return true;
 }
@@ -313,22 +339,15 @@ pkgconf_buffer_push_byte(pkgconf_buffer_t *buffer, char byte)
 bool
 pkgconf_buffer_trim_byte(pkgconf_buffer_t *buffer)
 {
-	size_t allocation_size;
 	size_t len = pkgconf_buffer_len(buffer);
 	if (len == 0)
 		return false;
 
-	size_t newsize = len - 1;
-	if (!target_allocation_size(newsize, &allocation_size))
+	size_t new_len = len - 1;
+	if (!buffer_reserve(buffer, new_len))
 		return false;
 
-	char *newbase = realloc(buffer->base, allocation_size);
-
-	if (newbase == NULL)
-		return false;
-
-	buffer->base = newbase;
-	buffer->end = newbase + newsize;
+	buffer->end = buffer->base + new_len;
 	*(buffer->end) = '\0';
 
 	return true;
@@ -608,6 +627,7 @@ bool
 pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans)
 {
 	const char *p = pkgconf_buffer_str(src);
+	const char *run = p;
 
 	if (dest == src ||
 		buffer_storage_overlaps(dest, src->base, pkgconf_buffer_len(src) + 1))
@@ -618,15 +638,20 @@ pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const
 
 	for (; *p; p++)
 	{
-		if (pkgconf_span_contains((unsigned char) *p, spans, nspans))
-		{
-			if (!pkgconf_buffer_push_byte(dest, '\\'))
-				return false;
-		}
+		if (!pkgconf_span_contains((unsigned char) *p, spans, nspans))
+			continue;
 
-		if (!pkgconf_buffer_push_byte(dest, *p))
+		if (p > run && !pkgconf_buffer_append_slice(dest, run, (size_t) (p - run)))
 			return false;
+
+		if (!pkgconf_buffer_push_byte(dest, '\\'))
+			return false;
+
+		run = p;
 	}
+
+	if (p > run)
+		return pkgconf_buffer_append_slice(dest, run, (size_t) (p - run));
 
 	return true;
 }

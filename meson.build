@@ -66,6 +66,7 @@ endif
 cdata = configuration_data()
 
 check_functions = [
+  ['getc_unlocked', 'stdio.h'],
   ['strndup', 'string.h'],
   ['strdup', 'string.h'],
   ['strncasecmp', 'strings.h'],
@@ -186,6 +187,7 @@ libpkgconf_sources = [
   'libpkgconf/dependency.c',
   'libpkgconf/fileio.c',
   'libpkgconf/fragment.c',
+  'libpkgconf/index.c',
   'libpkgconf/license.c',
   'libpkgconf/output.c',
   'libpkgconf/parser.c',

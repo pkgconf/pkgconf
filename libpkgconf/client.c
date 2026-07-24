@@ -358,6 +358,11 @@ pkgconf_client_set_sysroot_dir(pkgconf_client_t *client, const char *sysroot_dir
 
 	client->sysroot_dir = sysroot_dir != NULL ? strdup(sysroot_dir) : NULL;
 
+	/* normalize separators so the sysroot compares equal to the (already
+	 * canonicalized) paths it is matched against during injection */
+	if (client->sysroot_dir != NULL)
+		pkgconf_path_normalize_separators(client->sysroot_dir);
+
 	PKGCONF_TRACE(client, "set sysroot_dir to: %s", client->sysroot_dir != NULL ? client->sysroot_dir : "<default>");
 
 	pkgconf_tuple_add_global(client, "pc_sysrootdir", client->sysroot_dir != NULL ? client->sysroot_dir : "");
@@ -401,6 +406,9 @@ pkgconf_client_set_buildroot_dir(pkgconf_client_t *client, const char *buildroot
 		free(client->buildroot_dir);
 
 	client->buildroot_dir = buildroot_dir != NULL ? strdup(buildroot_dir) : NULL;
+
+	if (client->buildroot_dir != NULL)
+		pkgconf_path_normalize_separators(client->buildroot_dir);
 
 	PKGCONF_TRACE(client, "set buildroot_dir to: %s", client->buildroot_dir != NULL ? client->buildroot_dir : "<default>");
 
@@ -828,12 +836,6 @@ pkgconf_client_set_trace_handler(pkgconf_client_t *client, pkgconf_error_handler
 {
 	client->trace_handler = trace_handler;
 	client->trace_handler_data = trace_handler_data;
-
-	if (client->trace_handler == NULL)
-	{
-		client->trace_handler = pkgconf_default_error_handler;
-		PKGCONF_TRACE(client, "installing default trace handler");
-	}
 }
 #endif
 

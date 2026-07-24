@@ -62,7 +62,7 @@ msvc_renderer_render(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fra
 	switch(frag->type) {
 	case 'D':
 	case 'I':
-		if (!pkgconf_buffer_append_fmt(buf, "/%c", frag->type))
+		if (!pkgconf_buffer_push_byte(buf, '/') || !pkgconf_buffer_push_byte(buf, frag->type))
 			return false;
 		break;
 	case 'L':

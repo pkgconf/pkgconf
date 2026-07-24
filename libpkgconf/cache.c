@@ -33,44 +33,40 @@
  * be shared across threads.
  */
 
+/* order two cached packages by id */
 static int
-cache_member_cmp(const void *a, const void *b)
+cache_cmp(const void *a, const void *b)
 {
-	const char *key = a;
-	const pkgconf_pkg_t *pkg = *(void **) b;
-
-	return strcmp(key, pkg->id);
+	return strcmp(((const pkgconf_pkg_t *) a)->id, ((const pkgconf_pkg_t *) b)->id);
 }
 
+/* order an id string against a cached package */
 static int
-cache_member_sort_cmp(const void *a, const void *b)
+cache_keycmp(const void *key, const void *entry)
 {
-	const pkgconf_pkg_t *pkgA = *(void **) a;
-	const pkgconf_pkg_t *pkgB = *(void **) b;
-
-	if (pkgA == NULL)
-		return 1;
-
-	if (pkgB == NULL)
-		return -1;
-
-	return strcmp(pkgA->id, pkgB->id);
+	return strcmp((const char *) key, ((const pkgconf_pkg_t *) entry)->id);
 }
 
-static void
-cache_dump(const pkgconf_client_t *client)
+/* The cache table lives in two ABI-frozen client fields (cache_table,
+ * cache_count).  These wrap them in a pkgconf_index_t view so the shared index
+ * code can operate on them, writing any changes back afterwards. */
+static inline pkgconf_index_t
+cache_index(pkgconf_client_t *client)
 {
-	size_t i;
+	pkgconf_index_t index = {
+		.entries = (void **) client->cache_table,
+		.count = client->cache_count,
+		.alloc = client->cache_count,
+		.compare = cache_cmp,
+	};
+	return index;
+}
 
-	PKGCONF_TRACE(client, "dumping package cache contents");
-
-	for (i = 0; i < client->cache_count; i++)
-	{
-		const pkgconf_pkg_t *pkg = client->cache_table[i];
-
-		PKGCONF_TRACE(client, SIZE_FMT_SPECIFIER": %p(%s)",
-			i, pkg, pkg == NULL ? "NULL" : pkg->id);
-	}
+static inline void
+cache_index_store(pkgconf_client_t *client, const pkgconf_index_t *index)
+{
+	client->cache_table = (pkgconf_pkg_t **) index->entries;
+	client->cache_count = index->count;
 }
 
 /*
@@ -90,19 +86,13 @@ cache_dump(const pkgconf_client_t *client)
 pkgconf_pkg_t *
 pkgconf_cache_lookup(pkgconf_client_t *client, const char *id)
 {
-	if (client->cache_table == NULL)
-		return NULL;
-
-	pkgconf_pkg_t **pkg;
-
-	pkg = bsearch(id, client->cache_table,
-		client->cache_count, sizeof (void *),
-		cache_member_cmp);
+	pkgconf_index_t index = cache_index(client);
+	pkgconf_pkg_t *pkg = pkgconf_index_lookup(&index, id, cache_keycmp);
 
 	if (pkg != NULL)
 	{
-		PKGCONF_TRACE(client, "found: %s @%p", id, *pkg);
-		return pkgconf_pkg_ref(client, *pkg);
+		PKGCONF_TRACE(client, "found: %s @%p", id, pkg);
+		return pkgconf_pkg_ref(client, pkg);
 	}
 
 	PKGCONF_TRACE(client, "miss: %s", id);
@@ -136,29 +126,18 @@ pkgconf_cache_add(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 
 	pkgconf_pkg_ref(client, pkg);
 
-	pkgconf_pkg_t **new_table;
-
 	/* mark package as cached */
 	pkg->flags |= PKGCONF_PKG_PROPF_CACHED;
 
-	++client->cache_count;
-	new_table = pkgconf_reallocarray(client->cache_table,
-		client->cache_count, sizeof (void *));
-
-	/* if we are out of memory, roll back adding to cache and bail */
-	if (new_table == NULL)
+	pkgconf_index_t index = cache_index(client);
+	if (!pkgconf_index_insert(&index, pkg))
 	{
-		--client->cache_count;
+		/* out of memory: roll back adding to cache and bail */
 		pkg->flags &= ~PKGCONF_PKG_PROPF_CACHED;
 		pkgconf_pkg_unref(client, pkg);
 		return;
 	}
-
-	client->cache_table = new_table;
-	client->cache_table[client->cache_count - 1] = pkg;
-
-	qsort(client->cache_table, client->cache_count,
-		sizeof(void *), cache_member_sort_cmp);
+	cache_index_store(client, &index);
 
 	PKGCONF_TRACE(client, "added @%p to cache", pkg);
 }
@@ -188,44 +167,27 @@ pkgconf_cache_remove(pkgconf_client_t *client, pkgconf_pkg_t *pkg)
 
 	PKGCONF_TRACE(client, "removed @%p from cache", pkg);
 
-	pkgconf_pkg_t **slot;
+	pkgconf_index_t index = cache_index(client);
+	pkgconf_pkg_t *found = pkgconf_index_lookup(&index, pkg->id, cache_keycmp);
 
-	slot = bsearch(pkg->id, client->cache_table,
-		client->cache_count, sizeof (void *),
-		cache_member_cmp);
-
-	if (slot == NULL)
+	if (found == NULL)
 		return;
 
-	(*slot)->flags &= ~PKGCONF_PKG_PROPF_CACHED;
-	pkgconf_pkg_unref(client, *slot);
-	*slot = NULL;
+	found->flags &= ~PKGCONF_PKG_PROPF_CACHED;
 
-	qsort(client->cache_table, client->cache_count,
-		sizeof(void *), cache_member_sort_cmp);
+	/* remove from the index (which reads found->id) and publish the new table
+	 * before dropping our reference: pkgconf_pkg_unref() may free `found`, and
+	 * freeing a package can re-enter pkgconf_cache_remove(). */
+	pkgconf_index_remove(&index, found);
+	cache_index_store(client, &index);
 
-	if (client->cache_table[client->cache_count - 1] != NULL)
-	{
-		PKGCONF_TRACE(client, "end of cache table refers to %p, not NULL",
-			client->cache_table[client->cache_count - 1]);
-		cache_dump(client);
-		abort();
-	}
-
-	client->cache_count--;
-	if (client->cache_count > 0)
-	{
-		pkgconf_pkg_t **new_table = pkgconf_reallocarray(client->cache_table,
-			client->cache_count, sizeof(void *));
-
-		if (new_table != NULL)
-			client->cache_table = new_table;
-	}
-	else
+	if (client->cache_count == 0)
 	{
 		free(client->cache_table);
 		client->cache_table = NULL;
 	}
+
+	pkgconf_pkg_unref(client, found);
 }
 
 /*
