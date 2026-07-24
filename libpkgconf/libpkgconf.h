@@ -773,19 +773,18 @@ static inline void pkgconf_buffer_rewind(pkgconf_buffer_t *buffer)
  *
  * .. c:function:: static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer)
  *
- *    Free the underlying buffer, copying the underlying string.
- *    The string must be freed by the caller.
+ *    Hand ownership of the underlying storage to the caller as a string and
+ *    empty the buffer.  The string must be freed by the caller.
  *
  *    :param pkgconf_buffer_t *buffer: The buffer to freeze.
- *    :return: The underlying string, copied.
+ *    :return: The underlying string.
  */
 static inline char *pkgconf_buffer_freeze(pkgconf_buffer_t *buffer)
 {
-	if (buffer->base == NULL)
-		return NULL;
+	char *out = buffer->base;
 
-	char *out = pkgconf_strndup(pkgconf_buffer_str(buffer), pkgconf_buffer_len(buffer));
-	pkgconf_buffer_reset(buffer);
+	buffer->base = buffer->end = NULL;
+
 	return out;
 }
 
