@@ -1015,19 +1015,13 @@ static bool
 fragment_render(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment_t *frag, pkgconf_buffer_t *buf)
 {
 	const pkgconf_node_t *iter;
-	pkgconf_buffer_t quoted = PKGCONF_BUFFER_INITIALIZER;
-
-	if (!fragment_quote(&quoted, frag))
-		goto fail;
 
 	if (frag->type &&
 		(!pkgconf_buffer_push_byte(buf, '-') || !pkgconf_buffer_push_byte(buf, frag->type)))
-		goto fail;
+		return false;
 
-	if (!pkgconf_buffer_append(buf, pkgconf_buffer_str_or_empty(&quoted)))
-		goto fail;
-
-	pkgconf_buffer_finalize(&quoted);
+	if (!fragment_quote(buf, frag))
+		return false;
 
 	PKGCONF_FOREACH_LIST_ENTRY(frag->children.head, iter)
 	{
@@ -1039,10 +1033,6 @@ fragment_render(const pkgconf_fragment_render_ctx_t *ctx, const pkgconf_fragment
 	}
 
 	return true;
-
-fail:
-	pkgconf_buffer_finalize(&quoted);
-	return false;
 }
 
 static const pkgconf_fragment_render_ops_t default_render_ops = {
