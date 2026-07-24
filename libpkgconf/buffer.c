@@ -627,6 +627,7 @@ bool
 pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const pkgconf_span_t *spans, size_t nspans)
 {
 	const char *p = pkgconf_buffer_str(src);
+	const char *run = p;
 
 	if (dest == src ||
 		buffer_storage_overlaps(dest, src->base, pkgconf_buffer_len(src) + 1))
@@ -637,15 +638,20 @@ pkgconf_buffer_escape(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const
 
 	for (; *p; p++)
 	{
-		if (pkgconf_span_contains((unsigned char) *p, spans, nspans))
-		{
-			if (!pkgconf_buffer_push_byte(dest, '\\'))
-				return false;
-		}
+		if (!pkgconf_span_contains((unsigned char) *p, spans, nspans))
+			continue;
 
-		if (!pkgconf_buffer_push_byte(dest, *p))
+		if (p > run && !pkgconf_buffer_append_slice(dest, run, (size_t) (p - run)))
 			return false;
+
+		if (!pkgconf_buffer_push_byte(dest, '\\'))
+			return false;
+
+		run = p;
 	}
+
+	if (p > run)
+		return pkgconf_buffer_append_slice(dest, run, (size_t) (p - run));
 
 	return true;
 }
