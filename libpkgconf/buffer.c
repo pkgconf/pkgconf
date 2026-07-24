@@ -28,15 +28,28 @@
  * dynamically-allocated buffers.
  */
 
+/* buffers below BUFFER_LINEAR_GROWTH_MAX increment by 128 bytes each time */
+#define BUFFER_LINEAR_GROWTH_MAX 4096
+
 static inline bool
 target_allocation_size(size_t target_size, size_t *allocation_size)
 {
-	size_t growth = 128 - (target_size % 128);
+	if (target_size < BUFFER_LINEAR_GROWTH_MAX)
+	{
+		*allocation_size = target_size + (128 - (target_size % 128));
+		return true;
+	}
 
-	if (target_size > SIZE_MAX - growth)
-		return false;
+	size_t cap = BUFFER_LINEAR_GROWTH_MAX;
+	while (cap <= target_size)
+	{
+		if (cap > SIZE_MAX / 2)
+			return false;
 
-	*allocation_size = target_size + growth;
+		cap *= 2;
+	}
+
+	*allocation_size = cap;
 	return true;
 }
 
