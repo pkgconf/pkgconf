@@ -32,20 +32,18 @@ pkgconf_variable_t *
 pkgconf_variable_new(const char *key)
 {
 	pkgconf_variable_t *v;
+	size_t keylen;
 
 	if (key == NULL)
 		return NULL;
 
-	v = calloc(1, sizeof(*v));
+	keylen = strlen(key);
+	v = calloc(1, sizeof(*v) + keylen + 1);
 	if (v == NULL)
 		return NULL;
 
-	v->key = strdup(key);
-	if (v->key == NULL)
-	{
-		free(v);
-		return NULL;
-	}
+	v->key = (char *)(v + 1);
+	memcpy(v->key, key, keylen + 1);
 
 	return v;
 }
@@ -57,7 +55,6 @@ pkgconf_variable_free(pkgconf_variable_t *v)
 		return;
 
 	pkgconf_buffer_finalize(&v->bcbuf);
-	free(v->key);
 	free(v);
 }
 
