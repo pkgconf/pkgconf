@@ -535,16 +535,16 @@ pkgconf_pkg_parser_value_set(void *opaque, const pkgconf_parser_location_t *loc,
 		value = env_content;
 	}
 
+	if (!(pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
+	{
+		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true, pkg->flags);
+		return;
+	}
+
 	if (!pkgconf_buffer_append(&canonicalized_value, value))
 		goto out;
 
 	canonicalize_path(canonicalized_value.base);
-
-	if (!(pkg->owner->flags & PKGCONF_PKG_PKGF_REDEFINE_PREFIX))
-	{
-		pkgconf_tuple_add(pkg->owner, &pkg->vars, keyword, value, true, pkg->flags);
-		goto out;
-	}
 
 	/* Some pc files will use absolute paths for all of their directories
 	 * which is broken when redefining the prefix. We try to outsmart the
