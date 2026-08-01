@@ -31,6 +31,7 @@ AC_CHECK_DECLS([strndup], [], [], [[#include <string.h>]])
 AC_CHECK_DECLS([pledge, unveil], [], [], [[#include <unistd.h>]])
 AC_CHECK_DECLS([readlinkat], [], [], [[#include <unistd.h>]])
 AC_CHECK_DECLS([reallocarray], [], [], [[#include <stdlib.h>]])
+AC_CHECK_DECLS([mkdtemp], [], [], [[#include <stdlib.h>]])
 AC_CHECK_DECLS([nl_langinfo_l], [], [], [[
 #ifdef __APPLE__
 #include <xlocale.h>
