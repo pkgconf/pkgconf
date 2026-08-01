@@ -75,6 +75,7 @@ check_functions = [
   ['pledge', 'unistd.h'],
   ['unveil', 'unistd.h'],
   ['readlinkat', 'unistd.h'],
+  ['mkdtemp', 'stdlib.h'],
 ]
 
 # Feature-test macros mirroring those defined globally by the build, so that
