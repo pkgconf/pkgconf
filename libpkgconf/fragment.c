@@ -312,7 +312,12 @@ should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragme
 	if (client->sysroot_dir == NULL)
 		return false;
 
-	/* the flag is the preceding fragment; this one is the bare path it takes */
+	/* the flag is the preceding fragment; this one is the bare path it takes.
+	 * a flag which has already taken its argument takes no further ones, so
+	 * what follows is a fragment in its own right and not a path at all. */
+	if (last->flags & PKGCONF_PKG_FRAGF_TERMINATED)
+		return false;
+
 	if (pkgconf_fragment_sysroot_path_offset(last->data) == 0)
 		return false;
 
