@@ -69,8 +69,14 @@ pkgconf_fragment_is_greedy(const char *string)
 	return false;
 }
 
-static inline bool
-pkgconf_fragment_should_check_sysroot(const char *string)
+/*
+ * Length of the flag introducing a path which sysroot may be injected into, or
+ * 0 if this is not such a flag.  The length matters as well as the answer: the
+ * path starts there, and it is the path which has to be judged, not the whole
+ * fragment.
+ */
+static inline size_t
+pkgconf_fragment_sysroot_path_offset(const char *string)
 {
 	static const struct pkgconf_fragment_check check_fragments[] = {
 		{"-F", 2},
@@ -81,13 +87,35 @@ pkgconf_fragment_should_check_sysroot(const char *string)
 	};
 
 	if (*string != '-')
-		return false;
+		return 0;
 
 	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(check_fragments); i++)
 		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
-			return true;
+			return check_fragments[i].len;
 
-	return false;
+	return 0;
+}
+
+/*
+ * Whether `path` already lies under the sysroot, in which case injecting it
+ * again would only produce a doubled prefix.
+ *
+ * This is read off the path rather than remembered from the expansion which
+ * produced it.  A fragment carries everything the question needs, so the answer
+ * holds per fragment however the .pc file arrived at the path -- whether the
+ * sysroot came from ${pc_sysrootdir}, from a variable which happens to sit under
+ * it, or was written out longhand -- and survives the path being split out of a
+ * larger expansion, where provenance would not.
+ */
+static inline bool
+pkgconf_fragment_under_sysroot(const pkgconf_client_t *client, const char *path)
+{
+	size_t len = strlen(client->sysroot_dir);
+
+	if (strncmp(path, client->sysroot_dir, len))
+		return false;
+
+	return path[len] == '/' || path[len] == '\0';
 }
 
 static inline bool
@@ -245,8 +273,10 @@ pkgconf_fragment_insert(pkgconf_client_t *client, pkgconf_list_t *list, char typ
 }
 
 static bool
-should_inject_sysroot(const pkgconf_client_t *client, const char *string, bool saw_sysroot, unsigned int flags)
+should_inject_sysroot(const pkgconf_client_t *client, const char *string, unsigned int flags)
 {
+	size_t offset;
+
 	if (client->flags & PKGCONF_PKG_PKGF_NO_SYSROOT_INJECTION)
 		return false;
 
@@ -261,23 +291,15 @@ should_inject_sysroot(const pkgconf_client_t *client, const char *string, bool s
 	if (client->sysroot_dir == NULL)
 		return false;
 
-	if (saw_sysroot)
+	offset = pkgconf_fragment_sysroot_path_offset(string);
+	if (offset == 0)
 		return false;
 
-	if (!pkgconf_fragment_should_check_sysroot(string))
-		return false;
-
-	if (!strncmp(string + 2, client->sysroot_dir, strlen(client->sysroot_dir)) &&
-		*(string + 2 + strlen(client->sysroot_dir)) == '/')
-	{
-		return false;
-	}
-
-	return true;
+	return !pkgconf_fragment_under_sysroot(client, string + offset);
 }
 
 static bool
-should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragment_t *last, const char *string, bool saw_sysroot, unsigned int flags)
+should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragment_t *last, const char *string, unsigned int flags)
 {
 	if (client->flags & PKGCONF_PKG_PKGF_NO_SYSROOT_INJECTION)
 		return false;
@@ -299,19 +321,11 @@ should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragme
 	if (client->sysroot_dir == NULL)
 		return false;
 
-	if (saw_sysroot)
+	/* the flag is the preceding fragment; this one is the bare path it takes */
+	if (pkgconf_fragment_sysroot_path_offset(last->data) == 0)
 		return false;
 
-	if (!pkgconf_fragment_should_check_sysroot(last->data))
-		return false;
-
-	if (!strncmp(string, client->sysroot_dir, strlen(client->sysroot_dir)) &&
-		*(string + strlen(client->sysroot_dir)) == '/')
-	{
-		return false;
-	}
-
-	return true;
+	return !pkgconf_fragment_under_sysroot(client, string);
 }
 
 static inline bool
@@ -337,11 +351,11 @@ fragment_is_unquoted_var(const char *value)
  * Insert an already-expanded fragment string into the list.  No variable
  * substitution is performed here: `string` is taken verbatim, so this must
  * only be called with input that has already been through the bytecode
- * evaluator.  `saw_sysroot` records whether that prior evaluation expanded
- * ${pc_sysrootdir}, which governs whether sysroot injection is still needed.
+ * evaluator.  Whether sysroot injection is still wanted is read off `string`
+ * itself; see pkgconf_fragment_under_sysroot.
  */
 static bool
-fragment_insert_evaluated(pkgconf_client_t *client, pkgconf_list_t *list, const char *string, bool saw_sysroot, unsigned int flags)
+fragment_insert_evaluated(pkgconf_client_t *client, pkgconf_list_t *list, const char *string, unsigned int flags)
 {
 	pkgconf_list_t *target = list;
 	pkgconf_fragment_t *terminate_parent = NULL;
@@ -382,7 +396,7 @@ fragment_insert_evaluated(pkgconf_client_t *client, pkgconf_list_t *list, const 
 		{
 			type = *(string + 1);
 
-			if (should_inject_sysroot(client, string, saw_sysroot, flags))
+			if (should_inject_sysroot(client, string, flags))
 			{
 				if (pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir) &&
 					pkgconf_buffer_append(&sysroot_buf, string + 2))
@@ -396,7 +410,7 @@ fragment_insert_evaluated(pkgconf_client_t *client, pkgconf_list_t *list, const 
 			type = 0;
 
 			if (client->sysroot_dir != NULL && list->tail != NULL && list->tail->data != NULL &&
-				should_inject_sysroot_child(client, list->tail->data, string, saw_sysroot, flags))
+				should_inject_sysroot_child(client, list->tail->data, string, flags))
 			{
 				if (pkgconf_buffer_append(&sysroot_buf, client->sysroot_dir) &&
 					pkgconf_buffer_append(&sysroot_buf, string))
@@ -488,7 +502,7 @@ fragment_split(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *v
 		if (evaluate)
 			ok = pkgconf_fragment_add(client, list, vars, token, flags);
 		else
-			ok = fragment_insert_evaluated(client, list, token, false, flags);
+			ok = fragment_insert_evaluated(client, list, token, flags);
 
 		pkgconf_buffer_finalize(&greedybuf);
 
@@ -547,7 +561,7 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 	if (fragment_is_unquoted_var(value))
 		ret = fragment_split(client, list, vars, pkgconf_buffer_str(&evalbuf), flags, false);
 	else
-		ret = fragment_insert_evaluated(client, list, pkgconf_buffer_str(&evalbuf), saw_sysroot, flags);
+		ret = fragment_insert_evaluated(client, list, pkgconf_buffer_str(&evalbuf), flags);
 
 	pkgconf_buffer_finalize(&evalbuf);
 	return ret;
