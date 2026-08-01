@@ -328,25 +328,6 @@ should_inject_sysroot_child(const pkgconf_client_t *client, const pkgconf_fragme
 	return !pkgconf_fragment_under_sysroot(client, string);
 }
 
-static inline bool
-fragment_is_unquoted_var(const char *value)
-{
-	size_t len;
-
-	if (value == NULL)
-		return false;
-
-	len = strlen(value);
-
-	if (len < 4 || value[0] != '$')
-		return false;
-
-	if (value[1] == '{' && value[len - 1] == '}')
-		return true;
-
-	return false;
-}
-
 /*
  * Insert an already-expanded fragment string into the list.  No variable
  * substitution is performed here: `string` is taken verbatim, so this must
@@ -446,12 +427,15 @@ fragment_insert_evaluated(pkgconf_client_t *client, pkgconf_list_t *list, const 
  * Split a string into whitespace-delimited fragments, honouring shell quoting
  * and greedy flags (e.g. "-I /usr/include" -> "-I/usr/include").
  *
- * When `evaluate` is true, each resulting token is passed through
- * pkgconf_fragment_add so that variable references are expanded.  When it is
- * false, `value` is assumed to already be fully expanded and the tokens are
- * inserted verbatim: this is the path used to re-split a single variable whose
- * value expands to several fragments, and it must not evaluate again lest an
- * expansion that yields a literal "${...}" (via a "$$" escape) recurse forever.
+ * When `evaluate` is true, `value` is a property as the .pc file spells it and
+ * each token is handed to pkgconf_fragment_add to be expanded.  Splitting it
+ * only settles where the tokens end, so the quoting is left in place for the
+ * pass over the expansion to consume.
+ *
+ * When `evaluate` is false, `value` is the expansion of one such token.  This is
+ * where the quoting is consumed, once, over text which is otherwise finished,
+ * and the tokens are inserted as they stand.  It must not evaluate again, lest
+ * an expansion yielding a literal "${...}" (via a "$$" escape) recurse forever.
  */
 static bool
 fragment_split(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags, bool evaluate)
@@ -459,7 +443,9 @@ fragment_split(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *v
 	int i, ret, argc;
 	char **argv;
 
-	ret = pkgconf_argv_split(value, &argc, &argv);
+	ret = evaluate
+		? pkgconf_argv_split_raw(value, &argc, &argv)
+		: pkgconf_argv_split(value, &argc, &argv);
 	if (ret < 0)
 	{
 		PKGCONF_TRACE(client, "unable to parse fragment string [%s]", value);
@@ -535,10 +521,9 @@ bool
 pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_list_t *vars, const char *value, unsigned int flags)
 {
 	pkgconf_buffer_t evalbuf = PKGCONF_BUFFER_INITIALIZER;
-	bool saw_sysroot = false;
 	bool ret;
 
-	if (!pkgconf_bytecode_eval_str_to_buf(client, vars, value, &saw_sysroot, &evalbuf))
+	if (!pkgconf_bytecode_eval_str_to_buf(client, vars, value, NULL, &evalbuf))
 	{
 		pkgconf_buffer_finalize(&evalbuf);
 		return false;
@@ -550,18 +535,14 @@ pkgconf_fragment_add(pkgconf_client_t *client, pkgconf_list_t *list, pkgconf_lis
 		return true;
 	}
 
-	/* The consumers below only read the expanded string, so hand them the
-	 * buffer contents directly rather than freezing (copying) it out.
+	/* fragment_split() only reads the expanded string, so hand it the buffer
+	 * contents directly rather than freezing (copying) them out.
 	 *
-	 * A bare "${var}" may expand to several whitespace-separated fragments, so
-	 * re-split the (already-expanded) result.  The split must not evaluate the
-	 * tokens again, otherwise a value that expands to a literal "${var}" would
-	 * recurse without bound.
+	 * The expansion is split rather than taken whole: the quoting it carries is
+	 * consumed there, and a value may in any case expand to several
+	 * whitespace-separated fragments.
 	 */
-	if (fragment_is_unquoted_var(value))
-		ret = fragment_split(client, list, vars, pkgconf_buffer_str(&evalbuf), flags, false);
-	else
-		ret = fragment_insert_evaluated(client, list, pkgconf_buffer_str(&evalbuf), flags);
+	ret = fragment_split(client, list, vars, pkgconf_buffer_str(&evalbuf), flags, false);
 
 	pkgconf_buffer_finalize(&evalbuf);
 	return ret;
