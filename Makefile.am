@@ -197,6 +197,9 @@ EXTRA_DIST =	pkg.m4 \
 		t/parser/dollar-sign-escape.test \
 		t/parser/dollar-sign-escape-2.test \
 		t/parser/dos-lineendings.test \
+		t/parser/escape-layers-bare-var-libs.test \
+		t/parser/escape-layers-cflags.test \
+		t/parser/escape-layers-libs.test \
 		t/parser/escaped-backslashes-in-output.test \
 		t/parser/fragment-comment.test \
 		t/parser/fragment-escaped-space-var-cflags.test \
@@ -439,6 +442,12 @@ EXTRA_DIST =	pkg.m4 \
 		t/tuple/define-variable.test \
 		t/tuple/duplicate-upsert.test \
 		t/tuple/empty-tuple.test \
+		t/tuple/escaped-backslash-variable.test \
+		t/tuple/escaped-whitespace-variable-dquoted.test \
+		t/tuple/escaped-whitespace-variable-nested.test \
+		t/tuple/escaped-whitespace-variable-squoted.test \
+		t/tuple/escaped-whitespace-variable-unquoted.test \
+		t/tuple/escaped-whitespace-variable.test \
 		t/link-abi/default-c.test \
 		t/link-abi/cxx-leaf.test \
 		t/link-abi/cxx-leaf-static.test \
@@ -594,6 +603,8 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/sysroot-inject-mixed.pc \
 		tests/lib1/sysroot-inject-multi-fragment.pc \
 		tests/lib1/sysroot-inject-prefix.pc \
+		tests/lib1/escape-layers-bare-var.pc \
+		tests/lib1/escape-layers.pc \
 		tests/lib-pccritic/perfect.pc \
 		tests/lib-pccritic/polluted.pc \
 		tests/lib-pccritic/nodesc.pc \
