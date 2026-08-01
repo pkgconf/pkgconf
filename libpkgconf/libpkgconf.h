@@ -517,6 +517,7 @@ PKGCONF_API pkgconf_dependency_t *pkgconf_dependency_copy(pkgconf_client_t *clie
 
 /* argvsplit.c */
 PKGCONF_API int pkgconf_argv_split(const char *src, int *argc, char ***argv);
+PKGCONF_API int pkgconf_argv_split_raw(const char *src, int *argc, char ***argv);
 PKGCONF_API void pkgconf_argv_free(char **argv);
 
 /* fragment.c */
