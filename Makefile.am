@@ -404,6 +404,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/sysroot/inject-explicit-libs.test \
 		t/sysroot/inject-hardcoded-cflags.test \
 		t/sysroot/inject-hardcoded-libs.test \
+		t/sysroot/inject-isystem-attached.test \
 		t/sysroot/inject-isystem-explicit.test \
 		t/sysroot/inject-isystem-literal.test \
 		t/sysroot/inject-isystem-separate.test \
@@ -605,6 +606,7 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/sysroot-inject-prefix.pc \
 		tests/lib1/escape-layers-bare-var.pc \
 		tests/lib1/escape-layers.pc \
+		tests/lib1/sysroot-inject-isystem-attached.pc \
 		tests/lib-pccritic/perfect.pc \
 		tests/lib-pccritic/polluted.pc \
 		tests/lib-pccritic/nodesc.pc \

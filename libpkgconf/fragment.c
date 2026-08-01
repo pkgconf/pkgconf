@@ -97,6 +97,28 @@ pkgconf_fragment_sysroot_path_offset(const char *string)
 }
 
 /*
+ * Length of a flag which names its path as a separate argument, or 0 if this is
+ * not one of those.
+ */
+static inline size_t
+pkgconf_fragment_separate_path_offset(const char *string)
+{
+	static const struct pkgconf_fragment_check check_fragments[] = {
+		{"-isystem", 8},
+		{"-idirafter", 10},
+	};
+
+	if (*string != '-')
+		return 0;
+
+	for (size_t i = 0; i < PKGCONF_ARRAY_SIZE(check_fragments); i++)
+		if (!strncmp(string, check_fragments[i].token, check_fragments[i].len))
+			return check_fragments[i].len;
+
+	return 0;
+}
+
+/*
  * Whether `path` already lies under the sysroot, in which case injecting it
  * again would only produce a doubled prefix.
  *
@@ -337,9 +359,25 @@ fragment_insert_evaluated(pkgconf_client_t *client, pkgconf_list_t *list, const 
 	pkgconf_list_t *target = list;
 	pkgconf_fragment_t *terminate_parent = NULL;
 	pkgconf_fragment_t *frag;
+	size_t separate;
 
 	if (string == NULL || *string == '\0')
 		return true;
+
+	/* A .pc file may join one of these flags to its path.  That names the same
+	 * thing as writing them apart, so split it back apart and let there be one
+	 * spelling of it in a fragment list: the flag, and the path it takes. */
+	separate = pkgconf_fragment_separate_path_offset(string);
+	if (separate != 0 && string[separate] != '\0')
+	{
+		pkgconf_buffer_t flagbuf = PKGCONF_BUFFER_INITIALIZER;
+		bool ok = pkgconf_buffer_append_slice(&flagbuf, string, separate) &&
+			fragment_insert_evaluated(client, list, pkgconf_buffer_str(&flagbuf), flags) &&
+			fragment_insert_evaluated(client, list, string + separate, flags);
+
+		pkgconf_buffer_finalize(&flagbuf);
+		return ok;
+	}
 
 	if (list->tail != NULL && list->tail->data != NULL &&
 		!(client->flags & PKGCONF_PKG_PKGF_DONT_MERGE_SPECIAL_FRAGMENTS))
