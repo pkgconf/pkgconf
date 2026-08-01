@@ -24,6 +24,9 @@
 /* Define to 1 if you have the `readlinkat' function. */
 #mesondefine HAVE_DECL_READLINKAT
 
+/* Define to 1 if you have the `mkdtemp' function. */
+#mesondefine HAVE_DECL_MKDTEMP
+
 /* Define to 1 if you have the `nl_langinfo_l' function. */
 #mesondefine HAVE_DECL_NL_LANGINFO_L
 
