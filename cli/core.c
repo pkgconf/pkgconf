@@ -1149,14 +1149,27 @@ pkgconf_cli_run(pkgconf_cli_state_t *state, int argc, char *argv[], int last_arg
 	/* if these selectors are used, it means that we are querying metadata.
 	 * so signal to libpkgconf that we only want to walk the flattened dependency set.
 	 */
-	if ((state->want_flags & PKG_MODVERSION) == PKG_MODVERSION ||
+	const bool querying_flattened_metadata =
+		(state->want_flags & PKG_MODVERSION) == PKG_MODVERSION ||
 		(state->want_flags & PKG_REQUIRES) == PKG_REQUIRES ||
 		(state->want_flags & PKG_REQUIRES_PRIVATE) == PKG_REQUIRES_PRIVATE ||
 		(state->want_flags & PKG_PROVIDES) == PKG_PROVIDES ||
 		(state->want_flags & PKG_VARIABLES) == PKG_VARIABLES ||
 		(state->want_flags & PKG_PATH) == PKG_PATH ||
-		state->want_variable != NULL)
+		state->want_variable != NULL;
+
+	if (querying_flattened_metadata)
 		state->maximum_traverse_depth = 1;
+
+	/* metadata queries only report properties of the modules the user asked about, they
+	 * never combine those modules into a build, so 'Conflicts' rules between them are not
+	 * relevant.  see <https://github.com/pkgconf/pkgconf/issues/580>.
+	 */
+	if (querying_flattened_metadata ||
+		(state->want_flags & PKG_DUMP_LICENSE) == PKG_DUMP_LICENSE ||
+		(state->want_flags & PKG_DUMP_LICENSE_FILE) == PKG_DUMP_LICENSE_FILE ||
+		(state->want_flags & PKG_DUMP_SOURCE) == PKG_DUMP_SOURCE)
+		want_client_flags |= PKGCONF_PKG_PKGF_SKIP_CONFLICTS;
 
 	/* if we are asking for a variable, path or list of variables, this only makes sense
 	 * for a single package.
