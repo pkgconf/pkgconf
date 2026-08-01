@@ -77,15 +77,6 @@ find it necessary; give the fork your own name and speak for it in your own
 voice.
 
 
-## Application
-
-The provisions above concerning organizations, agents, and stewardship were
-adopted in response to the launch of the Linux Foundation's Akrites program,
-which has announced its intention to act as "maintainer of last resort" for
-packages it judges to be unmaintained.  They apply equally to any
-organization that adopts a comparable posture toward this project.
-
-
 ## Reporting incidents
 
 Report anything you believe violates this document to
