@@ -246,6 +246,10 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/circular-reference-2.test \
 		t/solver/circular-reference-directpc.test \
 		t/solver/compound-foo-metapackage-3.test \
+		t/solver/conflicts-license.test \
+		t/solver/conflicts-modversion.test \
+		t/solver/conflicts-print-provides.test \
+		t/solver/conflicts-print-requires.test \
 		t/solver/conflicts-solution-error.test \
 		t/solver/conflicts-solution-ignore.test \
 		t/solver/conflicts-solution-is-fine-standalone.test \
