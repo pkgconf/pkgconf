@@ -393,6 +393,23 @@ EXTRA_DIST =	pkg.m4 \
 		t/sysroot/fdo-sysroot-system-path-filtering.test \
 		t/sysroot/fdo-sysroot-variable-not-rewritten.test \
 		t/sysroot/idirafter-munge-sysroot.test \
+		t/sysroot/inject-bare-sysrootdir.test \
+		t/sysroot/inject-common-prefix-derived.test \
+		t/sysroot/inject-common-prefix-hardcoded.test \
+		t/sysroot/inject-common-prefix-literal.test \
+		t/sysroot/inject-explicit-cflags.test \
+		t/sysroot/inject-explicit-libs.test \
+		t/sysroot/inject-hardcoded-cflags.test \
+		t/sysroot/inject-hardcoded-libs.test \
+		t/sysroot/inject-isystem-explicit.test \
+		t/sysroot/inject-isystem-literal.test \
+		t/sysroot/inject-isystem-separate.test \
+		t/sysroot/inject-literal-prefixed.test \
+		t/sysroot/inject-mixed-fragments.test \
+		t/sysroot/inject-multi-fragment-var.test \
+		t/sysroot/inject-prefix-derived.test \
+		t/sysroot/inject-root-sysroot-hardcoded.test \
+		t/sysroot/inject-root-sysroot-isystem.test \
 		t/sysroot/isystem-munge-sysroot.test \
 		t/sysroot/isystem-sysroot-prefixed.test \
 		t/sysroot/no-pc_sysrootdir-rewriting-2.test \
@@ -567,6 +584,16 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/windows-system-libdir.pc \
 		tests/lib1/windows-top-builddir.pc \
 		tests/lib1/spaces-in-paths.pc \
+		tests/lib1/sysroot-inject-bare.pc \
+		tests/lib1/sysroot-inject-explicit.pc \
+		tests/lib1/sysroot-inject-hardcoded.pc \
+		tests/lib1/sysroot-inject-isystem-explicit.pc \
+		tests/lib1/sysroot-inject-isystem-literal.pc \
+		tests/lib1/sysroot-inject-isystem-separate.pc \
+		tests/lib1/sysroot-inject-literal.pc \
+		tests/lib1/sysroot-inject-mixed.pc \
+		tests/lib1/sysroot-inject-multi-fragment.pc \
+		tests/lib1/sysroot-inject-prefix.pc \
 		tests/lib-pccritic/perfect.pc \
 		tests/lib-pccritic/polluted.pc \
 		tests/lib-pccritic/nodesc.pc \
