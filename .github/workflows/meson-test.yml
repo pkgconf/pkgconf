@@ -46,8 +46,9 @@ jobs:
               -Dwith-pkg-config-dir="$pkg_config_path" -Dwith-system-libdir="$pc_system_libdirs" \
               -Dwith-system-includedir="$pc_system_includedirs"
 
+      # use dpkg directly so that we do not remove glib-2.0 module with pkg-config
       - name: Uninstall preinstalled pkgconf
-        run: sudo apt-get remove -y pkgconf
+        run: sudo dpkg --remove --force-depends pkg-config pkgconf
 
       - name: Install pkgconf
         working-directory: pkgconf
