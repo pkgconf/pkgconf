@@ -61,6 +61,10 @@ jobs:
       - name: Symlink pkg-config to pkgconf
         run: ln -s "$HOME/.local/bin/pkgconf" "$HOME/.local/bin/pkg-config"
 
+      - name: Print pkgconf environment
+        run: |
+          pkg-config --dump-personality
+
       - name: Run meson tests
         working-directory: meson
         env:
