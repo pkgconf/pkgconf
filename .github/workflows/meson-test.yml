@@ -1,0 +1,61 @@
+name: meson tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  meson-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pkgconf
+        uses: actions/checkout@v7
+        with:
+          path: pkgconf
+
+      - name: Checkout meson
+        uses: actions/checkout@v7
+        with:
+          repository: mesonbuild/meson
+          path: meson
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential ninja-build cmake libglib2.0-dev
+
+      - name: Uninstall preinstalled pkgconf
+        run: sudo apt-get remove -y pkgconf
+
+      # We need to uninstall swift because of: https://github.com/mesonbuild/meson/issues/16057
+      - name: Uninstall swift
+        run: |
+          SWIFT_BIN="$(command -v swift || true)"
+          sudo rm -rf /usr/share/swift "$SWIFT_BIN"
+          hash -r
+
+      - name: Install meson
+        working-directory: meson
+        run: pip install .
+
+      - name: Configure pkgconf
+        working-directory: pkgconf
+        run: meson setup _build --prefix="$HOME/.local" --libdir=lib
+
+      - name: Install pkgconf
+        working-directory: pkgconf
+        run: meson install -C _build
+
+      - name: Add pkgconf to PATH
+        run: |
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          echo "LD_LIBRARY_PATH=$HOME/.local/lib:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+
+      - name: Symlink pkg-config to pkgconf
+        run: ln -s "$HOME/.local/bin/pkgconf" "$HOME/.local/bin/pkg-config"
+
+      - name: Run meson tests
+        working-directory: meson
+        env:
+          MESON_CI_JOBNAME: thirdparty
+        run: python ./run_tests.py
