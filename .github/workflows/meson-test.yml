@@ -22,10 +22,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential ninja-build cmake libglib2.0-dev
-
-      - name: Uninstall preinstalled pkgconf
-        run: sudo apt-get remove -y pkgconf
+          sudo apt-get install -y build-essential ninja-build cmake libglib2.0-dev pkg-config
 
       # We need to uninstall swift because of: https://github.com/mesonbuild/meson/issues/16057
       - name: Uninstall swift
@@ -40,7 +37,17 @@ jobs:
 
       - name: Configure pkgconf
         working-directory: pkgconf
-        run: meson setup _build --prefix="$HOME/.local" --libdir=lib
+        run: |
+          pkg_config_path="$(pkg-config --variable=pc_path pkg-config)"
+          pc_system_libdirs="$(pkg-config --variable=pc_system_libdirs pkg-config)"
+          pc_system_includedirs="$(pkg-config --variable=pc_system_includedirs pkg-config)"
+
+          meson setup _build --prefix="$HOME/.local" --libdir=lib \
+              -Dwith-pkg-config-dir="$pkg_config_path" -Dwith-system-libdir="$pc_system_libdirs" \
+              -Dwith-system-includedir="$pc_system_includedirs"
+
+      - name: Uninstall preinstalled pkgconf
+        run: sudo apt-get remove -y pkgconf
 
       - name: Install pkgconf
         working-directory: pkgconf
