@@ -123,6 +123,18 @@ pkg_get_parent_dir(pkgconf_pkg_t *pkg)
 		 */
 		if ((sourcebuf[0] != '/') && strcmp(targetdir, "."))
 		{
+#ifdef __OS2__
+			if ((sourcebuf[0] && (sourcebuf[1] == ':')) ||
+				!strcmp(targetdir, "."))
+				/*
+				 * The fully qualified path, that is, the absolute path with
+				 * a drive letter.
+				 * FIXME: convert drive-relative path to the fully qualified
+				 * path.
+				 */
+                 /* nothing */;
+			else
+#endif
 			if (!pkgconf_buffer_append(&buf, targetdir) || !pkgconf_buffer_push_byte(&buf, '/'))
 				goto fail;
 		}
@@ -473,8 +485,8 @@ canonicalize_path(char *buf)
 static bool
 is_path_prefix_equal(const char *path1, const char *path2, size_t path2_len)
 {
-#ifdef _WIN32
-	return !_strnicmp(path1, path2, path2_len);
+#if defined(_WIN32) || defined(__OS2__)
+	return !strncasecmp(path1, path2, path2_len);
 #else
 	return !strncmp(path1, path2, path2_len);
 #endif
