@@ -6,9 +6,6 @@
 /* Define to 1 if you have the `reallocarray' function. */
 #mesondefine HAVE_REALLOCARRAY
 
-/* Define to 1 if you have the `getc_unlocked' function. */
-#mesondefine HAVE_GETC_UNLOCKED
-
 /* Define to 1 if you have the `strndup' function. */
 #mesondefine HAVE_DECL_STRNDUP
 
@@ -26,6 +23,9 @@
 
 /* Define to 1 if you have the `mkdtemp' function. */
 #mesondefine HAVE_DECL_MKDTEMP
+
+/* Define to 1 if you have the `getc_unlocked' function. */
+#mesondefine HAVE_DECL_GETC_UNLOCKED
 
 /* Define to 1 if you have the `nl_langinfo_l' function. */
 #mesondefine HAVE_DECL_NL_LANGINFO_L

@@ -32,7 +32,7 @@ AC_CHECK_DECLS([pledge, unveil], [], [], [[#include <unistd.h>]])
 AC_CHECK_DECLS([readlinkat], [], [], [[#include <unistd.h>]])
 AC_CHECK_DECLS([reallocarray], [], [], [[#include <stdlib.h>]])
 AC_CHECK_DECLS([mkdtemp], [], [], [[#include <stdlib.h>]])
-AC_CHECK_FUNCS([getc_unlocked])
+AC_CHECK_DECLS([getc_unlocked], [], [], [[#include <stdio.h>]])
 AC_CHECK_DECLS([nl_langinfo_l], [], [], [[
 #ifdef __APPLE__
 #include <xlocale.h>

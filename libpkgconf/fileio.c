@@ -19,7 +19,7 @@
 #include <libpkgconf/stdinc.h>
 #include <libpkgconf/libpkgconf.h>
 
-#ifdef HAVE_GETC_UNLOCKED
+#if HAVE_DECL_GETC_UNLOCKED
 # define pkgconf_getc(stream) getc_unlocked(stream)
 #else
 # define pkgconf_getc(stream) getc(stream)
