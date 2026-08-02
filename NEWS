@@ -1,6 +1,65 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.4 to 3.0.5:
+----------------------------
+
+* Correctness fixes:
+  - Shell quoting and backslash escapes in pc(5) properties are now consumed
+    once, after variable substitution, instead of while splitting the property
+    beforehand.  Quoting arriving from a variable is therefore treated like
+    quoting written inline, --variable reports a value as the .pc file spells
+    it, and fragments are escaped exactly once when rendered.  This supersedes
+    the 3.0.4 fix, which unescaped whitespace at parse time and so hid the
+    escaping from consumers such as cmake's FindPkgConfig.
+    See https://github.com/pkgconf/pkgconf/issues/575 and
+    https://github.com/pkgconf/pkgconf/issues/579.
+  - Metadata queries no longer consult Conflicts rules between the modules named
+    on the command line, as reporting metadata does not combine them into a
+    build.  This covers --license, --license-file, --modversion, --path,
+    --print-provides, --print-requires, --print-requires-private,
+    --print-variables, --source and --variable.  --cflags, --libs and --exists
+    are unaffected.
+    See https://github.com/pkgconf/pkgconf/issues/580.
+  - ${pc_sysrootdir} is now injected into the path taken by every -isystem and
+    -idirafter flag in a fragment list, rather than only the first.
+  - -isystem and -idirafter written joined to their path, as in `-isystem/opt`,
+    are split into the flag and the path it takes, so that the path is subject
+    to the same sysroot injection and deduplication as the separated spelling.
+  - Sysroot injection is decided by reading the fragment's path instead of
+    remembering whether ${pc_sysrootdir} was expanded, so a path which already
+    lies under the sysroot never acquires a doubled prefix.
+
+* Performance:
+  - The package cache and the fragment deduplication index are kept sorted and
+    searched with bsearch() rather than re-sorted or scanned linearly.
+  - Variable keys and fragment text are stored with the structures they belong
+    to, and buffers are rewound and reused rather than reallocated.
+  - Escaping, fragment rendering and path relocation write into their
+    destination buffer directly.
+  Resolving a graph of roughly forty modules is about six times faster than
+  3.0.4, and a small graph such as gio-2.0 about twice as fast.
+
+* Build and portability fixes:
+  - Fix the pkgconf-lite build, which failed to link because the dependency list
+    renderer had come to depend on tracing machinery that pkgconf-lite omits.
+  - Fix the test runner failing to build on MinGW, where the mkdtemp(3) fallback
+    was compiled only for MSVC builds.
+    See https://github.com/pkgconf/pkgconf/issues/582.
+  - The meson build now defines HAVE_DECL_READLINKAT, so readlinkat(2) is used
+    where it is available instead of always falling back to readlink(2).
+  The MinGW and readlinkat fixes are by moi15moi.
+
+* New libpkgconf API additions:
+  - pkgconf_argv_split_raw: splits a string into an argument vector like
+    pkgconf_argv_split, but leaves the quoting it reads in place.
+  - pkgconf_fragment_filter_splice: like pkgconf_fragment_filter, but moves the
+    matching fragments to the destination list instead of copying them.
+  - pkgconf_charset_from_spans: compiles a span list into a byte set.
+  - pkgconf_buffer_escape_charset: escapes a buffer against such a byte set.
+  - pkgconf_buffer_rewind: empties a buffer while keeping its allocation.
+  - pkgconf_list_splice: moves the contents of one list onto the end of another.
+
 Changes from 3.0.3 to 3.0.4:
 ----------------------------
 
