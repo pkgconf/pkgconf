@@ -50,6 +50,21 @@ jobs:
       - name: Uninstall preinstalled pkgconf
         run: sudo dpkg --remove --force-depends pkg-config pkgconf
 
+      - name: Verify preinstalled pkgconf is uninstalled
+        run: |
+          found=0
+          for name in pkg-config pkgconf; do
+            path="$(command -v "$name" 2>/dev/null || true)"
+            if [ -n "$path" ]; then
+              echo "$name is still installed at: $path" >&2
+              ls -la "$path" >&2 || true
+              found=1
+            fi
+          done
+          if [ "$found" -eq 1 ]; then
+            exit 1
+          fi
+
       - name: Install pkgconf
         working-directory: pkgconf
         run: meson install -C _build
