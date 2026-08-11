@@ -47,8 +47,9 @@ jobs:
               -Dwith-system-includedir="$pc_system_includedirs"
 
       # use dpkg directly so that we do not remove glib-2.0 module with pkg-config
-      - name: Uninstall preinstalled pkgconf
-        run: sudo dpkg --remove --force-depends pkg-config pkgconf
+      - name: Uninstall preinstalled pkgconf (Linux)
+        if: runner.os == 'Linux'
+        run: sudo dpkg --remove --force-depends pkg-config pkgconf pkgconf-bin
 
       - name: Verify preinstalled pkgconf is uninstalled
         run: |
