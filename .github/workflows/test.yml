@@ -188,7 +188,7 @@ jobs:
       matrix:
         include:
           - os_image: netbsd
-            version: "10.1"
+            version: "11.0"
 
           - os_image: freebsd
             version: "15.1"
