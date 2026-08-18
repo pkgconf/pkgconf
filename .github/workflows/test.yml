@@ -6,6 +6,7 @@ on:
 
 jobs:
   msvc:
+    needs: dist-meson
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -24,8 +25,11 @@ jobs:
             msbuild_arch: arm64
     runs-on: ${{ matrix.runs_on }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
 
       - name: Set up MSBuild
         uses: ilammy/msvc-dev-cmd@v1
@@ -36,6 +40,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+
+      - name: Extract dist tarball
+        shell: pwsh
+        run: |
+          # Use Python to extract as Windows tar mangles UTF-8 paths
+          python -c 'import tarfile; t = tarfile.open("_dist/pkgconf-dist.tar.gz"); members = t.getmembers(); [(setattr(m, "name", m.name.partition("/")[2])) for m in members]; t.extractall(".", members=[m for m in members if m.name], filter="data")'
 
       - name: Install Meson and Ninja
         shell: pwsh
@@ -69,16 +79,26 @@ jobs:
             _build/*.msi
 
   clang-cl:
+    needs: dist-meson
     name: ${{ matrix.name }}
     runs-on: windows-2025
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+
+      - name: Extract dist tarball
+        shell: pwsh
+        run: |
+          # Use Python to extract as Windows tar mangles UTF-8 paths
+          python -c 'import tarfile; t = tarfile.open("_dist/pkgconf-dist.tar.gz"); members = t.getmembers(); [(setattr(m, "name", m.name.partition("/")[2])) for m in members]; t.extractall(".", members=[m for m in members if m.name], filter="data")'
 
       - name: Install Meson and Ninja
         shell: pwsh
@@ -98,14 +118,18 @@ jobs:
           meson test -v -C _build
 
   msys2:
+    needs: dist-meson
     runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
         include: [{ msystem: MINGW64, arch: x86_64 }]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
 
       - name: setup-msys2
         uses: msys2/setup-msys2@v2
@@ -116,6 +140,10 @@ jobs:
             mingw-w64-${{ matrix.arch }}-meson
             mingw-w64-${{ matrix.arch }}-ninja
             mingw-w64-${{ matrix.arch }}-gcc
+
+      - name: Extract dist tarball
+        shell: msys2 {0}
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Build
         shell: msys2 {0}
@@ -132,10 +160,17 @@ jobs:
           meson test -v -C _build
 
   macOS:
+    needs: dist-meson
     runs-on: macos-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Update system and add dependencies
         run: |
@@ -152,10 +187,14 @@ jobs:
           meson test -v -C _build
 
   cygwin:
+    needs: dist-meson
     runs-on: windows-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
 
       - name: Setup Cygwin
         uses: cygwin/cygwin-install-action@v6
@@ -164,6 +203,10 @@ jobs:
             meson
             ninja
             gcc-core
+
+      - name: Extract dist tarball
+        shell: D:\cygwin\bin\bash.exe -o igncr '{0}'
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Build
         shell: D:\cygwin\bin\bash.exe -o igncr '{0}'
@@ -179,6 +222,7 @@ jobs:
           meson test -v -C _build
 
   QEMU_VMs:
+    needs: dist-meson
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -203,8 +247,15 @@ jobs:
             version: "r151056"
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        shell: bash
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Start VM on ${{ matrix.os_image }}
         uses: cross-platform-actions/action@v1.4.0
@@ -252,12 +303,19 @@ jobs:
           meson test -v -C _build
 
   debian-meson:
+    needs: dist-meson
     runs-on: ubuntu-latest
     container:
       image: debian:testing
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Update system and add dependencies
         run: |
@@ -274,12 +332,19 @@ jobs:
           meson test -v -C _build
 
   debian-meson-asan:
+    needs: dist-meson
     runs-on: ubuntu-latest
     container:
       image: debian:testing
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Update system and add dependencies
         run: |
@@ -322,23 +387,31 @@ jobs:
       - name: Build dist tarball
         run: |
           meson setup _build -Dwerror=true
-          meson dist -C _build
+          meson dist -C _build --formats gztar
 
-      - name: Build and test tarball with Meson
-        run: |
-          tar xf _build/meson-dist/pkgconf-*.tar.xz
-          cd pkgconf-*/
-          meson setup _build2 -Dwerror=true
-          meson compile -C _build2
-          meson test -v -C _build2
+      - name: Stage dist tarball
+        run: cp _build/meson-dist/pkgconf-*.tar.gz pkgconf-dist.tar.gz
+
+      - name: Upload dist tarball
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-tarball
+          path: pkgconf-dist.tar.gz
 
   alpine-meson:
+    needs: dist-meson
     runs-on: ubuntu-latest
     container:
       image: alpine
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Update system and add dependencies
         run: |
@@ -366,12 +439,19 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   alpine-muon:
+    needs: dist-meson
     runs-on: ubuntu-latest
     container:
       image: alpine
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Update system and add dependencies
         run: |
@@ -389,12 +469,19 @@ jobs:
           muon test -v -v
 
   debian-7:
+    needs: dist-meson
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
         with:
-          path: pkgconf
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: |
+          mkdir pkgconf
+          tar xf _dist/pkgconf-dist.tar.gz -C pkgconf --strip-components=1
 
       - name: Checkout muon
         uses: actions/checkout@v6
@@ -437,12 +524,19 @@ jobs:
           docker run --rm --volume "$PWD":/home debian:7 /bin/bash /home/build.sh
 
   analysis:
+    needs: dist-meson
     runs-on: ubuntu-latest
     container:
       image: alpine
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Update system and add dependencies
         run: |
@@ -455,12 +549,19 @@ jobs:
           meson compile -C _build
 
   llvm-sanitizers:
+    needs: dist-meson
     runs-on: ubuntu-latest
     container:
       image: alpine
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Update system and add dependencies
         run: |
@@ -477,12 +578,19 @@ jobs:
           meson test -v -C _build
 
   lite:
+    needs: dist-meson
     runs-on: ubuntu-latest
     container:
       image: alpine
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Update system and add dependencies
         run: |
@@ -502,6 +610,7 @@ jobs:
           make -f Makefile.lite PKG_DEFAULT_PATH="/usr/lib/pkgconfig:/usr/share/pkgconfig" SYSTEM_LIBDIR="/usr/lib" SYSTEM_INCLUDEDIR="/usr/include" -j $(nproc) check
 
   cmake-macros:
+    needs: dist-meson
     name: cmake-macros (${{ matrix.name }})
     strategy:
       fail-fast: false
@@ -520,8 +629,14 @@ jobs:
             default_library: static
     runs-on: ${{ matrix.runs_on }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Install build tools (Linux)
         if: runner.os == 'Linux'
@@ -564,14 +679,16 @@ jobs:
         run: |
           if [ "$RUNNER_OS" = "Linux" ]; then
             sudo apt-get install -y zlib1g-dev
+            zlibpc="$(dpkg-query -L zlib1g-dev | sed -n '/\/zlib\.pc$/p' | head -n1)"
           else
             brew install zlib
+            zlibpc="$(brew --prefix zlib)/lib/pkgconfig/zlib.pc"
           fi
           # The pkgconf we built has its own compiled-in search path under the
-          # test prefix, so tell it where the OS actually dropped zlib.pc.
-          zlibpc="$(find /usr /opt/homebrew /usr/local -name zlib.pc 2>/dev/null | head -n1)"
-          if [ -z "$zlibpc" ]; then
-            echo "could not locate an installed zlib.pc" >&2
+          # test prefix, so tell it where this job's package manager installed
+          # zlib.pc.
+          if [ ! -f "$zlibpc" ]; then
+            echo "could not locate the package-manager zlib.pc at $zlibpc" >&2
             exit 1
           fi
           echo "PKG_CONFIG_PATH=$(dirname "$zlibpc"):${PKG_CONFIG_PATH}" >> "$GITHUB_ENV"
@@ -607,6 +724,7 @@ jobs:
           fi
 
   fuzz:
+    needs: dist-meson
     runs-on: ubuntu-latest
     container:
       image: alpine
@@ -624,8 +742,14 @@ jobs:
             corpus: _fuzz/spdxtool-corpus
             seed: fuzzer/solver-corpus
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Download dist tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-tarball
+          path: _dist
+
+      - name: Extract dist tarball
+        run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Update system and add dependencies
         run: |
