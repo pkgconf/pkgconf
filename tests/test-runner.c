@@ -40,6 +40,25 @@
 #	define PKGCONF_TEST_PLATFORM "lite"
 #endif // PKGCONF_LITE
 
+/*
+ * A directory name containing non-ASCII characters, used by
+ * t/basic/utf8-pkg-config-path.test to exercise a UTF-8 PKG_CONFIG_PATH.
+ *
+ * The name is spelled out as escaped bytes and materialised at test time
+ * rather than committed as a fixture path, so that every path in the source
+ * tree -- and therefore every member name in the release tarball -- stays
+ * ASCII.  git-archive writes such a name as raw UTF-8 into the 100 byte ustar
+ * name field without a pax "path" record or an "hdrcharset" attribute; the
+ * tar.exe bundled with Windows then tries to transcode it from the OEM code
+ * page to the ANSI code page, fails, and aborts the whole extraction with
+ * "Invalid empty pathname".
+ *
+ * The bytes below spell "t", U+00EB (LATIN SMALL LETTER E WITH DIAERESIS),
+ * U+1F60B (FACE SAVORING FOOD), "st".  They are written as separate string
+ * literals so that no escape can run into an adjacent hex digit.
+ */
+#define PKGCONF_TEST_UTF8_DIR "t" "\xc3\xab" "\xf0\x9f\x98\x8b" "st"
+
 static void test_parser_warn(void *p, const char *fmt, ...) PRINTFLIKE(2, 3);
 static void handle_substs(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *pwd);
 
@@ -247,7 +266,7 @@ test_output_reset(pkgconf_test_output_t *out)
 }
 
 /*
- * handle_substs: expand %TEST_FIXTURES_DIR%, %DIR_SEP%, and %PWD%
+ * handle_substs: expand %TEST_FIXTURES_DIR%, %DIR_SEP%, %PWD%, and %UTF8_DIR%
  * in src into dest. pwd may be NULL, in which case %PWD% is left as-is
  * (it should only appear in fields that are re-expanded after tmp_dir creation).
  */
@@ -263,6 +282,7 @@ handle_substs(pkgconf_buffer_t *dest, const pkgconf_buffer_t *src, const char *p
 		{"%TEST_FIXTURES_DIR%",	pkgconf_buffer_str(&test_fixtures_dir)},
 		{"%DIR_SEP%",		PKG_CONFIG_PATH_SEP_S},
 		{"%PWD%",		pwd != NULL ? pwd : "%PWD%"},
+		{"%UTF8_DIR%",		PKGCONF_TEST_UTF8_DIR},
 	};
 
 	pkgconf_buffer_t workbuf_src = PKGCONF_BUFFER_INITIALIZER;

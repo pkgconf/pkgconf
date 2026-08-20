@@ -1,5 +1,7 @@
-Environment: PKG_CONFIG_PATH=%TEST_FIXTURES_DIR%/lib1/të😋st/lib/pkgconfig
+SetupMkdir: %UTF8_DIR%/lib/pkgconfig
+SetupCopy: lib-utf8/utf8.pc %UTF8_DIR%/lib/pkgconfig/utf8.pc
+Environment: PKG_CONFIG_PATH=%UTF8_DIR%/lib/pkgconfig
 WantedFlags: cflags define-prefix
 Query: utf8
-ExpectedStdout: -I%TEST_FIXTURES_DIR%/lib1/të😋st/include
+ExpectedStdout: -I%UTF8_DIR%/include
 RequireUtf8Locale: true

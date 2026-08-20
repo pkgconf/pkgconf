@@ -1,3 +1,15 @@
+# NOTE: every path in this repository must stay ASCII-only.  git-archive --
+# and therefore `meson dist` and GitHub's generated release tarballs -- writes
+# a non-ASCII path as raw UTF-8 into the 100 byte ustar name field, with no pax
+# "path" record and no "hdrcharset" attribute.  The tar.exe bundled with
+# Windows then tries to transcode that name from the OEM code page to the ANSI
+# code page, fails, and aborts the entire extraction with "Invalid empty
+# pathname", so the tarball cannot be unpacked at all.  Fixtures that need a
+# non-ASCII name are materialised at test time instead; see
+# PKGCONF_TEST_UTF8_DIR in tests/test-runner.c.  If such a path ever has to be
+# committed regardless, give it an `export-ignore` entry here so it is left out
+# of the tarball, and make the test that uses it tolerate its absence.
+
 tests/lib1/dos-lineendings.pc eol=crlf
 tests/lib-sbom-files/*.json eol=lf
 tests/lib-sbom-files/*.txt eol=lf
