@@ -324,6 +324,26 @@ jobs:
           meson setup _build -Dwerror=true
           meson dist -C _build
 
+      - name: Verify the source tree and the dist tarball are ASCII-clean
+        run: |
+          # A path containing non-ASCII bytes ends up in the tar header as raw
+          # UTF-8, with no pax "path" record and no "hdrcharset" attribute.
+          # The tar.exe bundled with Windows then tries to transcode it from
+          # the OEM code page to the ANSI code page, fails, and aborts the
+          # whole extraction with "Invalid empty pathname".  Keep every path
+          # we track -- and therefore every name we ship -- ASCII-only.
+          git ls-files -z | tr '\0' '\n' > /tmp/tracked-paths.txt
+          if LC_ALL=C grep -n '[^ -~]' /tmp/tracked-paths.txt; then
+            echo "error: the tracked paths listed above contain non-ASCII bytes" >&2
+            exit 1
+          fi
+
+          tar --quoting-style=literal -tf _build/meson-dist/pkgconf-*.tar.xz > /tmp/tarball-names.txt
+          if LC_ALL=C grep -n '[^ -~]' /tmp/tarball-names.txt; then
+            echo "error: the tarball members listed above have non-ASCII names" >&2
+            exit 1
+          fi
+
       - name: Build and test tarball with Meson
         run: |
           tar xf _build/meson-dist/pkgconf-*.tar.xz

@@ -36,6 +36,22 @@ jobs:
         meson dist -C _build
         cp _build/meson-dist/pkgconf-*.tar.* .
 
+    - name: Verify the tarballs are ASCII-clean
+      run: |
+        # A member name containing non-ASCII bytes is stored as raw UTF-8 in
+        # the 100 byte ustar name field, with no pax "path" record and no
+        # "hdrcharset" attribute.  The tar.exe bundled with Windows then tries
+        # to transcode it from the OEM code page to the ANSI code page, fails,
+        # and aborts the whole extraction with "Invalid empty pathname" -- so
+        # such a tarball cannot be unpacked on Windows at all.  Never ship one.
+        for tarball in pkgconf-*.tar.*; do
+          tar --quoting-style=literal -tf "$tarball" > /tmp/tarball-names.txt
+          if LC_ALL=C grep -n '[^ -~]' /tmp/tarball-names.txt; then
+            echo "error: $tarball has members with non-ASCII names (listed above)" >&2
+            exit 1
+          fi
+        done
+
     - name: Upload artifact
       uses: actions/upload-artifact@v7
       with:
