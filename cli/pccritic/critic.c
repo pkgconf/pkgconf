@@ -433,7 +433,7 @@ check_style(const char *path, pccritic_report_t *report)
 {
 	FILE *f;
 	int c, prev = '\n';
-	bool saw_crlf = false, saw_trailing_ws = false, saw_bom = false;
+	bool saw_trailing_ws = false, saw_bom = false;
 	long pos = 0;
 
 	if (path == NULL)
@@ -457,9 +457,6 @@ check_style(const char *path, pccritic_report_t *report)
 				pos = 3;	/* not a BOM; stop checking */
 		}
 
-		if (c == '\r')
-			saw_crlf = true;
-
 		if (c == '\n' && (prev == ' ' || prev == '\t'))
 			saw_trailing_ws = true;
 
@@ -472,10 +469,6 @@ check_style(const char *path, pccritic_report_t *report)
 	if (saw_bom)
 		add_finding(report, PCCRITIC_SEV_MINOR, PCCRITIC_CAT_STYLE, "PC060",
 			"file begins with a UTF-8 byte-order mark");
-
-	if (saw_crlf)
-		add_finding(report, PCCRITIC_SEV_MINOR, PCCRITIC_CAT_STYLE, "PC061",
-			"file uses CRLF line endings");
 
 	if (saw_trailing_ws)
 		add_finding(report, PCCRITIC_SEV_INFO, PCCRITIC_CAT_STYLE, "PC062",
