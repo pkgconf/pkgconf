@@ -371,25 +371,29 @@ oom_wrap_args = [
 ]
 
 if build_oom_tests
-  # Unit test: fault-inject spdxtool's own allocations.  It links libpkgconf
-  # normally (shared); only spdxtool's compiled-in allocations are wrapped,
-  # which is exactly what we want to fail here.
-  test_api_oom_spdxtool_exe = executable('test-api-oom-spdxtool',
-    'tests/api/test-oom-spdxtool.c',
-    'fuzzer/alloc-inject.c',
-    'cli/spdxtool/core.c',
-    'cli/spdxtool/software.c',
-    'cli/spdxtool/serialize.c',
-    'cli/spdxtool/simplelicensing.c',
-    'cli/spdxtool/util.c',
-    windows_manifest,
-    link_with : libpkgconf,
-    c_args : build_static,
-    link_args : oom_wrap_args,
-    include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/spdxtool'), include_directories('fuzzer')],
-    install : false,
-    build_by_default : false)
-  test('api-oom-spdxtool', test_api_oom_spdxtool_exe)
+  # Unit test: fault-inject spdxtool's own allocations.  It requires a shared
+  # libpkgconf so that the linker's --wrap only reaches spdxtool's compiled-in
+  # allocations.  With a static libpkgconf its allocations are wrapped too,
+  # invalidating the test's expectation that every injected failure makes the
+  # spdxtool operation fail.
+  if libtype != 'static'
+    test_api_oom_spdxtool_exe = executable('test-api-oom-spdxtool',
+      'tests/api/test-oom-spdxtool.c',
+      'fuzzer/alloc-inject.c',
+      'cli/spdxtool/core.c',
+      'cli/spdxtool/software.c',
+      'cli/spdxtool/serialize.c',
+      'cli/spdxtool/simplelicensing.c',
+      'cli/spdxtool/util.c',
+      windows_manifest,
+      link_with : libpkgconf,
+      c_args : build_static,
+      link_args : oom_wrap_args,
+      include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/spdxtool'), include_directories('fuzzer')],
+      install : false,
+      build_by_default : false)
+    test('api-oom-spdxtool', test_api_oom_spdxtool_exe)
+  endif
 
   # Replay the existing parser/solver fuzz targets over their seed corpus,
   # deterministically and without libFuzzer, so the libpkgconf OOM paths they
