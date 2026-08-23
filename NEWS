@@ -1,6 +1,26 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.5 to 3.0.6:
+----------------------------
+
+* Command-line behavior:
+  - --variable accepts multiple modules and prints the requested
+    variable's value for each module, in argument order.  --path and
+    --print-variables remain limited to a single module.
+  - pccritic no longer reports the PC061 style finding for CRLF line endings,
+    avoiding a noisy warning for normal Windows files.
+    See https://github.com/pkgconf/pkgconf/issues/587.
+
+* Build and portability fixes:
+  - Improve OS/2 support by exporting libpkgconf APIs from DLL builds,
+    recognizing OS/2 drive letters and path separators, comparing paths without
+    case sensitivity, and using binary mode for redirected standard output and
+    error.  Patches by KO Myung-Hun.
+  - Declare pkgconf long-path-aware in its Windows application manifest,
+    allowing paths beyond the traditional MAX_PATH limit when long paths are
+    enabled by the operating system.  Patch by moi15moi.
+
 Changes from 3.0.4 to 3.0.5:
 ----------------------------
 
