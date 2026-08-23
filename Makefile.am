@@ -104,11 +104,13 @@ EXTRA_DIST =	pkg.m4 \
 		t/cli/short-errors.test \
 		t/cli/silence-errors.test \
 		t/cli/simulate.test \
+		t/cli/single-package-limit.out \
 		t/cli/single-package-limit.test \
 		t/cli/solution.test \
 		t/cli/unknown-option.test \
 		t/cli/validate-warning.test \
 		t/cli/validate.test \
+		t/cli/variable-multiple-packages.test \
 		t/cli/variable.test \
 		t/cli/verbose.test \
 		t/cli/version.test \
@@ -166,6 +168,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/uninstalled-not.test \
 		t/basic/uninstalled.test \
 		t/basic/variable-env.test \
+		t/basic/variable-multiple-packages.test \
 		t/basic/variable-no-recursion.test \
 		t/basic/variable.test \
 		t/basic/version-atleast-1.test \
