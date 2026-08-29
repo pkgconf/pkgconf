@@ -19,7 +19,7 @@
       </Feature>
 
       <StandardDirectory Id="ProgramFiles6432Folder">
-          <Directory Id="INSTALLFOLDER" Name="pkgconf @VERSION@" />
+          <Directory Id="INSTALLFOLDER" Name="pkgconf-@VERSION@" />
       </StandardDirectory>
 
       <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
