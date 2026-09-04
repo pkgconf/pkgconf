@@ -1,6 +1,26 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.6 to 3.0.7:
+----------------------------
+
+* Correctness fixes:
+  - spdxtool now serializes the SPDX 3.0 suppliedBy property as a single Agent
+    reference instead of a one-element array, as required by the official JSON
+    schema.
+  - bomtool no longer emits PackageDownloadLocation twice for each package.
+  These fixes were contributed by R. Christian McDonald.
+
+* Build, packaging and portability fixes:
+  - The Windows installer uses a default installation directory without a
+    space in its name.  Patch by Kai Pastor.
+  - Skip the spdxtool allocation-failure test for static builds, where linker
+    wrapping also intercepts libpkgconf allocations and invalidates the test.
+    See https://github.com/pkgconf/pkgconf/issues/593.
+  - Use PKGCONF_ITEM_SIZE instead of PATH_MAX in the test runner, allowing it
+    to build on systems where PATH_MAX is not declared, such as GNU Hurd.
+    See https://github.com/pkgconf/pkgconf/issues/600.
+
 Changes from 3.0.5 to 3.0.6:
 ----------------------------
 
