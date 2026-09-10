@@ -244,7 +244,7 @@ jobs:
             version: "r1beta6"
 
           - os_image: omnios
-            version: "r151056"
+            version: "r151058"
 
     steps:
       - name: Download dist tarball
