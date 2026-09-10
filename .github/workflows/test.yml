@@ -258,7 +258,7 @@ jobs:
         run: tar xf _dist/pkgconf-dist.tar.gz --strip-components=1
 
       - name: Start VM on ${{ matrix.os_image }}
-        uses: cross-platform-actions/action@v1.4.0
+        uses: cross-platform-actions/action@v1.5.0
         with:
           operating_system: ${{ matrix.os_image }}
           version: ${{ matrix.version }}
