@@ -121,7 +121,7 @@ main(int argc, char *argv[])
 	error_msgout = stderr;
 	sbom_out = stdout;
 
-	struct pkg_option options[] =
+	struct pkgconfcli_option options[] =
 	{
 		{ "agent-name", required_argument, NULL, 100, },
 		{ "creation-time", required_argument, NULL, 101, },
@@ -136,29 +136,29 @@ main(int argc, char *argv[])
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
+	while ((ret = pkgconfcli_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
 		switch (ret)
 		{
 		case 100:
-			agent_name = pkg_optarg;
+			agent_name = pkgconfcli_optarg;
 			break;
 		case 101:
-			creation_time = pkg_optarg;
+			creation_time = pkgconfcli_optarg;
 			break;
 		case 102:
-			creation_id = pkg_optarg;
+			creation_id = pkgconfcli_optarg;
 			break;
 		case 103:
-			sbom_out = fopen(pkg_optarg, "w");
+			sbom_out = fopen(pkgconfcli_optarg, "w");
 			if (sbom_out == NULL)
 			{
-				pkgconf_output_file_fmt(stderr, "unable to open %s: %s\n", pkg_optarg, strerror(errno));
+				pkgconf_output_file_fmt(stderr, "unable to open %s: %s\n", pkgconfcli_optarg, strerror(errno));
 				return EXIT_FAILURE;
 			}
 			break;
 		case 104:
-			spdx_id_base = pkg_optarg;
+			spdx_id_base = pkgconfcli_optarg;
 			break;
 		case 105:
 			// If SPDX id base have not been altered use default
@@ -167,7 +167,7 @@ main(int argc, char *argv[])
 			colon_sep = true;
 			break;
 		case 106:
-			pkgconf_tuple_define_global(&pkg_client, pkg_optarg);
+			pkgconf_tuple_define_global(&pkg_client, pkgconfcli_optarg);
 			break;
 		case '?':
 		case ':':
@@ -206,18 +206,18 @@ main(int argc, char *argv[])
 	 */
 	pkgconf_buffer_t queryparams = PKGCONF_BUFFER_INITIALIZER;
 
-	while (pkg_optind < argc && argv[pkg_optind] != NULL)
+	while (pkgconfcli_optind < argc && argv[pkgconfcli_optind] != NULL)
 	{
 		if ((pkgconf_buffer_len(&queryparams) > 0 &&
 			 !pkgconf_buffer_push_byte(&queryparams, ' ')) ||
-			!pkgconf_buffer_append(&queryparams, argv[pkg_optind]))
+			!pkgconf_buffer_append(&queryparams, argv[pkgconfcli_optind]))
 		{
 			pkgconf_buffer_finalize(&queryparams);
 			ret = EXIT_FAILURE;
 			goto out;
 		}
 
-		pkg_optind++;
+		pkgconfcli_optind++;
 	}
 
 	if (pkgconf_buffer_len(&queryparams) > 0)
