@@ -279,7 +279,7 @@ main(int argc, char *argv[])
 	_setmode(fileno(stderr), O_BINARY);
 #endif
 
-	struct pkg_option options[] = {
+	struct pkgconfcli_option options[] = {
 		{ "version", no_argument, &state.want_flags, PKG_VERSION|PKG_PRINT_ERRORS, },
 		{ "about", no_argument, &state.want_flags, PKG_ABOUT|PKG_PRINT_ERRORS, },
 		{ "atleast-version", required_argument, NULL, 2, },
@@ -368,54 +368,54 @@ main(int argc, char *argv[])
 	}
 #endif
 
-	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
+	while ((ret = pkgconfcli_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
 		switch (ret)
 		{
 		case 2:
-			state.required_module_version = pkg_optarg;
+			state.required_module_version = pkgconfcli_optarg;
 			break;
 		case 3:
-			state.required_pkgconfig_version = pkg_optarg;
+			state.required_pkgconfig_version = pkgconfcli_optarg;
 			break;
 		case 7:
-			state.want_variable = pkg_optarg;
+			state.want_variable = pkgconfcli_optarg;
 			break;
 		case 11:
-			if (!parse_maximum_traverse_depth(pkg_optarg, &state.maximum_traverse_depth))
+			if (!parse_maximum_traverse_depth(pkgconfcli_optarg, &state.maximum_traverse_depth))
 			{
-				pkgconf_output_file_fmt(stderr, "pkgconf: invalid maximum traverse depth: %s\n", pkg_optarg);
+				pkgconf_output_file_fmt(stderr, "pkgconf: invalid maximum traverse depth: %s\n", pkgconfcli_optarg);
 				ret = EXIT_FAILURE;
 				goto out;
 			}
 			break;
 		case 27:
-			pkgconf_tuple_define_global(&state.pkg_client, pkg_optarg);
+			pkgconf_tuple_define_global(&state.pkg_client, pkgconfcli_optarg);
 			break;
 		case 28:
-			state.required_exact_module_version = pkg_optarg;
+			state.required_exact_module_version = pkgconfcli_optarg;
 			break;
 		case 29:
-			state.required_max_module_version = pkg_optarg;
+			state.required_max_module_version = pkgconfcli_optarg;
 			break;
 		case 40:
-			logfile_arg = pkg_optarg;
+			logfile_arg = pkgconfcli_optarg;
 			break;
 		case 42:
-			pkgconf_path_prepend(pkg_optarg, &dir_list, true);
+			pkgconf_path_prepend(pkgconfcli_optarg, &dir_list, true);
 			break;
 		case 43:
-			pkgconf_client_set_prefix_varname(&state.pkg_client, pkg_optarg);
+			pkgconf_client_set_prefix_varname(&state.pkg_client, pkgconfcli_optarg);
 			break;
 		case 48:
-			state.want_env_prefix = pkg_optarg;
+			state.want_env_prefix = pkgconfcli_optarg;
 			break;
 		case 50:
-			state.want_fragment_filter = pkg_optarg;
+			state.want_fragment_filter = pkgconfcli_optarg;
 			break;
 #ifndef PKGCONF_LITE
 		case 53:
-			personality = pkgconf_cross_personality_find(pkg_optarg);
+			personality = pkgconf_cross_personality_find(pkgconfcli_optarg);
 			break;
 #endif
 		case 55:
@@ -529,7 +529,7 @@ main(int argc, char *argv[])
 	if (getenv("PKG_CONFIG_ALLOW_SYSTEM_LIBS") != NULL)
 		state.want_flags |= PKG_KEEP_SYSTEM_LIBS;
 
-	return pkgconf_cli_run(&state, argc, argv, pkg_optind);
+	return pkgconf_cli_run(&state, argc, argv, pkgconfcli_optind);
 
 out:
 	pkgconf_cli_state_reset(&state);
