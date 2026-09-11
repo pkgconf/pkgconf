@@ -215,6 +215,27 @@ dep_libpkgconf = declare_dependency(
   include_directories : include_directories('.'),
 )
 
+libpkgconfcli_sources = [
+  'cli/libpkgconfcli/getopt_long.c',
+  'cli/libpkgconfcli/serialize.c',
+]
+
+libpkgconfcli = library('pkgconfcli',
+  libpkgconfcli_sources,
+  c_args: ['-DLIBPKGCONF_EXPORT', build_static],
+  install : true,
+  version : '1.0.0',
+  soversion : '1',
+  link_with : libpkgconf,
+  include_directories : include_directories('libpkgconf'),
+)
+
+# For other projects using libpkgconfig as a subproject
+dep_libpkgconfcli = declare_dependency(
+  link_with : libpkgconfcli,
+  include_directories : include_directories('.'),
+)
+
 if fuzzing
   subdir('fuzzer')
 endif
@@ -233,7 +254,7 @@ pkg.generate(libpkgconf,
   extra_cflags : build_static
 )
 
-cli_include = include_directories('cli')
+cli_include = include_directories('cli', 'cli/libpkgconfcli')
 
 windows_manifest = []
 if host_machine.system() == 'windows'
@@ -253,19 +274,17 @@ endif
 pkgconf_exe = executable('pkgconf',
   'cli/main.c',
   'cli/core.c',
-  'cli/getopt_long.c',
   'cli/renderer-msvc.c',
   windows_manifest,
-  link_with : libpkgconf,
+  link_with : [libpkgconf, libpkgconfcli],
   c_args : build_static,
   include_directories : cli_include,
   install : true)
 
 bomtool_exe = executable('bomtool',
   'cli/bomtool/main.c',
-  'cli/getopt_long.c',
   windows_manifest,
-  link_with : libpkgconf,
+  link_with : [libpkgconf, libpkgconfcli],
   c_args : build_static,
   include_directories : cli_include,
   install : true)
@@ -274,34 +293,30 @@ spdxtool_exe = executable('spdxtool',
   'cli/spdxtool/main.c',
   'cli/spdxtool/core.c',
   'cli/spdxtool/software.c',
-  'cli/spdxtool/serialize.c',
   'cli/spdxtool/simplelicensing.c',
   'cli/spdxtool/util.c',
   'cli/spdxtool/generate.c',
-  'cli/getopt_long.c',
   windows_manifest,
-  link_with : libpkgconf,
+  link_with : [libpkgconf, libpkgconfcli],
   c_args : build_static,
-  include_directories : include_directories('cli', 'cli/spdxtool'),
+  include_directories : include_directories('cli', 'cli/spdxtool', 'cli/libpkgconfcli'),
   install : true)
 
 pccritic_exe = executable('pccritic',
   'cli/pccritic/main.c',
   'cli/pccritic/critic.c',
-  'cli/getopt_long.c',
   windows_manifest,
-  link_with : libpkgconf,
+  link_with : [libpkgconf, libpkgconfcli],
   c_args : build_static,
-  include_directories : include_directories('cli', 'cli/pccritic'),
+  include_directories : include_directories('cli', 'cli/pccritic', 'cli/libpkgconfcli'),
   install : true)
 
 test_runner_exe = executable('test-runner',
   'cli/core.c',
-  'cli/getopt_long.c',
   'cli/renderer-msvc.c',
   'tests/test-runner.c',
   windows_manifest,
-  link_with : libpkgconf,
+  link_with : [libpkgconf, libpkgconfcli],
   c_args : build_static,
   include_directories : cli_include,
   install : false,
@@ -328,7 +343,7 @@ foreach t : api_tests
   exe = executable('test-api-' + t,
     'tests/api/test-' + t + '.c',
     windows_manifest,
-    link_with : libpkgconf,
+    link_with : [libpkgconf, libpkgconfcli],
     c_args : build_static,
     include_directories : [include_directories('.'), include_directories('tests/api')],
     install : false,
@@ -342,13 +357,12 @@ test_api_serialize_exe = executable('test-api-serialize',
   'tests/api/test-serialize.c',
   'cli/spdxtool/core.c',
   'cli/spdxtool/software.c',
-  'cli/spdxtool/serialize.c',
   'cli/spdxtool/simplelicensing.c',
   'cli/spdxtool/util.c',
   windows_manifest,
-  link_with : libpkgconf,
+  link_with : [libpkgconf, libpkgconfcli],
   c_args : build_static,
-  include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/spdxtool')],
+  include_directories : [include_directories('.', 'tests/api', 'cli/spdxtool', 'cli/libpkgconfcli'), ],
   install : false,
   build_by_default : false)
 test('api-serialize', test_api_serialize_exe)
@@ -383,14 +397,13 @@ if build_oom_tests
       'fuzzer/alloc-inject.c',
       'cli/spdxtool/core.c',
       'cli/spdxtool/software.c',
-      'cli/spdxtool/serialize.c',
       'cli/spdxtool/simplelicensing.c',
       'cli/spdxtool/util.c',
       windows_manifest,
-      link_with : libpkgconf,
+      link_with : [libpkgconf, libpkgconfcli],
       c_args : build_static,
       link_args : oom_wrap_args,
-      include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/spdxtool'), include_directories('fuzzer')],
+      include_directories : [include_directories('.', 'tests/api', 'cli/spdxtool', 'fuzzer', 'cli/libpkgconfcli')],
       install : false,
       build_by_default : false)
     test('api-oom-spdxtool', test_api_oom_spdxtool_exe)

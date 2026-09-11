@@ -405,7 +405,7 @@ main(int argc, char *argv[])
 	error_msgout = stderr;
 	sbom_out = stdout;
 
-	struct pkg_option options[] = {
+	struct pkgconfcli_option options[] = {
 		{ "version", no_argument, &want_flags, PKG_VERSION, },
 		{ "about", no_argument, &want_flags, PKG_ABOUT, },
 		{ "help", no_argument, &want_flags, PKG_HELP, },
@@ -415,24 +415,24 @@ main(int argc, char *argv[])
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
+	while ((ret = pkgconfcli_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
 		switch (ret)
 		{
 		case PKG_OUTPUT:
-			sbom_out = fopen(pkg_optarg, "w");
+			sbom_out = fopen(pkgconfcli_optarg, "w");
 			if (sbom_out == NULL)
 			{
-				pkgconf_output_file_fmt(stderr, "unable to open %s: %s\n", pkg_optarg, strerror(errno));
+				pkgconf_output_file_fmt(stderr, "unable to open %s: %s\n", pkgconfcli_optarg, strerror(errno));
 				return EXIT_FAILURE;
 			}
 
 			break;
 		case PKG_DEFINE_VARIABLE:
-			pkgconf_tuple_define_global(&pkg_client, pkg_optarg);
+			pkgconf_tuple_define_global(&pkg_client, pkgconfcli_optarg);
 			break;
 		case PKG_CREATION_TIME:
-			creation_time = pkg_optarg;
+			creation_time = pkgconfcli_optarg;
 			break;
 		case '?':
 		case ':':
@@ -470,18 +470,18 @@ main(int argc, char *argv[])
 	 */
 	pkgconf_buffer_t queryparams = PKGCONF_BUFFER_INITIALIZER;
 
-	while (pkg_optind < argc && argv[pkg_optind] != NULL)
+	while (pkgconfcli_optind < argc && argv[pkgconfcli_optind] != NULL)
 	{
 		if ((pkgconf_buffer_len(&queryparams) > 0 &&
 			 !pkgconf_buffer_push_byte(&queryparams, ' ')) ||
-			!pkgconf_buffer_append(&queryparams, argv[pkg_optind]))
+			!pkgconf_buffer_append(&queryparams, argv[pkgconfcli_optind]))
 		{
 			pkgconf_buffer_finalize(&queryparams);
 			ret = EXIT_FAILURE;
 			goto out;
 		}
 
-		pkg_optind++;
+		pkgconfcli_optind++;
 	}
 
 	if (pkgconf_buffer_len(&queryparams) > 0)
