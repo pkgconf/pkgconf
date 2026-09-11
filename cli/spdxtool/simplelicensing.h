@@ -26,7 +26,7 @@ spdxtool_simplelicensing_licenseExpression_new(pkgconf_client_t *client, const c
 void
 spdxtool_simplelicensing_licenseExpression_free(spdxtool_simplelicensing_license_expression_t *expression);
 
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_simplelicensing_licenseExpression_to_object(pkgconf_client_t *client, const char *creation_info, const spdxtool_simplelicensing_license_expression_t *expression);
 
 #ifdef __cplusplus
