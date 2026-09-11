@@ -24,7 +24,7 @@
 #	include <sys/wait.h>
 #endif
 #include <cli/core.h>
-#include <cli/getopt_long.h>
+#include <getopt_long.h>
 #include <limits.h>
 #include <assert.h>
 
@@ -1532,7 +1532,7 @@ main(int argc, char *argv[])
 	char *test_fixtures_dir_arg = NULL;
 	char *test_tool_dir_arg = NULL;
 
-	struct pkg_option options[] =
+	struct pkgconfcli_option options[] =
 	{
 		{"test-fixtures",	required_argument,	NULL,	1},
 		{"debug",		no_argument,		NULL,	2},
@@ -1542,21 +1542,21 @@ main(int argc, char *argv[])
 	};
 	char *testcase = NULL;
 
-	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
+	while ((ret = pkgconfcli_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
 		switch (ret)
 		{
 		case 1:
-			test_fixtures_dir_arg = pkg_optarg;
+			test_fixtures_dir_arg = pkgconfcli_optarg;
 			break;
 		case 2:
 			debug = true;
 			break;
 		case 3:
-			testcase = pkg_optarg;
+			testcase = pkgconfcli_optarg;
 			break;
 		case 4:
-			test_tool_dir_arg = pkg_optarg;
+			test_tool_dir_arg = pkgconfcli_optarg;
 			break;
 		}
 	}
@@ -1584,8 +1584,8 @@ main(int argc, char *argv[])
 	if (testcase != NULL)
 		return process_test_case(testcase) ? EXIT_SUCCESS : EXIT_FAILURE;
 
-	if (argv[pkg_optind] == NULL)
+	if (argv[pkgconfcli_optind] == NULL)
 		usage();
 
-	return process_test_directory(argv[pkg_optind]) ? EXIT_SUCCESS : EXIT_FAILURE;
+	return process_test_directory(argv[pkgconfcli_optind]) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
