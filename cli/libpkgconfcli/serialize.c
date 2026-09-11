@@ -12,10 +12,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "util.h"
-#include "core.h"
-#include "software.h"
-#include "simplelicensing.h"
+#include <libpkgconf.h>
 #include "serialize.h"
 
 static bool
@@ -77,33 +74,33 @@ serialize_add_indent(pkgconf_buffer_t *buffer, unsigned int level)
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_value_t *value, unsigned int indent)
+ * .. c:function:: void pkgconfcli_serialize_value_to_buf(pkgconf_buffer_t *buffer, pkgconfcli_serialize_value_t *value, unsigned int indent)
  *
  *    Serialize the given JSON to the buffer
  *
  *    :param pkgconf_buffer_t *buffer: Buffer to add to.
- *    :param spdxtool_serialize_value *value: Value to serialize.
+ *    :param pkgconfcli_serialize_value *value: Value to serialize.
  *    :param unsigned int indent: Indent level
  *    :return: true on success, false on failure
  */
 bool
-spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_value_t *value, unsigned int indent)
+pkgconfcli_serialize_value_to_buf(pkgconf_buffer_t *buffer, pkgconfcli_serialize_value_t *value, unsigned int indent)
 {
 	if (!buffer || !value)
 		return false;
 
 	switch(value->type) {
-		case SPDXTOOL_SERIALIZE_TYPE_STRING:
+		case PKGCONFCLI_SERIALIZE_TYPE_STRING:
 			return pkgconf_buffer_push_byte(buffer, '"') &&
 				serialize_escape_string(buffer, value->value.s ? value->value.s : "") &&
 				pkgconf_buffer_push_byte(buffer, '"');
-		case SPDXTOOL_SERIALIZE_TYPE_INT:
+		case PKGCONFCLI_SERIALIZE_TYPE_INT:
 			return pkgconf_buffer_append_fmt(buffer, "%d", value->value.i);
-		case SPDXTOOL_SERIALIZE_TYPE_BOOL:
+		case PKGCONFCLI_SERIALIZE_TYPE_BOOL:
 			return pkgconf_buffer_append(buffer, value->value.b ? "true" : "false");
-		case SPDXTOOL_SERIALIZE_TYPE_NULL:
+		case PKGCONFCLI_SERIALIZE_TYPE_NULL:
 			return pkgconf_buffer_append(buffer, "null");
-		case SPDXTOOL_SERIALIZE_TYPE_OBJECT:
+		case PKGCONFCLI_SERIALIZE_TYPE_OBJECT:
 		{
 			pkgconf_node_t *iter;
 
@@ -114,13 +111,13 @@ spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_val
 
 			PKGCONF_FOREACH_LIST_ENTRY(value->value.o->entries.head, iter)
 			{
-				spdxtool_serialize_object_t *entry = iter->data;
+				pkgconfcli_serialize_object_t *entry = iter->data;
 
 				if (!serialize_add_indent(buffer, indent + 1) ||
 					!pkgconf_buffer_push_byte(buffer, '"') ||
 					!serialize_escape_string(buffer, entry->key ? entry->key : "") ||
 					!pkgconf_buffer_append(buffer, "\": ") ||
-					!spdxtool_serialize_value_to_buf(buffer, entry->value, indent + 1) ||
+					!pkgconfcli_serialize_value_to_buf(buffer, entry->value, indent + 1) ||
 					(iter->next && !pkgconf_buffer_push_byte(buffer, ',')) ||
 					!pkgconf_buffer_push_byte(buffer, '\n'))
 					return false;
@@ -129,7 +126,7 @@ spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_val
 			return serialize_add_indent(buffer, indent) &&
 				pkgconf_buffer_push_byte(buffer, '}');
 		}
-		case SPDXTOOL_SERIALIZE_TYPE_ARRAY:
+		case PKGCONFCLI_SERIALIZE_TYPE_ARRAY:
 		{
 			pkgconf_node_t *iter;
 
@@ -140,10 +137,10 @@ spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_val
 
 			PKGCONF_FOREACH_LIST_ENTRY(value->value.a->items.head, iter)
 			{
-				spdxtool_serialize_value_t *entry = iter->data;
+				pkgconfcli_serialize_value_t *entry = iter->data;
 
 				if (!serialize_add_indent(buffer, indent + 1) ||
-					!spdxtool_serialize_value_to_buf(buffer, entry, indent + 1) ||
+					!pkgconfcli_serialize_value_to_buf(buffer, entry, indent + 1) ||
 					(iter->next && !pkgconf_buffer_push_byte(buffer, ',')) ||
 					!pkgconf_buffer_push_byte(buffer, '\n'))
 					return false;
@@ -160,27 +157,27 @@ spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_val
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_serialize_object_add_take(spdxtool_serialize_object_list_t *object_list, const char *key, spdxtool_serialize_value_t *value)
+ * .. c:function:: pkgconfcli_serialize_value_t *pkgconfcli_serialize_object_add_take(pkgconfcli_serialize_object_list_t *object_list, const char *key, pkgconfcli_serialize_value_t *value)
  *
  *    Add a key-value pair to a JSON object list. The key is copied internally.
  *    The object list takes ownership of the value.
  *
- *    :param spdxtool_serialize_object_list_t *object_list: Object list to add to.
+ *    :param pkgconfcli_serialize_object_list_t *object_list: Object list to add to.
  *    :param const char *key: Key string, copied internally.
- *    :param spdxtool_serialize_value_t *value: Value to associate with the key. Ownership transfers to the object list.
+ *    :param pkgconfcli_serialize_value_t *value: Value to associate with the key. Ownership transfers to the object list.
  *    :return: The value added, not owned by the caller.
  */
-spdxtool_serialize_value_t *
-spdxtool_serialize_object_add_take(spdxtool_serialize_object_list_t *object_list, const char *key, spdxtool_serialize_value_t *value)
+pkgconfcli_serialize_value_t *
+pkgconfcli_serialize_object_add_take(pkgconfcli_serialize_object_list_t *object_list, const char *key, pkgconfcli_serialize_value_t *value)
 {
 	if (!object_list || !value)
 	{
-		spdxtool_serialize_value_free(value);
+		pkgconfcli_serialize_value_free(value);
 		return NULL;
 	}
 
 	pkgconf_node_t *node = calloc(1, sizeof(pkgconf_node_t));
-	spdxtool_serialize_object_t *object = calloc(1, sizeof(spdxtool_serialize_object_t));
+	pkgconfcli_serialize_object_t *object = calloc(1, sizeof(pkgconfcli_serialize_object_t));
 	char *keycopy = key ? strdup(key) : strdup("");
 	if (!node || !object || !keycopy)
 	{
@@ -188,7 +185,7 @@ spdxtool_serialize_object_add_take(spdxtool_serialize_object_list_t *object_list
 		free(keycopy);
 		/* object->key/value are not assigned yet; free the struct itself */
 		free(object);
-		spdxtool_serialize_value_free(value);
+		pkgconfcli_serialize_value_free(value);
 		return NULL;
 	}
 
@@ -201,28 +198,28 @@ spdxtool_serialize_object_add_take(spdxtool_serialize_object_list_t *object_list
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_serialize_array_add_take(spdxtool_serialize_array_t *array, spdxtool_serialize_value_t value)
+ * .. c:function:: pkgconfcli_serialize_value_t *pkgconfcli_serialize_array_add_take(pkgconfcli_serialize_array_t *array, pkgconfcli_serialize_value_t value)
  *
  *    Add a value to a JSON array. The array takes ownership of the value.
  *
- *    :param spdxtool_serialize_array_t *array: Array to add to.
- *    :param spdxtool_serialize_value_t value: Value to append. Ownership transfers to the array.
+ *    :param pkgconfcli_serialize_array_t *array: Array to add to.
+ *    :param pkgconfcli_serialize_value_t value: Value to append. Ownership transfers to the array.
  *    :return: The value added, not owned by the caller.
  */
-spdxtool_serialize_value_t *
-spdxtool_serialize_array_add_take(spdxtool_serialize_array_t *array, spdxtool_serialize_value_t *value)
+pkgconfcli_serialize_value_t *
+pkgconfcli_serialize_array_add_take(pkgconfcli_serialize_array_t *array, pkgconfcli_serialize_value_t *value)
 {
 	if (!array)
 	{
 		// Taking value, so free
-		spdxtool_serialize_value_free(value);
+		pkgconfcli_serialize_value_free(value);
 		return NULL;
 	}
 
 	pkgconf_node_t *node = calloc(1, sizeof(pkgconf_node_t));
 	if (!node)
 	{
-		spdxtool_serialize_value_free(value);
+		pkgconfcli_serialize_value_free(value);
 		return NULL;
 	}
 
@@ -233,61 +230,61 @@ spdxtool_serialize_array_add_take(spdxtool_serialize_array_t *array, spdxtool_se
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_object_list_t *spdxtool_serialize_object_list_new(void)
+ * .. c:function:: pkgconfcli_serialize_object_list_t *pkgconfcli_serialize_object_list_new(void)
  *
  *    Allocate and initialize a new empty JSON object list.
  *
- *    :return: Pointer to a new spdxtool_serialize_object_list_t, or NULL on allocation failure.
+ *    :return: Pointer to a new pkgconfcli_serialize_object_list_t, or NULL on allocation failure.
  */
-spdxtool_serialize_object_list_t *
-spdxtool_serialize_object_list_new(void)
+pkgconfcli_serialize_object_list_t *
+pkgconfcli_serialize_object_list_new(void)
 {
-	return calloc(1, sizeof(spdxtool_serialize_object_list_t));
+	return calloc(1, sizeof(pkgconfcli_serialize_object_list_t));
 }
 
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_array_t *spdxtool_serialize_array_new(void)
+ * .. c:function:: pkgconfcli_serialize_array_t *pkgconfcli_serialize_array_new(void)
  *
  *    Allocate and initialize a new empty JSON array.
  *
- *    :return: Pointer to a new spdxtool_serialize_array_t, or NULL on allocation failure.
+ *    :return: Pointer to a new pkgconfcli_serialize_array_t, or NULL on allocation failure.
  */
-spdxtool_serialize_array_t *
-spdxtool_serialize_array_new(void)
+pkgconfcli_serialize_array_t *
+pkgconfcli_serialize_array_new(void)
 {
-	return calloc(1, sizeof(spdxtool_serialize_array_t));
+	return calloc(1, sizeof(pkgconfcli_serialize_array_t));
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_value_free(spdxtool_serialize_value_t *value)
+ * .. c:function:: void pkgconfcli_serialize_value_free(pkgconfcli_serialize_value_t *value)
  *
  *    Free all resources owned by a JSON value. For strings, frees the string.
  *    For objects and arrays, recursively frees all children. The value pointer
  *    itself is not freed as it is assumed to be stack-allocated.
  *
- *    :param spdxtool_serialize_value_t *value: Value to free. May be NULL.
+ *    :param pkgconfcli_serialize_value_t *value: Value to free. May be NULL.
  *    :return: nothing
  */
 void
-spdxtool_serialize_value_free(spdxtool_serialize_value_t *value)
+pkgconfcli_serialize_value_free(pkgconfcli_serialize_value_t *value)
 {
 	if (!value)
 		return;
 
 	switch (value->type)
 	{
-		case SPDXTOOL_SERIALIZE_TYPE_STRING:
+		case PKGCONFCLI_SERIALIZE_TYPE_STRING:
 			free(value->value.s);
 			break;
-		case SPDXTOOL_SERIALIZE_TYPE_ARRAY:
-			spdxtool_serialize_array_free(value->value.a);
+		case PKGCONFCLI_SERIALIZE_TYPE_ARRAY:
+			pkgconfcli_serialize_array_free(value->value.a);
 			break;
-		case SPDXTOOL_SERIALIZE_TYPE_OBJECT:
-			spdxtool_serialize_object_list_free(value->value.o);
+		case PKGCONFCLI_SERIALIZE_TYPE_OBJECT:
+			pkgconfcli_serialize_object_list_free(value->value.o);
 			break;
 		default:
 			// Nothing to do
@@ -300,36 +297,36 @@ spdxtool_serialize_value_free(spdxtool_serialize_value_t *value)
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_object_free(spdxtool_serialize_object_t *object)
+ * .. c:function:: void pkgconfcli_serialize_object_free(pkgconfcli_serialize_object_t *object)
  *
  *    Free a JSON object entry, including its key string and owned value.
  *    The object pointer itself is not freed by this function.
  *
- *    :param spdxtool_serialize_object_t *object: Object entry to free. May be NULL.
+ *    :param pkgconfcli_serialize_object_t *object: Object entry to free. May be NULL.
  *    :return: nothing
  */
 void
-spdxtool_serialize_object_free(spdxtool_serialize_object_t *object)
+pkgconfcli_serialize_object_free(pkgconfcli_serialize_object_t *object)
 {
 	if (!object)
 		return;
 
 	free(object->key);
-	spdxtool_serialize_value_free(object->value);
+	pkgconfcli_serialize_value_free(object->value);
 }
 
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_object_list_free(spdxtool_serialize_object_list_t *object_list)
+ * .. c:function:: void pkgconfcli_serialize_object_list_free(pkgconfcli_serialize_object_list_t *object_list)
  *
  *    Free a JSON object list and all of its entries, including their keys and values.
  *
- *    :param spdxtool_serialize_object_list_t *object_list: Object list to free. May be NULL.
+ *    :param pkgconfcli_serialize_object_list_t *object_list: Object list to free. May be NULL.
  *    :return: nothing
  */
 void
-spdxtool_serialize_object_list_free(spdxtool_serialize_object_list_t *object_list)
+pkgconfcli_serialize_object_list_free(pkgconfcli_serialize_object_list_t *object_list)
 {
 	if (!object_list)
 		return;
@@ -337,8 +334,8 @@ spdxtool_serialize_object_list_free(spdxtool_serialize_object_list_t *object_lis
 	pkgconf_node_t *iter_next = NULL, *iter = NULL;
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(object_list->entries.head, iter_next, iter)
 	{
-		spdxtool_serialize_object_t *object = iter->data;
-		spdxtool_serialize_object_free(object);
+		pkgconfcli_serialize_object_t *object = iter->data;
+		pkgconfcli_serialize_object_free(object);
 		free(object);
 		free(iter);
 	}
@@ -349,15 +346,15 @@ spdxtool_serialize_object_list_free(spdxtool_serialize_object_list_t *object_lis
 /*
  * !doc
  *
- * .. c:function:: void spdxtool_serialize_array_free(spdxtool_serialize_array_t *array)
+ * .. c:function:: void pkgconfcli_serialize_array_free(pkgconfcli_serialize_array_t *array)
  *
  *    Free a JSON array and all of its elements.
  *
- *    :param spdxtool_serialize_array_t *array: Array to free. May be NULL.
+ *    :param pkgconfcli_serialize_array_t *array: Array to free. May be NULL.
  *    :return: nothing
  */
 void
-spdxtool_serialize_array_free(spdxtool_serialize_array_t *array)
+pkgconfcli_serialize_array_free(pkgconfcli_serialize_array_t *array)
 {
 	if (!array)
 		return;
@@ -365,8 +362,8 @@ spdxtool_serialize_array_free(spdxtool_serialize_array_t *array)
 	pkgconf_node_t *iter_next = NULL, *iter = NULL;
 	PKGCONF_FOREACH_LIST_ENTRY_SAFE(array->items.head, iter_next, iter)
 	{
-		spdxtool_serialize_value_t *value = iter->data;
-		spdxtool_serialize_value_free(value);
+		pkgconfcli_serialize_value_t *value = iter->data;
+		pkgconfcli_serialize_value_free(value);
 		free(iter);
 	}
 
@@ -376,7 +373,7 @@ spdxtool_serialize_array_free(spdxtool_serialize_array_t *array)
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_serialize_sbom(pkgconf_client_t *client, spdxtool_core_agent_t *agent, spdxtool_core_creation_info_t *creation, spdxtool_core_spdx_document_t *spdx)
+ * .. c:function:: pkgconfcli_serialize_value_t *pkgconfcli_serialize_sbom(pkgconf_client_t *client, libsbom_core_agent_t *agent, libsbom_core_creation_info_t *creation, libsbom_core_spdx_document_t *spdx)
  *
  *    Serialize a complete SPDX SBOM document to a JSON-LD value tree. Iterates
  *    all SBOMs, packages, relationships, and license expressions registered on
@@ -386,71 +383,71 @@ spdxtool_serialize_array_free(spdxtool_serialize_array_t *array)
  *    dependencies are registered on spdx.
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
- *    :param spdxtool_core_agent_t *agent: Agent struct to include in the document.
- *    :param spdxtool_core_creation_info_t *creation: CreationInfo struct to include in the document.
- *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument struct containing all registered SBOMs, packages, relationships, and licenses.
- *    :return: spdxtool_serialize_value_t * representing the complete JSON-LD document, or a null string value on allocation failure.
+ *    :param libsbom_core_agent_t *agent: Agent struct to include in the document.
+ *    :param libsbom_core_creation_info_t *creation: CreationInfo struct to include in the document.
+ *    :param libsbom_core_spdx_document_t *spdx: SpdxDocument struct containing all registered SBOMs, packages, relationships, and licenses.
+ *    :return: pkgconfcli_serialize_value_t * representing the complete JSON-LD document, or a null string value on allocation failure.
  */
-spdxtool_serialize_value_t *
-spdxtool_serialize_sbom(pkgconf_client_t *client, spdxtool_core_agent_t *agent, spdxtool_core_tool_t *tool, spdxtool_core_creation_info_t *creation, spdxtool_core_spdx_document_t *spdx)
+/*ibsbom_serialize_value_t *
+pkgconfcli_serialize_sbom(pkgconf_client_t *client, libsbom_core_agent_t *agent, libsbom_core_tool_t *tool, libsbom_core_creation_info_t *creation, libsbom_core_spdx_document_t *spdx)
 {
 	const char *errstr = "out of memory";
-	spdxtool_serialize_value_t *ret = NULL;
-	spdxtool_serialize_array_t *graph = NULL;
-	spdxtool_serialize_object_list_t *root = spdxtool_serialize_object_list_new();
+	pkgconfcli_serialize_value_t *ret = NULL;
+	pkgconfcli_serialize_array_t *graph = NULL;
+	pkgconfcli_serialize_object_list_t *root = pkgconfcli_serialize_object_list_new();
 	if (!root)
 		goto err;
 
-	if (!spdxtool_serialize_object_add_string(root, "@context", "https://spdx.org/rdf/3.0.1/spdx-context.jsonld"))
+	if (!pkgconfcli_serialize_object_add_string(root, "@context", "https://spdx.org/rdf/3.0.1/spdx-context.jsonld"))
 		goto err;
 
-	graph = spdxtool_serialize_array_new();
+	graph = pkgconfcli_serialize_array_new();
 	if (!graph)
 		goto err;
 
-	if (!spdxtool_serialize_array_add_take(graph, spdxtool_core_agent_to_object(client, agent)))
+	if (!pkgconfcli_serialize_array_add_take(graph, libsbom_core_agent_to_object(client, agent)))
 		goto err;
 
-	if (!spdxtool_serialize_array_add_take(graph, spdxtool_core_tool_to_object(client, tool)))
+	if (!pkgconfcli_serialize_array_add_take(graph, libsbom_core_tool_to_object(client, tool)))
 		goto err;
 
-	if (!spdxtool_serialize_array_add_take(graph, spdxtool_core_creation_info_to_object(client, creation)))
+	if (!pkgconfcli_serialize_array_add_take(graph, libsbom_core_creation_info_to_object(client, creation)))
 		goto err;
 
 	pkgconf_node_t *iter = NULL;
 	PKGCONF_FOREACH_LIST_ENTRY(spdx->maintainers.head, iter)
 	{
-		spdxtool_core_agent_t *maintainer = iter->data;
+		libsbom_core_agent_t *maintainer = iter->data;
 		if (!maintainer)
 		{
 			errstr = "maintainers list corrupted";
 			goto err;
 		}
-		if (!spdxtool_serialize_array_add_take(graph, spdxtool_core_agent_to_object(client, maintainer)))
+		if (!pkgconfcli_serialize_array_add_take(graph, libsbom_core_agent_to_object(client, maintainer)))
 			goto err;
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(spdx->licenses.head, iter)
 	{
-		spdxtool_simplelicensing_license_expression_t *expression = iter->data;
+		libsbom_simplelicensing_license_expression_t *expression = iter->data;
 		if (!expression)
 		{
 			errstr = "licenses list corrupted";
 			goto err;
 		}
-		if (!spdxtool_serialize_array_add_take(graph, spdxtool_simplelicensing_licenseExpression_to_object(client, spdx->creation_info, expression)))
+		if (!pkgconfcli_serialize_array_add_take(graph, libsbom_simplelicensing_licenseExpression_to_object(client, spdx->creation_info, expression)))
 			goto err;
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(spdx->rootElement.head, iter)
 	{
-		spdxtool_software_sbom_t *current_sbom = iter->data;
+		libsbom_software_sbom_t *current_sbom = iter->data;
 		if (!current_sbom)
 		{
 			errstr = "sbom list corrupted";
 			goto err;
 		}
-		if (!spdxtool_serialize_array_add_take(graph, spdxtool_software_sbom_to_object(client, current_sbom)))
+		if (!pkgconfcli_serialize_array_add_take(graph, libsbom_software_sbom_to_object(client, current_sbom)))
 			goto err;
 	}
 
@@ -462,39 +459,39 @@ spdxtool_serialize_sbom(pkgconf_client_t *client, spdxtool_core_agent_t *agent, 
 			errstr = "pkg list corrupted";
 			goto err;
 		}
-		if (!spdxtool_serialize_array_add_take(graph, spdxtool_software_package_to_object(client, pkg, spdx)))
+		if (!pkgconfcli_serialize_array_add_take(graph, libsbom_software_package_to_object(client, pkg, spdx)))
 			goto err;
 	}
 
 	PKGCONF_FOREACH_LIST_ENTRY(spdx->relationships.head, iter)
 	{
-		spdxtool_core_relationship_t *relationship = iter->data;
+		libsbom_core_relationship_t *relationship = iter->data;
 		if (!relationship)
 		{
 			errstr = "relationship list corrupted";
 			goto err;
 		}
-		if (!spdxtool_serialize_array_add_take(graph, spdxtool_core_relationship_to_object(client, relationship)))
+		if (!pkgconfcli_serialize_array_add_take(graph, libsbom_core_relationship_to_object(client, relationship)))
 			goto err;
 	}
 
 	// SpdxDocument last — spdx->element must be fully populated first
-	if (!spdxtool_serialize_array_add_take(graph, spdxtool_core_spdx_document_to_object(client, spdx)))
+	if (!pkgconfcli_serialize_array_add_take(graph, libsbom_core_spdx_document_to_object(client, spdx)))
 		goto err;
 
-	bool ok = spdxtool_serialize_object_add_array(root, "@graph", graph);
+	bool ok = pkgconfcli_serialize_object_add_array(root, "@graph", graph);
 	graph = NULL;
 	if (!ok)
 		goto err;
 
-	ret = spdxtool_serialize_value_object(root);
+	ret = pkgconfcli_serialize_value_object(root);
 	root = NULL;
 
 err:
 	if (!ret)
-		pkgconf_error(client, "spdxtool_serialize_sbom: %s", errstr);
+		pkgconf_error(client, "pkgconfcli_serialize_sbom: %s", errstr);
 
-	spdxtool_serialize_object_list_free(root);
-	spdxtool_serialize_array_free(graph);
+	pkgconfcli_serialize_object_list_free(root);
+	pkgconfcli_serialize_array_free(graph);
 	return ret;
-}
+}*/

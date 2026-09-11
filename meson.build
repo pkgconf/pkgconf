@@ -217,6 +217,7 @@ dep_libpkgconf = declare_dependency(
 
 libpkgconfcli_sources = [
   'cli/libpkgconfcli/getopt_long.c',
+  'cli/libpkgconfcli/serialize.c',
 ]
 
 libpkgconfcli = library('pkgconfcli',
@@ -292,7 +293,6 @@ spdxtool_exe = executable('spdxtool',
   'cli/spdxtool/main.c',
   'cli/spdxtool/core.c',
   'cli/spdxtool/software.c',
-  'cli/spdxtool/serialize.c',
   'cli/spdxtool/simplelicensing.c',
   'cli/spdxtool/util.c',
   'cli/spdxtool/generate.c',
@@ -343,7 +343,7 @@ foreach t : api_tests
   exe = executable('test-api-' + t,
     'tests/api/test-' + t + '.c',
     windows_manifest,
-    link_with : libpkgconf,
+    link_with : [libpkgconf, libpkgconfcli],
     c_args : build_static,
     include_directories : [include_directories('.'), include_directories('tests/api')],
     install : false,
@@ -357,13 +357,12 @@ test_api_serialize_exe = executable('test-api-serialize',
   'tests/api/test-serialize.c',
   'cli/spdxtool/core.c',
   'cli/spdxtool/software.c',
-  'cli/spdxtool/serialize.c',
   'cli/spdxtool/simplelicensing.c',
   'cli/spdxtool/util.c',
   windows_manifest,
-  link_with : libpkgconf,
+  link_with : [libpkgconf, libpkgconfcli],
   c_args : build_static,
-  include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/spdxtool')],
+  include_directories : [include_directories('.', 'tests/api', 'cli/spdxtool', 'cli/libpkgconfcli'), ],
   install : false,
   build_by_default : false)
 test('api-serialize', test_api_serialize_exe)
@@ -398,14 +397,13 @@ if build_oom_tests
       'fuzzer/alloc-inject.c',
       'cli/spdxtool/core.c',
       'cli/spdxtool/software.c',
-      'cli/spdxtool/serialize.c',
       'cli/spdxtool/simplelicensing.c',
       'cli/spdxtool/util.c',
       windows_manifest,
-      link_with : libpkgconf,
+      link_with : [libpkgconf, libpkgconfcli],
       c_args : build_static,
       link_args : oom_wrap_args,
-      include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/spdxtool'), include_directories('fuzzer')],
+      include_directories : [include_directories('.', 'tests/api', 'cli/spdxtool', 'fuzzer', 'cli/libpkgconfcli')],
       install : false,
       build_by_default : false)
     test('api-oom-spdxtool', test_api_oom_spdxtool_exe)
