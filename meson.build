@@ -519,7 +519,8 @@ if host_machine.system() == 'windows'
   conf_data.set('BOMTOOL_EXE', bomtool_exe.full_path())
   conf_data.set('SPDXTOOL_EXE', spdxtool_exe.full_path())
   conf_data.set('PCCRITIC_EXE', pccritic_exe.full_path())
-  conf_data.set('DLL', libpkgconf.full_path())
+  conf_data.set('LIBPKGCONF_DLL', libpkgconf.full_path())
+  conf_data.set('LIBPKGCONFCLI_DLL', libpkgconfcli.full_path())
   conf_data.set('BUILD_TYPE', libtype)
 
   if host_machine.cpu_family() == 'x86'
