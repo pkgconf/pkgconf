@@ -5,7 +5,7 @@ project('pkgconf', 'c',
     'c_std=c99',
     'warning_level=2',
   ],
-  meson_version: '>=0.56',
+  meson_version: '>=0.61',
 )
 
 cc = meson.get_compiler('c')
@@ -301,6 +301,19 @@ spdxtool_exe = executable('spdxtool',
   link_with : [libpkgconf, libpkgconfcli],
   c_args : build_static,
   include_directories : include_directories('cli', 'cli/spdxtool', 'cli/libpkgconfcli'),
+  install : true)
+
+sbomtool_exe = executable('sbomtool',
+  'cli/sbomtool/main.c',
+  'cli/sbomtool/util.c',
+  'cli/sbomtool/cyclonedx/structure.c',
+  'cli/sbomtool/cyclonedx/component.c',
+  'cli/sbomtool/cyclonedx/metadata.c',
+  'cli/sbomtool/cyclonedx/dependencies.c',
+  windows_manifest,
+  link_with : [libpkgconf, libpkgconfcli],
+  c_args : build_static,
+  include_directories : include_directories('cli', 'cli/sbomtool', 'cli/libpkgconfcli'),
   install : true)
 
 pccritic_exe = executable('pccritic',
