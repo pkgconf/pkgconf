@@ -100,7 +100,7 @@ spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom)
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbom_t *sbom)
+ * .. c:function:: pkgconfcli_serialize_value_t *spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbom_t *sbom)
  *
  *    Serialize /Software/Sbom struct to a JSON value tree. As a side effect,
  *    the package associated with the SBOM's rootElement is registered on the
@@ -109,16 +109,16 @@ spdxtool_software_sbom_free(spdxtool_software_sbom_t *sbom)
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param spdxtool_software_sbom_t *sbom: Sbom struct to be serialized.
- *    :return: spdxtool_serialize_value_t * representing the Sbom object.
+ *    :return: pkgconfcli_serialize_value_t * representing the Sbom object.
  */
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbom_t *sbom)
 {
-	spdxtool_serialize_value_t *ret = NULL;
-	spdxtool_serialize_object_list_t *object_list = NULL;
-	spdxtool_serialize_array_t *sbom_type_array = NULL;
-	spdxtool_serialize_array_t *root_element_array = NULL;
-	spdxtool_serialize_array_t *element_array = NULL;
+	pkgconfcli_serialize_value_t *ret = NULL;
+	pkgconfcli_serialize_object_list_t *object_list = NULL;
+	pkgconfcli_serialize_array_t *sbom_type_array = NULL;
+	pkgconfcli_serialize_array_t *root_element_array = NULL;
+	pkgconfcli_serialize_array_t *element_array = NULL;
 	char *spdx_id = NULL;
 
 	char sep = spdxtool_util_get_uri_separator(client);
@@ -127,25 +127,25 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 	if (!spdx_id)
 		goto err;
 
-	object_list = spdxtool_serialize_object_list_new();
+	object_list = pkgconfcli_serialize_object_list_new();
 	if (!object_list)
 		goto err;
 
-	sbom_type_array = spdxtool_serialize_array_new();
+	sbom_type_array = pkgconfcli_serialize_array_new();
 	if (!sbom_type_array)
 		goto err;
 
-	if (!spdxtool_serialize_array_add_string(sbom_type_array, sbom->sbom_type))
+	if (!pkgconfcli_serialize_array_add_string(sbom_type_array, sbom->sbom_type))
 		goto err;
 
-	root_element_array = spdxtool_serialize_array_new();
+	root_element_array = pkgconfcli_serialize_array_new();
 	if (!root_element_array)
 		goto err;
 
-	if (!spdxtool_serialize_array_add_string(root_element_array, spdx_id))
+	if (!pkgconfcli_serialize_array_add_string(root_element_array, spdx_id))
 		goto err;
 
-	element_array = spdxtool_serialize_array_new();
+	element_array = pkgconfcli_serialize_array_new();
 	if (!element_array)
 		goto err;
 
@@ -163,7 +163,7 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		if (!spdx_id_relation)
 			goto err;
 
-		if (!spdxtool_serialize_array_add_string(element_array, spdx_id_relation))
+		if (!pkgconfcli_serialize_array_add_string(element_array, spdx_id_relation))
 		{
 			free(spdx_id_relation);
 			goto err;
@@ -191,7 +191,7 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		if (!spdx_id_relation)
 			goto err;
 
-		if (!spdxtool_serialize_array_add_string(element_array, spdx_id_relation))
+		if (!pkgconfcli_serialize_array_add_string(element_array, spdx_id_relation))
 		{
 			free(spdx_id_relation);
 			goto err;
@@ -209,7 +209,7 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 	char *value = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "hasDeclaredLicense");
 	if (value)
 	{
-		if (!spdxtool_serialize_array_add_string(element_array, value))
+		if (!pkgconfcli_serialize_array_add_string(element_array, value))
 		{
 			free(value);
 			goto err;
@@ -227,7 +227,7 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 	value = spdxtool_util_tuple_lookup(client, &sbom->rootElement->vars, "hasConcludedLicense");
 	if (value)
 	{
-		if (!spdxtool_serialize_array_add_string(element_array, value))
+		if (!pkgconfcli_serialize_array_add_string(element_array, value))
 		{
 			free(value);
 			goto err;
@@ -242,9 +242,9 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 		free(value);
 	}
 
-	if (!(spdxtool_serialize_object_add_string(object_list, "type", sbom->type) &&
-		spdxtool_serialize_object_add_string(object_list, "creationInfo", sbom->creation_info) &&
-		spdxtool_serialize_object_add_string(object_list, "spdxId", sbom->spdx_id)))
+	if (!(pkgconfcli_serialize_object_add_string(object_list, "type", sbom->type) &&
+		pkgconfcli_serialize_object_add_string(object_list, "creationInfo", sbom->creation_info) &&
+		pkgconfcli_serialize_object_add_string(object_list, "spdxId", sbom->spdx_id)))
 	{
 		goto err;
 	}
@@ -253,17 +253,17 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 	 * failure), so clear our reference before checking the result to avoid a
 	 * double free at the error label.
 	 */
-	bool ok = spdxtool_serialize_object_add_array(object_list, "software_sbomType", sbom_type_array);
+	bool ok = pkgconfcli_serialize_object_add_array(object_list, "software_sbomType", sbom_type_array);
 	sbom_type_array = NULL;
 	if (!ok)
 		goto err;
 
-	ok = spdxtool_serialize_object_add_array(object_list, "rootElement", root_element_array);
+	ok = pkgconfcli_serialize_object_add_array(object_list, "rootElement", root_element_array);
 	root_element_array = NULL;
 	if (!ok)
 		goto err;
 
-	ok = spdxtool_serialize_object_add_array(object_list, "element", element_array);
+	ok = pkgconfcli_serialize_object_add_array(object_list, "element", element_array);
 	element_array = NULL;
 	if (!ok)
 		goto err;
@@ -271,7 +271,7 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 	if (!spdxtool_core_spdx_document_add_package(client, sbom->spdx_document, sbom->rootElement))
 		goto err;
 
-	ret = spdxtool_serialize_value_object(object_list);
+	ret = pkgconfcli_serialize_value_object(object_list);
 	object_list = NULL;
 
 err:
@@ -279,21 +279,21 @@ err:
 		pkgconf_error(client, "spdxtool_software_sbom_to_object: out of memory");
 
 	free(spdx_id);
-	spdxtool_serialize_object_list_free(object_list);
-	spdxtool_serialize_array_free(sbom_type_array);
-	spdxtool_serialize_array_free(root_element_array);
-	spdxtool_serialize_array_free(element_array);
+	pkgconfcli_serialize_object_list_free(object_list);
+	pkgconfcli_serialize_array_free(sbom_type_array);
+	pkgconfcli_serialize_array_free(root_element_array);
+	pkgconfcli_serialize_array_free(element_array);
 	return ret;
 }
 
 static bool
-serialize_copyright_lines_to_object(spdxtool_serialize_object_list_t *object_list, const pkgconf_list_t *copyright_lines)
+serialize_copyright_lines_to_object(pkgconfcli_serialize_object_list_t *object_list, const pkgconf_list_t *copyright_lines)
 {
 	pkgconf_buffer_t copyright_buf = PKGCONF_BUFFER_INITIALIZER;
 	const pkgconf_node_t *node;
 
 	if (copyright_lines->head == NULL)
-		return spdxtool_serialize_object_add_string(object_list, "software_copyrightText", "NOASSERTION") != NULL;
+		return pkgconfcli_serialize_object_add_string(object_list, "software_copyrightText", "NOASSERTION") != NULL;
 
 	PKGCONF_FOREACH_LIST_ENTRY(copyright_lines->head, node)
 	{
@@ -305,7 +305,7 @@ serialize_copyright_lines_to_object(spdxtool_serialize_object_list_t *object_lis
 		}
 	}
 
-	bool ok = spdxtool_serialize_object_add_string(object_list, "software_copyrightText", pkgconf_buffer_str_or_empty(&copyright_buf)) != NULL;
+	bool ok = pkgconfcli_serialize_object_add_string(object_list, "software_copyrightText", pkgconf_buffer_str_or_empty(&copyright_buf)) != NULL;
 	pkgconf_buffer_finalize(&copyright_buf);
 	return ok;
 }
@@ -313,7 +313,7 @@ serialize_copyright_lines_to_object(spdxtool_serialize_object_list_t *object_lis
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg, spdxtool_core_spdx_document_t *spdx)
+ * .. c:function:: pkgconfcli_serialize_value_t *spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg, spdxtool_core_spdx_document_t *spdx)
  *
  *    Serialize /Software/Package struct to a JSON value tree. As a side effect,
  *    any license and dependency relationships generated during serialization are
@@ -322,14 +322,14 @@ serialize_copyright_lines_to_object(spdxtool_serialize_object_list_t *object_lis
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param pkgconf_pkg_t *pkg: Package struct to be serialized.
  *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument to which generated relationships are added.
- *    :return: spdxtool_serialize_value_t * representing the Package object.
+ *    :return: pkgconfcli_serialize_value_t * representing the Package object.
  */
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg, spdxtool_core_spdx_document_t *spdx)
 {
-	spdxtool_serialize_value_t *ret = NULL;
-	spdxtool_serialize_object_list_t *object_list = NULL;
-	spdxtool_serialize_array_t *originated_by = NULL;
+	pkgconfcli_serialize_value_t *ret = NULL;
+	pkgconfcli_serialize_object_list_t *object_list = NULL;
+	pkgconfcli_serialize_array_t *originated_by = NULL;
 	char *creation_info = NULL;
 	char *spdx_id = NULL;
 	char *agent = NULL;
@@ -347,21 +347,21 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	if (!creation_info || !spdx_id || !agent)
 		goto err;
 
-	object_list = spdxtool_serialize_object_list_new();
+	object_list = pkgconfcli_serialize_object_list_new();
 	if (!object_list)
 		goto err;
 
-	originated_by = spdxtool_serialize_array_new();
+	originated_by = pkgconfcli_serialize_array_new();
 	if (!originated_by)
 		goto err;
 
-	if (!spdxtool_serialize_array_add_string(originated_by, agent))
+	if (!pkgconfcli_serialize_array_add_string(originated_by, agent))
 		goto err;
 
-	if (!(spdxtool_serialize_object_add_string(object_list, "type", "software_Package") &&
-		spdxtool_serialize_object_add_string(object_list, "creationInfo", creation_info) &&
-		spdxtool_serialize_object_add_string(object_list, "spdxId", spdx_id) &&
-		spdxtool_serialize_object_add_string(object_list, "name", pkg->realname)))
+	if (!(pkgconfcli_serialize_object_add_string(object_list, "type", "software_Package") &&
+		pkgconfcli_serialize_object_add_string(object_list, "creationInfo", creation_info) &&
+		pkgconfcli_serialize_object_add_string(object_list, "spdxId", spdx_id) &&
+		pkgconfcli_serialize_object_add_string(object_list, "name", pkg->realname)))
 	{
 		goto err;
 	}
@@ -370,31 +370,31 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	 * failure), so clear our reference before checking the result to avoid a
 	 * double free at the error label.
 	 */
-	bool ok = spdxtool_serialize_object_add_array(object_list, "originatedBy", originated_by);
+	bool ok = pkgconfcli_serialize_object_add_array(object_list, "originatedBy", originated_by);
 	originated_by = NULL;
 	if (!ok)
 		goto err;
 
 	supplier = spdxtool_util_tuple_lookup(client, &pkg->vars, "suppliedBy");
-	if (supplier && !spdxtool_serialize_object_add_string(object_list, "suppliedBy", supplier))
+	if (supplier && !pkgconfcli_serialize_object_add_string(object_list, "suppliedBy", supplier))
 		goto err;
 
 	if (!serialize_copyright_lines_to_object(object_list, &pkg->copyright))
 		goto err;
 
-	if (!spdxtool_serialize_object_add_string(object_list, "software_homePage",
+	if (!pkgconfcli_serialize_object_add_string(object_list, "software_homePage",
 		pkg->url ? pkg->url : ""))
 	{
 		goto err;
 	}
 
-	if (!spdxtool_serialize_object_add_string(object_list, "software_downloadLocation",
+	if (!pkgconfcli_serialize_object_add_string(object_list, "software_downloadLocation",
 		pkg->source ? pkg->source : ""))
 	{
 		goto err;
 	}
 
-	if (!spdxtool_serialize_object_add_string(object_list, "software_packageVersion", pkg->version))
+	if (!pkgconfcli_serialize_object_add_string(object_list, "software_packageVersion", pkg->version))
 		goto err;
 
 	PKGCONF_FOREACH_LIST_ENTRY(pkg->license.head, node)
@@ -567,7 +567,7 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 		}
 	}
 
-	ret = spdxtool_serialize_value_object(object_list);
+	ret = pkgconfcli_serialize_value_object(object_list);
 	object_list = NULL;
 
 err:
@@ -585,7 +585,7 @@ err:
 		pkgconf_license_free(cpy_relations);
 		free(cpy_relations);
 	}
-	spdxtool_serialize_object_list_free(object_list);
-	spdxtool_serialize_array_free(originated_by);
+	pkgconfcli_serialize_object_list_free(object_list);
+	pkgconfcli_serialize_array_free(originated_by);
 	return ret;
 }

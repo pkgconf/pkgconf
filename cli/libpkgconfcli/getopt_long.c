@@ -67,15 +67,15 @@
 #include <unistd.h>
 #endif
 
-#define PKGCONF_HACK_LOGICAL_OR_ALL_VALUES
+#define PKGCONFCLI_HACK_LOGICAL_OR_ALL_VALUES
 
-int	pkg_opterr = 1;		/* if error message should be printed */
-int	pkg_optind = 1;		/* index into parent argv vector */
-int	pkg_optopt = '?';		/* character checked for validity */
-int	pkg_optreset;		/* reset getopt */
-char    *pkg_optarg;		/* argument associated with option */
+int	pkgconfcli_opterr = 1;		/* if error message should be printed */
+int	pkgconfcli_optind = 1;		/* index into parent argv vector */
+int	pkgconfcli_optopt = '?';		/* character checked for validity */
+int	pkgconfcli_optreset;		/* reset getopt */
+char    *pkgconfcli_optarg;		/* argument associated with option */
 
-#define PRINT_ERROR	((pkg_opterr) && (*options != ':'))
+#define PRINT_ERROR	((pkgconfcli_opterr) && (*options != ':'))
 
 #define FLAG_PERMUTE	0x01	/* permute non-options to the end of argv */
 #define FLAG_ALLARGS	0x02	/* treat non-options as args to option "-1" */
@@ -97,15 +97,15 @@ char    *pkg_optarg;		/* argument associated with option */
 #endif
 
 static int getopt_internal(int, char * const *, const char *,
-			   const struct pkg_option *, int *, int);
+			   const struct pkgconfcli_option *, int *, int);
 static int parse_long_options(char * const *, const char *,
-			      const struct pkg_option *, int *, int, int);
+			      const struct pkgconfcli_option *, int *, int, int);
 static int gcd(int, int);
 static void permute_args(int, int, int, char * const *);
 
 static char *place = EMSG; /* option letter processing */
 
-/* XXX: set pkg_optreset to 1 rather than these two */
+/* XXX: set pkgconfcli_optreset to 1 rather than these two */
 static int nonopt_start = -1; /* first non option argument (for permute) */
 static int nonopt_end = -1;   /* first option after non options (for permute) */
 
@@ -189,7 +189,7 @@ permute_args(int panonopt_start, int panonopt_end, int opt_end,
  */
 static int
 parse_long_options(char * const *nargv, const char *options,
-	const struct pkg_option *long_options, int *idx, int short_too, int flags)
+	const struct pkgconfcli_option *long_options, int *idx, int short_too, int flags)
 {
 	char *current_argv, *has_equal;
 #ifdef GNU_COMPATIBLE
@@ -219,7 +219,7 @@ parse_long_options(char * const *nargv, const char *options,
 	exact_match = 0;
 	second_partial_match = 0;
 
-	pkg_optind++;
+	pkgconfcli_optind++;
 
 	if ((has_equal = strchr(current_argv, '=')) != NULL) {
 		/* argument found (--option=arg) */
@@ -268,7 +268,7 @@ parse_long_options(char * const *nargv, const char *options,
 			     current_argv);
 			fprintf(stderr, "\n");
 		}
-		pkg_optopt = 0;
+		pkgconfcli_optopt = 0;
 		return (BADCH);
 	}
 	if (match != -1) {		/* option found */
@@ -285,12 +285,12 @@ parse_long_options(char * const *nargv, const char *options,
 				fprintf(stderr, "\n");
 			}
 			/*
-			 * XXX: GNU sets pkg_optopt to val regardless of flag
+			 * XXX: GNU sets pkgconfcli_optopt to val regardless of flag
 			 */
 			if (long_options[match].flag == NULL)
-				pkg_optopt = (int)long_options[match].val;
+				pkgconfcli_optopt = (int)long_options[match].val;
 			else
-				pkg_optopt = 0;
+				pkgconfcli_optopt = 0;
 #ifdef GNU_COMPATIBLE
 			return (BADCH);
 #else
@@ -300,17 +300,17 @@ parse_long_options(char * const *nargv, const char *options,
 		if (long_options[match].has_arg == required_argument ||
 		    long_options[match].has_arg == optional_argument) {
 			if (has_equal)
-				pkg_optarg = has_equal;
+				pkgconfcli_optarg = has_equal;
 			else if (long_options[match].has_arg ==
 			    required_argument) {
 				/*
 				 * optional argument doesn't use next nargv
 				 */
-				pkg_optarg = nargv[pkg_optind++];
+				pkgconfcli_optarg = nargv[pkgconfcli_optind++];
 			}
 		}
 		if ((long_options[match].has_arg == required_argument)
-		    && (pkg_optarg == NULL)) {
+		    && (pkgconfcli_optarg == NULL)) {
 			/*
 			 * Missing argument; leading ':' indicates no error
 			 * should be generated.
@@ -325,18 +325,18 @@ parse_long_options(char * const *nargv, const char *options,
 				fprintf(stderr, "\n");
 			}
 			/*
-			 * XXX: GNU sets pkg_optopt to val regardless of flag
+			 * XXX: GNU sets pkgconfcli_optopt to val regardless of flag
 			 */
 			if (long_options[match].flag == NULL)
-				pkg_optopt = (int)long_options[match].val;
+				pkgconfcli_optopt = (int)long_options[match].val;
 			else
-				pkg_optopt = 0;
-			--pkg_optind;
+				pkgconfcli_optopt = 0;
+			--pkgconfcli_optind;
 			return (BADARG);
 		}
 	} else {			/* unknown option */
 		if (short_too) {
-			--pkg_optind;
+			--pkgconfcli_optind;
 			return (-1);
 		}
 		if (PRINT_ERROR) {
@@ -348,13 +348,13 @@ parse_long_options(char * const *nargv, const char *options,
 			      current_argv);
 			fprintf(stderr, "\n");
 		}
-		pkg_optopt = 0;
+		pkgconfcli_optopt = 0;
 		return (BADCH);
 	}
 	if (idx)
 		*idx = match;
 	if (long_options[match].flag) {
-#ifdef PKGCONF_HACK_LOGICAL_OR_ALL_VALUES
+#ifdef PKGCONFCLI_HACK_LOGICAL_OR_ALL_VALUES
 		*long_options[match].flag |= long_options[match].val;
 #else
 		*long_options[match].flag = long_options[match].val;
@@ -370,7 +370,7 @@ parse_long_options(char * const *nargv, const char *options,
  */
 static int
 getopt_internal(int nargc, char * const *nargv, const char *options,
-	const struct pkg_option *long_options, int *idx, int flags)
+	const struct pkgconfcli_option *long_options, int *idx, int flags)
 {
 	char *oli;				/* option letter list index */
 	int optchar, short_too;
@@ -400,37 +400,37 @@ getopt_internal(int nargc, char * const *nargv, const char *options,
 		options++;
 
 	/*
-	 * XXX Some GNU programs (like cvs) set pkg_optind to 0 instead of
-	 * XXX using pkg_optreset.  Work around this braindamage.
+	 * XXX Some GNU programs (like cvs) set pkgconfcli_optind to 0 instead of
+	 * XXX using pkgconfcli_optreset.  Work around this braindamage.
 	 */
-	if (pkg_optind == 0)
-		pkg_optind = pkg_optreset = 1;
+	if (pkgconfcli_optind == 0)
+		pkgconfcli_optind = pkgconfcli_optreset = 1;
 
-	pkg_optarg = NULL;
-	if (pkg_optreset)
+	pkgconfcli_optarg = NULL;
+	if (pkgconfcli_optreset)
 		nonopt_start = nonopt_end = -1;
 start:
-	if (pkg_optreset || !*place) {		/* update scanning pointer */
-		pkg_optreset = 0;
-		if (pkg_optind >= nargc) {          /* end of argument vector */
+	if (pkgconfcli_optreset || !*place) {		/* update scanning pointer */
+		pkgconfcli_optreset = 0;
+		if (pkgconfcli_optind >= nargc) {          /* end of argument vector */
 			place = EMSG;
 			if (nonopt_end != -1) {
 				/* do permutation, if we have to */
 				permute_args(nonopt_start, nonopt_end,
-				    pkg_optind, nargv);
-				pkg_optind -= nonopt_end - nonopt_start;
+				    pkgconfcli_optind, nargv);
+				pkgconfcli_optind -= nonopt_end - nonopt_start;
 			}
 			else if (nonopt_start != -1) {
 				/*
-				 * If we skipped non-options, set pkg_optind
+				 * If we skipped non-options, set pkgconfcli_optind
 				 * to the first of them.
 				 */
-				pkg_optind = nonopt_start;
+				pkgconfcli_optind = nonopt_start;
 			}
 			nonopt_start = nonopt_end = -1;
 			return (-1);
 		}
-		if (*(place = nargv[pkg_optind]) != '-' ||
+		if (*(place = nargv[pkgconfcli_optind]) != '-' ||
 #ifdef GNU_COMPATIBLE
 		    place[1] == '\0') {
 #else
@@ -442,7 +442,7 @@ start:
 				 * GNU extension:
 				 * return non-option as argument to option 1
 				 */
-				pkg_optarg = nargv[pkg_optind++];
+				pkgconfcli_optarg = nargv[pkgconfcli_optind++];
 				return (INORDER);
 			}
 			if (!(flags & FLAG_PERMUTE)) {
@@ -454,26 +454,26 @@ start:
 			}
 			/* do permutation */
 			if (nonopt_start == -1)
-				nonopt_start = pkg_optind;
+				nonopt_start = pkgconfcli_optind;
 			else if (nonopt_end != -1) {
 				permute_args(nonopt_start, nonopt_end,
-				    pkg_optind, nargv);
-				nonopt_start = pkg_optind -
+				    pkgconfcli_optind, nargv);
+				nonopt_start = pkgconfcli_optind -
 				    (nonopt_end - nonopt_start);
 				nonopt_end = -1;
 			}
-			pkg_optind++;
+			pkgconfcli_optind++;
 			/* process next argument */
 			goto start;
 		}
 		if (nonopt_start != -1 && nonopt_end == -1)
-			nonopt_end = pkg_optind;
+			nonopt_end = pkgconfcli_optind;
 
 		/*
 		 * If we have "-" do nothing, if "--" we are done.
 		 */
 		if (place[1] != '\0' && *++place == '-' && place[1] == '\0') {
-			pkg_optind++;
+			pkgconfcli_optind++;
 			place = EMSG;
 			/*
 			 * We found an option (--), so if we skipped
@@ -481,8 +481,8 @@ start:
 			 */
 			if (nonopt_end != -1) {
 				permute_args(nonopt_start, nonopt_end,
-				    pkg_optind, nargv);
-				pkg_optind -= nonopt_end - nonopt_start;
+				    pkgconfcli_optind, nargv);
+				pkgconfcli_optind -= nonopt_end - nonopt_start;
 			}
 			nonopt_start = nonopt_end = -1;
 			return (-1);
@@ -495,7 +495,7 @@ start:
 	 *  2) the arg is not just "-"
 	 *  3) either the arg starts with -- we are getopt_long_only()
 	 */
-	if (long_options != NULL && place != nargv[pkg_optind] &&
+	if (long_options != NULL && place != nargv[pkgconfcli_optind] &&
 	    (*place == '-' || (flags & FLAG_LONGONLY))) {
 		short_too = 0;
 #ifdef GNU_COMPATIBLE
@@ -528,7 +528,7 @@ start:
 		if (optchar == (int)'-' && *place == '\0')
 			return (-1);
 		if (!*place)
-			++pkg_optind;
+			++pkgconfcli_optind;
 #ifdef GNU_COMPATIBLE
 		if (PRINT_ERROR) {
 			fprintf(stderr, "pkgconf: ");
@@ -543,24 +543,24 @@ start:
 			fprintf(stderr, "\n");
 		}
 #endif
-		pkg_optopt = optchar;
+		pkgconfcli_optopt = optchar;
 		return (BADCH);
 	}
 	if (long_options != NULL && optchar == 'W' && oli[1] == ';') {
 		/* -W long-option */
 		if (*place)			/* no space */
 			/* NOTHING */;
-		else if (++pkg_optind >= nargc) {	/* no arg */
+		else if (++pkgconfcli_optind >= nargc) {	/* no arg */
 			place = EMSG;
 			if (PRINT_ERROR) {
 				fprintf(stderr, "pkgconf: ");
 				fprintf(stderr, recargchar, optchar);
 				fprintf(stderr, "\n");
 			}
-			pkg_optopt = optchar;
+			pkgconfcli_optopt = optchar;
 			return (BADARG);
 		} else				/* white space */
-			place = nargv[pkg_optind];
+			place = nargv[pkgconfcli_optind];
 #ifdef GNU_COMPATIBLE
 		dash_prefix = W_PREFIX;
 #endif
@@ -571,26 +571,26 @@ start:
 	}
 	if (*++oli != ':') {			/* doesn't take argument */
 		if (!*place)
-			++pkg_optind;
+			++pkgconfcli_optind;
 	} else {				/* takes (optional) argument */
-		pkg_optarg = NULL;
+		pkgconfcli_optarg = NULL;
 		if (*place)			/* no white space */
-			pkg_optarg = place;
+			pkgconfcli_optarg = place;
 		else if (oli[1] != ':') {	/* arg not optional */
-			if (++pkg_optind >= nargc) {	/* no arg */
+			if (++pkgconfcli_optind >= nargc) {	/* no arg */
 				place = EMSG;
 				if (PRINT_ERROR) {
 					fprintf(stderr, "pkgconf: ");
 					fprintf(stderr, recargchar, optchar);
 					fprintf(stderr, "\n");
 				}
-				pkg_optopt = optchar;
+				pkgconfcli_optopt = optchar;
 				return (BADARG);
 			} else
-				pkg_optarg = nargv[pkg_optind];
+				pkgconfcli_optarg = nargv[pkgconfcli_optind];
 		}
 		place = EMSG;
-		++pkg_optind;
+		++pkgconfcli_optind;
 	}
 	/* dump back option letter */
 	return (optchar);
@@ -603,7 +603,7 @@ start:
  * [eventually this will replace the BSD getopt]
  */
 int
-pkg_getopt(int nargc, char * const *nargv, const char *options)
+pkgconfcli_getopt(int nargc, char * const *nargv, const char *options)
 {
 
 	/*
@@ -622,8 +622,8 @@ pkg_getopt(int nargc, char * const *nargv, const char *options)
  *	Parse argc/argv argument vector.
  */
 int
-pkg_getopt_long(int nargc, char * const *nargv, const char *options,
-	const struct pkg_option *long_options, int *idx)
+pkgconfcli_getopt_long(int nargc, char * const *nargv, const char *options,
+	const struct pkgconfcli_option *long_options, int *idx)
 {
 
 	return (getopt_internal(nargc, nargv, options, long_options, idx,
@@ -635,8 +635,8 @@ pkg_getopt_long(int nargc, char * const *nargv, const char *options,
  *	Parse argc/argv argument vector.
  */
 int
-pkg_getopt_long_only(int nargc, char * const *nargv, const char *options,
-	const struct pkg_option *long_options, int *idx)
+pkgconfcli_getopt_long_only(int nargc, char * const *nargv, const char *options,
+	const struct pkgconfcli_option *long_options, int *idx)
 {
 
 	return (getopt_internal(nargc, nargv, options, long_options, idx,

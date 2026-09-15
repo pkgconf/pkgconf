@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <libpkgconf/libpkgconf.h>
+#include "serialize.h"
 
 /*
  * Build an SPDX SBOM for a solved dependency graph and write it to *out*.
@@ -25,5 +26,9 @@
 bool spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out,
 	int maxdepth, const char *creation_time, const char *creation_id,
 	const char *agent_name);
+
+
+pkgconfcli_serialize_value_t *
+spdxtool_generate_sbom(pkgconf_client_t *client, spdxtool_core_agent_t *agent, spdxtool_core_tool_t *tool, spdxtool_core_creation_info_t *creation, spdxtool_core_spdx_document_t *spdx);
 
 #endif

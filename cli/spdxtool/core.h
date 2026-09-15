@@ -25,7 +25,7 @@ spdxtool_core_agent_new(pkgconf_client_t *client, const char *creation_id, const
 void
 spdxtool_core_agent_free(spdxtool_core_agent_t *agent);
 
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_agent_to_object(pkgconf_client_t *client, const spdxtool_core_agent_t *agent);
 
 spdxtool_core_tool_t *
@@ -34,7 +34,7 @@ spdxtool_core_tool_new(pkgconf_client_t *client, const char *creation_info_id, c
 void
 spdxtool_core_tool_free(spdxtool_core_tool_t *tool);
 
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_tool_to_object(pkgconf_client_t *client, const spdxtool_core_tool_t *tool);
 
 spdxtool_core_creation_info_t *
@@ -43,7 +43,7 @@ spdxtool_core_creation_info_new(pkgconf_client_t *client, const char *agent_id, 
 void
 spdxtool_core_creation_info_free(spdxtool_core_creation_info_t *creation);
 
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_creation_info_to_object(pkgconf_client_t *client, const spdxtool_core_creation_info_t *creation);
 
 spdxtool_core_spdx_document_t *
@@ -70,7 +70,7 @@ spdxtool_core_spdx_document_add_maintainer(pkgconf_client_t *client, spdxtool_co
 void
 spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx);
 
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx);
 
 spdxtool_core_relationship_t *
@@ -82,7 +82,7 @@ spdxtool_core_relationship_set_scope(pkgconf_client_t *client, spdxtool_core_rel
 void
 spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship);
 
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_relationship_to_object(pkgconf_client_t *client, const spdxtool_core_relationship_t *relationship);
 
 #ifdef __cplusplus

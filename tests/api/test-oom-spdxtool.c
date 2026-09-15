@@ -102,28 +102,28 @@ test_oom_license_expression_new(void)
 static void
 test_oom_serialize_constructors(void)
 {
-	spdxtool_serialize_object_list_t *o;
-	OOM_TEST_PTR(o, spdxtool_serialize_object_list_new(), spdxtool_serialize_object_list_free(o));
+	pkgconfcli_serialize_object_list_t *o;
+	OOM_TEST_PTR(o, pkgconfcli_serialize_object_list_new(), pkgconfcli_serialize_object_list_free(o));
 
-	spdxtool_serialize_array_t *a;
-	OOM_TEST_PTR(a, spdxtool_serialize_array_new(), spdxtool_serialize_array_free(a));
+	pkgconfcli_serialize_array_t *a;
+	OOM_TEST_PTR(a, pkgconfcli_serialize_array_new(), pkgconfcli_serialize_array_free(a));
 
-	spdxtool_serialize_value_t *v;
-	OOM_TEST_PTR(v, spdxtool_serialize_value_string("hello"), spdxtool_serialize_value_free(v));
-	OOM_TEST_PTR(v, spdxtool_serialize_value_int(7), spdxtool_serialize_value_free(v));
-	OOM_TEST_PTR(v, spdxtool_serialize_value_bool(true), spdxtool_serialize_value_free(v));
-	OOM_TEST_PTR(v, spdxtool_serialize_value_null(), spdxtool_serialize_value_free(v));
+	pkgconfcli_serialize_value_t *v;
+	OOM_TEST_PTR(v, pkgconfcli_serialize_value_string("hello"), pkgconfcli_serialize_value_free(v));
+	OOM_TEST_PTR(v, pkgconfcli_serialize_value_int(7), pkgconfcli_serialize_value_free(v));
+	OOM_TEST_PTR(v, pkgconfcli_serialize_value_bool(true), pkgconfcli_serialize_value_free(v));
+	OOM_TEST_PTR(v, pkgconfcli_serialize_value_null(), pkgconfcli_serialize_value_free(v));
 }
 
 static void
 test_oom_serialize_to_buffer(void)
 {
-	spdxtool_serialize_object_list_t *object = spdxtool_serialize_object_list_new();
+	pkgconfcli_serialize_object_list_t *object = pkgconfcli_serialize_object_list_new();
 	TEST_ASSERT_NONNULL(object);
-	TEST_ASSERT_NONNULL(spdxtool_serialize_object_add_string(object, "\"key", "value"));
+	TEST_ASSERT_NONNULL(pkgconfcli_serialize_object_add_string(object, "\"key", "value"));
 
-	spdxtool_serialize_value_t root = {
-		.type = SPDXTOOL_SERIALIZE_TYPE_OBJECT,
+	pkgconfcli_serialize_value_t root = {
+		.type = PKGCONFCLI_SERIALIZE_TYPE_OBJECT,
 		.value = { .o = object },
 	};
 
@@ -132,7 +132,7 @@ test_oom_serialize_to_buffer(void)
 		pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
 
 		alloc_inject_arm(n);
-		bool ok = spdxtool_serialize_value_to_buf(&buffer, &root, 0);
+		bool ok = pkgconfcli_serialize_value_to_buf(&buffer, &root, 0);
 		bool fired = alloc_inject_fired();
 		alloc_inject_disarm();
 		pkgconf_buffer_finalize(&buffer);
@@ -146,7 +146,7 @@ test_oom_serialize_to_buffer(void)
 		TEST_ASSERT_FALSE(ok);
 	}
 
-	spdxtool_serialize_object_list_free(object);
+	pkgconfcli_serialize_object_list_free(object);
 }
 
 /*
@@ -158,26 +158,26 @@ test_oom_serialize_to_buffer(void)
 static void
 test_oom_to_object(void)
 {
-	spdxtool_serialize_value_t *v;
+	pkgconfcli_serialize_value_t *v;
 
 	spdxtool_core_agent_t *agent = spdxtool_core_agent_new(g_client, "_:c1", "Agent");
 	TEST_ASSERT_NONNULL(agent);
 	OOM_TEST_PTR(v, spdxtool_core_agent_to_object(g_client, agent),
-		spdxtool_serialize_value_free(v));
+		pkgconfcli_serialize_value_free(v));
 	spdxtool_core_agent_free(agent);
 
 	spdxtool_core_creation_info_t *ci =
 		spdxtool_core_creation_info_new(g_client, "agentid", "toolid", "_:c1", "2020-01-01T00:00:00Z");
 	TEST_ASSERT_NONNULL(ci);
 	OOM_TEST_PTR(v, spdxtool_core_creation_info_to_object(g_client, ci),
-		spdxtool_serialize_value_free(v));
+		pkgconfcli_serialize_value_free(v));
 	spdxtool_core_creation_info_free(ci);
 
 	spdxtool_simplelicensing_license_expression_t *le =
 		spdxtool_simplelicensing_licenseExpression_new(g_client, "MIT");
 	TEST_ASSERT_NONNULL(le);
 	OOM_TEST_PTR(v, spdxtool_simplelicensing_licenseExpression_to_object(g_client, "_:c1", le),
-		spdxtool_serialize_value_free(v));
+		pkgconfcli_serialize_value_free(v));
 	spdxtool_simplelicensing_licenseExpression_free(le);
 }
 

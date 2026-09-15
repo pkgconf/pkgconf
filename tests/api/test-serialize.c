@@ -22,10 +22,10 @@
 
 // Render a value to a freshly-allocated C string (caller frees)
 static char *
-render(spdxtool_serialize_value_t *value)
+render(pkgconfcli_serialize_value_t *value)
 {
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
-	TEST_ASSERT_TRUE(spdxtool_serialize_value_to_buf(&buf, value, 0));
+	TEST_ASSERT_TRUE(pkgconfcli_serialize_value_to_buf(&buf, value, 0));
 	char *s = strdup(pkgconf_buffer_str_or_empty(&buf));
 	pkgconf_buffer_finalize(&buf);
 	return s;
@@ -33,16 +33,16 @@ render(spdxtool_serialize_value_t *value)
 
 // Render a container without taking ownership of it
 static char *
-render_object(spdxtool_serialize_object_list_t *o)
+render_object(pkgconfcli_serialize_object_list_t *o)
 {
-	spdxtool_serialize_value_t wrap = { .type = SPDXTOOL_SERIALIZE_TYPE_OBJECT, .value = { .o = o } };
+	pkgconfcli_serialize_value_t wrap = { .type = PKGCONFCLI_SERIALIZE_TYPE_OBJECT, .value = { .o = o } };
 	return render(&wrap);
 }
 
 static char *
-render_array(spdxtool_serialize_array_t *a)
+render_array(pkgconfcli_serialize_array_t *a)
 {
-	spdxtool_serialize_value_t wrap = { .type = SPDXTOOL_SERIALIZE_TYPE_ARRAY, .value = { .a = a } };
+	pkgconfcli_serialize_value_t wrap = { .type = PKGCONFCLI_SERIALIZE_TYPE_ARRAY, .value = { .a = a } };
 	return render(&wrap);
 }
 
@@ -50,56 +50,56 @@ render_array(spdxtool_serialize_array_t *a)
 static void
 test_serialize_value_string(void)
 {
-	spdxtool_serialize_value_t *v = spdxtool_serialize_value_string("hi");
+	pkgconfcli_serialize_value_t *v = pkgconfcli_serialize_value_string("hi");
 	TEST_ASSERT_NONNULL(v);
 	char *s = render(v);
 	TEST_ASSERT_STRCMP_EQ(s, "\"hi\"");
 	free(s);
-	spdxtool_serialize_value_free(v);
+	pkgconfcli_serialize_value_free(v);
 }
 
 static void
 test_serialize_value_int(void)
 {
-	spdxtool_serialize_value_t *v = spdxtool_serialize_value_int(123);
+	pkgconfcli_serialize_value_t *v = pkgconfcli_serialize_value_int(123);
 	TEST_ASSERT_NONNULL(v);
 	char *s = render(v);
 	TEST_ASSERT_STRCMP_EQ(s, "123");
 	free(s);
-	spdxtool_serialize_value_free(v);
+	pkgconfcli_serialize_value_free(v);
 }
 
 static void
 test_serialize_value_bool(void)
 {
-	spdxtool_serialize_value_t *t = spdxtool_serialize_value_bool(true);
-	spdxtool_serialize_value_t *f = spdxtool_serialize_value_bool(false);
+	pkgconfcli_serialize_value_t *t = pkgconfcli_serialize_value_bool(true);
+	pkgconfcli_serialize_value_t *f = pkgconfcli_serialize_value_bool(false);
 	char *st = render(t);
 	char *sf = render(f);
 	TEST_ASSERT_STRCMP_EQ(st, "true");
 	TEST_ASSERT_STRCMP_EQ(sf, "false");
 	free(st);
 	free(sf);
-	spdxtool_serialize_value_free(t);
-	spdxtool_serialize_value_free(f);
+	pkgconfcli_serialize_value_free(t);
+	pkgconfcli_serialize_value_free(f);
 }
 
 static void
 test_serialize_value_null(void)
 {
-	spdxtool_serialize_value_t *v = spdxtool_serialize_value_null();
+	pkgconfcli_serialize_value_t *v = pkgconfcli_serialize_value_null();
 	TEST_ASSERT_NONNULL(v);
 	char *s = render(v);
 	TEST_ASSERT_STRCMP_EQ(s, "null");
 	free(s);
-	spdxtool_serialize_value_free(v);
+	pkgconfcli_serialize_value_free(v);
 }
 
 // All JSON string escape sequences, including control characters
 static void
 test_serialize_escape_sequences(void)
 {
-	spdxtool_serialize_value_t *v = spdxtool_serialize_value_string("\"\\\b\f\n\r\t\x01" "Z");
+	pkgconfcli_serialize_value_t *v = pkgconfcli_serialize_value_string("\"\\\b\f\n\r\t\x01" "Z");
 	char *s = render(v);
 
 	TEST_ASSERT_STRSTR(s, "\\\"");     // quote
@@ -113,20 +113,20 @@ test_serialize_escape_sequences(void)
 	TEST_ASSERT_STRSTR(s, "Z");        // printable passthrough
 
 	free(s);
-	spdxtool_serialize_value_free(v);
+	pkgconfcli_serialize_value_free(v);
 }
 
 // Mixed-type object exercises the int/bool/null add helpers
 static void
 test_serialize_object_mixed_types(void)
 {
-	spdxtool_serialize_object_list_t *o = spdxtool_serialize_object_list_new();
+	pkgconfcli_serialize_object_list_t *o = pkgconfcli_serialize_object_list_new();
 	TEST_ASSERT_NONNULL(o);
 
-	TEST_ASSERT_NONNULL(spdxtool_serialize_object_add_string(o, "s", "x"));
-	TEST_ASSERT_NONNULL(spdxtool_serialize_object_add_int(o, "i", 42));
-	TEST_ASSERT_NONNULL(spdxtool_serialize_object_add_bool(o, "b", true));
-	TEST_ASSERT_NONNULL(spdxtool_serialize_object_add_null(o, "n"));
+	TEST_ASSERT_NONNULL(pkgconfcli_serialize_object_add_string(o, "s", "x"));
+	TEST_ASSERT_NONNULL(pkgconfcli_serialize_object_add_int(o, "i", 42));
+	TEST_ASSERT_NONNULL(pkgconfcli_serialize_object_add_bool(o, "b", true));
+	TEST_ASSERT_NONNULL(pkgconfcli_serialize_object_add_null(o, "n"));
 
 	char *s = render_object(o);
 	TEST_ASSERT_STRSTR(s, "\"s\": \"x\"");
@@ -135,33 +135,33 @@ test_serialize_object_mixed_types(void)
 	TEST_ASSERT_STRSTR(s, "\"n\": null");
 
 	free(s);
-	spdxtool_serialize_object_list_free(o);
+	pkgconfcli_serialize_object_list_free(o);
 }
 
 static void
 test_serialize_object_key_escaping(void)
 {
-	spdxtool_serialize_object_list_t *o = spdxtool_serialize_object_list_new();
+	pkgconfcli_serialize_object_list_t *o = pkgconfcli_serialize_object_list_new();
 	TEST_ASSERT_NONNULL(o);
-	TEST_ASSERT_NONNULL(spdxtool_serialize_object_add_string(o, "\"\\\n\x01", "x"));
+	TEST_ASSERT_NONNULL(pkgconfcli_serialize_object_add_string(o, "\"\\\n\x01", "x"));
 
 	char *s = render_object(o);
 	TEST_ASSERT_STRCMP_EQ(s, "{\n    \"\\\"\\\\\\n\\u0001\": \"x\"\n}");
 
 	free(s);
-	spdxtool_serialize_object_list_free(o);
+	pkgconfcli_serialize_object_list_free(o);
 }
 
 // Mixed-type array exercises the int/bool/null array helpers
 static void
 test_serialize_array_mixed_types(void)
 {
-	spdxtool_serialize_array_t *a = spdxtool_serialize_array_new();
+	pkgconfcli_serialize_array_t *a = pkgconfcli_serialize_array_new();
 	TEST_ASSERT_NONNULL(a);
 
-	TEST_ASSERT_NONNULL(spdxtool_serialize_array_add_int(a, 7));
-	TEST_ASSERT_NONNULL(spdxtool_serialize_array_add_bool(a, false));
-	TEST_ASSERT_NONNULL(spdxtool_serialize_array_add_null(a));
+	TEST_ASSERT_NONNULL(pkgconfcli_serialize_array_add_int(a, 7));
+	TEST_ASSERT_NONNULL(pkgconfcli_serialize_array_add_bool(a, false));
+	TEST_ASSERT_NONNULL(pkgconfcli_serialize_array_add_null(a));
 
 	char *s = render_array(a);
 	TEST_ASSERT_STRSTR(s, "7");
@@ -169,7 +169,7 @@ test_serialize_array_mixed_types(void)
 	TEST_ASSERT_STRSTR(s, "null");
 
 	free(s);
-	spdxtool_serialize_array_free(a);
+	pkgconfcli_serialize_array_free(a);
 }
 
 // Defensive NULL handling that the CLI path never reaches
@@ -177,25 +177,25 @@ static void
 test_serialize_null_guards(void)
 {
 	pkgconf_buffer_t buf = PKGCONF_BUFFER_INITIALIZER;
-	spdxtool_serialize_value_t *v = spdxtool_serialize_value_null();
+	pkgconfcli_serialize_value_t *v = pkgconfcli_serialize_value_null();
 
 	// value_to_buf rejects NULL buffer or NULL value
-	TEST_ASSERT_FALSE(spdxtool_serialize_value_to_buf(NULL, v, 0));
-	TEST_ASSERT_FALSE(spdxtool_serialize_value_to_buf(&buf, NULL, 0));
+	TEST_ASSERT_FALSE(pkgconfcli_serialize_value_to_buf(NULL, v, 0));
+	TEST_ASSERT_FALSE(pkgconfcli_serialize_value_to_buf(&buf, NULL, 0));
 	pkgconf_buffer_finalize(&buf);
 
 	// value_string(NULL) yields NULL
-	TEST_ASSERT_NULL(spdxtool_serialize_value_string(NULL));
+	TEST_ASSERT_NULL(pkgconfcli_serialize_value_string(NULL));
 
 	// add_take with a NULL container frees the value and returns NULL
-	TEST_ASSERT_NULL(spdxtool_serialize_object_add_take(NULL, "k", v));
-	TEST_ASSERT_NULL(spdxtool_serialize_array_add_take(NULL, spdxtool_serialize_value_null()));
+	TEST_ASSERT_NULL(pkgconfcli_serialize_object_add_take(NULL, "k", v));
+	TEST_ASSERT_NULL(pkgconfcli_serialize_array_add_take(NULL, pkgconfcli_serialize_value_null()));
 
 	// free routines are NULL-safe
-	spdxtool_serialize_value_free(NULL);
-	spdxtool_serialize_object_free(NULL);
-	spdxtool_serialize_object_list_free(NULL);
-	spdxtool_serialize_array_free(NULL);
+	pkgconfcli_serialize_value_free(NULL);
+	pkgconfcli_serialize_object_free(NULL);
+	pkgconfcli_serialize_object_list_free(NULL);
+	pkgconfcli_serialize_array_free(NULL);
 }
 
 int

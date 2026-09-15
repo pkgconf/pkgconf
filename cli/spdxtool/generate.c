@@ -215,7 +215,7 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 		return false;
 	}
 
-	spdxtool_serialize_value_t *root = spdxtool_serialize_sbom(client, agent, tool, creation, document);
+	pkgconfcli_serialize_value_t *root = spdxtool_generate_sbom(client, agent, tool, creation, document);
 	if (!root)
 	{
 		spdxtool_core_spdx_document_free(document);
@@ -225,8 +225,8 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 	}
 
 	pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
-	bool ret = spdxtool_serialize_value_to_buf(&buffer, root, 0);
-	spdxtool_serialize_value_free(root);
+	bool ret = pkgconfcli_serialize_value_to_buf(&buffer, root, 0);
+	pkgconfcli_serialize_value_free(root);
 
 	if (ret)
 	{
@@ -244,5 +244,131 @@ spdxtool_generate(pkgconf_client_t *client, pkgconf_pkg_t *world, FILE *out, int
 	spdxtool_core_tool_free(tool);
 	spdxtool_core_agent_free(agent);
 
+	return ret;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: pkgconfcli_serialize_value_t *spdxtool_generate_sbom(pkgconf_client_t *client, spdxtool_core_agent_t *agent, spdxtool_core_creation_info_t *creation, spdxtool_core_spdx_document_t *spdx)
+ *
+ *    Serialize a complete SPDX SBOM document to a JSON-LD value tree. Iterates
+ *    all SBOMs, packages, relationships, and license expressions registered on
+ *    the document. The SpdxDocument object is emitted last to ensure all element
+ *    IDs have been populated by prior iteration. This function must be called
+ *    after pkgconf_pkg_traverse has completed so that all packages and their
+ *    dependencies are registered on spdx.
+ *
+ *    :param pkgconf_client_t *client: The pkgconf client being accessed.
+ *    :param spdxtool_core_agent_t *agent: Agent struct to include in the document.
+ *    :param spdxtool_core_creation_info_t *creation: CreationInfo struct to include in the document.
+ *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument struct containing all registered SBOMs, packages, relationships, and licenses.
+ *    :return: pkgconfcli_serialize_value_t * representing the complete JSON-LD document, or a null string value on allocation failure.
+ */
+pkgconfcli_serialize_value_t *
+spdxtool_generate_sbom(pkgconf_client_t *client, spdxtool_core_agent_t *agent, spdxtool_core_tool_t *tool, spdxtool_core_creation_info_t *creation, spdxtool_core_spdx_document_t *spdx)
+{
+	const char *errstr = "out of memory";
+	pkgconfcli_serialize_value_t *ret = NULL;
+	pkgconfcli_serialize_array_t *graph = NULL;
+	pkgconfcli_serialize_object_list_t *root = pkgconfcli_serialize_object_list_new();
+	if (!root)
+		goto err;
+
+	if (!pkgconfcli_serialize_object_add_string(root, "@context", "https://spdx.org/rdf/3.0.1/spdx-context.jsonld"))
+		goto err;
+
+	graph = pkgconfcli_serialize_array_new();
+	if (!graph)
+		goto err;
+
+	if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_core_agent_to_object(client, agent)))
+		goto err;
+
+	if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_core_tool_to_object(client, tool)))
+		goto err;
+
+	if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_core_creation_info_to_object(client, creation)))
+		goto err;
+
+	pkgconf_node_t *iter = NULL;
+	PKGCONF_FOREACH_LIST_ENTRY(spdx->maintainers.head, iter)
+	{
+		spdxtool_core_agent_t *maintainer = iter->data;
+		if (!maintainer)
+		{
+			errstr = "maintainers list corrupted";
+			goto err;
+		}
+		if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_core_agent_to_object(client, maintainer)))
+			goto err;
+	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(spdx->licenses.head, iter)
+	{
+		spdxtool_simplelicensing_license_expression_t *expression = iter->data;
+		if (!expression)
+		{
+			errstr = "licenses list corrupted";
+			goto err;
+		}
+		if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_simplelicensing_licenseExpression_to_object(client, spdx->creation_info, expression)))
+			goto err;
+	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(spdx->rootElement.head, iter)
+	{
+		spdxtool_software_sbom_t *current_sbom = iter->data;
+		if (!current_sbom)
+		{
+			errstr = "sbom list corrupted";
+			goto err;
+		}
+		if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_software_sbom_to_object(client, current_sbom)))
+			goto err;
+	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(spdx->packages.head, iter)
+	{
+		pkgconf_pkg_t *pkg = iter->data;
+		if (!pkg)
+		{
+			errstr = "pkg list corrupted";
+			goto err;
+		}
+		if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_software_package_to_object(client, pkg, spdx)))
+			goto err;
+	}
+
+	PKGCONF_FOREACH_LIST_ENTRY(spdx->relationships.head, iter)
+	{
+		spdxtool_core_relationship_t *relationship = iter->data;
+		if (!relationship)
+		{
+			errstr = "relationship list corrupted";
+			goto err;
+		}
+		if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_core_relationship_to_object(client, relationship)))
+			goto err;
+	}
+
+	// SpdxDocument last — spdx->element must be fully populated first
+	if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_core_spdx_document_to_object(client, spdx)))
+		goto err;
+
+	bool ok = pkgconfcli_serialize_object_add_array(root, "@graph", graph);
+	graph = NULL;
+	if (!ok)
+		goto err;
+
+	ret = pkgconfcli_serialize_value_object(root);
+	root = NULL;
+
+	err:
+	if (!ret)
+		pkgconf_error(client, "spdxtool_generate_sbom: %s", errstr);
+
+	pkgconfcli_serialize_object_list_free(root);
+	pkgconfcli_serialize_array_free(graph);
 	return ret;
 }

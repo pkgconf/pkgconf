@@ -89,38 +89,38 @@ spdxtool_core_agent_free(spdxtool_core_agent_t *agent)
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_core_agent_to_object(pkgconf_client_t *client, const spdxtool_core_agent_t *agent)
+ * .. c:function:: pkgconfcli_serialize_value_t *spdxtool_core_agent_to_object(pkgconf_client_t *client, const spdxtool_core_agent_t *agent)
  *
  *    Serialize /Core/Agent struct to a JSON value tree.
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param const spdxtool_core_agent_t *agent: Agent struct to be serialized.
- *    :return: spdxtool_serialize_value_t * representing the Agent object.
+ *    :return: pkgconfcli_serialize_value_t * representing the Agent object.
  */
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_agent_to_object(pkgconf_client_t *client, const spdxtool_core_agent_t *agent)
 {
-	spdxtool_serialize_value_t *ret = NULL;
-	spdxtool_serialize_object_list_t *object_list = spdxtool_serialize_object_list_new();
+	pkgconfcli_serialize_value_t *ret = NULL;
+	pkgconfcli_serialize_object_list_t *object_list = pkgconfcli_serialize_object_list_new();
 	if (!object_list)
 		goto err;
 
-	if (!(spdxtool_serialize_object_add_string(object_list, "type", agent->type) &&
-		spdxtool_serialize_object_add_string(object_list, "creationInfo", agent->creation_info) &&
-		spdxtool_serialize_object_add_string(object_list, "spdxId", agent->spdx_id) &&
-		spdxtool_serialize_object_add_string(object_list, "name", agent->name)))
+	if (!(pkgconfcli_serialize_object_add_string(object_list, "type", agent->type) &&
+		pkgconfcli_serialize_object_add_string(object_list, "creationInfo", agent->creation_info) &&
+		pkgconfcli_serialize_object_add_string(object_list, "spdxId", agent->spdx_id) &&
+		pkgconfcli_serialize_object_add_string(object_list, "name", agent->name)))
 	{
 		goto err;
 	}
 
-	ret = spdxtool_serialize_value_object(object_list);
+	ret = pkgconfcli_serialize_value_object(object_list);
 	object_list = NULL;
 
 err:
 	if (!ret)
 		pkgconf_error(client, "spdxtool_core_agent_to_object: out of memory");
 
-	spdxtool_serialize_object_list_free(object_list);
+	pkgconfcli_serialize_object_list_free(object_list);
 	return ret;
 }
 
@@ -198,38 +198,38 @@ spdxtool_core_tool_free(spdxtool_core_tool_t *tool)
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_core_tool_to_object(pkgconf_client_t *client, const spdxtool_core_tool_t *tool)
+ * .. c:function:: pkgconfcli_serialize_value_t *spdxtool_core_tool_to_object(pkgconf_client_t *client, const spdxtool_core_tool_t *tool)
  *
  *    Serialize /Core/Tool struct to a JSON value tree.
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param const spdxtool_core_tool_t *tool: Tool struct to be serialized.
- *    :return: spdxtool_serialize_value_t * representing the Agent object.
+ *    :return: pkgconfcli_serialize_value_t * representing the Agent object.
  */
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_tool_to_object(pkgconf_client_t *client, const spdxtool_core_tool_t *tool)
 {
-	spdxtool_serialize_value_t *ret = NULL;
-	spdxtool_serialize_object_list_t *object_list = spdxtool_serialize_object_list_new();
+	pkgconfcli_serialize_value_t *ret = NULL;
+	pkgconfcli_serialize_object_list_t *object_list = pkgconfcli_serialize_object_list_new();
 	if (!object_list)
 		goto err;
 
-	if (!(spdxtool_serialize_object_add_string(object_list, "type", tool->type) &&
-		spdxtool_serialize_object_add_string(object_list, "creationInfo", tool->creation_info) &&
-		spdxtool_serialize_object_add_string(object_list, "spdxId", tool->spdx_id) &&
-		spdxtool_serialize_object_add_string(object_list, "name", tool->name)))
+	if (!(pkgconfcli_serialize_object_add_string(object_list, "type", tool->type) &&
+		pkgconfcli_serialize_object_add_string(object_list, "creationInfo", tool->creation_info) &&
+		pkgconfcli_serialize_object_add_string(object_list, "spdxId", tool->spdx_id) &&
+		pkgconfcli_serialize_object_add_string(object_list, "name", tool->name)))
 	{
 		goto err;
 	}
 
-	ret = spdxtool_serialize_value_object(object_list);
+	ret = pkgconfcli_serialize_value_object(object_list);
 	object_list = NULL;
 
 	err:
 	if (!ret)
 		pkgconf_error(client, "spdxtool_core_agent_to_object: out of memory");
 
-	spdxtool_serialize_object_list_free(object_list);
+	pkgconfcli_serialize_object_list_free(object_list);
 	return ret;
 }
 
@@ -306,78 +306,78 @@ spdxtool_core_creation_info_free(spdxtool_core_creation_info_t *creation)
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_core_creation_info_to_object(pkgconf_client_t *client, const spdxtool_core_creation_info_t *creation)
+ * .. c:function:: pkgconfcli_serialize_value_t *spdxtool_core_creation_info_to_object(pkgconf_client_t *client, const spdxtool_core_creation_info_t *creation)
  *
  *    Serialize /Core/CreationInfo struct to a JSON value tree.
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param const spdxtool_core_creation_info_t *creation: CreationInfo struct to be serialized.
- *    :return: spdxtool_serialize_value_t * representing the CreationInfo object.
+ *    :return: pkgconfcli_serialize_value_t * representing the CreationInfo object.
  */
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_creation_info_to_object(pkgconf_client_t *client, const spdxtool_core_creation_info_t *creation)
 {
-	spdxtool_serialize_value_t *ret = NULL;
-	spdxtool_serialize_object_list_t *object_list = spdxtool_serialize_object_list_new();
+	pkgconfcli_serialize_value_t *ret = NULL;
+	pkgconfcli_serialize_object_list_t *object_list = pkgconfcli_serialize_object_list_new();
 	if (!object_list)
 		goto err;
 
-	spdxtool_serialize_array_t *created_by = spdxtool_serialize_array_new();
+	pkgconfcli_serialize_array_t *created_by = pkgconfcli_serialize_array_new();
 	if (!created_by)
 		goto err;
 
-	if (!spdxtool_serialize_array_add_string(created_by, creation->created_by))
+	if (!pkgconfcli_serialize_array_add_string(created_by, creation->created_by))
 	{
-		spdxtool_serialize_array_free(created_by);
+		pkgconfcli_serialize_array_free(created_by);
 		goto err;
 	}
 
-	spdxtool_serialize_array_t *created_using = spdxtool_serialize_array_new();
+	pkgconfcli_serialize_array_t *created_using = pkgconfcli_serialize_array_new();
 	if (!created_using)
 	{
-		spdxtool_serialize_array_free(created_by);
+		pkgconfcli_serialize_array_free(created_by);
 		goto err;
 	}
 
-	if (!spdxtool_serialize_array_add_string(created_using, creation->created_using))
+	if (!pkgconfcli_serialize_array_add_string(created_using, creation->created_using))
 	{
-		spdxtool_serialize_array_free(created_by);
-		spdxtool_serialize_array_free(created_using);
+		pkgconfcli_serialize_array_free(created_by);
+		pkgconfcli_serialize_array_free(created_using);
 		goto err;
 	}
 
-	if (!(spdxtool_serialize_object_add_string(object_list, "type", creation->type) &&
-		spdxtool_serialize_object_add_string(object_list, "@id", creation->id) &&
-		spdxtool_serialize_object_add_string(object_list, "created", creation->created)))
+	if (!(pkgconfcli_serialize_object_add_string(object_list, "type", creation->type) &&
+		pkgconfcli_serialize_object_add_string(object_list, "@id", creation->id) &&
+		pkgconfcli_serialize_object_add_string(object_list, "created", creation->created)))
 	{
 		/* created_by or created_using has not been handed to the object list yet */
-		spdxtool_serialize_array_free(created_by);
-		spdxtool_serialize_array_free(created_using);
+		pkgconfcli_serialize_array_free(created_by);
+		pkgconfcli_serialize_array_free(created_using);
 		goto err;
 	}
 
 	/* object_add_array takes ownership of created_by, freeing it on failure */
-	if (!spdxtool_serialize_object_add_array(object_list, "createdBy", created_by))
+	if (!pkgconfcli_serialize_object_add_array(object_list, "createdBy", created_by))
 	{
-		spdxtool_serialize_array_free(created_using);
+		pkgconfcli_serialize_array_free(created_using);
 		goto err;
 	}
 
 	/* object_add_array takes ownership of created_using, freeing it on failure */
-	if (!(spdxtool_serialize_object_add_array(object_list, "createUsing", created_using) &&
-		spdxtool_serialize_object_add_string(object_list, "specVersion", creation->spec_version)))
+	if (!(pkgconfcli_serialize_object_add_array(object_list, "createUsing", created_using) &&
+		pkgconfcli_serialize_object_add_string(object_list, "specVersion", creation->spec_version)))
 	{
 		goto err;
 	}
 
-	ret = spdxtool_serialize_value_object(object_list);
+	ret = pkgconfcli_serialize_value_object(object_list);
 	object_list = NULL;
 
 err:
 	if (!ret)
 		pkgconf_error(client, "spdxtool_core_creation_info_to_object: out of memory");
 
-	spdxtool_serialize_object_list_free(object_list);
+	pkgconfcli_serialize_object_list_free(object_list);
 	return ret;
 }
 
@@ -488,7 +488,7 @@ spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx)
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx)
+ * .. c:function:: pkgconfcli_serialize_value_t *spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx)
  *
  *    Serialize /Core/SpdxDocument struct to a JSON value tree. This function
  *    should be called after all SBOMs and packages have been serialized so that
@@ -496,21 +496,21 @@ spdxtool_core_spdx_document_free(spdxtool_core_spdx_document_t *spdx)
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param spdxtool_core_spdx_document_t *spdx: SpdxDocument struct to be serialized.
- *    :return: spdxtool_serialize_value_t * representing the SpdxDocument object.
+ *    :return: pkgconfcli_serialize_value_t * representing the SpdxDocument object.
  */
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_spdx_document_t *spdx)
 {
-	spdxtool_serialize_value_t *ret = NULL;
-	spdxtool_serialize_object_list_t *object_list = NULL;
-	spdxtool_serialize_array_t *root_element_array = NULL;
-	spdxtool_serialize_array_t *element_array = NULL;
+	pkgconfcli_serialize_value_t *ret = NULL;
+	pkgconfcli_serialize_object_list_t *object_list = NULL;
+	pkgconfcli_serialize_array_t *root_element_array = NULL;
+	pkgconfcli_serialize_array_t *element_array = NULL;
 
-	object_list = spdxtool_serialize_object_list_new();
+	object_list = pkgconfcli_serialize_object_list_new();
 	if (!object_list)
 		goto err;
 
-	root_element_array = spdxtool_serialize_array_new();
+	root_element_array = pkgconfcli_serialize_array_new();
 	if (!root_element_array)
 		goto err;
 
@@ -518,21 +518,21 @@ spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_sp
 	PKGCONF_FOREACH_LIST_ENTRY(spdx->rootElement.head, iter)
 	{
 		spdxtool_software_sbom_t *sbom = iter->data;
-		if (!spdxtool_serialize_array_add_string(root_element_array, sbom->spdx_id))
+		if (!pkgconfcli_serialize_array_add_string(root_element_array, sbom->spdx_id))
 			goto err;
 	}
 
-	element_array = spdxtool_serialize_array_new();
+	element_array = pkgconfcli_serialize_array_new();
 	if (!element_array)
 		goto err;
 
-	if (!spdxtool_serialize_array_add_string(element_array, spdx->agent))
+	if (!pkgconfcli_serialize_array_add_string(element_array, spdx->agent))
 		goto err;
 
 	PKGCONF_FOREACH_LIST_ENTRY(spdx->element.head, iter)
 	{
 		char *element_id = iter->data;
-		if (!spdxtool_serialize_array_add_string(element_array, element_id))
+		if (!pkgconfcli_serialize_array_add_string(element_array, element_id))
 			goto err;
 	}
 
@@ -543,17 +543,17 @@ spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_sp
 		if (!pkg_spdx_id)
 			goto err;
 
-		bool ok = spdxtool_serialize_array_add_string(element_array, sbom->spdx_id) &&
-			spdxtool_serialize_array_add_string(element_array, pkg_spdx_id);
+		bool ok = pkgconfcli_serialize_array_add_string(element_array, sbom->spdx_id) &&
+			pkgconfcli_serialize_array_add_string(element_array, pkg_spdx_id);
 		free(pkg_spdx_id);
 
 		if (!ok)
 			goto err;
 	}
 
-	if (!(spdxtool_serialize_object_add_string(object_list, "type", spdx->type) &&
-		spdxtool_serialize_object_add_string(object_list, "creationInfo", spdx->creation_info) &&
-		spdxtool_serialize_object_add_string(object_list, "spdxId", spdx->spdx_id)))
+	if (!(pkgconfcli_serialize_object_add_string(object_list, "type", spdx->type) &&
+		pkgconfcli_serialize_object_add_string(object_list, "creationInfo", spdx->creation_info) &&
+		pkgconfcli_serialize_object_add_string(object_list, "spdxId", spdx->spdx_id)))
 	{
 		goto err;
 	}
@@ -562,26 +562,26 @@ spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_sp
 	 * failure), so clear our reference before checking the result to avoid a
 	 * double free at the error label.
 	 */
-	bool ok = spdxtool_serialize_object_add_array(object_list, "rootElement", root_element_array);
+	bool ok = pkgconfcli_serialize_object_add_array(object_list, "rootElement", root_element_array);
 	root_element_array = NULL;
 	if (!ok)
 		goto err;
 
-	ok = spdxtool_serialize_object_add_array(object_list, "element", element_array);
+	ok = pkgconfcli_serialize_object_add_array(object_list, "element", element_array);
 	element_array = NULL;
 	if (!ok)
 		goto err;
 
-	ret = spdxtool_serialize_value_object(object_list);
+	ret = pkgconfcli_serialize_value_object(object_list);
 	object_list = NULL;
 
 err:
 	if (!ret)
 		pkgconf_error(client, "spdxtool_core_spdx_document_to_object: out of memory");
 
-	spdxtool_serialize_object_list_free(object_list);
-	spdxtool_serialize_array_free(root_element_array);
-	spdxtool_serialize_array_free(element_array);
+	pkgconfcli_serialize_object_list_free(object_list);
+	pkgconfcli_serialize_array_free(root_element_array);
+	pkgconfcli_serialize_array_free(element_array);
 	return ret;
 }
 
@@ -929,23 +929,23 @@ spdxtool_core_relationship_free(spdxtool_core_relationship_t *relationship)
 /*
  * !doc
  *
- * .. c:function:: spdxtool_serialize_value_t *spdxtool_core_relationship_to_object(pkgconf_client_t *client, const spdxtool_core_relationship_t *relationship)
+ * .. c:function:: pkgconfcli_serialize_value_t *spdxtool_core_relationship_to_object(pkgconf_client_t *client, const spdxtool_core_relationship_t *relationship)
  *
  *    Serialize /Core/Relationship struct to a JSON value tree.
  *
  *    :param pkgconf_client_t *client: The pkgconf client being accessed.
  *    :param const spdxtool_core_relationship_t *relationship: Relationship struct to be serialized.
- *    :return: spdxtool_serialize_value_t * representing the Relationship object.
+ *    :return: pkgconfcli_serialize_value_t * representing the Relationship object.
  */
-spdxtool_serialize_value_t *
+pkgconfcli_serialize_value_t *
 spdxtool_core_relationship_to_object(pkgconf_client_t *client, const spdxtool_core_relationship_t *relationship)
 {
-	spdxtool_serialize_value_t *ret = NULL;
-	spdxtool_serialize_object_list_t *object_list = spdxtool_serialize_object_list_new();
+	pkgconfcli_serialize_value_t *ret = NULL;
+	pkgconfcli_serialize_object_list_t *object_list = pkgconfcli_serialize_object_list_new();
 	if (!object_list)
 		goto err;
 
-	spdxtool_serialize_array_t *to = spdxtool_serialize_array_new();
+	pkgconfcli_serialize_array_t *to = pkgconfcli_serialize_array_new();
 	if (!to)
 		goto err;
 
@@ -953,43 +953,43 @@ spdxtool_core_relationship_to_object(pkgconf_client_t *client, const spdxtool_co
 	PKGCONF_FOREACH_LIST_ENTRY(relationship->to->head, node)
 	{
 		const pkgconf_license_t *license = node->data;
-		if (!spdxtool_serialize_array_add_string(to, license->data))
+		if (!pkgconfcli_serialize_array_add_string(to, license->data))
 		{
-			spdxtool_serialize_array_free(to);
+			pkgconfcli_serialize_array_free(to);
 			goto err;
 		}
 	}
 
-	if (!(spdxtool_serialize_object_add_string(object_list, "type", relationship->type) &&
-		spdxtool_serialize_object_add_string(object_list, "creationInfo", relationship->creation_info) &&
-		spdxtool_serialize_object_add_string(object_list, "spdxId", relationship->spdx_id) &&
-		spdxtool_serialize_object_add_string(object_list, "from", relationship->from)))
+	if (!(pkgconfcli_serialize_object_add_string(object_list, "type", relationship->type) &&
+		pkgconfcli_serialize_object_add_string(object_list, "creationInfo", relationship->creation_info) &&
+		pkgconfcli_serialize_object_add_string(object_list, "spdxId", relationship->spdx_id) &&
+		pkgconfcli_serialize_object_add_string(object_list, "from", relationship->from)))
 	{
 		/* none of the above transfers ownership of `to` */
-		spdxtool_serialize_array_free(to);
+		pkgconfcli_serialize_array_free(to);
 		goto err;
 	}
 
 	/* object_add_array always takes ownership of `to` (it is freed even on failure) */
-	if (!spdxtool_serialize_object_add_array(object_list, "to", to))
+	if (!pkgconfcli_serialize_object_add_array(object_list, "to", to))
 		goto err;
 
-	if (!spdxtool_serialize_object_add_string(object_list, "relationshipType", relationship->relationship_type))
+	if (!pkgconfcli_serialize_object_add_string(object_list, "relationshipType", relationship->relationship_type))
 		goto err;
 
 	if (relationship->scope != NULL &&
-		!spdxtool_serialize_object_add_string(object_list, "scope", relationship->scope))
+		!pkgconfcli_serialize_object_add_string(object_list, "scope", relationship->scope))
 	{
 		goto err;
 	}
 
-	ret = spdxtool_serialize_value_object(object_list);
+	ret = pkgconfcli_serialize_value_object(object_list);
 	object_list = NULL;
 
 err:
 	if (!ret)
 		pkgconf_error(client, "spdxtool_core_relationship_to_object: out of memory");
 
-	spdxtool_serialize_object_list_free(object_list);
+	pkgconfcli_serialize_object_list_free(object_list);
 	return ret;
 }

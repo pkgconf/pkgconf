@@ -285,7 +285,7 @@ main(int argc, char *argv[])
 	out = stdout;
 	error_msgout = stderr;
 
-	struct pkg_option options[] = {
+	struct pkgconfcli_option options[] = {
 		{ "version", no_argument, &want_flags, PKG_VERSION, },
 		{ "about", no_argument, &want_flags, PKG_ABOUT, },
 		{ "help", no_argument, &want_flags, PKG_HELP, },
@@ -296,7 +296,7 @@ main(int argc, char *argv[])
 		{ NULL, 0, NULL, 0 }
 	};
 
-	while ((ret = pkg_getopt_long_only(argc, argv, "", options, NULL)) != -1)
+	while ((ret = pkgconfcli_getopt_long_only(argc, argv, "", options, NULL)) != -1)
 	{
 		switch (ret)
 		{
@@ -304,29 +304,29 @@ main(int argc, char *argv[])
 			opt_quiet = true;
 			break;
 		case PKG_MIN_SCORE:
-			if (!parse_min_score(pkg_optarg, &opt_min_score))
+			if (!parse_min_score(pkgconfcli_optarg, &opt_min_score))
 			{
 				pkgconf_output_file_fmt(error_msgout,
 					"pccritic: invalid --min-score value '%s' (use 0 through 100)\n",
-					pkg_optarg);
+					pkgconfcli_optarg);
 				return EXIT_FAILURE;
 			}
 			break;
 		case PKG_COLOR:
-			if (pkg_optarg == NULL || !strcmp(pkg_optarg, "always"))
+			if (pkgconfcli_optarg == NULL || !strcmp(pkgconfcli_optarg, "always"))
 				opt_color = COLOR_ALWAYS;
-			else if (!strcmp(pkg_optarg, "never"))
+			else if (!strcmp(pkgconfcli_optarg, "never"))
 				opt_color = COLOR_NEVER;
-			else if (!strcmp(pkg_optarg, "auto"))
+			else if (!strcmp(pkgconfcli_optarg, "auto"))
 				opt_color = COLOR_AUTO;
 			else
 			{
-				pkgconf_output_file_fmt(error_msgout, "pccritic: invalid --color value '%s' (use auto, always or never)\n", pkg_optarg);
+				pkgconf_output_file_fmt(error_msgout, "pccritic: invalid --color value '%s' (use auto, always or never)\n", pkgconfcli_optarg);
 				return EXIT_FAILURE;
 			}
 			break;
 		case PKG_DEFINE_VARIABLE:
-			pkgconf_tuple_define_global(&pkg_client, pkg_optarg);
+			pkgconf_tuple_define_global(&pkg_client, pkgconfcli_optarg);
 			break;
 		case '?':
 		case ':':
@@ -365,7 +365,7 @@ main(int argc, char *argv[])
 		goto out;
 	}
 
-	if (pkg_optind >= argc || argv[pkg_optind] == NULL)
+	if (pkgconfcli_optind >= argc || argv[pkgconfcli_optind] == NULL)
 	{
 		pkgconf_output_file_fmt(error_msgout, "pccritic: please specify at least one module name or .pc file\n");
 		exit_code = EXIT_FAILURE;
@@ -374,9 +374,9 @@ main(int argc, char *argv[])
 
 	resolve_color();
 
-	for (; pkg_optind < argc && argv[pkg_optind] != NULL; pkg_optind++)
+	for (; pkgconfcli_optind < argc && argv[pkgconfcli_optind] != NULL; pkgconfcli_optind++)
 	{
-		const char *target = argv[pkg_optind];
+		const char *target = argv[pkgconfcli_optind];
 		pkgconf_pkg_t *pkg;
 		pccritic_report_t *report;
 
