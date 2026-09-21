@@ -59,6 +59,30 @@ test_serialize_value_string(void)
 }
 
 static void
+test_serialize_test_value_none(void)
+{
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(NULL, SPDXTOOL_SERIALIZE_TYPE_STRING));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(NULL, SPDXTOOL_SERIALIZE_TYPE_INT));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(NULL, SPDXTOOL_SERIALIZE_TYPE_BOOL));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(NULL, SPDXTOOL_SERIALIZE_TYPE_ARRAY));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(NULL, SPDXTOOL_SERIALIZE_TYPE_OBJECT));
+}
+
+
+static void
+test_serialize_test_value_string(void)
+{
+	spdxtool_serialize_value_t *v = spdxtool_serialize_value_string("test");
+	TEST_ASSERT_TRUE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_STRING));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_INT));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_BOOL));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_ARRAY));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_OBJECT));
+
+	spdxtool_serialize_value_free(v);
+}
+
+static void
 test_serialize_value_int(void)
 {
 	spdxtool_serialize_value_t *v = spdxtool_serialize_value_int(123);
@@ -68,6 +92,20 @@ test_serialize_value_int(void)
 	free(s);
 	spdxtool_serialize_value_free(v);
 }
+
+static void
+test_serialize_test_value_int(void)
+{
+	spdxtool_serialize_value_t *v = spdxtool_serialize_value_int(123);
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_STRING));
+	TEST_ASSERT_TRUE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_INT));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_BOOL));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_ARRAY));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_OBJECT));
+
+	spdxtool_serialize_value_free(v);
+}
+
 
 static void
 test_serialize_value_bool(void)
@@ -85,6 +123,19 @@ test_serialize_value_bool(void)
 }
 
 static void
+test_serialize_test_value_bool(void)
+{
+	spdxtool_serialize_value_t *v = spdxtool_serialize_value_bool(true);
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_STRING));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_INT));
+	TEST_ASSERT_TRUE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_BOOL));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_ARRAY));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_OBJECT));
+
+	spdxtool_serialize_value_free(v);
+}
+
+static void
 test_serialize_value_null(void)
 {
 	spdxtool_serialize_value_t *v = spdxtool_serialize_value_null();
@@ -92,6 +143,36 @@ test_serialize_value_null(void)
 	char *s = render(v);
 	TEST_ASSERT_STRCMP_EQ(s, "null");
 	free(s);
+	spdxtool_serialize_value_free(v);
+}
+
+static void
+test_serialize_test_value_array(void)
+{
+	spdxtool_serialize_array_t *a = spdxtool_serialize_array_new();
+	spdxtool_serialize_value_t *v = spdxtool_serialize_value_array(a);
+
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_STRING));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_INT));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_BOOL));
+	TEST_ASSERT_TRUE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_ARRAY));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_OBJECT));
+
+	spdxtool_serialize_value_free(v);
+}
+
+static void
+test_serialize_test_value_object(void)
+{
+	spdxtool_serialize_object_list_t *o = spdxtool_serialize_object_list_new();
+	spdxtool_serialize_value_t *v = spdxtool_serialize_value_object(o);
+
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_STRING));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_INT));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_BOOL));
+	TEST_ASSERT_FALSE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_ARRAY));
+	TEST_ASSERT_TRUE(spdxtool_serialize_is_value(v, SPDXTOOL_SERIALIZE_TYPE_OBJECT));
+
 	spdxtool_serialize_value_free(v);
 }
 
@@ -204,10 +285,16 @@ main(int argc, const char **argv)
 	(void) argc;
 	const char *basename = pkgconf_path_find_basename(argv[0]);
 
+	TEST_RUN(basename, test_serialize_test_value_none);
 	TEST_RUN(basename, test_serialize_value_string);
+	TEST_RUN(basename, test_serialize_test_value_string);
 	TEST_RUN(basename, test_serialize_value_int);
+	TEST_RUN(basename, test_serialize_test_value_int);
 	TEST_RUN(basename, test_serialize_value_bool);
+	TEST_RUN(basename, test_serialize_test_value_bool);
 	TEST_RUN(basename, test_serialize_value_null);
+	TEST_RUN(basename, test_serialize_test_value_array);
+	TEST_RUN(basename, test_serialize_test_value_object);
 	TEST_RUN(basename, test_serialize_escape_sequences);
 	TEST_RUN(basename, test_serialize_object_mixed_types);
 	TEST_RUN(basename, test_serialize_object_key_escaping);

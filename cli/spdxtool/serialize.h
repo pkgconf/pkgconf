@@ -61,6 +61,9 @@ spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_val
 spdxtool_serialize_value_t *
 spdxtool_serialize_value_dup(const spdxtool_serialize_value_t *value);
 
+bool
+spdxtool_serialize_is_value(const spdxtool_serialize_value_t *value, spdxtool_serialize_type_t type);
+
 spdxtool_serialize_value_t *
 spdxtool_serialize_object_add_take(spdxtool_serialize_object_list_t *object_list, const char *key, spdxtool_serialize_value_t* value);
 

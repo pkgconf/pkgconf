@@ -160,6 +160,29 @@ spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_val
 /*
  * !doc
  *
+ * .. c:function:: bool spdxtool_serialize_is_value(const spdxtool_serialize_value_t *value, spdxtool_serialize_type_t type)
+ *
+ *    Check if const spdxtool_serialize_value_t has some type
+ *
+ *    :param const spdxtool_serialize_value_t *value: Value struct
+ *    :param sspdxtool_serialize_type_t type: Values type
+ *    :return: true if value is correct false if not
+ */
+bool
+spdxtool_serialize_is_value(const spdxtool_serialize_value_t *value, spdxtool_serialize_type_t type)
+{
+	if (!value)
+		return false;
+
+	if (value->type == type)
+		return true;
+
+	return false;
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: spdxtool_serialize_value_t *spdxtool_serialize_object_add_take(spdxtool_serialize_object_list_t *object_list, const char *key, spdxtool_serialize_value_t *value)
  *
  *    Add a key-value pair to a JSON object list. The key is copied internally.
