@@ -88,6 +88,9 @@ spdxtool_serialize_object_free(spdxtool_serialize_object_t *object);
 void
 spdxtool_serialize_array_free(spdxtool_serialize_array_t *array);
 
+spdxtool_serialize_value_t *
+spdxtool_serialize_value_object_find(spdxtool_serialize_value_t *value, const char *key);
+
 /*
  * !doc
  *

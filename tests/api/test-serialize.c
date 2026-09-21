@@ -279,6 +279,45 @@ test_serialize_null_guards(void)
 	spdxtool_serialize_array_free(NULL);
 }
 
+static void
+test_serialize_value_find_by_key(void)
+{
+	spdxtool_serialize_object_list_t *o = spdxtool_serialize_object_list_new();
+	spdxtool_serialize_array_t *a = spdxtool_serialize_array_new();
+	spdxtool_serialize_value_t *vo = spdxtool_serialize_value_object(o);
+	spdxtool_serialize_value_t *va = spdxtool_serialize_value_array(a);
+	spdxtool_serialize_value_t *v = NULL;
+	char test_key[12];
+	int i = 0;
+
+	TEST_ASSERT_NULL(spdxtool_serialize_value_object_find(NULL, "test"));
+	TEST_ASSERT_NULL(spdxtool_serialize_value_object_find(vo, NULL));
+	TEST_ASSERT_NULL(spdxtool_serialize_value_object_find(va, "test"));
+
+	for(i = 0; i <= 24; i ++)
+	{
+		snprintf(test_key, 10, "test%05d", i);
+		spdxtool_serialize_object_add_take(o, test_key, spdxtool_serialize_value_string(test_key));
+	}
+
+	TEST_ASSERT_NULL(spdxtool_serialize_value_object_find(vo, "test00025"));
+
+	for(i = 24; i > 0; i --)
+	{
+		memset(test_key, 0x00, 12);
+		snprintf(test_key, 10, "test%05d", i);
+		v = spdxtool_serialize_value_object_find(vo, test_key);
+
+        TEST_ASSERT_NONNULL(v);
+		TEST_ASSERT_EQ(v->type, SPDXTOOL_SERIALIZE_TYPE_STRING);
+		TEST_ASSERT_STRCASECMP_EQ(v->value.s, test_key);
+	}
+
+	spdxtool_serialize_value_free(va);
+	spdxtool_serialize_value_free(vo);
+}
+
+
 int
 main(int argc, const char **argv)
 {
@@ -300,6 +339,7 @@ main(int argc, const char **argv)
 	TEST_RUN(basename, test_serialize_object_key_escaping);
 	TEST_RUN(basename, test_serialize_array_mixed_types);
 	TEST_RUN(basename, test_serialize_null_guards);
+	TEST_RUN(basename, test_serialize_value_find_by_key);
 
 	return EXIT_SUCCESS;
 }

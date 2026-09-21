@@ -286,6 +286,38 @@ spdxtool_serialize_array_new(void)
 /*
  * !doc
  *
+ * .. c:function:: spdxtool_serialize_value_t *spdxtool_serialize_find_object(spdxtool_serialize_value_t *value, const char *key)
+ *
+ *    Find object from object list byt key
+ *
+ *    :param spdxtool_serialize_value_t *object_list: Object list which should be traversed
+ *    :param const char *key: Key to be seeked
+ *    :return: NULL if not found or pointer to object
+ */
+spdxtool_serialize_value_t *
+spdxtool_serialize_value_object_find(spdxtool_serialize_value_t *value, const char *key)
+{
+	if (!value || !key || value->type != SPDXTOOL_SERIALIZE_TYPE_OBJECT)
+		return NULL;
+
+	size_t key_len = strnlen(key, 1024);
+	pkgconf_node_t *iter;
+
+	PKGCONF_FOREACH_LIST_ENTRY(value->value.o->entries.head, iter)
+	{
+		spdxtool_serialize_object_t *entry_obj = iter->data;
+		if (!strncmp(entry_obj->key, key, key_len))
+		{
+			return entry_obj->value;
+		}
+	}
+
+	return NULL;
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: void spdxtool_serialize_value_free(spdxtool_serialize_value_t *value)
  *
  *    Free all resources owned by a JSON value. For strings, frees the string.
