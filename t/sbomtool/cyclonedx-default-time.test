@@ -1,0 +1,6 @@
+Tool: sbomtool
+ToolArgs: test3
+Environment: PKG_CONFIG_PATH=%TEST_FIXTURES_DIR%/lib-sbom
+ExpectedStdout: "type": "application"
+MatchStdout: Partial
+ExpectedExitCode: 0
