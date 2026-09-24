@@ -1,0 +1,53 @@
+{
+    "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.7",
+    "specVersion": 1,
+    "metadata": {
+        "timestamp": "test",
+        "manufacturer": {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/metadata/Default",
+            "name": "Default",
+            "url": [
+                "https://github.com/pkgconf/pkgconf"
+            ]
+        }
+    },
+    "components": [
+        {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/component/variable-test1",
+            "type": "application",
+            "name": "variable-test1",
+            "version": "1.0-123",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "BSD-2-Clause"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://github.com/pkgconf/pkgconf/releases/"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz"
+                }
+            ],
+            "authors": [
+                {
+                    "name": "Variabletest1 Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "ref": "https://github.com/pkgconf/pkgconf/component/variable-test1"
+        }
+    ]
+}
