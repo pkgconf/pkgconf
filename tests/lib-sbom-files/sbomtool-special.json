@@ -1,0 +1,50 @@
+{
+    "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.7",
+    "specVersion": 1,
+    "metadata": {
+        "timestamp": "test",
+        "manufacturer": {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/metadata/Default",
+            "name": "Default",
+            "url": [
+                "https://github.com/pkgconf/pkgconf"
+            ]
+        }
+    },
+    "components": [
+        {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/component/special",
+            "type": "application",
+            "name": "special",
+            "version": "1.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://example.com/special"
+                }
+            ],
+            "copyright": "Quote \" backslash \\ and\ttab",
+            "authors": [
+                {
+                    "name": "Special Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "ref": "https://github.com/pkgconf/pkgconf/component/special"
+        }
+    ]
+}
