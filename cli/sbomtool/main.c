@@ -58,7 +58,7 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 	(void) data;
 	if (!pkgconf_output_file_fmt(error_msgout, "%s", msg))
 	{
-		pkgconf_error(client, "spdxtool: Could not output error message: %s", strerror(errno));
+		pkgconf_error(client, "%s: Could not output error message: %s", app_name, strerror(errno));
 		return false;
 	}
 	return true;
@@ -67,16 +67,16 @@ error_handler(const char *msg, const pkgconf_client_t *client, void *data)
 static int
 version(void)
 {
-	printf("spdxtool %s\n", PACKAGE_VERSION);
+	printf("%s %s\n", app_name, PACKAGE_VERSION);
 	return EXIT_SUCCESS;
 }
 
 static int
 about(void)
 {
-	printf("spdxtool (%s %s)\n\n", PACKAGE_NAME, PACKAGE_VERSION);
+	printf("%s (%s %s)\n\n", app_name, PACKAGE_NAME, PACKAGE_VERSION);
 	printf("SPDX-License-Identifier: BSD-2-Clause\n\n");
-	printf("Copyright (c) 2025 The FreeBSD Foundation\n\n");
+	printf("Copyright (c) 2026 The FreeBSD Foundation\n\n");
 	printf("Portions of this software were developed by\n");
 	printf("Tuukka Pasanen <tuukka.pasanen@ilmi.fi> under sponsorship from\n");
 	printf("the FreeBSD Foundation\n\n");
@@ -87,7 +87,7 @@ about(void)
 static int
 usage(void)
 {
-	printf("usage: spdxtool [modules]\n");
+	printf("usage: %s [modules]\n", app_name);
 
 	printf("\nOptions:\n");
 
@@ -314,10 +314,10 @@ main(int argc, char *argv[])
 	{
 		bool_ret = pkgconf_output_file_fmt(sbom_out, "%s\n", pkgconf_buffer_str(&buffer));
 		if (!bool_ret)
-			pkgconf_error(&pkg_client, "spdxtool: Could not output to file: %s", strerror(errno));
+			pkgconf_error(&pkg_client, "%s: Could not output to file: %s", app_name, strerror(errno));
 	}
 	else
-		pkgconf_error(&pkg_client, "spdxtool: Could not serialize SPDX document");
+		pkgconf_error(&pkg_client, "%s: Could not serialize SPDX document", app_name);
 
 	pkgconf_buffer_finalize(&buffer);
 

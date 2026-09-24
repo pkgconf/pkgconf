@@ -1,0 +1,81 @@
+{
+    "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.7",
+    "specVersion": 1,
+    "metadata": {
+        "timestamp": "test",
+        "manufacturer": {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/metadata/Default",
+            "name": "Default",
+            "url": [
+                "https://github.com/pkgconf/pkgconf"
+            ]
+        }
+    },
+    "components": [
+        {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/component/priv-parent",
+            "type": "application",
+            "name": "priv-parent",
+            "version": "1.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://example.com/priv-parent"
+                }
+            ],
+            "authors": [
+                {
+                    "name": "Privparent Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        },
+        {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/component/priv-child",
+            "type": "application",
+            "name": "priv-child",
+            "version": "1.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://example.com/priv-child"
+                }
+            ],
+            "authors": [
+                {
+                    "name": "Privchild Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "ref": "https://github.com/pkgconf/pkgconf/component/priv-parent",
+            "dependsOn": [
+                "https://github.com/pkgconf/pkgconf/component/priv-child"
+            ]
+        },
+        {
+            "ref": "https://github.com/pkgconf/pkgconf/component/priv-child"
+        }
+    ]
+}
