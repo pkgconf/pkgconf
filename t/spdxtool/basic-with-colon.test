@@ -1,5 +1,5 @@
 Tool: spdxtool
 ToolArgs: --creation-time=test --use-uri test3
 Environment: PKG_CONFIG_PATH=%TEST_FIXTURES_DIR%/lib-sbom
-ExpectedStdoutFile: ../../tests/lib-sbom-files/basic-use-uri.json
+ExpectedStdoutFile: ../../tests/lib-sbom-files/spdxtool-basic-use-uri.json
 ExpectedExitCode: 0
