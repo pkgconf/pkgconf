@@ -353,6 +353,23 @@ test_api_serialize_exe = executable('test-api-serialize',
   build_by_default : false)
 test('api-serialize', test_api_serialize_exe)
 
+# Unit test for spdxtool's util uri encode.
+test_api_util_exe = executable('test-api-util',
+  'tests/api/test-util.c',
+  'cli/spdxtool/core.c',
+  'cli/spdxtool/software.c',
+  'cli/spdxtool/serialize.c',
+  'cli/spdxtool/simplelicensing.c',
+  'cli/spdxtool/util.c',
+  windows_manifest,
+  link_with : libpkgconf,
+  c_args : build_static,
+  include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/spdxtool')],
+  install : false,
+  build_by_default : false)
+test('api-util', test_api_util_exe)
+
+
 # Allocation-failure (OOM) tests.  These drive the shared fuzzer/alloc-inject
 # fault injector through the linker's --wrap, so they are built wherever --wrap
 # is supported: glibc and musl Linux (GNU ld / lld), and skipped on macOS ld64
