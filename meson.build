@@ -162,7 +162,7 @@ cdata.set_quoted('PKG_DEFAULT_PATH', PKG_DEFAULT_PATH)
 cdata.set_quoted('PERSONALITY_PATH', ':'.join(personality_path))
 cdata.set_quoted('PACKAGE_NAME', meson.project_name())
 cdata.set_quoted('PACKAGE_VERSION', meson.project_version())
-cdata.set_quoted('PACKAGE_BUGREPORT', 'https://todo.sr.ht/~kaniini/pkgconf')
+cdata.set_quoted('PACKAGE_BUGREPORT', 'https://github.com/pkgconf/pkgconf/issues')
 cdata.set('abs_top_srcdir', meson.current_source_dir())
 cdata.set('abs_top_builddir', meson.current_build_dir())
 
