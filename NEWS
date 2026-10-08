@@ -1,6 +1,24 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.7 to 3.0.8:
+----------------------------
+
+* Correctness and portability fixes:
+  - spdxtool now percent-encodes problematic ASCII characters in generated
+    SPDX URLs and URNs.  Patch by Tuukka Pasanen, sponsored by The FreeBSD
+    Foundation.
+  - The built-in pc_path, pc_system_libdirs and pc_system_includedirs variables
+    now use the platform path separator, fixing their output for multiple paths
+    on Windows.  Patch by Christoph Reiter.
+
+* Documentation and build fixes:
+  - Correct the pkgconf(1) description of --variable to document that it prints
+    values for every module specified on the command line.  Patch by Christoph
+    Reiter.
+  - Update the bug-report URL embedded by Meson builds to point to the pkgconf
+    issue tracker on GitHub.
+
 Changes from 3.0.6 to 3.0.7:
 ----------------------------
 
