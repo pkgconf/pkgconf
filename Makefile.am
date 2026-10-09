@@ -766,6 +766,7 @@ API_TEST_PROGS =		\
 	test-api-queue		\
 	test-api-serialize	\
 	test-api-tuple		\
+	test-api-util		\
 	test-api-variable	\
 	test-api-version
 
@@ -840,6 +841,16 @@ test_api_tuple_LDADD = $(api_test_ldadd)
 test_api_tuple_SOURCES = tests/api/test-tuple.c
 test_api_tuple_CPPFLAGS = $(api_test_cppflags)
 
+test_api_util_LDADD = $(api_test_ldadd)
+test_api_util_SOURCES = \
+    tests/api/test-util.c \
+    cli/spdxtool/core.c \
+    cli/spdxtool/software.c \
+    cli/spdxtool/serialize.c \
+    cli/spdxtool/simplelicensing.c \
+    cli/spdxtool/util.c
+test_api_util_CPPFLAGS = $(api_test_cppflags) -I$(top_srcdir)/cli/spdxtool
+
 test_api_variable_LDADD = $(api_test_ldadd)
 test_api_variable_SOURCES = tests/api/test-variable.c
 test_api_variable_CPPFLAGS = $(api_test_cppflags)
@@ -869,6 +880,7 @@ check: pkgconf test-runner $(API_TEST_PROGS)
 	$(builddir)/test-api-queue$(EXEEXT)
 	$(builddir)/test-api-serialize$(EXEEXT)
 	$(builddir)/test-api-tuple$(EXEEXT)
+	$(builddir)/test-api-util$(EXEEXT)
 	$(builddir)/test-api-variable$(EXEEXT)
 	$(builddir)/test-api-version$(EXEEXT)
 	$(builddir)/test-runner$(EXEEXT) --test-fixtures=$(top_srcdir)/tests --tool-dir="$(PWD)" $(top_srcdir)/t/basic
