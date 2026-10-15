@@ -1,6 +1,14 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.8 to 3.0.9:
+----------------------------
+
+* Build fixes:
+  - The Autotools build now includes and runs the spdxtool utility API tests,
+    ensuring that they are included in release tarballs.
+    Patch by commitmaniac.
+
 Changes from 3.0.7 to 3.0.8:
 ----------------------------
 
