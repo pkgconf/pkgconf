@@ -315,6 +315,7 @@ api_tests = [
   'dependency',
   'fileio',
   'fragment',
+  'iter',
   'license',
   'path-utils',
   'personality',
