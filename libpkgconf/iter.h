@@ -130,6 +130,27 @@ pkgconf_node_delete(pkgconf_node_t *node, pkgconf_list_t *list)
 		node->next->prev = node->prev;
 }
 
+static inline void
+pkgconf_node_pop(pkgconf_node_t **node, pkgconf_list_t *list)
+{
+	if (node == NULL || list == NULL || list->tail == NULL)
+		return;
+
+	*(node) = list->tail;
+
+	pkgconf_node_delete(list->tail, list);
+}
+
+static inline void
+pkgconf_node_shift(pkgconf_node_t **node, pkgconf_list_t *list)
+{
+	if (node == NULL || list == NULL || list->head == NULL)
+		return;
+
+	*(node) = list->head;
+
+	pkgconf_node_delete(list->head, list);
+}
 #ifdef __cplusplus
 }
 #endif
