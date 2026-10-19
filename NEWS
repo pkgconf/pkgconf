@@ -1,6 +1,12 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.9 to 3.0.10:
+-----------------------------
+
+* Build fixes:
+  - Update the Meson version number to 3.0.10, I forgot to do it last time.
+
 Changes from 3.0.8 to 3.0.9:
 ----------------------------
 
