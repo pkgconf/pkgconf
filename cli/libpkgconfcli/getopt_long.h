@@ -36,6 +36,7 @@
 #define _GETOPT_LONG_H_
 
 #include <stdint.h>
+#include <libpkgconf/libpkgconf-api.h>
 
 /*
  * GNU-like getopt_long()/getopt_long_only() with 4.4BSD optreset extension.
@@ -45,7 +46,7 @@
 #define required_argument  1
 #define optional_argument  2
 
-struct pkg_option {
+struct pkgconfcli_option {
 	/* name of long option */
 	const char *name;
 	/*
@@ -59,14 +60,19 @@ struct pkg_option {
 	uint64_t val;
 };
 
-int	pkg_getopt_long(int, char * const *, const char *,
-	const struct pkg_option *, int *);
-int	pkg_getopt_long_only(int, char * const *, const char *,
-	const struct pkg_option *, int *);
-int	pkg_getopt(int, char * const [], const char *);
+PKGCONF_API int
+pkgconfcli_getopt_long(int, char * const *, const char *,
+	const struct pkgconfcli_option *, int *);
+PKGCONF_API int
+pkgconfcli_getopt_long_only(int, char * const *, const char *,
+	const struct pkgconfcli_option *, int *);
+PKGCONF_API int
+pkgconfcli_getopt(int, char * const [], const char *);
 
-extern char *pkg_optarg;			/* getopt(3) external variables */
-extern int pkg_optind, pkg_opterr, pkg_optopt;
-extern int pkg_optreset;			/* getopt(3) external variable */
+PKGCONF_API extern char	*pkgconfcli_optarg;			/* getopt(3) external variables */
+PKGCONF_API extern int	pkgconfcli_optind;
+PKGCONF_API extern int	pkgconfcli_opterr;
+PKGCONF_API extern int	pkgconfcli_optopt;
+PKGCONF_API extern int	pkgconfcli_optreset;			/* getopt(3) external variable */
 
 #endif
