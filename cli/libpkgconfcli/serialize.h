@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "libpkgconf/libpkgconf.h"
+#include <libpkgconf/libpkgconf.h>
 
 #ifndef CLI__LIBSBOM__SERIALIZE_H
 #define CLI__LIBSBOM__SERIALIZE_H
@@ -56,40 +56,40 @@ typedef struct pkgconfcli_serialize_array_ {
 	pkgconf_list_t items;
 } pkgconfcli_serialize_array_t;
 
-bool
+PKGCONF_API bool
 pkgconfcli_serialize_value_to_buf(pkgconf_buffer_t *buffer, pkgconfcli_serialize_value_t *value, unsigned int indent);
 
-pkgconfcli_serialize_value_t *
+PKGCONF_API pkgconfcli_serialize_value_t *
 pkgconfcli_serialize_value_dup(const pkgconfcli_serialize_value_t *value);
 
-bool
+PKGCONF_API bool
 pkgconfcli_serialize_is_value(const pkgconfcli_serialize_value_t *value, pkgconfcli_serialize_type_t type);
 
-pkgconfcli_serialize_value_t *
+PKGCONF_API pkgconfcli_serialize_value_t *
 pkgconfcli_serialize_object_add_take(pkgconfcli_serialize_object_list_t *object_list, const char *key, pkgconfcli_serialize_value_t* value);
 
-pkgconfcli_serialize_object_list_t *
+PKGCONF_API pkgconfcli_serialize_object_list_t *
 pkgconfcli_serialize_object_list_new(void);
 
-pkgconfcli_serialize_array_t *
+PKGCONF_API pkgconfcli_serialize_array_t *
 pkgconfcli_serialize_array_new(void);
 
-pkgconfcli_serialize_value_t *
+PKGCONF_API pkgconfcli_serialize_value_t *
 pkgconfcli_serialize_array_add_take(pkgconfcli_serialize_array_t *array, pkgconfcli_serialize_value_t* value);
 
-void
+PKGCONF_API void
 pkgconfcli_serialize_value_free(pkgconfcli_serialize_value_t *value);
 
-void
+PKGCONF_API void
 pkgconfcli_serialize_object_list_free(pkgconfcli_serialize_object_list_t *object_list);
 
-void
+PKGCONF_API void
 pkgconfcli_serialize_object_free(pkgconfcli_serialize_object_t *object);
 
-void
+PKGCONF_API void
 pkgconfcli_serialize_array_free(pkgconfcli_serialize_array_t *array);
 
-pkgconfcli_serialize_value_t *
+PKGCONF_API pkgconfcli_serialize_value_t *
 pkgconfcli_serialize_value_object_find(pkgconfcli_serialize_value_t *value, const char *key);
 
 /*
@@ -541,9 +541,6 @@ pkgconfcli_serialize_array_add_array(pkgconfcli_serialize_array_t *array, pkgcon
 
 	return pkgconfcli_serialize_array_add_take(array, ret);
 }
-
-/*pkgconfcli_serialize_value_t *
-pkgconfcli_serialize_sbom(pkgconf_client_t *client, libsbom_core_agent_t *agent, libsbom_core_tool_t *tool, libsbom_core_creation_info_t *creation, libsbom_core_spdx_document_t *spdx);*/
 
 #ifdef __cplusplus
 }
