@@ -95,24 +95,24 @@ spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_val
 	switch(value->type) {
 		case SPDXTOOL_SERIALIZE_TYPE_STRING:
 			return pkgconf_buffer_push_byte(buffer, '"') &&
-				serialize_escape_string(buffer, value->value.s ? value->value.s : "") &&
+				serialize_escape_string(buffer, spdxtool_serialize_value_get_string(value) ? spdxtool_serialize_value_get_string(value) : "") &&
 				pkgconf_buffer_push_byte(buffer, '"');
 		case SPDXTOOL_SERIALIZE_TYPE_INT:
-			return pkgconf_buffer_append_fmt(buffer, "%d", value->value.i);
+			return pkgconf_buffer_append_fmt(buffer, "%d", spdxtool_serialize_value_get_int(value));
 		case SPDXTOOL_SERIALIZE_TYPE_BOOL:
-			return pkgconf_buffer_append(buffer, value->value.b ? "true" : "false");
+			return pkgconf_buffer_append(buffer, spdxtool_serialize_value_get_bool(value) ? "true" : "false");
 		case SPDXTOOL_SERIALIZE_TYPE_NULL:
 			return pkgconf_buffer_append(buffer, "null");
 		case SPDXTOOL_SERIALIZE_TYPE_OBJECT:
 		{
 			pkgconf_node_t *iter;
 
-			if (value->value.o == NULL ||
+			if (spdxtool_serialize_value_get_object(value) == NULL ||
 				!pkgconf_buffer_push_byte(buffer, '{') ||
 				!pkgconf_buffer_push_byte(buffer, '\n'))
 				return false;
 
-			PKGCONF_FOREACH_LIST_ENTRY(value->value.o->entries.head, iter)
+			PKGCONF_FOREACH_LIST_ENTRY(spdxtool_serialize_value_get_object(value)->entries.head, iter)
 			{
 				spdxtool_serialize_object_t *entry = iter->data;
 
@@ -133,12 +133,12 @@ spdxtool_serialize_value_to_buf(pkgconf_buffer_t *buffer, spdxtool_serialize_val
 		{
 			pkgconf_node_t *iter;
 
-			if (value->value.a == NULL ||
+			if (spdxtool_serialize_value_get_array(value) == NULL ||
 				!pkgconf_buffer_push_byte(buffer, '[') ||
 				!pkgconf_buffer_push_byte(buffer, '\n'))
 				return false;
 
-			PKGCONF_FOREACH_LIST_ENTRY(value->value.a->items.head, iter)
+			PKGCONF_FOREACH_LIST_ENTRY(spdxtool_serialize_value_get_array(value)->items.head, iter)
 			{
 				spdxtool_serialize_value_t *entry = iter->data;
 
@@ -297,13 +297,13 @@ spdxtool_serialize_array_new(void)
 spdxtool_serialize_value_t *
 spdxtool_serialize_value_object_find(spdxtool_serialize_value_t *value, const char *key)
 {
-	if (!value || !key || value->type != SPDXTOOL_SERIALIZE_TYPE_OBJECT)
+	if (!value || !key || !spdxtool_serialize_is_value(value, SPDXTOOL_SERIALIZE_TYPE_OBJECT))
 		return NULL;
 
 	size_t key_len = strnlen(key, 1024);
 	pkgconf_node_t *iter;
 
-	PKGCONF_FOREACH_LIST_ENTRY(value->value.o->entries.head, iter)
+	PKGCONF_FOREACH_LIST_ENTRY(spdxtool_serialize_value_get_object(value)->entries.head, iter)
 	{
 		spdxtool_serialize_object_t *entry_obj = iter->data;
 		if (!strncmp(entry_obj->key, key, key_len))
@@ -339,10 +339,10 @@ spdxtool_serialize_value_free(spdxtool_serialize_value_t *value)
 			free(value->value.s);
 			break;
 		case SPDXTOOL_SERIALIZE_TYPE_ARRAY:
-			spdxtool_serialize_array_free(value->value.a);
+			spdxtool_serialize_array_free(spdxtool_serialize_value_get_array(value));
 			break;
 		case SPDXTOOL_SERIALIZE_TYPE_OBJECT:
-			spdxtool_serialize_object_list_free(value->value.o);
+			spdxtool_serialize_object_list_free(spdxtool_serialize_value_get_object(value));
 			break;
 		default:
 			// Nothing to do
