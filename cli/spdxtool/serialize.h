@@ -94,6 +94,104 @@ spdxtool_serialize_value_object_find(spdxtool_serialize_value_t *value, const ch
 /*
  * !doc
  *
+ * .. c:function:: const char *spdxtool_serialize_value_get_string(const spdxtool_serialize_value_t *value)
+ *
+ *    return string value
+ *
+ *    :param const spdxtool_serialize_value_t *value value object
+ *    :return: const char * or NULL if it's value object is something else
+ */
+static inline const char *
+spdxtool_serialize_value_get_string(const spdxtool_serialize_value_t *value)
+{
+	if (!spdxtool_serialize_is_value(value, SPDXTOOL_SERIALIZE_TYPE_STRING))
+		printf("spdxtool_serialize_value_get_string %d\n", value->type);
+
+	if(!value || !spdxtool_serialize_is_value(value, SPDXTOOL_SERIALIZE_TYPE_STRING))
+		return NULL;
+
+	return value->value.s;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: int spdxtool_serialize_value_get_int(const spdxtool_serialize_value_t *value)*
+ *
+ *    return integer value
+ *
+ *    :param const spdxtool_serialize_value_t *value value object
+ *    :return: int or 0 if it's value object is something else
+ */
+static inline int
+spdxtool_serialize_value_get_int(const spdxtool_serialize_value_t *value)
+{
+	if(!value || !spdxtool_serialize_is_value(value, SPDXTOOL_SERIALIZE_TYPE_INT))
+		return 0;
+
+	return value->value.i;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: int spdxtool_serialize_value_get_int(const spdxtool_serialize_value_t *value)*
+ *
+ *    return boolean value
+ *
+ *    :param const spdxtool_serialize_value_t *value value object
+ *    :return: bool value or false if it's value object is something else
+ */
+static inline bool
+spdxtool_serialize_value_get_bool(const spdxtool_serialize_value_t *value)
+{
+	if(!value || !spdxtool_serialize_is_value(value, SPDXTOOL_SERIALIZE_TYPE_BOOL))
+		return false;
+
+	return value->value.b;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: spdxtool_serialize_object_list_t *spdxtool_serialize_value_get_object(const spdxtool_serialize_value_t *value)
+ *
+ *    return object value
+ *
+ *    :param const spdxtool_serialize_value_t *value value object
+ *    :return: spdxtool_serialize_object_list_t * or NULL if it's value object is something else
+ */
+static inline spdxtool_serialize_object_list_t *
+spdxtool_serialize_value_get_object(const spdxtool_serialize_value_t *value)
+{
+	if(!value || !spdxtool_serialize_is_value(value, SPDXTOOL_SERIALIZE_TYPE_OBJECT))
+		return NULL;
+
+	return value->value.o;
+}
+
+/*
+ * !doc
+ *
+ * .. c:function:: spdxtool_serialize_array_t *spdxtool_serialize_value_get_array(const spdxtool_serialize_value_t *value)
+ *
+ *    return array value
+ *
+ *    :param const spdxtool_serialize_value_t *value value object
+ *    :return: spdxtool_serialize_array_t * or NULL if it's value object is something else
+ */
+static inline spdxtool_serialize_array_t *
+spdxtool_serialize_value_get_array(const spdxtool_serialize_value_t *value)
+{
+	if(!value || !spdxtool_serialize_is_value(value, SPDXTOOL_SERIALIZE_TYPE_ARRAY))
+		return NULL;
+
+	return value->value.a;
+}
+
+/*
+ * !doc
+ *
  * .. c:function:: spdxtool_serialize_value_t * spdxtool_serialize_value_string(const char *s)
  *
  *    Construct a JSON string value. The string is copied internally.
