@@ -222,7 +222,7 @@ libpkgconfcli_sources = [
 
 libpkgconfcli = library('pkgconfcli',
   libpkgconfcli_sources,
-  c_args: ['-DLIBPKGCONF_EXPORT', build_static],
+  c_args: ['-DLIBPKGCONFCLI_EXPORT', build_static],
   install : true,
   version : '1.0.0',
   soversion : '1',
