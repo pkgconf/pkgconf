@@ -91,12 +91,13 @@ pkgconf is compiled using [Meson](https://mesonbuild.com):
 
 If you are installing pkgconf into a custom prefix, such as `/opt/pkgconf`, you will
 likely want to define the default system includedir and libdir for your toolchain.
-To do this, use the `SYSTEM_LIBDIR` and `SYSTEM_INCLUDEDIR` Meson options like so:
+To do this, use the `with-system-libdir` and `with-system-includedir` Meson
+options like so:
 
     $ meson setup build \
          --prefix=/opt/pkgconf \
-         -DSYSTEM_LIBDIR=/lib:/usr/lib \
-         -DSYSTEM_INCLUDEDIR=/usr/include
+         -Dwith-system-libdir=/lib:/usr/lib \
+         -Dwith-system-includedir=/usr/include
     $ meson compile -C build
     $ meson install -C build
 
