@@ -337,6 +337,19 @@ foreach t : api_tests
   test('api-' + t, exe)
 endforeach
 
+# Unit test for getopt (CLI paramter parser).
+test_api_getopt_exe = executable('test-api-getopt',
+  'tests/api/test-getopt.c',
+  'cli/getopt_long.c',
+  windows_manifest,
+  link_with : libpkgconf,
+  c_args : build_static,
+  include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli')],
+  install : false,
+  build_by_default : false)
+test('api-getopt', test_api_getopt_exe)
+
+
 # Unit test for spdxtool's JSON serializer.  Unlike the api_tests above it must
 # also compile the spdxtool sources it exercises (everything but main.c).
 test_api_serialize_exe = executable('test-api-serialize',
