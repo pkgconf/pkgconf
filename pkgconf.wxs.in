@@ -59,8 +59,13 @@
           <?if "@BUILD_TYPE@" = "shared" ?>
             <Component Id="PkgconfDll" Guid="*">
                 <File Id="PkgconfDllFile"
-                        Source="@DLL@"
+                        Source="@LIBPKGCONF_DLL@"
                         KeyPath="yes" />
+            </Component>
+            <Component Id="PkgconfcliDll" Guid="*">
+                <File Id="PkgconfcliDllFile"
+                      Source="@LIBPKGCONFCLI_DLL@"
+                      KeyPath="yes" />
             </Component>
           <?endif?>
       </ComponentGroup>

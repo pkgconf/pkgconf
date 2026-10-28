@@ -1,0 +1,260 @@
+{
+    "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.7",
+    "specVersion": 1,
+    "metadata": {
+        "timestamp": "test",
+        "manufacturer": {
+            "bom-ref": "distfiles.ariadne.space:pkgconf:metadata:Default",
+            "name": "Default",
+            "url": [
+                "https://github.com/pkgconf/pkgconf"
+            ]
+        }
+    },
+    "components": [
+        {
+            "bom-ref": "distfiles.ariadne.space:pkgconf:component:meta_package",
+            "type": "application",
+            "name": "meta_package",
+            "version": "1.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "BSD-2-Clause"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://github.com/pkgconf/pkgconf"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz"
+                }
+            ],
+            "authors": [
+                {
+                    "name": "Meta Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        },
+        {
+            "bom-ref": "distfiles.ariadne.space:pkgconf:component:test1",
+            "type": "application",
+            "name": "test1",
+            "version": "1.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "BSD-1-Clause"
+                    }
+                }
+            ],
+            "externalReferences": [
+            ],
+            "copyright": "Test1 copyright text",
+            "authors": [
+                {
+                    "name": "Test1 Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        },
+        {
+            "bom-ref": "distfiles.ariadne.space:pkgconf:component:test2",
+            "type": "application",
+            "name": "test2",
+            "version": "2.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "BSD-2-Clause"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://github.com/pkgconf/pkgconf/"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz"
+                }
+            ],
+            "authors": [
+                {
+                    "name": "Test2 Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        },
+        {
+            "bom-ref": "distfiles.ariadne.space:pkgconf:component:test3",
+            "type": "application",
+            "name": "test3",
+            "version": "3.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "BSD-4-Clause"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://github.com/pkgconf/pkgconf/"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz"
+                }
+            ],
+            "copyright": "Test3 copyright text",
+            "authors": [
+                {
+                    "name": "Test3 Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        },
+        {
+            "bom-ref": "distfiles.ariadne.space:pkgconf:component:test4",
+            "type": "application",
+            "name": "test4",
+            "version": "4.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://github.com/pkgconf/pkgconf/"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz"
+                }
+            ],
+            "authors": [
+                {
+                    "name": "Test4 Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        },
+        {
+            "bom-ref": "distfiles.ariadne.space:pkgconf:component:test5",
+            "type": "application",
+            "name": "test5",
+            "version": "5.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "MIT"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://github.com/pkgconf/pkgconf/"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz"
+                }
+            ],
+            "authors": [
+                {
+                    "name": "Test5 Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        },
+        {
+            "bom-ref": "distfiles.ariadne.space:pkgconf:component:test6",
+            "type": "application",
+            "name": "test6",
+            "version": "6.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "Apache-2.0"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://github.com/pkgconf/pkgconf/releases/"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz"
+                }
+            ],
+            "authors": [
+                {
+                    "name": "Test6 Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "ref": "distfiles.ariadne.space:pkgconf:component:meta_package",
+            "dependsOn": [
+                "distfiles.ariadne.space:pkgconf:component:test1",
+                "distfiles.ariadne.space:pkgconf:component:test2",
+                "distfiles.ariadne.space:pkgconf:component:test3",
+                "distfiles.ariadne.space:pkgconf:component:test4",
+                "distfiles.ariadne.space:pkgconf:component:test5",
+                "distfiles.ariadne.space:pkgconf:component:test6"
+            ]
+        },
+        {
+            "ref": "distfiles.ariadne.space:pkgconf:component:test1"
+        },
+        {
+            "ref": "distfiles.ariadne.space:pkgconf:component:test2",
+            "dependsOn": [
+                "distfiles.ariadne.space:pkgconf:component:test3"
+            ]
+        },
+        {
+            "ref": "distfiles.ariadne.space:pkgconf:component:test3"
+        },
+        {
+            "ref": "distfiles.ariadne.space:pkgconf:component:test4",
+            "dependsOn": [
+                "distfiles.ariadne.space:pkgconf:component:test5",
+                "distfiles.ariadne.space:pkgconf:component:test6"
+            ]
+        },
+        {
+            "ref": "distfiles.ariadne.space:pkgconf:component:test5"
+        },
+        {
+            "ref": "distfiles.ariadne.space:pkgconf:component:test6"
+        }
+    ]
+}

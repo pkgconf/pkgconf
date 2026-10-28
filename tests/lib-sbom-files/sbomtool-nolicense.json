@@ -1,0 +1,49 @@
+{
+    "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.7",
+    "specVersion": 1,
+    "metadata": {
+        "timestamp": "test",
+        "manufacturer": {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/metadata/Default",
+            "name": "Default",
+            "url": [
+                "https://github.com/pkgconf/pkgconf"
+            ]
+        }
+    },
+    "components": [
+        {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/component/nolicense",
+            "type": "application",
+            "name": "nolicense",
+            "version": "1.0.0",
+            "licenses": [
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://example.com/nolicense"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://example.com/nolicense/nolicense-1.0.0.tar.gz"
+                }
+            ],
+            "copyright": "Nolicense copyright text",
+            "authors": [
+                {
+                    "name": "Nolicense Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "ref": "https://github.com/pkgconf/pkgconf/component/nolicense"
+        }
+    ]
+}

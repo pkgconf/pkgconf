@@ -1,0 +1,5 @@
+Tool: sbomtool
+ToolArgs: --creation-time=test --sbom-base-id=https://distfiles.ariadne.space/pkgconf test3
+Environment: PKG_CONFIG_PATH=%TEST_FIXTURES_DIR%/lib-sbom
+ExpectedStdoutFile: ../../tests/lib-sbom-files/sbomtool-basic-sbom-base-id.json
+ExpectedExitCode: 0
