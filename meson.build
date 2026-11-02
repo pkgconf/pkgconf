@@ -356,11 +356,10 @@ endforeach
 # Unit test for getopt (CLI paramter parser).
 test_api_getopt_exe = executable('test-api-getopt',
   'tests/api/test-getopt.c',
-  'cli/getopt_long.c',
   windows_manifest,
-  link_with : libpkgconf,
+  link_with : [libpkgconf, libpkgconfcli],
   c_args : build_static,
-  include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli')],
+  include_directories : [include_directories('.'), include_directories('tests/api'), include_directories('cli/libpkgconfcli')],
   install : false,
   build_by_default : false)
 test('api-getopt', test_api_getopt_exe)
