@@ -23,7 +23,7 @@
 static void
 test_getopt_long_test_without_param(void)
 {
-	struct pkg_option options[] = {
+	struct pkgconfcli_option options[] = {
 		{ "version", no_argument, NULL, 5, },
 		{ "test", no_argument, NULL, 6, },
 		{ NULL, 0, NULL, 0 }
@@ -31,27 +31,27 @@ test_getopt_long_test_without_param(void)
 
 	char *argv[] = {"test", "--test", "--version", "--notavailable", "-a"};
 
-	TEST_ASSERT_EQ(pkg_getopt_long_only(5, argv, "", options, NULL), 6);
-	TEST_ASSERT_EQ(pkg_getopt_long_only(5, argv, "", options, NULL), 5);
-	TEST_ASSERT_EQ(pkg_getopt_long_only(5, argv, "", options, NULL), 63);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(5, argv, "", options, NULL), 6);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(5, argv, "", options, NULL), 5);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(5, argv, "", options, NULL), 63);
 	// This is actually not correct
-	TEST_ASSERT_EQ(pkg_getopt_long_only(5, argv, "ab:", options, NULL), 97);
-	TEST_ASSERT_EQ(pkg_getopt_long_only(5, argv, "", options, NULL), -1);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(5, argv, "ab:", options, NULL), 97);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(5, argv, "", options, NULL), -1);
 
-	pkg_optind = 1;
-	TEST_ASSERT_EQ(pkg_getopt_long(5, argv, "ab:", options, NULL), 6);
-	TEST_ASSERT_EQ(pkg_getopt_long(5, argv, "ab:", options, NULL), 5);
-	TEST_ASSERT_EQ(pkg_getopt_long(5, argv, "ab:", options, NULL), 63);
+	pkgconfcli_optind = 1;
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(5, argv, "ab:", options, NULL), 6);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(5, argv, "ab:", options, NULL), 5);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(5, argv, "ab:", options, NULL), 63);
 	// This is actually not correct..
-	TEST_ASSERT_EQ(pkg_getopt_long(5, argv, "ab:", options, NULL), 97);
-	TEST_ASSERT_EQ(pkg_getopt_long(5, argv, "ab:", options, NULL), -1);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(5, argv, "ab:", options, NULL), 97);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(5, argv, "ab:", options, NULL), -1);
 
 }
 
 static void
 test_getopt_long_test_with_param(void)
 {
-	struct pkg_option options[] = {
+	struct pkgconfcli_option options[] = {
 		{ "pa", no_argument, NULL, 5, },
 		{ "pb", required_argument, NULL, 6, },
 		{ NULL, 0, NULL, 0 }
@@ -59,27 +59,27 @@ test_getopt_long_test_with_param(void)
 
 	char *argv[] = {"test", "--pa", "--pb=test", "-pb", "another", "-a"};
 
-	pkg_optind = 1;
+	pkgconfcli_optind = 1;
 
-	TEST_ASSERT_EQ(pkg_getopt_long_only(6, argv, "", options, NULL), 5);
-	TEST_ASSERT_EQ(pkg_getopt_long_only(6, argv, "", options, NULL), 6);
-	TEST_ASSERT_STRCMP_EQ(pkg_optarg, "test");
-	TEST_ASSERT_EQ(pkg_getopt_long_only(6, argv, "", options, NULL), 6);
-	TEST_ASSERT_STRCMP_EQ(pkg_optarg, "another");
-	TEST_ASSERT_EQ(pkg_getopt_long_only(6, argv, "", options, NULL), 63);
-	TEST_ASSERT_EQ(pkg_getopt_long_only(6, argv, "", options, NULL), -1);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(6, argv, "", options, NULL), 5);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(6, argv, "", options, NULL), 6);
+	TEST_ASSERT_STRCMP_EQ(pkgconfcli_optarg, "test");
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(6, argv, "", options, NULL), 6);
+	TEST_ASSERT_STRCMP_EQ(pkgconfcli_optarg, "another");
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(6, argv, "", options, NULL), 63);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long_only(6, argv, "", options, NULL), -1);
 
-	pkg_optind = 1;
+	pkgconfcli_optind = 1;
 
-	TEST_ASSERT_EQ(pkg_getopt_long(6, argv, "ab:", options, NULL), 5);
-	TEST_ASSERT_EQ(pkg_getopt_long(6, argv, "ab:", options, NULL), 6);
-	TEST_ASSERT_STRCMP_EQ(pkg_optarg, "test");
-	TEST_ASSERT_EQ(pkg_getopt_long(6, argv, "ab:", options, NULL), 63);
-	TEST_ASSERT_NULL(pkg_optarg);
-	TEST_ASSERT_EQ(pkg_getopt_long(6, argv, "ab:", options, NULL), 98);
-	TEST_ASSERT_STRCMP_EQ(pkg_optarg, "another");
-	TEST_ASSERT_EQ(pkg_getopt_long(6, argv, "ab:", options, NULL), 97);
-	TEST_ASSERT_EQ(pkg_getopt_long(6, argv, "ab:", options, NULL), -1);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(6, argv, "ab:", options, NULL), 5);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(6, argv, "ab:", options, NULL), 6);
+	TEST_ASSERT_STRCMP_EQ(pkgconfcli_optarg, "test");
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(6, argv, "ab:", options, NULL), 63);
+	TEST_ASSERT_NULL(pkgconfcli_optarg);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(6, argv, "ab:", options, NULL), 98);
+	TEST_ASSERT_STRCMP_EQ(pkgconfcli_optarg, "another");
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(6, argv, "ab:", options, NULL), 97);
+	TEST_ASSERT_EQ(pkgconfcli_getopt_long(6, argv, "ab:", options, NULL), -1);
 
 }
 
@@ -88,19 +88,19 @@ test_getopt_test_with_param(void)
 {
 	char *argv[] = {"test", "-a", "-b", "test", "-b", "another", "-b=one", "-b param"};
 
-	pkg_optind = 1;
+	pkgconfcli_optind = 1;
 
-	TEST_ASSERT_EQ(pkg_getopt(8, argv, "ab:"), 97);
-	TEST_ASSERT_EQ(pkg_getopt(8, argv, "ab:"), 98);
-	TEST_ASSERT_STRCMP_EQ(pkg_optarg, "test");
-	TEST_ASSERT_EQ(pkg_getopt(8, argv, "ab:"), 98);
-	TEST_ASSERT_STRCMP_EQ(pkg_optarg, "another");
-	TEST_ASSERT_EQ(pkg_getopt(8, argv, "ab:"), 98);
+	TEST_ASSERT_EQ(pkgconfcli_getopt(8, argv, "ab:"), 97);
+	TEST_ASSERT_EQ(pkgconfcli_getopt(8, argv, "ab:"), 98);
+	TEST_ASSERT_STRCMP_EQ(pkgconfcli_optarg, "test");
+	TEST_ASSERT_EQ(pkgconfcli_getopt(8, argv, "ab:"), 98);
+	TEST_ASSERT_STRCMP_EQ(pkgconfcli_optarg, "another");
+	TEST_ASSERT_EQ(pkgconfcli_getopt(8, argv, "ab:"), 98);
 	// These are not valid but parsed
-	TEST_ASSERT_STRCMP_EQ(pkg_optarg, "=one");
-	TEST_ASSERT_EQ(pkg_getopt(8, argv, "ab:"), 98);
-	TEST_ASSERT_STRCMP_EQ(pkg_optarg, " param");
-	TEST_ASSERT_EQ(pkg_getopt(8, argv, "ab:"), -1);
+	TEST_ASSERT_STRCMP_EQ(pkgconfcli_optarg, "=one");
+	TEST_ASSERT_EQ(pkgconfcli_getopt(8, argv, "ab:"), 98);
+	TEST_ASSERT_STRCMP_EQ(pkgconfcli_optarg, " param");
+	TEST_ASSERT_EQ(pkgconfcli_getopt(8, argv, "ab:"), -1);
 }
 
 
