@@ -291,32 +291,35 @@ dnl [VARIABLE-PREFIX] name, merging the behaviour of AC_ARG_WITH and
 dnl PKG_CHECK_MODULES in a single macro.
 AC_DEFUN([PKG_WITH_MODULES],
 [
-m4_pushdef([with_arg], m4_tolower([$1]))
+m4_pushdef([_PKG_WITH_ARG], m4_tolower([$1]))
 
-m4_pushdef([description],
-           [m4_default([$5], [build with ]with_arg[ support])])
+m4_pushdef([_PKG_WITH_DESCRIPTION],
+           [m4_default([$5], [build with ]_PKG_WITH_ARG[ support])])
 
-m4_pushdef([def_arg], [m4_default([$6], [auto])])
-m4_pushdef([def_action_if_found], [AS_TR_SH([with_]with_arg)=yes])
-m4_pushdef([def_action_if_not_found], [AS_TR_SH([with_]with_arg)=no])
+m4_pushdef([_PKG_WITH_DEFAULT], [m4_default([$6], [auto])])
+m4_pushdef([_PKG_WITH_IF_FOUND], [AS_TR_SH([with_]_PKG_WITH_ARG)=yes])
+m4_pushdef([_PKG_WITH_IF_NOT_FOUND], [AS_TR_SH([with_]_PKG_WITH_ARG)=no])
 
-m4_case(def_arg,
-            [yes],[m4_pushdef([with_without], [--without-]with_arg)],
-            [m4_pushdef([with_without],[--with-]with_arg)])
+m4_case(_PKG_WITH_DEFAULT,
+            [yes],[m4_pushdef([_PKG_WITH_OPTION], [--without-]_PKG_WITH_ARG)],
+            [m4_pushdef([_PKG_WITH_OPTION],[--with-]_PKG_WITH_ARG)])
 
-AC_ARG_WITH(with_arg,
-     AS_HELP_STRING(with_without, description[ @<:@default=]def_arg[@:>@]),,
-    [AS_TR_SH([with_]with_arg)=def_arg])
+AC_ARG_WITH(_PKG_WITH_ARG,
+     AS_HELP_STRING(_PKG_WITH_OPTION, _PKG_WITH_DESCRIPTION[ @<:@default=]_PKG_WITH_DEFAULT[@:>@]),,
+    [AS_TR_SH([with_]_PKG_WITH_ARG)=_PKG_WITH_DEFAULT])
 
-AS_CASE([$AS_TR_SH([with_]with_arg)],
+AS_CASE([$AS_TR_SH([with_]_PKG_WITH_ARG)],
             [yes],[PKG_CHECK_MODULES([$1],[$2],[$3],[$4])],
             [auto],[PKG_CHECK_MODULES([$1],[$2],
-                                        [m4_n([def_action_if_found]) $3],
-                                        [m4_n([def_action_if_not_found]) $4])])
+                                        [m4_n([_PKG_WITH_IF_FOUND]) $3],
+                                        [m4_n([_PKG_WITH_IF_NOT_FOUND]) $4])])
 
-m4_popdef([with_arg])
-m4_popdef([description])
-m4_popdef([def_arg])
+m4_popdef([_PKG_WITH_ARG])
+m4_popdef([_PKG_WITH_DESCRIPTION])
+m4_popdef([_PKG_WITH_DEFAULT])
+m4_popdef([_PKG_WITH_IF_FOUND])
+m4_popdef([_PKG_WITH_IF_NOT_FOUND])
+m4_popdef([_PKG_WITH_OPTION])
 
 ])dnl PKG_WITH_MODULES
 
