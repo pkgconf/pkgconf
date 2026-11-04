@@ -90,6 +90,7 @@ parameter.
 This value can be overridden with the
 .Fl -with-pkgconfigdir
 configure parameter.
+If this parameter has no value, the default directory is used.
 .Ss "PKG_NOARCH_INSTALLDIR(DIRECTORY)"
 Defines the variable $noarch_pkgconfigdir as the location where a package
 should install pkg-config .pc files.
@@ -102,6 +103,7 @@ parameter.
 This value can be overridden with the
 .Fl -with-noarch-pkgconfigdir
 configure parameter.
+If this parameter has no value, the default directory is used.
 .Ss "PKG_CHECK_VAR(VARIABLE, MODULE, CONFIG-VARIABLE, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])"
 Retrieves the value of the
 .Nm pkg-config
