@@ -126,6 +126,26 @@ and
 .Nm PKG_CHECK_MODULES
 in a single macro.
 In the option name, each "_" changes to "-".
+The shell variable is
+.Va with_
+followed by the lowercase
+.Nm VARIABLE-PREFIX ,
+for example
+.Va with_foo_bar
+for FOO_BAR.
+.Pp
+The option values are "yes", "no" and "auto", and
+.Nm DEFAULT
+is one of them ("auto" if not given).
+With "yes" or "auto", the macro checks for
+.Nm MODULES
+and sets the shell variable to "yes" or "no".
+With "yes", if the modules are not found and
+.Nm ACTION-IF-NOT-FOUND
+is not given, configure stops with an error.
+With "no", there is no check.
+Other values, such as a path, are left in the shell variable for
+configure.ac to use.
 .Ss "PKG_HAVE_WITH_MODULES(VARIABLE-PREFIX, MODULES, [DESCRIPTION], [DEFAULT])"
 Convenience macro to trigger
 .Nm AM_CONDITIONAL

@@ -298,6 +298,16 @@ dnl Prepare a "--with-" configure option using the lowercase
 dnl [VARIABLE-PREFIX] name, merging the behaviour of AC_ARG_WITH and
 dnl PKG_CHECK_MODULES in a single macro. In the option name, each "_"
 dnl changes to "-".
+dnl
+dnl The usual option values and DEFAULT are "yes", "no" and "auto". If
+dnl DEFAULT is not given, it is "auto". With "yes", if the modules are
+dnl not found, configure stops with an error if ACTION-IF-NOT-FOUND is not
+dnl given, and the macro sets with_<name> to "no" if ACTION-IF-NOT-FOUND
+dnl is given. With "auto", the macro sets with_<name> to "yes" if the
+dnl modules are found, and to "no" if not. With "no", the macro does not
+dnl do a check. With other values, the macro does not do a check and does
+dnl not change with_<name>. Thus configure.ac can use the value, for
+dnl example a path.
 AC_DEFUN([PKG_WITH_MODULES],
 [
 m4_pushdef([_PKG_WITH_ARG], m4_dquote(_PKG_WITH_NAME([$1])))
@@ -318,7 +328,8 @@ AC_ARG_WITH(_PKG_WITH_ARG,
     [AS_TR_SH([with_]_PKG_WITH_ARG)=_PKG_WITH_DEFAULT])
 
 AS_CASE([$AS_TR_SH([with_]_PKG_WITH_ARG)],
-            [yes],[PKG_CHECK_MODULES([$1],[$2],[$3],[$4])],
+            [yes],[PKG_CHECK_MODULES([$1],[$2],[$3],
+                                        m4_ifval([$4], [[m4_n([_PKG_WITH_IF_NOT_FOUND]) $4]]))],
             [auto],[PKG_CHECK_MODULES([$1],[$2],
                                         [m4_n([_PKG_WITH_IF_FOUND]) $3],
                                         [m4_n([_PKG_WITH_IF_NOT_FOUND]) $4])])
