@@ -1,5 +1,5 @@
 # pkg.m4 - Macros to locate and use pkg-config.   -*- Autoconf -*-
-# serial 16 (pkgconf)
+# serial 17 (pkgconf)
 
 dnl Copyright © 2004 Scott James Remnant <scott@netsplit.com>.
 dnl Copyright © 2012-2015 Dan Nicholson <dbn.lists@gmail.com>
