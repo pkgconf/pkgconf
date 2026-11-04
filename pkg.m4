@@ -281,6 +281,14 @@ AS_VAR_COPY([$1], [pkg_cv_][$1])
 AS_VAR_IF([$1], [""], [$5], [$4])dnl
 ])dnl PKG_CHECK_VAR
 
+dnl _PKG_WITH_NAME(VARIABLE-PREFIX)
+dnl -------------------------------
+dnl Internal macro. Expands to the option name for VARIABLE-PREFIX: the
+dnl lowercase VARIABLE-PREFIX, with each "_" changed to "-". As with
+dnl m4_tolower, m4 does not expand the result as a macro.
+m4_define([_PKG_WITH_NAME],
+[m4_translit(m4_dquote(m4_tolower([$1])), [_], [-])])
+
 dnl PKG_WITH_MODULES(VARIABLE-PREFIX, MODULES,
 dnl   [ACTION-IF-FOUND],[ACTION-IF-NOT-FOUND],
 dnl   [DESCRIPTION], [DEFAULT])
@@ -288,10 +296,11 @@ dnl ------------------------------------------
 dnl
 dnl Prepare a "--with-" configure option using the lowercase
 dnl [VARIABLE-PREFIX] name, merging the behaviour of AC_ARG_WITH and
-dnl PKG_CHECK_MODULES in a single macro.
+dnl PKG_CHECK_MODULES in a single macro. In the option name, each "_"
+dnl changes to "-".
 AC_DEFUN([PKG_WITH_MODULES],
 [
-m4_pushdef([_PKG_WITH_ARG], m4_tolower([$1]))
+m4_pushdef([_PKG_WITH_ARG], m4_dquote(_PKG_WITH_NAME([$1])))
 
 m4_pushdef([_PKG_WITH_DESCRIPTION],
            [m4_default_quoted([$5], [build with ]_PKG_WITH_ARG[ support])])
@@ -334,7 +343,7 @@ AC_DEFUN([PKG_HAVE_WITH_MODULES],
 PKG_WITH_MODULES([$1],[$2],,,[$3],[$4])
 
 AM_CONDITIONAL([HAVE_][$1],
-               [test "$AS_TR_SH([with_]m4_tolower([$1]))" = "yes"])
+               [test "$AS_TR_SH([with_]_PKG_WITH_NAME([$1]))" = "yes"])
 ])dnl PKG_HAVE_WITH_MODULES
 
 dnl PKG_HAVE_DEFINE_WITH_MODULES(VARIABLE-PREFIX, MODULES,
@@ -348,6 +357,6 @@ AC_DEFUN([PKG_HAVE_DEFINE_WITH_MODULES],
 [
 PKG_HAVE_WITH_MODULES([$1],[$2],[$3],[$4])
 
-AS_IF([test "$AS_TR_SH([with_]m4_tolower([$1]))" = "yes"],
-        [AC_DEFINE([HAVE_][$1], 1, [Enable ]m4_tolower([$1])[ support])])
+AS_IF([test "$AS_TR_SH([with_]_PKG_WITH_NAME([$1]))" = "yes"],
+        [AC_DEFINE([HAVE_][$1], 1, [Enable ]_PKG_WITH_NAME([$1])[ support])])
 ])dnl PKG_HAVE_DEFINE_WITH_MODULES
