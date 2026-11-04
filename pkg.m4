@@ -86,10 +86,10 @@ dnl
 dnl Check to see whether a particular set of modules exists. Similar to
 dnl PKG_CHECK_MODULES(), but does not set variables or print errors.
 dnl
-dnl Please remember that m4 expands AC_REQUIRE([PKG_PROG_PKG_CONFIG])
-dnl only at the first occurrence in configure.ac, so if the first place
-dnl it's called might be skipped (such as if it is within an "if"), you
-dnl have to call PKG_PROG_PKG_CONFIG manually
+dnl This macro requires PKG_PROG_PKG_CONFIG. Outside of an AC_DEFUN
+dnl macro, use AS_IF instead of a plain "if" around it, or call
+dnl PKG_PROG_PKG_CONFIG first. See "Prerequisite Macros" in the
+dnl Autoconf manual.
 AC_DEFUN([PKG_CHECK_EXISTS],
 [AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
 if test -n "$PKG_CONFIG" && \
@@ -134,9 +134,10 @@ dnl   [ACTION-IF-NOT-FOUND])
 dnl --------------------------------------------------------------
 dnl Since: 0.4.0
 dnl
-dnl Note that if there is a possibility the first call to
-dnl PKG_CHECK_MODULES might not happen, you should be sure to include an
-dnl explicit call to PKG_PROG_PKG_CONFIG in your configure.ac
+dnl This macro requires PKG_PROG_PKG_CONFIG. Outside of an AC_DEFUN
+dnl macro, use AS_IF instead of a plain "if" around it, or call
+dnl PKG_PROG_PKG_CONFIG first. See "Prerequisite Macros" in the
+dnl Autoconf manual.
 AC_DEFUN([PKG_CHECK_MODULES],
 [AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
 AC_ARG_VAR([$1][_CFLAGS], [C compiler flags for $1, overriding pkg-config])dnl
@@ -166,7 +167,7 @@ if test $pkg_failed = yes; then
         m4_default([$4], [AC_MSG_ERROR(
 [Package requirements ($2) were not met:
 
-$$1_PKG_ERRORS
+$$1[]_PKG_ERRORS
 
 Consider adjusting the PKG_CONFIG_PATH environment variable if you
 installed software in a non-standard prefix.
@@ -182,7 +183,7 @@ path to pkg-config.
 
 _PKG_TEXT
 
-To get a pkg-config implementation, see <http://github.com/pkgconf/pkgconf>.])[]dnl
+To get a pkg-config implementation, see <https://github.com/pkgconf/pkgconf>.])[]dnl
         ])
 else
         $1[]_CFLAGS=$pkg_cv_[]$1[]_CFLAGS
@@ -202,10 +203,10 @@ dnl Checks for existence of MODULES and gathers its build flags with
 dnl static libraries enabled. Sets VARIABLE-PREFIX_CFLAGS from --cflags
 dnl and VARIABLE-PREFIX_LIBS from --libs.
 dnl
-dnl Note that if there is a possibility the first call to
-dnl PKG_CHECK_MODULES_STATIC might not happen, you should be sure to
-dnl include an explicit call to PKG_PROG_PKG_CONFIG in your
-dnl configure.ac.
+dnl This macro requires PKG_PROG_PKG_CONFIG. Outside of an AC_DEFUN
+dnl macro, use AS_IF instead of a plain "if" around it, or call
+dnl PKG_PROG_PKG_CONFIG first. See "Prerequisite Macros" in the
+dnl Autoconf manual.
 AC_DEFUN([PKG_CHECK_MODULES_STATIC],
 [AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
 _save_PKG_CONFIG=$PKG_CONFIG
@@ -216,7 +217,7 @@ PKG_CONFIG=$_save_PKG_CONFIG[]dnl
 
 
 dnl PKG_INSTALLDIR([DIRECTORY])
-dnl -------------------------
+dnl ---------------------------
 dnl Since: 0.27
 dnl
 dnl Substitutes the variable pkgconfigdir as the location where a module
@@ -238,7 +239,7 @@ m4_popdef([pkg_description])
 
 
 dnl PKG_NOARCH_INSTALLDIR([DIRECTORY])
-dnl --------------------------------
+dnl ----------------------------------
 dnl Since: 0.27
 dnl
 dnl Substitutes the variable noarch_pkgconfigdir as the location where a
@@ -265,6 +266,11 @@ dnl -------------------------------------------
 dnl Since: 0.28
 dnl
 dnl Retrieves the value of the pkg-config variable for the given module.
+dnl
+dnl This macro requires PKG_PROG_PKG_CONFIG. Outside of an AC_DEFUN
+dnl macro, use AS_IF instead of a plain "if" around it, or call
+dnl PKG_PROG_PKG_CONFIG first. See "Prerequisite Macros" in the
+dnl Autoconf manual.
 AC_DEFUN([PKG_CHECK_VAR],
 [AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
 AC_ARG_VAR([$1], [value of $3 for $2, overriding pkg-config])dnl
@@ -319,7 +325,7 @@ dnl   [DESCRIPTION], [DEFAULT])
 dnl -----------------------------------------------
 dnl
 dnl Convenience macro to trigger AM_CONDITIONAL after PKG_WITH_MODULES
-dnl check._[VARIABLE-PREFIX] is exported as make variable.
+dnl check. HAVE_[VARIABLE-PREFIX] is exported as a make variable.
 AC_DEFUN([PKG_HAVE_WITH_MODULES],
 [
 PKG_WITH_MODULES([$1],[$2],,,[$3],[$4])
