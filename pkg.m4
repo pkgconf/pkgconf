@@ -224,13 +224,16 @@ dnl Substitutes the variable pkgconfigdir as the location where a module
 dnl should install pkg-config .pc files. By default the directory is
 dnl $libdir/pkgconfig, but the default can be changed by passing
 dnl DIRECTORY. The user can override through the --with-pkgconfigdir
-dnl parameter.
+dnl parameter. If --with-pkgconfigdir has no value, the default
+dnl directory is used.
 AC_DEFUN([PKG_INSTALLDIR],
 [m4_pushdef([pkg_default], [m4_default([$1], ['${libdir}/pkgconfig'])])
 m4_pushdef([pkg_description],
     [pkg-config installation directory @<:@]pkg_default[@:>@])
 AC_ARG_WITH([pkgconfigdir],
-    [AS_HELP_STRING([--with-pkgconfigdir], pkg_description)],,
+    [AS_HELP_STRING([--with-pkgconfigdir], pkg_description)],
+    [AS_IF([test "x$with_pkgconfigdir" = xyes],
+        [with_pkgconfigdir=]pkg_default)],
     [with_pkgconfigdir=]pkg_default)
 AC_SUBST([pkgconfigdir], [$with_pkgconfigdir])
 m4_popdef([pkg_default])
@@ -246,13 +249,16 @@ dnl Substitutes the variable noarch_pkgconfigdir as the location where a
 dnl module should install arch-independent pkg-config .pc files. By
 dnl default the directory is $datadir/pkgconfig, but the default can be
 dnl changed by passing DIRECTORY. The user can override through the
-dnl --with-noarch-pkgconfigdir parameter.
+dnl --with-noarch-pkgconfigdir parameter. If --with-noarch-pkgconfigdir
+dnl has no value, the default directory is used.
 AC_DEFUN([PKG_NOARCH_INSTALLDIR],
 [m4_pushdef([pkg_default], [m4_default([$1], ['${datadir}/pkgconfig'])])
 m4_pushdef([pkg_description],
     [pkg-config arch-independent installation directory @<:@]pkg_default[@:>@])
 AC_ARG_WITH([noarch-pkgconfigdir],
-    [AS_HELP_STRING([--with-noarch-pkgconfigdir], pkg_description)],,
+    [AS_HELP_STRING([--with-noarch-pkgconfigdir], pkg_description)],
+    [AS_IF([test "x$with_noarch_pkgconfigdir" = xyes],
+        [with_noarch_pkgconfigdir=]pkg_default)],
     [with_noarch_pkgconfigdir=]pkg_default)
 AC_SUBST([noarch_pkgconfigdir], [$with_noarch_pkgconfigdir])
 m4_popdef([pkg_default])
