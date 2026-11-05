@@ -241,15 +241,16 @@ dnl when make runs and not when configure runs, put DIRECTORY in single
 dnl quotes, as in ['${prefix}/libdata/pkgconfig']. Without the quotes,
 dnl configure expands ${prefix}, and it can be "NONE" at that time.
 AC_DEFUN([PKG_INSTALLDIR],
-[m4_pushdef([pkg_default], [m4_default([$1], ['${libdir}/pkgconfig'])])
+[m4_pushdef([_PKG_DEFAULT_DIR],
+    [m4_expand([m4_default([$1], ['${libdir}/pkgconfig'])])])
 AC_ARG_WITH([pkgconfigdir],
     [AS_HELP_STRING([--with-pkgconfigdir=DIR],
-        [pkg-config installation directory @<:@]_PKG_HELP_WORD(m4_quote(pkg_default))[@:>@])],
+        [pkg-config installation directory @<:@]_PKG_HELP_WORD(_PKG_DEFAULT_DIR)[@:>@])],
     [AS_IF([test "x$with_pkgconfigdir" = xyes],
-        [with_pkgconfigdir=]pkg_default)],
-    [with_pkgconfigdir=]pkg_default)
+        [with_pkgconfigdir=]_PKG_DEFAULT_DIR)],
+    [with_pkgconfigdir=]_PKG_DEFAULT_DIR)
 AC_SUBST([pkgconfigdir], [$with_pkgconfigdir])
-m4_popdef([pkg_default])
+m4_popdef([_PKG_DEFAULT_DIR])
 ])dnl PKG_INSTALLDIR
 
 
@@ -266,15 +267,16 @@ dnl has no value, the default directory is used.
 dnl
 dnl DIRECTORY is a shell word. Use single quotes as for PKG_INSTALLDIR.
 AC_DEFUN([PKG_NOARCH_INSTALLDIR],
-[m4_pushdef([pkg_default], [m4_default([$1], ['${datadir}/pkgconfig'])])
+[m4_pushdef([_PKG_DEFAULT_DIR],
+    [m4_expand([m4_default([$1], ['${datadir}/pkgconfig'])])])
 AC_ARG_WITH([noarch-pkgconfigdir],
     [AS_HELP_STRING([--with-noarch-pkgconfigdir=DIR],
-        [pkg-config arch-independent installation directory @<:@]_PKG_HELP_WORD(m4_quote(pkg_default))[@:>@])],
+        [pkg-config arch-independent installation directory @<:@]_PKG_HELP_WORD(_PKG_DEFAULT_DIR)[@:>@])],
     [AS_IF([test "x$with_noarch_pkgconfigdir" = xyes],
-        [with_noarch_pkgconfigdir=]pkg_default)],
-    [with_noarch_pkgconfigdir=]pkg_default)
+        [with_noarch_pkgconfigdir=]_PKG_DEFAULT_DIR)],
+    [with_noarch_pkgconfigdir=]_PKG_DEFAULT_DIR)
 AC_SUBST([noarch_pkgconfigdir], [$with_noarch_pkgconfigdir])
-m4_popdef([pkg_default])
+m4_popdef([_PKG_DEFAULT_DIR])
 ])dnl PKG_NOARCH_INSTALLDIR
 
 
