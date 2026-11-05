@@ -216,6 +216,15 @@ PKG_CONFIG=$_save_PKG_CONFIG[]dnl
 ])dnl PKG_CHECK_MODULES_STATIC
 
 
+dnl _PKG_HELP_WORD(WORD)
+dnl --------------------
+dnl Internal macro. Expands to the shell word WORD for a help text. If
+dnl WORD is in single quotes, or in double quotes with no backslash, the
+dnl outer quotes are removed. m4 does not expand the result as a macro.
+m4_define([_PKG_HELP_WORD],
+[m4_bpatsubst([[$1]], [^\['\([^']*\)'\]$\|^\["\([^"\\]*\)"\]$], [[\1\2]])])
+
+
 dnl PKG_INSTALLDIR([DIRECTORY])
 dnl ---------------------------
 dnl Since: 0.27
@@ -226,18 +235,21 @@ dnl $libdir/pkgconfig, but the default can be changed by passing
 dnl DIRECTORY. The user can override through the --with-pkgconfigdir
 dnl parameter. If --with-pkgconfigdir has no value, the default
 dnl directory is used.
+dnl
+dnl DIRECTORY is a shell word. To expand a variable such as ${prefix}
+dnl when make runs and not when configure runs, put DIRECTORY in single
+dnl quotes, as in ['${prefix}/libdata/pkgconfig']. Without the quotes,
+dnl configure expands ${prefix}, and it can be "NONE" at that time.
 AC_DEFUN([PKG_INSTALLDIR],
 [m4_pushdef([pkg_default], [m4_default([$1], ['${libdir}/pkgconfig'])])
-m4_pushdef([pkg_description],
-    [pkg-config installation directory @<:@]pkg_default[@:>@])
 AC_ARG_WITH([pkgconfigdir],
-    [AS_HELP_STRING([--with-pkgconfigdir], pkg_description)],
+    [AS_HELP_STRING([--with-pkgconfigdir=DIR],
+        [pkg-config installation directory @<:@]_PKG_HELP_WORD(m4_quote(pkg_default))[@:>@])],
     [AS_IF([test "x$with_pkgconfigdir" = xyes],
         [with_pkgconfigdir=]pkg_default)],
     [with_pkgconfigdir=]pkg_default)
 AC_SUBST([pkgconfigdir], [$with_pkgconfigdir])
 m4_popdef([pkg_default])
-m4_popdef([pkg_description])
 ])dnl PKG_INSTALLDIR
 
 
@@ -251,18 +263,18 @@ dnl default the directory is $datadir/pkgconfig, but the default can be
 dnl changed by passing DIRECTORY. The user can override through the
 dnl --with-noarch-pkgconfigdir parameter. If --with-noarch-pkgconfigdir
 dnl has no value, the default directory is used.
+dnl
+dnl DIRECTORY is a shell word. Use single quotes as for PKG_INSTALLDIR.
 AC_DEFUN([PKG_NOARCH_INSTALLDIR],
 [m4_pushdef([pkg_default], [m4_default([$1], ['${datadir}/pkgconfig'])])
-m4_pushdef([pkg_description],
-    [pkg-config arch-independent installation directory @<:@]pkg_default[@:>@])
 AC_ARG_WITH([noarch-pkgconfigdir],
-    [AS_HELP_STRING([--with-noarch-pkgconfigdir], pkg_description)],
+    [AS_HELP_STRING([--with-noarch-pkgconfigdir=DIR],
+        [pkg-config arch-independent installation directory @<:@]_PKG_HELP_WORD(m4_quote(pkg_default))[@:>@])],
     [AS_IF([test "x$with_noarch_pkgconfigdir" = xyes],
         [with_noarch_pkgconfigdir=]pkg_default)],
     [with_noarch_pkgconfigdir=]pkg_default)
 AC_SUBST([noarch_pkgconfigdir], [$with_noarch_pkgconfigdir])
 m4_popdef([pkg_default])
-m4_popdef([pkg_description])
 ])dnl PKG_NOARCH_INSTALLDIR
 
 
