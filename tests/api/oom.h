@@ -43,6 +43,21 @@
 		}	\
 	} while (0)
 
+#define OOM_TEST_ALLOC_PTR(allocvar, alloc_stmt, objvar, make_expr, free_stmt)	\
+	do {	\
+		for (unsigned long _oom_n = 1; ; _oom_n++)	\
+		{	\
+			(allocvar) = (alloc_stmt); \
+			alloc_inject_arm(_oom_n);	\
+			(objvar) = (make_expr);	\
+			bool _oom_f = alloc_inject_fired();	\
+			alloc_inject_disarm();	\
+			if (!_oom_f) { free_stmt; break; }	\
+				TEST_ASSERT_NULL(objvar);	\
+				free_stmt;	\
+		}	\
+	} while (0)
+
 #define OOM_TEST_BOOL(make_expr)	\
 	do {	\
 		for (unsigned long _oom_n = 1; ; _oom_n++)	\
