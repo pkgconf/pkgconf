@@ -437,6 +437,19 @@ if build_oom_tests
       install : false,
       build_by_default : false)
     test('api-oom-spdxtool', test_api_oom_spdxtool_exe)
+
+    test_api_oom_libpkgconfcli_exe = executable('test-api-oom-libpkgconfcli',
+      'tests/api/test-oom-libpkgconfcli.c',
+      'fuzzer/alloc-inject.c',
+      windows_manifest,
+      link_with : [libpkgconf, libpkgconfcli],
+      c_args : build_static,
+      link_args : oom_wrap_args,
+      include_directories : [include_directories('.', 'tests/api', 'fuzzer', 'cli/libpkgconfcli')],
+      install : false,
+      build_by_default : false)
+    test('api-oom-libpkgconfcli', test_api_oom_libpkgconfcli_exe)
+
   endif
 
   # Replay the existing parser/solver fuzz targets over their seed corpus,
