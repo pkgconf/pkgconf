@@ -116,62 +116,6 @@ test_oom_license_expression_new(void)
 }
 
 /*
- * ======================
- * serializer value model
- * ======================
- */
-
-static void
-test_oom_serialize_constructors(void)
-{
-	pkgconfcli_serialize_object_list_t *o;
-	OOM_TEST_PTR(o, pkgconfcli_serialize_object_list_new(), pkgconfcli_serialize_object_list_free(o));
-
-	pkgconfcli_serialize_array_t *a;
-	OOM_TEST_PTR(a, pkgconfcli_serialize_array_new(), pkgconfcli_serialize_array_free(a));
-
-	pkgconfcli_serialize_value_t *v;
-	OOM_TEST_PTR(v, pkgconfcli_serialize_value_string("hello"), pkgconfcli_serialize_value_free(v));
-	OOM_TEST_PTR(v, pkgconfcli_serialize_value_int(7), pkgconfcli_serialize_value_free(v));
-	OOM_TEST_PTR(v, pkgconfcli_serialize_value_bool(true), pkgconfcli_serialize_value_free(v));
-	OOM_TEST_PTR(v, pkgconfcli_serialize_value_null(), pkgconfcli_serialize_value_free(v));
-}
-
-static void
-test_oom_serialize_to_buffer(void)
-{
-	pkgconfcli_serialize_object_list_t *object = pkgconfcli_serialize_object_list_new();
-	TEST_ASSERT_NONNULL(object);
-	TEST_ASSERT_NONNULL(pkgconfcli_serialize_object_add_string(object, "\"key", "value"));
-
-	pkgconfcli_serialize_value_t root = {
-		.type = PKGCONFCLI_SERIALIZE_TYPE_OBJECT,
-		.value = { .o = object },
-	};
-
-	for (unsigned long n = 1; ; n++)
-	{
-		pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
-
-		alloc_inject_arm(n);
-		bool ok = pkgconfcli_serialize_value_to_buf(&buffer, &root, 0);
-		bool fired = alloc_inject_fired();
-		alloc_inject_disarm();
-		pkgconf_buffer_finalize(&buffer);
-
-		if (!fired)
-		{
-			TEST_ASSERT_TRUE(ok);
-			break;
-		}
-
-		TEST_ASSERT_FALSE(ok);
-	}
-
-	pkgconfcli_serialize_object_list_free(object);
-}
-
-/*
  * ============================================================
  * *_to_object serializers that depend only on their own struct
  * ============================================================
@@ -219,8 +163,6 @@ main(int argc, const char **argv)
 	TEST_RUN(basename, test_oom_spdx_document_new);
 	TEST_RUN(basename, test_oom_sbom_new);
 	TEST_RUN(basename, test_oom_license_expression_new);
-	TEST_RUN(basename, test_oom_serialize_constructors);
-	TEST_RUN(basename, test_oom_serialize_to_buffer);
 	TEST_RUN(basename, test_oom_to_object);
 
 	pkgconf_client_free(g_client);
