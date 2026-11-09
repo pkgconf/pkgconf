@@ -604,7 +604,6 @@ pkgconfcli_serialize_array_add_object(pkgconfcli_serialize_array_t *array, pkgco
 	if (!ret)
 	{
 		// Since we take possession of the pointer unconditionally, clean up.
-		pkgconfcli_serialize_object_list_free(value);
 		return NULL;
 	}
 
@@ -634,7 +633,6 @@ pkgconfcli_serialize_array_add_array(pkgconfcli_serialize_array_t *array, pkgcon
 	if (!ret)
 	{
 		// Since we take possession of the pointer unconditionally, clean up.
-		pkgconfcli_serialize_array_free(value);
 		return NULL;
 	}
 
