@@ -51,6 +51,11 @@
                     Source="@SPDXTOOL_EXE@"
                     KeyPath="yes" />
           </Component>
+          <Component Id="SbomtoolExe" Guid="*">
+              <File Id="SbomtoolExeFile"
+                    Source="@SBOMTOOL_EXE@"
+                    KeyPath="yes" />
+          </Component>
           <Component Id="PccriticExe" Guid="*">
               <File Id="PccriticExeFile"
                     Source="@PCCRITIC_EXE@"
