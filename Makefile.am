@@ -170,6 +170,7 @@ EXTRA_DIST =	pkg.m4 \
 		t/basic/variable-env.test \
 		t/basic/variable-multiple-packages.test \
 		t/basic/variable-no-recursion.test \
+		t/basic/variable-pcfiledir-fullpath.test \
 		t/basic/variable.test \
 		t/basic/version-atleast-1.test \
 		t/basic/version-atleast-2.test \
