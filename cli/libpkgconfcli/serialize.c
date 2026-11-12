@@ -253,6 +253,33 @@ pkgconfcli_serialize_array_add_take(pkgconfcli_serialize_array_t *array, pkgconf
 /*
  * !doc
  *
+ * .. c:function:: bool pkgconfcli_serialize_array_append_move(pkgconfcli_serialize_array_t *src, pkgconfcli_serialize_array_t *dst)*
+ *
+ *    Append and remove node from source array to destination array
+ *
+ *    :param pkgconfcli_serialize_array_t *src: Source array where all nodes are moved from.
+ *    :param pkgconfcli_serialize_array_t *dst: Destination array where all nodes are moved to.
+ *    :return: The value added, not owned by the caller.
+ */
+PKGCONFCLI_API bool
+pkgconfcli_serialize_array_append_move(pkgconfcli_serialize_array_t *src, pkgconfcli_serialize_array_t *dst)
+{
+	if (!src || !dst)
+		return false;
+
+	while(src->items.length > 0)
+	{
+		pkgconf_node_t *node = NULL;
+		pkgconf_node_shift(&node, &src->items);
+		pkgconf_list_insert(node, &dst->items, true);
+	}
+	return true;
+}
+
+
+/*
+ * !doc
+ *
  * .. c:function:: pkgconfcli_serialize_object_list_t *pkgconfcli_serialize_object_list_new(void)
  *
  *    Allocate and initialize a new empty JSON object list.
