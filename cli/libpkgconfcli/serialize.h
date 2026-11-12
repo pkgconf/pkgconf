@@ -78,6 +78,9 @@ pkgconfcli_serialize_array_new(void);
 PKGCONFCLI_API pkgconfcli_serialize_value_t *
 pkgconfcli_serialize_array_add_take(pkgconfcli_serialize_array_t *array, pkgconfcli_serialize_value_t* value);
 
+PKGCONFCLI_API bool
+pkgconfcli_serialize_array_append_move(pkgconfcli_serialize_array_t *src, pkgconfcli_serialize_array_t *dst);
+
 PKGCONFCLI_API void
 pkgconfcli_serialize_value_free(pkgconfcli_serialize_value_t *value);
 
