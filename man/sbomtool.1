@@ -1,0 +1,151 @@
+.\" SPDX-License-Identifier: pkgconf
+.\"
+.\" Copyright (c) 2026 pkgconf authors (see AUTHORS).
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" This software is provided 'as is' and without any warranty, express or
+.\" implied.  In no event shall the authors be liable for any damages arising
+.\" from the use of this software.
+.Dd November 09, 2026
+.Dt SBOMTOOL 1
+.Os
+.Sh NAME
+.Nm sbomtool
+.Nd a tool for generating CycloneDX 1.8 software bills of material document and in future SPDX Lite 3.0.1 profile SBOM also
+.Sh SYNOPSIS
+.Nm
+.Op Ar options
+.Ar module ...
+.Sh DESCRIPTION
+.Nm
+is a program which generates a JSON formatted CycloneDX bill of
+materials (SBOM) for a given set of pkg-config modules.
+
+In future tool will support at least SPDX Lite 3.0.1 JSON-LD formated
+SBOM output.
+
+More documentation about CycloneDX can be found from:
+.Lk https://cyclonedx.org/docs/1.7/json/
+.Pp
+The
+.Ar options
+are as follows:
+.Bl -tag -width indent
+.It Fl -about
+Print the version number, the Copyright notice, and the license of the
+.Nm
+program to standard output and exit.
+Most other options and all command line arguments are ignored.
+.It Fl -version
+Print the version number of the
+.Nm
+program to standard output and exit.
+Most other options and all command line arguments are ignored.
+.It Fl -agent-name
+Set agent name-property
+n CycloneDX SBOM it appears in .metadata.manufacturer.name. Default is 'Default'
+.It Fl -agent-uri
+Set agent url-property
+in CycloneDX SBOM it appears in .metadata.manufacturer.url. Default is 'https://github.com/pkgconf/pkgconf'
+.It Fl -creation-time
+Set timestamp-property time in .metadata.timestammp.
+SPDX documentation recommends using ISO 8601-formatted time which is: YYYY-MM-DDThh:mm:ssZ.
+Default is document creation time.
+This takes precedence over the
+.Ev SOURCE_DATE_EPOCH
+environment variable.
+.It Fl -define-variable Ns = Ns Ar varname Ns = Ns Ar value
+Define
+.Ar varname
+as
+.Ar value .
+Variables are used in query output, and some modules' results may change based
+on the presence of a variable definition.
+.It Fl -output
+File to output.
+Default output is stdout.
+.It Fl -sbom-base-id
+Base ID for creating ID's in SBOM document.
+Default is: 'https://github.com/pkgconf/pkgconf'
+.It Fl -sbom-format
+Currently does nothing.
+.It Fl -sbom-uri
+Use URI style notation (like: pkgconf:id:other_id) when creating IDs.
+Default after this: 'pkgconf'
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width indent
+.It Ev PKG_CONFIG_DEBUG_SPEW
+If set, print debugging messages to stderr.
+.It Ev PKG_CONFIG_IGNORE_CONFLICTS
+If set, ignore
+.Ic Conflicts
+rules in modules.
+Has the same effect as the
+.Fl -ignore-conflicts
+option in
+.Xr pkgconf 1
+.
+.It Ev PKG_CONFIG_LIBDIR
+A colon-separated list of low-priority directories where
+.Xr pc 5
+files are looked up.
+The module search path is constructed by appending this list to
+.Ev PKG_CONFIG_PATH ,
+which enjoys higher priority.
+If
+.Ev PKG_CONFIG_LIBDIR
+is not defined, the default list compiled into the
+.Nm
+program from the
+.Dv PKG_DEFAULT_PATH
+preprocessor macro is appended instead.
+If
+.Ev PKG_CONFIG_LIBDIR
+is defined but empty, nothing is appended.
+.It Ev PKG_CONFIG_MAXIMUM_TRAVERSE_DEPTH
+Impose a limit on the allowed depth in the dependency graph.
+.It Ev PKG_CONFIG_PATH
+A colon-separated list of high-priority directories where
+.Xr pc 5
+files are looked up.
+.It Ev PKG_CONFIG_PRELOADED_FILES
+Colon-separated list of
+.Xr pc 5
+files which are loaded before any other pkg-config files.
+These packages are given highest priority over any other
+.Xr pc 5
+files that would otherwise provide a given package.
+.It Ev SOURCE_DATE_EPOCH
+If set, and the
+.Fl -creation-time
+option is not given, the creation time in /Core/CreationInfo-class is derived
+from this UNIX timestamp instead of the current time, allowing for reproducible
+SBOM generation.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh EXAMPLES
+Generating an SBOM for the package named foo:
+.Dl $ sbomtool foo
+.Dl {
+.Dl     "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+.Dl     "bomFormat": "CycloneDX",
+.Dl     "specVersion": "1.7",
+.Dl     "specVersion": 1,
+.Dl     "metadata": {
+.Dl         "timestamp": "test",
+.Dl         "manufacturer": {
+.Dl             "bom-ref": "https://github.com/pkgconf/pkgconf/metadata/Default",
+.Dl             "name": "Default",
+.Dl             "url": [
+.Dl                 "https://github.com/pkgconf/pkgconf"
+.Dl             ]
+.Dl        }
+.Dl [...]
+.Sh SEE ALSO
+.Xr pc 5 ,
+.Xr pkgconf 1

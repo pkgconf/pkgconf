@@ -164,6 +164,48 @@ test_iter_splice(void)
 	empty_list(&list2);
 }
 
+static void
+test_iter_pop(void)
+{
+	pkgconf_list_t list = PKGCONF_LIST_INITIALIZER;
+	pkgconf_node_t *node = NULL;
+	char check_string[24];
+	int i = 0;
+
+	populate_list(&list, 20, false);
+
+	for (i = 0; i < 20; i ++)
+	{
+		pkgconf_node_pop(&node, &list);
+		snprintf(check_string, 24, "test string %d", i);
+		TEST_ASSERT_NONNULL(node);
+		TEST_ASSERT_STRCMP_EQ(node->data, check_string);
+		TEST_ASSERT_EQ(list.length, (19-i));
+		free_node(node);
+	}
+}
+
+static void
+test_iter_shift(void)
+{
+	pkgconf_list_t list = PKGCONF_LIST_INITIALIZER;
+	pkgconf_node_t *node = NULL;
+	char check_string[24];
+	int i = 0;
+
+	populate_list(&list, 20, false);
+
+	for (i = 19; i >= 0; i --)
+	{
+		pkgconf_node_shift(&node, &list);
+		snprintf(check_string, 24, "test string %d", i);
+		TEST_ASSERT_NONNULL(node);
+		TEST_ASSERT_STRCMP_EQ(node->data, check_string);
+		TEST_ASSERT_EQ(list.length, i);
+		free_node(node);
+	}
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -174,6 +216,8 @@ main(int argc, char *argv[])
 	TEST_RUN(basename, test_iter_add_and_find_tail);
 	TEST_RUN(basename, test_iter_delete);
 	TEST_RUN(basename, test_iter_splice);
+	TEST_RUN(basename, test_iter_pop);
+	TEST_RUN(basename, test_iter_shift);
 
 	return EXIT_SUCCESS;
 }

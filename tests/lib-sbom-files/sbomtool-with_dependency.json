@@ -1,0 +1,90 @@
+{
+    "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.7",
+    "specVersion": 1,
+    "metadata": {
+        "timestamp": "test",
+        "manufacturer": {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/metadata/Default",
+            "name": "Default",
+            "url": [
+                "https://github.com/pkgconf/pkgconf"
+            ]
+        }
+    },
+    "components": [
+        {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/component/test2",
+            "type": "application",
+            "name": "test2",
+            "version": "2.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "BSD-2-Clause"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://github.com/pkgconf/pkgconf/"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz"
+                }
+            ],
+            "authors": [
+                {
+                    "name": "Test2 Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        },
+        {
+            "bom-ref": "https://github.com/pkgconf/pkgconf/component/test3",
+            "type": "application",
+            "name": "test3",
+            "version": "3.0.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "BSD-4-Clause"
+                    }
+                }
+            ],
+            "externalReferences": [
+                {
+                    "type": "website",
+                    "url": "https://github.com/pkgconf/pkgconf/"
+                },
+                {
+                    "type": "source-distribution",
+                    "url": "https://github.com/pkgconf/pkgconf/archive/refs/tags/pkgconf-2.5.1.tar.gz"
+                }
+            ],
+            "copyright": "Test3 copyright text",
+            "authors": [
+                {
+                    "name": "Test3 Maintainer",
+                    "email": "",
+                    "phone": ""
+                }
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "ref": "https://github.com/pkgconf/pkgconf/component/test2",
+            "dependsOn": [
+                "https://github.com/pkgconf/pkgconf/component/test3"
+            ]
+        },
+        {
+            "ref": "https://github.com/pkgconf/pkgconf/component/test3"
+        }
+    ]
+}
