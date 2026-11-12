@@ -67,13 +67,11 @@ pkgconf_list_splice(pkgconf_list_t *dest, pkgconf_list_t *src)
 }
 
 static inline void
-pkgconf_node_insert(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
+pkgconf_list_insert(pkgconf_node_t *node, pkgconf_list_t *list, unsigned char tail)
 {
 	pkgconf_node_t *tnode;
 
-	node->data = data;
-
-	if (list->head == NULL)
+	if ((!tail && list->head == NULL) || (tail && list->tail == NULL))
 	{
 		list->head = node;
 		list->tail = node;
@@ -81,37 +79,38 @@ pkgconf_node_insert(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 		return;
 	}
 
-	tnode = list->head;
+	if (!tail)
+	{
+		tnode = list->head;
+		node->next = tnode;
+		tnode->prev = node;
+		list->head = node;
+	}
+	else
+	{
+		tnode = list->tail;
+		node->prev = tnode;
+		tnode->next = node;
+		list->tail = node;
+	}
 
-	node->next = tnode;
-	tnode->prev = node;
-
-	list->head = node;
 	list->length++;
+}
+
+static inline void
+pkgconf_node_insert(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
+{
+	node->data = data;
+
+	pkgconf_list_insert(node, list, 0);
 }
 
 static inline void
 pkgconf_node_insert_tail(pkgconf_node_t *node, void *data, pkgconf_list_t *list)
 {
-	pkgconf_node_t *tnode;
-
 	node->data = data;
 
-	if (list->tail == NULL)
-	{
-		list->head = node;
-		list->tail = node;
-		list->length = 1;
-		return;
-	}
-
-	tnode = list->tail;
-
-	node->prev = tnode;
-	tnode->next = node;
-
-	list->tail = node;
-	list->length++;
+	pkgconf_list_insert(node, list, 1);
 }
 
 static inline void
