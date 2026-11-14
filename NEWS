@@ -1,6 +1,28 @@
 Changes from previous version of pkgconf
 ========================================
 
+Changes from 3.0.10 to 3.0.11:
+------------------------------
+
+* Security fixes:
+  - Package paths are accepted only in queries made directly on the command
+    line, not in Requires or Requires.private.  This prevents a crafted pc(5)
+    file from causing infinite recursion by requiring itself through a path.
+    See GHSA-qcp5-98c5-hvh7.
+  - Limit the bytecode produced when a variable is repeatedly redefined in
+    terms of itself.  This prevents a crafted pc(5) file from causing
+    exponential memory growth through self-referential variable expansion.
+    See GHSA-fr7f-m8jv-4qcm.
+
+* Build and portability fixes:
+  - Include stdbool.h where needed by spdxtool, fixing its build on Windows.
+
+* Documentation and command-line help:
+  - List the existing --debug and --license-file options in --help output.
+    Patch by Andrej730.
+  - Correct the Meson option names used by the custom-prefix example in the
+    README.  Patch by Filip Kokosiński.
+
 Changes from 3.0.9 to 3.0.10:
 -----------------------------
 
