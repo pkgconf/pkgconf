@@ -264,6 +264,10 @@ EXTRA_DIST =	pkg.m4 \
 		t/solver/libs-static-ordering.test \
 		t/solver/missing-required-dep.test \
 		t/solver/modversion-provides.test \
+		t/solver/path-requires-alias.test \
+		t/solver/path-requires-file.test \
+		t/solver/path-requires-query-control.test \
+		t/solver/path-requires-traversal.test \
 		t/solver/private-libs-duplication-digraph.test \
 		t/solver/private-libs-duplication.test \
 		t/solver/provides-bar-any.test \
@@ -614,6 +618,11 @@ EXTRA_DIST =	pkg.m4 \
 		tests/lib1/escape-layers-bare-var.pc \
 		tests/lib1/escape-layers.pc \
 		tests/lib1/sysroot-inject-isystem-attached.pc \
+		tests/lib-path-requires/inside/alias.pc \
+		tests/lib-path-requires/inside/file.pc \
+		tests/lib-path-requires/inside/traversal.pc \
+		tests/lib-path-requires/outside/hidden-sibling.pc \
+		tests/lib-path-requires/outside/hidden.pc \
 		tests/lib-pccritic/perfect.pc \
 		tests/lib-pccritic/polluted.pc \
 		tests/lib-pccritic/nodesc.pc \
