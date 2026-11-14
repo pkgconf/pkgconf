@@ -60,7 +60,7 @@ test_util_id_string_urn(void)
 {
 	char *id_str = NULL;
 	spdxtool_util_set_uri_root(g_client, "urn:example:com");
-	spdxtool_util_set_uri_separator_colon(g_client, ":");
+	spdxtool_util_set_uri_separator_colon(g_client, true);
 
 	id_str = spdxtool_util_get_spdx_id_string(g_client, "test part", "test1");
 	TEST_ASSERT_STRCMP_EQ(id_str, "urn:example:com:test%20part:test1");
