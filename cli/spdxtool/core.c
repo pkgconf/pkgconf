@@ -563,12 +563,12 @@ spdxtool_core_spdx_document_to_object(pkgconf_client_t *client, spdxtool_core_sp
 	 * failure), so clear our reference before checking the result to avoid a
 	 * double free at the error label.
 	 */
-	bool ok = pkgconfcli_serialize_object_add_array(object_list, "rootElement", root_element_array);
+	bool ok = pkgconfcli_serialize_object_add_array(object_list, "rootElement", root_element_array) != NULL;
 	root_element_array = NULL;
 	if (!ok)
 		goto err;
 
-	ok = pkgconfcli_serialize_object_add_array(object_list, "element", element_array);
+	ok = pkgconfcli_serialize_object_add_array(object_list, "element", element_array) != NULL;
 	element_array = NULL;
 	if (!ok)
 		goto err;

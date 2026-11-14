@@ -254,17 +254,17 @@ spdxtool_software_sbom_to_object(pkgconf_client_t *client, spdxtool_software_sbo
 	 * failure), so clear our reference before checking the result to avoid a
 	 * double free at the error label.
 	 */
-	bool ok = pkgconfcli_serialize_object_add_array(object_list, "software_sbomType", sbom_type_array);
+	bool ok = pkgconfcli_serialize_object_add_array(object_list, "software_sbomType", sbom_type_array) != NULL;
 	sbom_type_array = NULL;
 	if (!ok)
 		goto err;
 
-	ok = pkgconfcli_serialize_object_add_array(object_list, "rootElement", root_element_array);
+	ok = pkgconfcli_serialize_object_add_array(object_list, "rootElement", root_element_array) != NULL;
 	root_element_array = NULL;
 	if (!ok)
 		goto err;
 
-	ok = pkgconfcli_serialize_object_add_array(object_list, "element", element_array);
+	ok = pkgconfcli_serialize_object_add_array(object_list, "element", element_array) != NULL;
 	element_array = NULL;
 	if (!ok)
 		goto err;
@@ -371,7 +371,7 @@ spdxtool_software_package_to_object(pkgconf_client_t *client, pkgconf_pkg_t *pkg
 	 * failure), so clear our reference before checking the result to avoid a
 	 * double free at the error label.
 	 */
-	bool ok = pkgconfcli_serialize_object_add_array(object_list, "originatedBy", originated_by);
+	bool ok = pkgconfcli_serialize_object_add_array(object_list, "originatedBy", originated_by) != NULL;
 	originated_by = NULL;
 	if (!ok)
 		goto err;

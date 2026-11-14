@@ -356,7 +356,7 @@ spdxtool_generate_sbom(pkgconf_client_t *client, spdxtool_core_agent_t *agent, s
 	if (!pkgconfcli_serialize_array_add_take(graph, spdxtool_core_spdx_document_to_object(client, spdx)))
 		goto err;
 
-	bool ok = pkgconfcli_serialize_object_add_array(root, "@graph", graph);
+	bool ok = pkgconfcli_serialize_object_add_array(root, "@graph", graph) != NULL;
 	graph = NULL;
 	if (!ok)
 		goto err;
