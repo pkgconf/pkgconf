@@ -7,7 +7,7 @@
 .\" This software is provided 'as is' and without any warranty, express or
 .\" implied.  In no event shall the authors be liable for any damages arising
 .\" from the use of this software.
-.Dd December 5, 2017
+.Dd November 17, 2026
 .Dt PKG.M4 7
 .Os
 .Sh NAME
@@ -16,6 +16,7 @@
 .Sh SYNOPSIS
 .Nm PKG_PREREQ
 .Nm PKG_PROG_PKG_CONFIG
+.Nm PKG_CHECK_EXISTS
 .Nm PKG_CHECK_MODULES
 .Nm PKG_CHECK_MODULES_STATIC
 .Nm PKG_INSTALLDIR
@@ -30,6 +31,14 @@ is a collection of autoconf macros which help to configure compiler and linker
 flags for development libraries.
 This allows build systems to detect other dependencies and use them with the
 system toolchain.
+.Pp
+If
+.Nm
+is not installed, autoconf leaves the macro calls in configure, and configure
+fails with a shell syntax error.
+As the Autoconf manual suggests, add
+.Nm m4_pattern_forbid([^PKG_])
+to configure.ac, so that autoconf stops with an error instead.
 .Sh "AUTOCONF MACROS"
 .Ss "PKG_PREREQ(MIN-VERSION)"
 Checks that the version of the
@@ -41,7 +50,15 @@ macro will be available.
 .Ss "PKG_PROG_PKG_CONFIG([MIN-VERSION])"
 Checks for an implementation of
 .Nm pkg-config
-which is at least MIN-VERSION or newer.
+which is at least MIN-VERSION (default 0.9.0) or newer.
+.Ss "PKG_CHECK_EXISTS(MODULES [,ACTION-IF-FOUND [,ACTION-IF-NOT-FOUND]])"
+Checks whether a given module set exists, and runs the shell fragment
+.Nm ACTION-IF-FOUND
+or
+.Nm ACTION-IF-NOT-FOUND .
+Unlike
+.Nm PKG_CHECK_MODULES ,
+it sets no variables and does not stop configure.
 .Ss "PKG_CHECK_MODULES(VARIABLE-PREFIX, MODULES [,ACTION-IF-FOUND [,ACTION-IF-NOT-FOUND]])"
 .Ss "PKG_CHECK_MODULES_STATIC(VARIABLE-PREFIX, MODULES [,ACTION-IF-FOUND [,ACTION-IF-NOT-FOUND]])"
 Checks whether a given module set exists, and if so, defines
@@ -62,14 +79,35 @@ and
 .Nm ACTION-IF-NOT-FOUND
 arguments are shell fragments that should be executed if the module set is
 found or not found.
-.Pp
 If
-.Nm $PKG_CONFIG
-is not defined, the
-.Nm PKG_PROG_PKG_CONFIG
-macro will be executed to locate a
+.Nm ACTION-IF-NOT-FOUND
+is not given, configure stops with an error.
+If the
+.Nm CFLAGS
+and
+.Nm LIBS
+variables are already set, by the user or by an earlier check with the same
+.Nm VARIABLE-PREFIX ,
+the macro uses their values instead of the output of
+.Nm pkg-config ,
+even if the module set does not exist.
+Thus use a different
+.Nm VARIABLE-PREFIX
+for each check.
+.Pp
+The macros that run
 .Nm pkg-config
-implementation.
+require
+.Nm PKG_PROG_PKG_CONFIG .
+Outside of an
+.Nm AC_DEFUN
+macro, use
+.Nm AS_IF
+instead of a plain
+.Ic if
+around them, or call
+.Nm PKG_PROG_PKG_CONFIG
+first.
 .Pp
 The
 .Nm PKG_CHECK_MODULES_STATIC
@@ -78,7 +116,7 @@ macro provides the same behaviour as
 with static linking enabled via the
 .Fl -static
 flag.
-.Ss "PKG_INSTALLDIR(DIRECTORY)"
+.Ss "PKG_INSTALLDIR([DIRECTORY])"
 Defines the variable $pkgconfigdir as the location where a package
 should install pkg-config .pc files.
 .Pp
@@ -91,9 +129,13 @@ This value can be overridden with the
 .Fl -with-pkgconfigdir
 configure parameter.
 If this parameter has no value, the default directory is used.
-.Ss "PKG_NOARCH_INSTALLDIR(DIRECTORY)"
+.Pp
+.Nm DIRECTORY
+is a shell word: write ['${prefix}/libdata/pkgconfig'] so that make, not
+configure, expands ${prefix}.
+.Ss "PKG_NOARCH_INSTALLDIR([DIRECTORY])"
 Defines the variable $noarch_pkgconfigdir as the location where a package
-should install pkg-config .pc files.
+should install arch-independent pkg-config .pc files.
 .Pp
 By default the directory is $datadir/pkgconfig, but the default can
 be changed by passing the
@@ -104,6 +146,9 @@ This value can be overridden with the
 .Fl -with-noarch-pkgconfigdir
 configure parameter.
 If this parameter has no value, the default directory is used.
+.Nm DIRECTORY
+is as for
+.Nm PKG_INSTALLDIR .
 .Ss "PKG_CHECK_VAR(VARIABLE, MODULE, CONFIG-VARIABLE, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])"
 Retrieves the value of the
 .Nm pkg-config
@@ -148,19 +193,35 @@ is not given, configure stops with an error.
 With "no", there is no check.
 Other values, such as a path, are left in the shell variable for
 configure.ac to use.
+.Pp
+.Nm DESCRIPTION
+is the help text of the option, "build with <name> support" by default.
+As with
+.Nm AS_HELP_STRING ,
+it is not subject to macro expansion.
 .Ss "PKG_HAVE_WITH_MODULES(VARIABLE-PREFIX, MODULES, [DESCRIPTION], [DEFAULT])"
 Convenience macro to trigger
 .Nm AM_CONDITIONAL
 after a
-.Nm PKG_WITH_MODULES check.\&
-.Nm VARIABLE-PREFIX
-is exported as a make variable.
+.Nm PKG_WITH_MODULES
+check.
+The Automake conditional is HAVE_
+followed by
+.Nm VARIABLE-PREFIX .
+It is true if the shell variable of
+.Nm PKG_WITH_MODULES
+is "yes".
 .Ss "PKG_HAVE_DEFINE_WITH_MODULES(VARIABLE-PREFIX, MODULES, [DESCRIPTION], [DEFAULT])"
 Convenience macro to trigger
 .Nm AM_CONDITIONAL
 and
 .Nm AC_DEFINE
 after a
-.Nm PKG_WITH_MODULES check.\&
-.Nm VARIABLE-PREFIX
-is exported as a make variable.
+.Nm PKG_WITH_MODULES
+check.
+The Automake conditional and the preprocessor macro are HAVE_
+followed by
+.Nm VARIABLE-PREFIX .
+The preprocessor macro is defined to 1 if the shell variable of
+.Nm PKG_WITH_MODULES
+is "yes".
