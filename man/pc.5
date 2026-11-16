@@ -66,8 +66,10 @@ Dependency lists are defined by this ABNF syntax:
 package-list = *WSP *( package-spec *( package-sep ) )
 package-sep  = WSP / ","
 .\"
-package-spec = package-key [ ver-op package-version ]
-ver-op       = "<" / "<=" / "=" / "!=" / ">=" / ">"
+package-spec    = package-name [ ver-op package-version ]
+package-name    = 1*(ALPHA / DIGIT / "." / "-")
+ver-op          = "<" / "<=" / "=" / "!=" / ">=" / ">"
+package-version = 1*(ALPHA / DIGIT / "." / "_" / "+" / "~" / "^")
 .Ed
 .\"
 .It Fragment List
