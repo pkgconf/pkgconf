@@ -475,11 +475,15 @@ if build_oom_tests
       'cli/sbomtool/cyclonedx/metadata.c',
       'cli/sbomtool/cyclonedx/component.c',
       'cli/sbomtool/cyclonedx/dependencies.c',
+      'cli/sbomtool/spdx3/structure.c',
+      'cli/sbomtool/spdx3/core.c',
+      'cli/sbomtool/spdx3/software.c',
+      'cli/sbomtool/spdx3/simplelicensing.c',
       windows_manifest,
       link_with : [libpkgconf, libpkgconfcli],
       c_args : build_static,
       link_args : oom_wrap_args,
-      include_directories : [include_directories('.', 'tests/api', 'cli/sbomtool', 'fuzzer', 'cli/libpkgconfcli')],
+      include_directories : [include_directories('.', 'tests/api', 'cli', 'cli/sbomtool', 'fuzzer', 'cli/libpkgconfcli')],
       install : false,
       build_by_default : false)
     test('api-oom-sbomtool', test_api_oom_sbomtool_exe)

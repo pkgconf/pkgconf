@@ -25,6 +25,8 @@
 #include "cyclonedx/structure.h"
 #include "cyclonedx/component.h"
 #include "cyclonedx/dependencies.h"
+#include "spdx3/structure.h"
+#include "spdx3/software.h"
 #include "util.h"
 
 static pkgconf_client_t *g_client;
@@ -80,10 +82,24 @@ test_oom_cyclonedx_structure_add_metadata(void)
 	pkgconfcli_serialize_value_free(sbom_doc);
 }
 
+static void
+test_oom_spdx3_structure_new(void)
+{
+	pkgconfcli_serialize_value_t *s;
+	sbomtool_spdx3_document_t spdx_document;
+
+	memset(&spdx_document, 0x00, sizeof(sbomtool_spdx3_document_t));
+	spdx_document.creation_info_id = "123";
+	spdx_document.timestamp = "test";
+	spdx_document.agent_name = "Agent name";
+
+	OOM_TEST_PTR(s, sbomtool_spdx3_structure_new(g_client, &spdx_document, true), pkgconfcli_serialize_value_free(s));
+}
+
 /*
- * =========================
- * Check component functions
- * =========================
+ * ===================================
+ * Check CycloneDX component functions
+ * ===================================
  */
 static void
 test_oom_cyclonedx_component_new(void)
@@ -113,9 +129,74 @@ test_oom_cyclonedx_author(void)
 }
 
 /*
- * ============================
- * Check dependencies functions
- * ============================
+ * ===============================
+ * Check SPDX 3 software functions
+ * ===============================
+ */
+
+static void
+test_oom_spdx3_software_sbom(void)
+{
+	pkgconfcli_serialize_value_t *s;
+	sbomtool_spdx3_document_t spdx_document;
+
+	memset(&spdx_document, 0x00, sizeof(sbomtool_spdx3_document_t));
+	spdx_document.creation_info_id = "123";
+	spdx_document.timestamp = "test";
+	spdx_document.agent_name = "Agent name";
+
+	pkgconfcli_serialize_value_t *sbom_doc = sbomtool_spdx3_structure_new(g_client, &spdx_document, true);
+
+	OOM_TEST_PTR(s, sbomtool_spdx3_software_sbom(g_client, &spdx_document, "test"), pkgconfcli_serialize_value_free(s));
+
+	pkgconfcli_serialize_value_free(sbom_doc);
+}
+
+static void
+test_oom_spdx3_software_package(void)
+{
+	pkgconfcli_serialize_value_t *s;
+	sbomtool_spdx3_document_t spdx_document;
+	pkgconfcli_serialize_value_t *sbom_obj = NULL;
+	pkgconf_node_t node;
+	pkgconf_pkg_t pkg;
+
+	memset(&pkg, 0x00, sizeof(pkgconf_pkg_t));
+
+	pkg.refcount = 1;
+	pkg.id = "test";
+	pkg.filename = "filename";
+	pkg.realname = "just test";
+	pkg.version = "1.0.0";
+	pkg.description = "test package";
+	pkg.url = "https://github.com/pkgconf/pkgconf";
+	pkg.maintainer = "Me, Myself and I";
+	pkg.source = "https://github.com/pkgconf/pkgconf";
+
+	pkgconf_license_insert(g_client, &pkg.license, PKGCONF_LICENSE_EXPRESSION, "BSD-2-Clause");
+	pkgconf_node_insert(&node, "Copyright", &pkg.copyright);
+
+	memset(&spdx_document, 0x00, sizeof(sbomtool_spdx3_document_t));
+	spdx_document.creation_info_id = "123";
+	spdx_document.timestamp = "test";
+	spdx_document.agent_name = "Agent name";
+
+	pkgconfcli_serialize_value_t *sbom_doc = sbomtool_spdx3_structure_new(g_client, &spdx_document, true);
+	sbom_obj = sbomtool_spdx3_software_sbom(g_client, &spdx_document, "test");
+
+	OOM_TEST_PTR(s, sbomtool_spdx3_software_package(g_client, &spdx_document, &pkg, sbom_obj), pkgconfcli_serialize_value_free(s));
+
+	pkgconf_license_free(&pkg.license);
+	pkgconfcli_serialize_value_free(sbom_obj);
+	pkgconfcli_serialize_value_free(sbom_doc);
+}
+
+
+
+/*
+ * ======================================
+ * Check CycloneDX dependencies functions
+ * ======================================
  */
 static void
 test_oom_cyclonedx_dependencies(void)
@@ -145,6 +226,10 @@ main(int argc, const char **argv)
 	TEST_RUN(basename, test_oom_cyclonedx_license);
 	TEST_RUN(basename, test_oom_cyclonedx_author);
 	TEST_RUN(basename, test_oom_cyclonedx_dependencies);
+	TEST_RUN(basename, test_oom_spdx3_structure_new);
+	TEST_RUN(basename, test_oom_spdx3_software_sbom);
+	TEST_RUN(basename, test_oom_spdx3_software_package);
+
 
 	pkgconf_client_free(g_client);
 	return EXIT_SUCCESS;
