@@ -349,6 +349,31 @@ test_serialize_value_find_by_key(void)
 }
 
 
+static void
+test_oom_serialize_array_add(void)
+{
+	pkgconfcli_serialize_array_t *dst = pkgconfcli_serialize_array_new();
+	pkgconfcli_serialize_array_t *src = pkgconfcli_serialize_array_new();
+
+	TEST_ASSERT_FALSE(pkgconfcli_serialize_array_append_move(NULL, NULL));
+	TEST_ASSERT_FALSE(pkgconfcli_serialize_array_append_move(NULL, dst));
+	TEST_ASSERT_FALSE(pkgconfcli_serialize_array_append_move(src, NULL));
+
+	pkgconfcli_serialize_array_add_string(src, "test 1");
+	pkgconfcli_serialize_array_add_string(src, "test 2");
+
+	TEST_ASSERT_EQ(src->items.length, 2);
+	TEST_ASSERT_EQ(dst->items.length, 0);
+
+	pkgconfcli_serialize_array_append_move(src, dst);
+
+	TEST_ASSERT_EQ(src->items.length, 0);
+	TEST_ASSERT_EQ(dst->items.length, 2);
+
+	pkgconfcli_serialize_array_free(dst);
+	pkgconfcli_serialize_array_free(src);
+}
+
 int
 main(int argc, const char **argv)
 {
@@ -371,6 +396,7 @@ main(int argc, const char **argv)
 	TEST_RUN(basename, test_serialize_array_mixed_types);
 	TEST_RUN(basename, test_serialize_null_guards);
 	TEST_RUN(basename, test_serialize_value_find_by_key);
+	TEST_RUN(basename, test_oom_serialize_array_add);
 
 	return EXIT_SUCCESS;
 }
