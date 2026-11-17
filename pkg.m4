@@ -70,7 +70,7 @@ fi
 if test -n "$PKG_CONFIG"; then
 	_pkg_min_version=m4_default([$1], [0.9.0])
 	AC_MSG_CHECKING([pkg-config is at least version $_pkg_min_version])
-	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
+	if AC_RUN_LOG([$PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version]); then
 		AC_MSG_RESULT([yes])
 	else
 		AC_MSG_RESULT([no])
@@ -121,7 +121,7 @@ dnl ---------------------------
 dnl Internal check to see if pkg-config supports short errors.
 AC_DEFUN([_PKG_SHORT_ERRORS_SUPPORTED],
 [AC_REQUIRE([PKG_PROG_PKG_CONFIG])
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+if AC_RUN_LOG([$PKG_CONFIG --atleast-pkgconfig-version 0.20]); then
         _pkg_short_errors_supported=yes
 else
         _pkg_short_errors_supported=no
