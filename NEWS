@@ -1,6 +1,16 @@
 Changes from previous version of pkgconf
 ========================================
 
+* pkg.m4 changes (serial 17):
+  - PKG_WITH_MODULES: the option name now uses '-' instead of '_', e.g.
+    --with-foo-bar for FOO_BAR (--with-foo_bar is still accepted), and
+    with_<name> is now set to "no" when the modules are not found.
+  - PKG_INSTALLDIR and PKG_NOARCH_INSTALLDIR: --with-pkgconfigdir with no
+    value now uses the default directory instead of a directory named "yes".
+  - Minor fixes: quoting of macro arguments, --help text, config.log
+    logging, and a corrected and completed pkg.m4(7) manual.
+    Patches by Antonin Décimo.
+
 Changes from 2.5.1 to 3.0.0:
 ----------------------------
 
