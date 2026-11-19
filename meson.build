@@ -5,7 +5,7 @@ project('pkgconf', 'c',
     'c_std=c99',
     'warning_level=2',
   ],
-  meson_version: '>=0.56',
+  meson_version: '>=0.61',
 )
 
 cc = meson.get_compiler('c')
@@ -303,6 +303,19 @@ spdxtool_exe = executable('spdxtool',
   include_directories : include_directories('cli', 'cli/spdxtool', 'cli/libpkgconfcli'),
   install : true)
 
+sbomtool_exe = executable('sbomtool',
+  'cli/sbomtool/main.c',
+  'cli/sbomtool/util.c',
+  'cli/sbomtool/cyclonedx/structure.c',
+  'cli/sbomtool/cyclonedx/component.c',
+  'cli/sbomtool/cyclonedx/metadata.c',
+  'cli/sbomtool/cyclonedx/dependencies.c',
+  windows_manifest,
+  link_with : [libpkgconf, libpkgconfcli],
+  c_args : build_static,
+  include_directories : include_directories('cli', 'cli/sbomtool', 'cli/libpkgconfcli'),
+  install : true)
+
 pccritic_exe = executable('pccritic',
   'cli/pccritic/main.c',
   'cli/pccritic/critic.c',
@@ -450,6 +463,22 @@ if build_oom_tests
       build_by_default : false)
     test('api-oom-libpkgconfcli', test_api_oom_libpkgconfcli_exe)
 
+    test_api_oom_sbomtool_exe = executable('test-api-oom-sbomtool',
+      'tests/api/test-oom-sbomtool.c',
+      'fuzzer/alloc-inject.c',
+      'cli/sbomtool/util.c',
+      'cli/sbomtool/cyclonedx/structure.c',
+      'cli/sbomtool/cyclonedx/metadata.c',
+      'cli/sbomtool/cyclonedx/component.c',
+      'cli/sbomtool/cyclonedx/dependencies.c',
+      windows_manifest,
+      link_with : [libpkgconf, libpkgconfcli],
+      c_args : build_static,
+      link_args : oom_wrap_args,
+      include_directories : [include_directories('.', 'tests/api', 'cli/sbomtool', 'fuzzer', 'cli/libpkgconfcli')],
+      install : false,
+      build_by_default : false)
+    test('api-oom-sbomtool', test_api_oom_sbomtool_exe)
   endif
 
   # Replay the existing parser/solver fuzz targets over their seed corpus,
@@ -498,6 +527,7 @@ test_suites = [
   'tuple',
   'bomtool',
   'spdxtool',
+  'sbomtool',
   'pccritic',
   'symlink'
 ]
@@ -530,6 +560,7 @@ install_man('man/pkgconf.1')
 install_man('man/pkg.m4.7')
 install_man('man/pc.5')
 install_man('man/pkgconf-personality.5')
+install_man('man/sbomtool.1')
 install_man('man/spdxtool.1')
 install_man('man/pccritic.1')
 install_data('pkg.m4', install_dir: 'share/aclocal')
@@ -543,6 +574,7 @@ if host_machine.system() == 'windows'
   conf_data.set('EXE', pkgconf_exe.full_path())
   conf_data.set('BOMTOOL_EXE', bomtool_exe.full_path())
   conf_data.set('SPDXTOOL_EXE', spdxtool_exe.full_path())
+  conf_data.set('SBOMTOOL_EXE', sbomtool_exe.full_path())
   conf_data.set('PCCRITIC_EXE', pccritic_exe.full_path())
   conf_data.set('LIBPKGCONF_DLL', libpkgconf.full_path())
   conf_data.set('LIBPKGCONFCLI_DLL', libpkgconfcli.full_path())
@@ -575,7 +607,7 @@ if host_machine.system() == 'windows'
   if wix.found()
     msi = custom_target(
       msi_filename,
-      input: [wxsfile, licensefile, pkgconf_exe, bomtool_exe, spdxtool_exe, pccritic_exe],
+      input: [wxsfile, licensefile, pkgconf_exe, bomtool_exe, sbomtool_exe, spdxtool_exe, pccritic_exe],
       output: msi_filename,
       command: [wix, 'build', wxsfile, '-arch', wix_arch, '-ext', 'WixToolset.UI.wixext', '-o', msi_filename],
     )
