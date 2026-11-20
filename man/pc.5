@@ -101,6 +101,19 @@ word-splitting rules; see the note on output escaping in
 .Xr pkgconf 1 .
 .\"
 .El
+.Pp
+A property keyword may occur more than once.
+.Sy Literal
+properties take the value of the last occurrence, while
+.Sy "Dependency List"
+and
+.Sy "Fragment List"
+properties are appended in the order in which they appear.
+.Pp
+This differs from the reference
+.Nm pkg-config
+implementation, which rejects files in which a property keyword occurs
+more than once.
 .Ss PROPERTY KEYWORDS
 .Bl -tag -width indent
 .\"
