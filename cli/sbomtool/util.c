@@ -381,9 +381,7 @@ sbomtool_util_string_correction(char *str)
 	{
 		*ptr = (char) tolower(*ptr);
 		if (isspace((unsigned char) *ptr))
-		{
 			*ptr = '_';
-		}
 	}
 
 	return str;
