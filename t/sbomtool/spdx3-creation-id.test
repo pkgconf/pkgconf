@@ -1,0 +1,5 @@
+Tool: sbomtool
+ToolArgs: --sbom-format=spdx3 --enable-tool-name --creation-time=test --creation-id=_:custom_1 test3
+Environment: PKG_CONFIG_PATH=%TEST_FIXTURES_DIR%/lib-sbom
+ExpectedStdoutFile: ../../tests/lib-sbom-files/sbomtool-spdx3-creation_id.json
+ExpectedExitCode: 0

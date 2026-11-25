@@ -1,0 +1,8 @@
+Tool: sbomtool
+<<<<<<<< HEAD:t/sbomtool/cyclonedx-basic-version-negative.test
+ToolArgs: --creation-time=test --sbom-version -123 test3
+========
+ToolArgs: --sbom-format=spdx3 --creation-time=test no-such-pkg
+>>>>>>>> 03c8f3a (tests: Add tests for sbomtool SPDX Lite 3.0.1):t/sbomtool/spdx3-unknown-package.test
+Environment: PKG_CONFIG_PATH=%TEST_FIXTURES_DIR%/lib-sbom
+ExpectedExitCode: 1

@@ -21,6 +21,8 @@
 #include "cyclonedx/metadata.h"
 #include "cyclonedx/dependencies.h"
 #include "cyclonedx/structure.h"
+#include "spdx3/structure.h"
+#include "spdx3/software.h"
 #include "util.h"
 
 #define PKG_VERSION			(((uint64_t) 1) << 1)
@@ -33,7 +35,8 @@
 typedef enum
 {
 	SBOMTOOL_FORMAT_UNKNOWN = -1,
-	SBOMTOOL_FORMAT_CYCLONEDX = 1
+	SBOMTOOL_FORMAT_CYCLONEDX = 1,
+	SBOMTOOL_FORMAT_SPDX3
 } sbomtool_format_t;
 
 static int maximum_traverse_depth = 2000;
@@ -133,7 +136,9 @@ main(int argc, char *argv[])
 	const char *agent_url = NULL;
 	long sbom_version = 1;
 	sbomtool_format_t sbom_format = SBOMTOOL_FORMAT_CYCLONEDX;
-
+	sbomtool_spdx3_document_t spdx_document;
+	pkgconfcli_serialize_value_t *sbom_doc = NULL;
+	const char *creation_id = NULL;
 	bool is_tool = false;
 	bool is_format = false;
 
@@ -146,6 +151,12 @@ main(int argc, char *argv[])
 		sbom_format = SBOMTOOL_FORMAT_CYCLONEDX;
 		is_format = true;
 	}
+	else if (!strncmp(pkgconf_path_find_basename(argv[0]), "spdxtool", 7))
+	{
+		app_name = pkgconf_path_find_basename(argv[0]);
+		sbom_format = SBOMTOOL_FORMAT_SPDX3;
+		is_format = true;
+	}
 	else if (strncmp(pkgconf_path_find_basename(argv[0]), "sbomtool", 8))
 		return EXIT_FAILURE;
 
@@ -155,11 +166,13 @@ main(int argc, char *argv[])
 		{ "agent-name", required_argument, NULL, 100, },
 		{ "agent-url", required_argument, NULL, 101, },
 		{ "creation-time", required_argument, NULL, 102, },
+		{ "creation-id", required_argument, NULL, 110, },
 		{ "define-variable", required_argument, NULL, 103, },
 		{ "enable-tool-name", no_argument, NULL, 104},
 		{ "help", no_argument, &want_flags, PKG_HELP, },
 		{ "output", required_argument, NULL, 105, },
 		{ "sbom-base-id", required_argument, NULL, 106, },
+		{ "spdx-base-id", required_argument, NULL, 106, },
 		{ "sbom-format", required_argument, NULL, 107, },
 		{ "sbom-version", required_argument, NULL, 108, },
 		{ "use-uri", no_argument, NULL, 109, },
@@ -202,6 +215,8 @@ main(int argc, char *argv[])
 			{
 				if (!strncmp(pkgconfcli_optarg, "cyclonedx", 9))
 					sbom_format = SBOMTOOL_FORMAT_CYCLONEDX;
+				else if (!strncmp(pkgconfcli_optarg, "spdx3", 5))
+					sbom_format = SBOMTOOL_FORMAT_SPDX3;
 				else
 				{
 					pkgconf_output_file_fmt(stderr, "SBOM output format incorrect '%s'. It can be: cyclonedx", pkgconfcli_optarg);
@@ -213,8 +228,6 @@ main(int argc, char *argv[])
 				pkgconf_output_file_fmt(stderr, "Can't set SBOM format! Use 'sbomtool' if you want to use another SBOM format");
 				return EXIT_FAILURE;
 			}
-
-			sbom_id_base = pkgconfcli_optarg;
 			break;
 		case 108:
 			sbom_version = strtol(pkgconfcli_optarg, NULL, 10);
@@ -235,6 +248,9 @@ main(int argc, char *argv[])
 				sbom_id_base = SBOMTOOL_URI_DEFAULT;
 			colon_sep = true;
 			break;
+		case 110:
+			creation_id = pkgconfcli_optarg;
+			break;
 		case '?':
 		case ':':
 			return EXIT_FAILURE;
@@ -243,14 +259,19 @@ main(int argc, char *argv[])
 		}
 	}
 
-	/* As currently there is only CycloneDX this not used yet! */
-	(void) sbom_format;
+	/* Make sure that all pointers are NULL in start witn memsetting then to 0x00
+	 * without this it will crass on free at then end
+	 */
+	memset(&spdx_document, 0x00, sizeof(sbomtool_spdx3_document_t));
 
 	if (!agent_name)
 		agent_name = "Default";
 
 	if (!agent_url)
 		agent_url = SBOMTOOL_URL_DEFAULT;
+
+	if (!creation_id)
+		creation_id = "_:creationinfo_1";
 
 	pkgconf_client_options_t client_options =
 	{
@@ -316,32 +337,119 @@ main(int argc, char *argv[])
 	sbomtool_util_set_uri_root(&pkg_client, sbom_id_base);
 	sbomtool_util_set_uri_separator_colon(&pkg_client, colon_sep);
 
-	/* Create new CycloneDX document */
-	pkgconfcli_serialize_value_t *sbom_doc = sbomtool_cyclonedx_structure_new(&pkg_client, sbom_version);
-
-	if (!sbom_doc)
+	if (sbom_format == SBOMTOOL_FORMAT_CYCLONEDX)
 	{
-		ret = EXIT_FAILURE;
-		goto out;
+		sbom_doc = sbomtool_cyclonedx_structure_new(&pkg_client, sbom_version);
+
+		if (!sbomtool_cyclonedx_structure_add_metadata(&pkg_client, sbom_doc, creation_time, agent_name, agent_url, is_tool))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		int eflag = pkgconf_pkg_traverse(&pkg_client, &world, sbomtool_cyclondex_component_add_package, sbom_doc, 2000, 0);
+
+		if (eflag != PKGCONF_PKG_ERRF_OK)
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+	}
+	else if (sbom_format == SBOMTOOL_FORMAT_SPDX3)
+	{
+		spdx_document.creation_info_id = creation_id;
+		spdx_document.timestamp = creation_time;
+		spdx_document.agent_name = agent_name;
+
+		sbom_doc = sbomtool_spdx3_structure_new(&pkg_client, &spdx_document, is_tool);
+
+		spdx_document.relationships = pkgconfcli_serialize_array_new();
+
+		if (!spdx_document.relationships)
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		spdx_document.licenses = pkgconfcli_serialize_array_new();
+
+		if (!spdx_document.licenses)
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		spdx_document.packages = pkgconfcli_serialize_array_new();
+
+		if (!spdx_document.packages)
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		spdx_document.software_sbom = pkgconfcli_serialize_array_new();
+
+		if (!spdx_document.software_sbom)
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		spdx_document.maintainers = pkgconfcli_serialize_array_new();
+
+		if (!spdx_document.maintainers)
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		int eflag = pkgconf_pkg_traverse(&pkg_client, &world, sbomtool_spdx3_software_add_package,  &spdx_document, 2000, 0);
+
+		if (eflag != PKGCONF_PKG_ERRF_OK)
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		if (!pkgconfcli_serialize_array_append_move(spdx_document.maintainers, spdx_document.graph))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		if (!pkgconfcli_serialize_array_append_move(spdx_document.licenses, spdx_document.graph))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		if (!pkgconfcli_serialize_array_append_move(spdx_document.software_sbom, spdx_document.graph))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		if (!pkgconfcli_serialize_array_append_move(spdx_document.packages, spdx_document.graph))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		if (!pkgconfcli_serialize_array_append_move(spdx_document.relationships, spdx_document.graph))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		if (!pkgconfcli_serialize_array_add_take(spdx_document.graph, spdx_document.sbom_document))
+		{
+			ret = EXIT_FAILURE;
+			goto out;
+		}
 	}
 
-	/* Add serialized metadata object to CycloneDX document */
-	if (!sbomtool_cyclonedx_structure_add_metadata(&pkg_client, sbom_doc, creation_time, agent_name, agent_url, is_tool))
-	{
-		ret = EXIT_FAILURE;
-		goto out;
-	}
-
-	/* Traverse thru pkgs and add serialized CycloneDX package objects to document */
-	int eflag = pkgconf_pkg_traverse(&pkg_client, &world, sbomtool_cyclondex_component_add_package, sbom_doc, 2000, 0);
-	if (eflag != PKGCONF_PKG_ERRF_OK)
-	{
-		ret = EXIT_FAILURE;
-		goto out;
-	}
 	pkgconf_buffer_t buffer = PKGCONF_BUFFER_INITIALIZER;
 	bool bool_ret = pkgconfcli_serialize_value_to_buf(&buffer, sbom_doc, 0);
-	pkgconfcli_serialize_value_free(sbom_doc);
 
 	if (bool_ret)
 	{
@@ -357,6 +465,13 @@ main(int argc, char *argv[])
 	ret = EXIT_SUCCESS;
 
 out:
+	pkgconfcli_serialize_value_free(sbom_doc);
+	free(spdx_document.relationships);
+	free(spdx_document.licenses);
+	free(spdx_document.software_sbom);
+	free(spdx_document.packages);
+	free(spdx_document.maintainers);
+
 	pkgconf_solution_free(&pkg_client, &world);
 	pkgconf_queue_free(&pkgq);
 	pkgconf_cross_personality_deinit(personality);

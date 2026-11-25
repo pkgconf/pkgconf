@@ -9,26 +9,32 @@
 .\" This software is provided 'as is' and without any warranty, express or
 .\" implied.  In no event shall the authors be liable for any damages arising
 .\" from the use of this software.
-.Dd November 09, 2026
+.Dd November 23, 2026
 .Dt SBOMTOOL 1
 .Os
 .Sh NAME
 .Nm sbomtool
-.Nd a tool for generating CycloneDX 1.7 software bills of material document and in future SPDX Lite 3.0.1 profile SBOM also
+.Nd a tool for generating CycloneDX 1.7 or SPDX Lite 3.0.1 software bills of material document
 .Sh SYNOPSIS
 .Nm
 .Op Ar options
 .Ar module ...
 .Sh DESCRIPTION
 .Nm
-is a program which generates a JSON formatted CycloneDX bill of
+is a program which generates a JSON formatted CycloneDX or JSON-LD SPDX Lite bill of
 materials (SBOM) for a given set of pkg-config modules.
-
-In future tool will support at least SPDX Lite 3.0.1 JSON-LD formated
-SBOM output.
 
 More documentation about CycloneDX can be found from:
 .Lk https://cyclonedx.org/docs/1.7/json/
+
+More documentation about SPDX Lite can be found from:
+.Lk https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-lite/
+
+.Sy Please note:
+Current SPDX Lite 3.0.1 implementation is featurewise with tool spdxtool and
+sbomtool should be considered as succesor of spdxtool.
+Future development should be be towards to fill the gaps of sbomtool than get
+spdxtool better.
 .Pp
 The
 .Ar options
